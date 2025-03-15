@@ -66,6 +66,7 @@ interface Params {
     style?: any|string;
     slot?: string;
     is?: string;
+    on?: any;
 };
 
 //
@@ -87,17 +88,34 @@ export default class El {
             const el = elMap.get(this);
             if (el) { return el; };
         }
+
+        // create new element if there is not for reflection
         const element = createElement(this.selector);
         if (element instanceof HTMLElement) {
             reflectAttributes(element, this.params.attributes);
             reflectStyles(element, this.params.style);
             reflectClassList(element, this.params.classList);
             reflectProperties(element, this.params.properties);
+
+            //
             if (this.params.slot != null) element.slot = this.params.slot;
             if (this.params.is != null) element.setAttribute("is", this.params.is);
 
             // TODO: reflect with dataset
             if (this.params.dataset != null) Object.assign(element.dataset, this.params.dataset);
+
+            // if has event listeners, use it
+            if (this.params.on) {
+                Object.entries(this.params.on).forEach(([name, list])=>{
+                    (list as any)?.forEach?.(fn => {
+                        if (typeof fn == "function") {
+                            this.element.addEventListener(name, fn, {});
+                        } else {
+                            this.element.addEventListener(name, fn?.[0], fn?.[1] || {});
+                        }
+                    });
+                });
+            }
         }
         reflectChildren(element, this.children);
         elMap.set(this, element);

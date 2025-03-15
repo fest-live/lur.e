@@ -14,7 +14,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
             if (typeof value == "undefined" || value == null) {
                 element.removeAttribute(prop);
             } else
-            if (typeof value != "object" || typeof value != "function") {
+            if (typeof value != "object" && typeof value != "function") {
                 element.setAttribute(prop, value);
             }
         }
