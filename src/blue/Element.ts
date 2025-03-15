@@ -1,4 +1,4 @@
-import { elMap, reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties } from './Reflect';
+import { elMap, reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren } from './Reflect';
 
 //
 const
@@ -117,8 +117,15 @@ export default class El {
                 });
             }
         }
-        reflectChildren(element, this.children);
+        if (this.children) reflectChildren(element, this.children);
         elMap.set(this, element);
         return element;
+    }
+
+    reform() {
+        if ((this.element instanceof HTMLElement || this.element instanceof DocumentFragment) && this.children) {
+            reformChildren(this.element, this.children);
+        }
+        return this;
     }
 }

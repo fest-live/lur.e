@@ -8,13 +8,12 @@ export default class Mp {
 
     //
     constructor(observable, mapCb) {
-        //this.#observable = observable?.map?.(mapCb);
         this.#fragments = document.createDocumentFragment();
-        reflectChildren(this.#fragments, this.#observable, mapCb);
+        reflectChildren(this.#fragments, this.#observable = observable, mapCb);
     }
 
     //
     get element(): HTMLElement|DocumentFragment|Text {
-        return this.#fragments;
+        return this.#fragments as DocumentFragment;
     }
 }

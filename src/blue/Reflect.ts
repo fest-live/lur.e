@@ -78,6 +78,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     }
 }
 
+//
 export const getNode = (E, mapper?: Function)=>{
     if (mapper) {
         const old = reMap;
@@ -88,6 +89,9 @@ export const getNode = (E, mapper?: Function)=>{
             E = getNode(mapper?.(E));
         }
     }
+    if (typeof E == "function") {
+        return getNode(E()); // mapped arrays always empties after
+    } else
     if (typeof E == "string") {
         return new Text(E);
     } else
@@ -108,13 +112,28 @@ const replaceChildren = (element, index, node)=>{
     }
 }
 
+// forcely update child nodes (and erase current content)
+// ! doesn't create new ones (if was cached or saved)
+export const reformChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
+    if (!children) return;
+    const ref = new WeakRef(element);
+    if (element instanceof HTMLElement) { element.innerHTML = ``; };
+    return (mapper ? children.map(mapper as any) : children).map((nd)=>{
+        const node = getNode(nd);
+        const element = ref.deref(); if (!element) return node;
+        element.append(node); return node;
+    });
+}
+
 // TODO! reactive arrays
 export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
     if (!children) return;
+    const ref = new WeakRef(element);
     //if (element instanceof HTMLElement) element.innerHTML = ``;
 
     observe(children, (op, ...args)=>{
-        if (op == "set") { replaceChildren(element, args[0], getNode(args[1], mapper)); }
+        const element = ref.deref(); if (!element) return;
+        if (op == "set") { replaceChildren(element, args[0], getNode(args[1], mapper)); } // TODO: replace group
         if (op == "push") { element.append(getNode(args[0]?.[0], mapper)); };
         if (op == "splice") { element.children[args[0]?.[1]]?.remove?.(); };
     });
