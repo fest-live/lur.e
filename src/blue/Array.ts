@@ -37,9 +37,10 @@ class ObserveArray {
     //
     constructor() {
         this.#events = new Set<Function>([]);
+        const events = this.#events;
         this.#handle = {
             trigger(name, ...args) {
-                this.#events.values().forEach(ev => ev?.(name, ...args));
+                events.values().forEach(ev => ev?.(name, ...args));
             },
             wrap(nw) {
                 if (Array.isArray(nw)) {
@@ -57,7 +58,7 @@ class ObserveArray {
     get(target, name, rec) {
         if (name == "@target") return target;
         const got = Reflect.get(target, name, rec);
-        if (typeof got == "function") { return new Proxy(got, new ObserveMethod(name, this, target)); };
+        if (typeof got == "function") { return new Proxy(got, new ObserveMethod(name, this.#handle, target)); };
         return got;
     }
     set(target, name, value) {

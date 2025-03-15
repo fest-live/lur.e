@@ -1,5 +1,5 @@
 import { observe } from "./Array.js";
-import {subscribe} from "./lib/object.js";
+import {subscribe} from "../lib/object.js";
 
 //
 export const elMap = new WeakMap<any, HTMLElement|DocumentFragment|Text>();
@@ -100,13 +100,21 @@ export const getNode = (E, mapper?: Function)=>{
     return E;
 }
 
+const replaceChildren = (element, index, node)=>{
+    if (element.childNodes[index] instanceof Text && node instanceof Text) {
+        element.childNodes[index].textContent = node.textContent;
+    } else {
+        element.childNodes[index]?.replaceWith?.(node);
+    }
+}
+
 // TODO! reactive arrays
 export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
     if (!children) return;
     //if (element instanceof HTMLElement) element.innerHTML = ``;
 
     observe(children, (op, ...args)=>{
-        if (op == "set") { element.children[args[0]].replaceWith(getNode(args[1], mapper)); }
+        if (op == "set") { replaceChildren(element, args[0], getNode(args[1], mapper)); }
         if (op == "push") { element.append(getNode(args[0]?.[0], mapper)); };
         if (op == "splice") { element.children[args[0]?.[1]]?.remove?.(); };
     });
