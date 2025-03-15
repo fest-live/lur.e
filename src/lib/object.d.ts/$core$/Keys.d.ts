@@ -1,0 +1,12 @@
+export declare const $extractKey$ = "$@extract@$";
+export declare const $originalKey$ = "$@origin@$";
+export declare const $originalObjects$: WeakMap<WeakKey, any>;
+export declare const boundCtx: WeakMap<WeakKey, any>;
+export declare const bindFx: (target: any, fx: any) => any;
+export declare const bindCtx: (target: any, fx: any) => any;
+export type keyType = string | number | symbol;
+export declare const isKeyType: (prop: any) => boolean;
+export declare const isIterable: (obj: any) => boolean;
+export declare const callByProp: (unwrap: any, prop: any, cb: any, ctx: any) => any;
+export declare const callByAllProp: (unwrap: any, cb: any, ctx: any) => any[];
+export declare const safe: (target: any) => any;
