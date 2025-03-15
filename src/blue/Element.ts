@@ -1,3 +1,4 @@
+import { makeReactive } from '../lib/object';
 import { elMap, reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren } from './Reflect';
 
 //
@@ -128,4 +129,23 @@ export default class El {
         }
         return this;
     }
+}
+
+export const observeSize = (element, box, styles?) => {
+    if (!styles) styles = makeReactive({});
+    new ResizeObserver((mut)=>{
+        if (box == "border-box") {
+            styles.inlineSize = `${mut[0].borderBoxSize[0].inlineSize}px`;
+            styles.blockSize = `${mut[0].borderBoxSize[0].blockSize}px`;
+        }
+        if (box == "content-box") {
+            styles.inlineSize = `${mut[0].contentBoxSize[0].inlineSize}px`;
+            styles.blockSize = `${mut[0].contentBoxSize[0].blockSize}px`;
+        }
+        if (box == "device-pixel-content-box") {
+            styles.inlineSize = `${mut[0].devicePixelContentBoxSize[0].inlineSize}px`;
+            styles.blockSize = `${mut[0].devicePixelContentBoxSize[0].blockSize}px`;
+        }
+    }).observe(element?.element ?? element, {box});
+    return styles;
 }
