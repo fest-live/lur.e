@@ -77,7 +77,7 @@ export default class El {
     //
     constructor(selector, params, children) {
         this.children = children;
-        this.params = { ...params };
+        this.params   = params;
         this.selector = selector;
     }
 
