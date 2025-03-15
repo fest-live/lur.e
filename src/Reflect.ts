@@ -1,15 +1,20 @@
+import { observe } from "./Array.js";
 import {subscribe} from "./lib/object.js";
 
 //
-export const elMap = new WeakMap<any, HTMLElement>();
+export const elMap = new WeakMap<any, HTMLElement|DocumentFragment|Text>();
+export const reMap = new WeakMap();
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
+    if (!attributes) return;
+
     subscribe(attributes, (value, prop)=>{
         if (element.getAttribute(prop) !== value) {
             if (typeof value == "undefined" || value == null) {
                 element.removeAttribute(prop);
-            } else {
+            } else
+            if (typeof value != "object" || typeof value != "function") {
                 element.setAttribute(prop, value);
             }
         }
@@ -34,6 +39,8 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
 
 //
 export const reflectProperties = (element: HTMLElement, properties: any)=>{
+    if (!properties) return;
+
     subscribe(properties, (value, prop)=>{
         if (element[prop] !== value) {
             if (typeof value == "undefined") {
@@ -53,37 +60,61 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 }
 
 // TODO! support observe styles
-export const reflectStyles = (element: HTMLElement, styles: any)=>{
-    subscribe(styles, (value, prop)=>{
-        if (element.style[prop] !== value) {
-            if (typeof value == "undefined") {
-                delete element.style[prop];
-            } else {
-                element.style[prop] = value;
+export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
+    if (!styles) return;
+
+    if (typeof styles == "string") {
+        element.style = styles;
+    } else {
+        subscribe(styles, (value, prop)=>{
+            if (element.style[prop] !== value) {
+                if (typeof value == "undefined") {
+                    delete element.style[prop];
+                } else {
+                    element.style[prop] = value;
+                }
             }
+        });
+    }
+}
+
+export const getNode = (E, mapper?: Function)=>{
+    if (mapper) {
+        const old = reMap;
+        if (typeof E == "object" || typeof E == "function") {
+            E = reMap?.get(E) ?? getNode(mapper?.(E));
+            if (!reMap?.has?.(old)) { reMap?.set(old, E); };
+        } else {
+            E = getNode(mapper?.(E));
         }
-    });
+    }
+    if (typeof E == "string") {
+        return new Text(E);
+    } else
+    if (E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) {
+        return E;
+    } else
+    if (typeof E == "object") {
+        return E?.element ?? elMap.get(E);
+    }
+    return E;
 }
 
 // TODO! reactive arrays
-export const reflectChildren = (element: HTMLElement, children: any[] = [])=>{
-    element.innerHTML = ``;
-    children.forEach((E)=>{
-        if (typeof E == "string") {
-            element.append(new Text(E));
-        } else
-        if (E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) {
-            element.append(E);
-        } else
-        if (typeof E == "object") {
-            const N = E?.element ?? elMap.get(E);
-            if (N) { element.append(N); };
-        }
+export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
+    if (!children) return;
+    //if (element instanceof HTMLElement) element.innerHTML = ``;
+
+    observe(children, (op, ...args)=>{
+        if (op == "set") { element.children[args[0]].replaceWith(getNode(args[1], mapper)); }
+        if (op == "push") { element.append(getNode(args[0]?.[0], mapper)); };
+        if (op == "splice") { element.children[args[0]?.[1]]?.remove?.(); };
     });
 }
 
 // TODO! observable classList
 export const reflectClassList = (element: HTMLElement, classList: Set<string>)=>{
+    if (!classList) return;
     subscribe(classList, (value: string, _: unknown, oldValue?: string)=>{
         if (typeof value == "undefined" || value == null) {
             element.classList.remove(value);
