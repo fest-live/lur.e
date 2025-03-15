@@ -53,9 +53,9 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 
     // if any input
     element.addEventListener("change", (ev: any)=>{
-        properties.value = ev?.target?.value;
-        properties.valueAsNumber = ev?.target?.valueAsNumber;
-        properties.checked = ev?.target?.checked;
+        if (ev?.target?.value != null && ev?.target?.value !== properties.value) properties.value = ev?.target?.value;
+        if (ev?.target?.valueAsNumber != null && ev?.target?.valueAsNumber !== properties.valueAsNumber) properties.valueAsNumber = ev?.target?.valueAsNumber;
+        if (ev?.target?.checked != null && ev?.target?.checked !== properties.checked) properties.checked = ev?.target?.checked;
     });
 }
 
