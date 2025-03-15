@@ -59,11 +59,11 @@ const createElement = (selectorUntrimmed): HTMLElement|DocumentFragment => {
 
 //
 interface Params {
-    classList: Set<string>;
-    attributes: any;
-    dataset: any;
-    properties: any;
-    style: any|string;
+    classList?: Set<string>;
+    attributes?: any;
+    dataset?: any;
+    properties?: any;
+    style?: any|string;
     slot?: string;
     is?: string;
 };
@@ -75,7 +75,7 @@ export default class El {
     selector: string;
 
     //
-    constructor(selector, params, children) {
+    constructor(selector, params = {}, children = []) {
         this.children = children;
         this.params   = params;
         this.selector = selector;

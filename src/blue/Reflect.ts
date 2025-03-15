@@ -121,7 +121,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 }
 
 // TODO! observable classList
-export const reflectClassList = (element: HTMLElement, classList: Set<string>)=>{
+export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return;
     subscribe(classList, (value: string, _: unknown, oldValue?: string)=>{
         if (typeof value == "undefined" || value == null) {
