@@ -82,8 +82,8 @@ export const getNode = (E, mapper?: Function)=>{
     if (mapper) {
         const old = reMap;
         if (typeof E == "object" || typeof E == "function") {
-            E = reMap?.get(E) ?? getNode(mapper?.(E));
-            if (!reMap?.has?.(old)) { reMap?.set(old, E); };
+            const b = reMap?.get(E) ?? mapper?.(E); E = getNode(b);
+            if (!reMap?.has?.(old)) { reMap?.set(old, b); };
         } else {
             E = getNode(mapper?.(E));
         }
