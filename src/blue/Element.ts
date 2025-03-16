@@ -71,7 +71,7 @@ interface Params {
 };
 
 //
-export default class El {
+export class El {
     children: any[];
     params: Params;
     selector: string;
@@ -131,6 +131,7 @@ export default class El {
     }
 }
 
+//
 export const observeSize = (element, box, styles?) => {
     if (!styles) styles = makeReactive({});
     new ResizeObserver((mut)=>{
@@ -149,3 +150,11 @@ export const observeSize = (element, box, styles?) => {
     }).observe(element?.element ?? element, {box});
     return styles;
 }
+
+//
+export const E = (selector, params = {}, children = [])=>{
+    return new El(selector, params, children);
+}
+
+//
+export default E;

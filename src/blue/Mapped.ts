@@ -1,8 +1,7 @@
-import { observe } from './Array';
-import { getNode, reflectChildren } from './Reflect';
+import { reflectChildren } from './Reflect';
 
 //
-export default class Mp {
+export class Mp {
     #observable: any[];
     #fragments: DocumentFragment;
 
@@ -17,3 +16,11 @@ export default class Mp {
         return this.#fragments as DocumentFragment;
     }
 }
+
+//
+export const M = (observable, mapCb)=>{
+    return new Mp(observable, mapCb);
+}
+
+//
+export default M;
