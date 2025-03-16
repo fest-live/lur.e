@@ -104,13 +104,34 @@ export const getNode = (E, mapper?: Function)=>{
     return E;
 }
 
-const replaceChildren = (element, index, node)=>{
+//
+const appendChild = (element, cp, mapper?)=>{
+    if (cp?.children?.length > 1) {
+        element?.append?.(...cp?.children?.map?.((cl)=>getNode(cl, mapper)));
+    } else
+    if (Array.isArray(cp)) {
+        element?.append?.(...cp?.map?.((cl)=>getNode(cl, mapper)));
+    } else {
+        element?.append?.(getNode(cp, mapper));
+    }
+}
+
+const replaceChildren = (element, cp, index, mapper?)=>{
+    const node = getNode(cp, mapper);
     if (element.childNodes[index] instanceof Text && node instanceof Text) {
         element.childNodes[index].textContent = node.textContent;
     } else {
         element.childNodes[index]?.replaceWith?.(node);
     }
 }
+
+const removeChild = (element, children, index)=>{
+    if (children?.parentNode == element) { children?.remove?.(); } else
+    if (children?.children && children?.children?.length >= 1) {
+        children?.children?.forEach(c => element?.childNodes?.find?.((e)=>(e==(elMap.get(c) ?? reMap.get(c) ?? c)))?.remove?.());
+    } else { element?.childNodes[index]?.remove?.(); }
+}
+
 
 // forcely update child nodes (and erase current content)
 // ! doesn't create new ones (if was cached or saved)
@@ -133,9 +154,9 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 
     observe(children, (op, ...args)=>{
         const element = ref.deref(); if (!element) return;
-        if (op == "set") { replaceChildren(element, args[0], getNode(args[1], mapper)); } // TODO: replace group
-        if (op == "push") { element.append(getNode(args[0]?.[0], mapper)); };
-        if (op == "splice") { element.children[args[0]?.[1]]?.remove?.(); };
+        if (op == "set")    { replaceChildren(element, args[1], args[0], mapper); } // TODO: replace group
+        if (op == "push")   { appendChild(element, args[0]?.[0], mapper); };
+        if (op == "splice") { removeChild(element, children[args[0]?.[0]], args[0]?.[0]); };
     });
 }
 

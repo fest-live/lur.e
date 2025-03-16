@@ -19,7 +19,7 @@ export class Mp {
 
 //
 export const M = (observable, mapCb)=>{
-    return new Mp(observable, mapCb);
+    return ()=>(new Mp(observable, mapCb));
 }
 
 //
