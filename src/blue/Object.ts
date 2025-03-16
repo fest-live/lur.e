@@ -30,7 +30,7 @@ export const remap = (sub, cb?: Function|null, dest?: any|null)=>{
         } else
         if (dest[prop] !== got) dest[prop] = got;
     });
-    return dest?.[0]; // return reactive value
+    return dest; // return reactive value
 }
 
 // !one-directional

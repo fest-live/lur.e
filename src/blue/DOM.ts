@@ -1,57 +1,22 @@
 
 //
 const
-    MATCH = '(-?[_a-zA-Z]+[_a-zA-Z0-9-]*)',
-    QUOTE1 = '(["\'])((?:(?=(\\\\?))\\',
-    QUOTE2 = '[\\W\\w])*?)\\',
-    REGEX = '^(?:' + MATCH + ')|^#' + MATCH + '|^\\.' + MATCH + '|^\\[' + MATCH + '(?:([*$|~^]?=)' + QUOTE1 + '8' + QUOTE2 + '6' + ')?\\]|^\\s*[\\n\\r]+([\\t]*)\\s*|^(\\s+)|^' + QUOTE1 + '13' + QUOTE2 + '11';
+	MATCH = '(-?[_a-zA-Z]+[_a-zA-Z0-9-]*)',
+	REGEX = '^(?:' + MATCH + ')|^#' + MATCH + '|^\\.' + MATCH + '|^\\[' + MATCH + '(?:([*$|~^]?=)(["\'])((?:(?=(\\\\?))\\8.)*?)\\6)?\\]';
 
 //
-export const createElement = (selectorUntrimmed): HTMLElement|DocumentFragment => {
-    let selector = selectorUntrimmed.replace(/^\s+|\s+$/);
+export const createElement = (selector): HTMLElement|DocumentFragment => {
+    if (selector == ":fragment:") return document.createDocumentFragment();
     const create = document.createElement.bind(document);
-    const root = document.createDocumentFragment(), nest = [root, create('div')];
-    if (selectorUntrimmed == ":fragment:") return root;
-
-    //
-    for (let frag: any = root, node = frag.appendChild(nest[1]), index = 1, first = true, match; selector && (match = selector.match(REGEX));) {
-        // tag
-        if (match[1]) {
-            frag.replaceChild(node = create(match[1]), frag.lastChild);
-
-            if (first) nest[index] = node;
-        }
-        // id
+    for (var node: any = create('div'), match, className = ''; selector && (match = selector.match(REGEX));) {
+        if (match[1]) node = create(match[1]);
         if (match[2]) node.id = match[2];
-        // class
-        if (match[3]) node.className += (node.className ? ' ' : '') + match[3];
-        // attribute
+        if (match[3]) className += ' ' + match[3];
         if (match[4]) node.setAttribute(match[4], match[7] || '');
-        // nesting
-        if (match[9] !== undefined) {
-            index = match[9].length;
-
-            frag = nest[index];
-            node = nest[++index] = frag.appendChild(create('div'));
-        }
-        // child
-        if (match[10]) {
-            frag = node;
-            node = frag.appendChild(create('div'));
-
-            first = false;
-        }
-        // text
-        if (match[11]) {
-            frag.replaceChild(node = document.createTextNode(match[12]), frag.lastChild);
-
-            if (first) nest[index] = node;
-        }
-
         selector = selector.slice(match[0].length);
     }
-
-    return ((root.childNodes.length === 1 ? root?.lastChild : root) || root) as HTMLElement;
+    if (className) node.className = className.slice(1);
+    return node;
 };
 
 //
@@ -87,7 +52,7 @@ export const getNode = (E, mapper?: Function, index?: number)=>{
 
 //
 export const appendChild = (element, cp, mapper?)=>{
-    if (cp?.children?.length > 1) {
+    if (cp?.children?.length > 1 && !cp?.["@virtual"]) {
         element?.append?.(...cp?.children?.map?.((cl, i: number)=>getNode(cl, mapper, i)));
     } else
     if (Array.isArray(cp)) {

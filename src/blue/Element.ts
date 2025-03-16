@@ -53,11 +53,11 @@ export class El {
             // if has event listeners, use it
             if (this.params.on) {
                 Object.entries(this.params.on).forEach(([name, list])=>{
-                    (list as any)?.forEach?.(fn => {
+                    (list as any)?.values()?.forEach?.(fn => {
                         if (typeof fn == "function") {
-                            this.element.addEventListener(name, fn, {});
+                            element.addEventListener(name, fn, {});
                         } else {
-                            this.element.addEventListener(name, fn?.[0], fn?.[1] || {});
+                            element.addEventListener(name, fn?.[0], fn?.[1] || {});
                         }
                     });
                 });
@@ -74,6 +74,9 @@ export class El {
         }
         return this;
     }
+
+    //
+    get ["@virtual"]() { return true; };
 }
 
 //

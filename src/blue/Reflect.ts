@@ -86,7 +86,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     observe(children, (op, ...args)=>{
         const element = ref.deref(); if (!element) return;
         if (op == "set")    { replaceChildren(element, args[1], args[0], mapper); } // TODO: replace group
-        if (op == "push")   { appendChild(element, args[0]?.[0], mapper); };
+        if (op == "push")   { appendChild(element, args[0], mapper); };
         if (op == "splice") { removeChild(element, children[args[0]?.[0]], args[0]?.[0]); };
         if (op == "pop")    { removeChild(element, null, children?.length); };
     });
