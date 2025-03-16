@@ -1,4 +1,5 @@
 import { makeReactive } from '../lib/object';
+import observableArray from './Array';
 import { elMap, reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren } from './Reflect';
 
 //
@@ -77,8 +78,8 @@ export class El {
     selector: string;
 
     //
-    constructor(selector, params = {}, children = []) {
-        this.children = children;
+    constructor(selector, params = {}, children?) {
+        this.children = children || observableArray([]);
         this.params   = params;
         this.selector = selector;
     }
@@ -152,7 +153,7 @@ export const observeSize = (element, box, styles?) => {
 }
 
 //
-export const E = (selector, params = {}, children = [])=>{
+export const E = (selector, params = {}, children?)=>{
     return new El(selector, params, children);
 }
 
