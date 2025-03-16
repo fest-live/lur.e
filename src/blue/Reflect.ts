@@ -104,6 +104,7 @@ export const getNode = (E, mapper?: Function)=>{
     return E;
 }
 
+
 //
 const appendChild = (element, cp, mapper?)=>{
     if (cp?.children?.length > 1) {
@@ -116,20 +117,28 @@ const appendChild = (element, cp, mapper?)=>{
     }
 }
 
+// when possible, don't create new Text nodes
 const replaceChildren = (element, cp, index, mapper?)=>{
-    const node = getNode(cp, mapper);
-    if (element.childNodes[index] instanceof Text && node instanceof Text) {
-        element.childNodes[index].textContent = node.textContent;
+    const cn = element.childNodes?.[index];
+    if (cn instanceof Text && typeof cp == "string") {
+        cn.textContent = cp;
     } else {
-        element.childNodes[index]?.replaceWith?.(node);
+        const node = getNode(cp, mapper);
+        if (cn instanceof Text && node instanceof Text) {
+            cn.textContent = node.textContent;
+        } else {
+            cn?.replaceWith?.(node);
+        }
     }
 }
 
 const removeChild = (element, children, index)=>{
     if (children?.parentNode == element) { children?.remove?.(); } else
     if (children?.children && children?.children?.length >= 1) {
-        children?.children?.forEach(c => element?.childNodes?.find?.((e)=>(e==(elMap.get(c) ?? reMap.get(c) ?? c)))?.remove?.());
-    } else { element?.childNodes[index]?.remove?.(); }
+        // TODO: remove by same string value
+        children?.children?.forEach(c => { const R = (elMap.get(c) ?? reMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });
+        //children?.children?.forEach(c => element?.childNodes?.find?.((e)=>(e==))?.remove?.());
+    } else { element?.childNodes?.[index]?.remove?.(); }
 }
 
 
@@ -157,6 +166,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         if (op == "set")    { replaceChildren(element, args[1], args[0], mapper); } // TODO: replace group
         if (op == "push")   { appendChild(element, args[0]?.[0], mapper); };
         if (op == "splice") { removeChild(element, children[args[0]?.[0]], args[0]?.[0]); };
+        if (op == "pop")    { removeChild(element, null, children?.length); };
     });
 }
 
