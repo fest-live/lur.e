@@ -1,5 +1,5 @@
 import { observe } from "./Array.js";
-import {subscribe} from "../lib/object.js";
+import {subscribe} from '/externals/lib/object.js';
 import { appendChild, removeChild, replaceChildren } from "./DOM.js";
 
 //
@@ -19,7 +19,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
 
     // bi-directional attribute
     const config = { attributes: true, childList: false, subtree: false };
-    const callback = (mutationList, observer) => {
+    const callback = (mutationList, _) => {
         for (const mutation of mutationList) {
             if (mutation.type == "attributes") {
                 if (attributes[mutation.attributeName] !== mutation.target.getAttribute(mutation.attributeName)) {
@@ -61,7 +61,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (!styles) return;
 
     if (typeof styles == "string") {
-        element.style = styles;
+        element.style.cssText = styles;
     } else {
         subscribe(styles, (value, prop)=>{
             if (element.style[prop] !== value) {
@@ -95,7 +95,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 // TODO! observable classList
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return;
-    subscribe(classList, (value: string, _: unknown, oldValue?: string)=>{
+    subscribe(classList, (value: string)=>{
         if (typeof value == "undefined" || value == null) {
             element.classList.remove(value);
         } else {

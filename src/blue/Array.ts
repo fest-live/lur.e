@@ -91,7 +91,7 @@ export const observableArray = (arr: any[])=>{
 export const observe = (arr, cb)=>{
     const obs = observeMaps.get(arr?.["@target"] ?? arr);
     const evt = obs?.events;
-    arr.forEach((val, idx)=>cb("push", [val]));
+    arr.forEach((val, _)=>cb("push", [val]));
     evt?.add(cb);
 };
 

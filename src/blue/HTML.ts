@@ -4,7 +4,7 @@ export const H = (str: string)=>{
     const doc    = parser.parseFromString(str, "text/html");
     if (doc.body.childNodes.length > 1) {
         const frag   = document.createDocumentFragment();
-        frag.append(...doc.body.childNodes); return frag;
+        frag.append(...Array.from(doc.body.childNodes)); return frag;
     }
     return doc.body.childNodes[0];
 }

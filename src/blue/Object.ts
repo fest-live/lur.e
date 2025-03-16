@@ -1,4 +1,4 @@
-import {makeReactive, subscribe} from "../lib/object.js";
+import {makeReactive, subscribe} from '/externals/lib/object.js';
 
 //
 const objectAssignNotEqual = (dst, src = {})=>{
@@ -36,7 +36,7 @@ export const remap = (sub, cb?: Function|null, dest?: any|null)=>{
 // !one-directional
 export const unified = (...subs: any[])=>{
     const dest = makeReactive({});
-    subs.forEach((sub)=>subscribe(sub, (value, prop, old)=>{
+    subs.forEach((sub)=>subscribe(sub, (value, prop, _)=>{
         if (dest[prop] !== value) { dest[prop] = value; };
     }));
     return dest;
