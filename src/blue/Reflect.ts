@@ -1,5 +1,5 @@
 import { observe } from "./Array.js";
-import {subscribe} from "../lib/object.js";
+import {makeReactive, subscribe} from "../lib/object.js";
 
 //
 export const elMap = new WeakMap<any, HTMLElement|DocumentFragment|Text>();
@@ -149,4 +149,36 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
             element.classList.add(value);
         }
     })
+}
+
+// used for conditional reaction
+// !one-directional
+export const computed = (sub, cb?: Function|null, dest?: [any, string|number|symbol]|null)=>{
+    if (!dest) dest = [makeReactive({}), "value"];
+    subscribe(sub, (value, prop, old)=>(dest[dest[1]] = cb?.(value, prop, old)));
+    return dest?.[0]; // return reactive value
+}
+
+// used for redirection properties
+// !one-directional
+export const remap = (sub, cb?: Function|null, dest?: any|null)=>{
+    if (!dest) dest = makeReactive({});
+    subscribe(sub, (value, prop, old)=> {
+        const got = cb?.(value, prop, old);
+        if (typeof got == "object") {
+            Object.assign(dest, got);
+        } else {
+            dest[prop] = got;
+        }
+    });
+    return dest?.[0]; // return reactive value
+}
+
+// !one-directional
+export const unified = (...subs: any[])=>{
+    const dest = makeReactive({});
+    subs.forEach((sub)=>{
+        subscribe(sub, (value, prop, old)=>dest[prop] = value);
+    });
+    return dest;
 }
