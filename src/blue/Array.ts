@@ -14,7 +14,7 @@ class ObserveMethod {
 
     apply(target, ctx, args) {
         const wp = this.#handle.wrap(Reflect.apply(target, ctx || this.#self, args));
-        this.#handle.trigger(this.#name, args, wp);
+        this.#handle.trigger(this.#self || ctx, this.#name, args, wp);
         return wp;
     }
 
@@ -29,7 +29,7 @@ const observeMaps = new WeakMap<any[], ObserveArray>();
 //
 class ObserveArray {
     #handle: any;
-    #events: Set<Function>;
+    #events: WeakMap<any[], Set<Function>>;
 
     //
     get events() {
@@ -37,16 +37,17 @@ class ObserveArray {
     }
 
     //
-    constructor() {
-        this.#events = new Set<Function>([]);
+    constructor(arr: any[]) {
+        this.#events = new WeakMap(); //
+        this.#events.set(arr, new Set<Function>([]));
         const events = this.#events;
         this.#handle = {
-            trigger(name, ...args) {
-                events.values().forEach(ev => ev?.(name, ...args));
+            trigger(target: any[], name: number|string, ...args) {
+                events?.get?.(target)?.values().forEach(ev => ev?.(name, ...args));
             },
-            wrap(nw) {
+            wrap(nw: any[]|unknown) {
                 if (Array.isArray(nw)) {
-                    const obs = new ObserveArray();
+                    const obs = new ObserveArray(nw);
                     observeMaps.set(nw, obs);
                     return new Proxy(nw, obs);
                 }
@@ -68,7 +69,7 @@ class ObserveArray {
         name = parseInt(name);
         const old = target?.[name];
         const got = Reflect.set(target, name, value);
-        this.#handle.trigger("@set", name, value, old);
+        this.#handle.trigger(target, "@set", name, value, old);
         return got;
     }
 
@@ -76,7 +77,7 @@ class ObserveArray {
     deleteProperty(target, name) {
         const old = target?.[name];
         const got = Reflect.deleteProperty(target, name);
-        this.#handle.trigger("@delete", name, old);
+        this.#handle.trigger(target, "@delete", name, old);
         return got;
     }
 }
@@ -84,7 +85,7 @@ class ObserveArray {
 //
 export const observableArray = (arr: any[])=>{
     if (Array.isArray(arr)) {
-        const obs = new ObserveArray();
+        const obs = new ObserveArray(arr);
         observeMaps.set(arr, obs);
         return new Proxy(arr, obs);
     }
@@ -93,12 +94,13 @@ export const observableArray = (arr: any[])=>{
 
 //
 export const observe = (arr, cb)=>{
-    const obs = observeMaps.get(arr?.["@target"] ?? arr);
+    const orig = arr?.["@target"] ?? arr;
+    const obs = observeMaps.get(orig);
     const evt = obs?.events;
     arr?.forEach?.((val, _)=>{
         return cb("push", [val])
     });
-    evt?.add(cb);
+    evt?.get(orig)?.add?.(cb);
 };
 
 //
