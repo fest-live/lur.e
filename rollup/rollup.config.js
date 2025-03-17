@@ -1,9 +1,9 @@
 import {resolve} from "node:path";
 import terser from '@rollup/plugin-terser';
 import typescript from '@rollup/plugin-typescript';
-import { compression } from 'vite-plugin-compression2';
-import optimizer from 'vite-plugin-optimizer';
-import createExternal from "vite-plugin-external";
+
+
+import { readFile } from "node:fs/promises";
 
 //
 export const NAME = "blue";
@@ -62,7 +62,7 @@ export const terserOptions = {
         hoist_vars: true,
         properties: true,
         // don't use in debug mode
-        drop_console: true
+        //drop_console: true
     },
     format: {
         braces: false,
@@ -79,72 +79,7 @@ export const terserOptions = {
 };
 
 //
-export const TSConfig = {
-    "compilerOptions": {
-        "target": "ESNext",
-        "module": "ESNext",
-        "lib": ["ESNext", "DOM", "WebWorker"],
-        "esModuleInterop": true,
-        "strict": true,
-        "forceConsistentCasingInFileNames": true,
-        "allowJs": true,
-        "allowArbitraryExtensions": true,
-        "allowSyntheticDefaultImports": true,
-        "allowUmdGlobalAccess": true,
-        "allowUnreachableCode": true,
-        "allowUnusedLabels": true,
-        "noImplicitAny": false,
-        "declaration": true,
-        "noImplicitThis": false,
-        "inlineSources": true,
-        "inlineSourceMap": true,
-        "sourceMap": false,
-        "outDir": "./dist/",
-        "declarationDir": "./dist/"+NAME+".d.ts/",
-        //"allowImportingTsExtensions": true,
-        //"emitDeclarationOnly": true,
-        "typeRoots": ["./global.d.ts"]
-    }
-};
-
-//
+const tsconfig = await readFile(resolve(__dirname, "./tsconfig.json"), {encoding: "utf8"});
 export const plugins = [
-    typescript(TSConfig),
-    terser(terserOptions),
-    optimizer({}),
-    compression(),
-    createExternal({
-        interop: 'auto',
-        externals: {externals: "externals", dist: "dist"},
-        externalizeDeps: [
-            "externals", "/externals", "./externals",
-            "dist", "/dist", "./dist"
-        ]
-    }),
+    //terser(terserOptions),
 ];
-
-//
-export const rollupOptions = {
-    plugins,
-    treeshake: 'smallest',
-    input: "./src/index.ts",
-    external: [
-        "externals", "/externals", "./externals",
-        "dist", "/dist", "./dist"
-    ],
-    output: {
-        minifyInternalExports: true,
-        compact: true,
-        globals: {},
-		format: 'es',
-		name: NAME,
-        dir: './dist',
-        sourcemap: 'hidden',
-        exports: "auto",
-        esModuleInterop: true,
-        experimentalMinChunkSize: 500_500,
-        inlineDynamicImports: true,
-	}
-};
-
-export default rollupOptions;

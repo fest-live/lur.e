@@ -1,6 +1,9 @@
+/* @vite-ignore */
+//import { makeReactive } from "/externals/lib/object";
+
+//
 import observableArray from "../src/blue/Array";
 import E, { observeSize } from "../src/blue/Element";
-import { makeReactive } from "/externals/lib/object";
 import H from "../src/blue/HTML";
 
 //

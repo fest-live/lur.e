@@ -1,3 +1,5 @@
+import { subscribe } from "/externals/lib/object.js";
+
 //
 class ObserveMethod {
     #handle: any;
@@ -10,8 +12,8 @@ class ObserveMethod {
         this.#self   = self;
     }
 
-    apply(target, args, ctx) {
-        const wp = this.#handle.wrap(Reflect.apply(target, args, ctx || this.#self));
+    apply(target, ctx, args) {
+        const wp = this.#handle.wrap(Reflect.apply(target, ctx || this.#self, args));
         this.#handle.trigger(this.#name, args, wp);
         return wp;
     }
@@ -62,9 +64,11 @@ class ObserveArray {
         return got;
     }
     set(target, name, value) {
+        if (!Number.isInteger(parseInt(name))) { return Reflect.set(target, name, value); };
+        name = parseInt(name);
         const old = target?.[name];
         const got = Reflect.set(target, name, value);
-        this.#handle.trigger("set", name, value, old);
+        this.#handle.trigger("@set", name, value, old);
         return got;
     }
 
@@ -72,7 +76,7 @@ class ObserveArray {
     deleteProperty(target, name) {
         const old = target?.[name];
         const got = Reflect.deleteProperty(target, name);
-        this.#handle.trigger("delete", name, old);
+        this.#handle.trigger("@delete", name, old);
         return got;
     }
 }
@@ -91,9 +95,55 @@ export const observableArray = (arr: any[])=>{
 export const observe = (arr, cb)=>{
     const obs = observeMaps.get(arr?.["@target"] ?? arr);
     const evt = obs?.events;
-    arr.forEach((val, _)=>cb("push", [val]));
+    arr?.forEach?.((val, _)=>{
+        return cb("push", [val])
+    });
     evt?.add(cb);
 };
 
 //
 export default observableArray;
+
+//
+export const observableBySet = (set)=>{
+    const obs = observableArray([]);
+    subscribe(set, (value, _, old)=>{
+        if (value !== old) {
+            if (old == null && value != null) {
+                obs.push(value);
+            } else
+            if (old != null && value == null) {
+                const idx = obs.indexOf(old);
+                if (idx >= 0) obs.splice(idx, 1);
+            } else {
+                const idx = obs.indexOf(old);
+                if (idx >= 0 && obs[idx] !== value) obs[idx] = value;
+            }
+        }
+    });
+    return obs;
+}
+
+//
+export const observableByMap = (map)=>{
+    const obs = observableArray([]);
+    subscribe(map, (value, prop, old)=>{
+        if (value !== old) {
+            if (old != null && value == null) {
+                const idx = obs.findIndex(([name, _])=>(name == prop));
+                if (idx >= 0) obs.splice(idx, 1);
+            } else {
+                const idx = obs.findIndex(([name, _])=>{
+                    return (name == prop)
+                });
+                if (idx >= 0) { if (obs[idx]?.[1] !== value) obs[idx] = [prop, value]; } else { obs.push([prop, value]); };
+            }
+        }
+    });
+    return obs;
+}
+
+//
+export const unwrap = (arr)=>{
+    return arr?.["@target"] ?? arr;
+}

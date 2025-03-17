@@ -1,3 +1,4 @@
+import {unwrap} from "./Array.ts";
 
 //
 const
@@ -21,18 +22,19 @@ export const createElement = (selector): HTMLElement|DocumentFragment => {
 
 //
 export const elMap = new WeakMap<any, HTMLElement|DocumentFragment|Text>();
-export const reMap = new WeakMap();
+//export const
 
 //
 export const getNode = (E, mapper?: Function, index?: number)=>{
     if (mapper) {
-        const old = reMap;
-        if (typeof E == "object" || typeof E == "function") {
-            const b = reMap?.get(E) ?? mapper?.(E, index); E = getNode(b);
-            if (!reMap?.has?.(old)) { reMap?.set(old, b); };
-        } else {
+        //const old = E;
+        //if (typeof E == "object" || typeof E == "function") {
+            //const b = reMap?.get(E) ?? mapper?.(E, index); E = getNode(b);
+            //if (!reMap?.has?.(old)) { reMap?.set(old, b); };
+        //} else {
             E = getNode(mapper?.(E, index));
-        }
+        //}
+        return E;
     }
     if (typeof E == "function") {
         return getNode(E()); // mapped arrays always empties after
@@ -52,23 +54,37 @@ export const getNode = (E, mapper?: Function, index?: number)=>{
 
 //
 export const appendChild = (element, cp, mapper?)=>{
-    if (cp?.children?.length > 1 && !cp?.["@virtual"]) {
-        element?.append?.(...cp?.children?.map?.((cl, i: number)=>getNode(cl, mapper, i)));
+    if (mapper) {
+        cp = mapper?.(cp) ?? cp;
+        //const b = reMap?.get(cp) ?? mapper?.(cp, element?.childNodes?.length);
+        //if (!reMap?.has?.(old)) { reMap?.set(old, b); };
+        //cp = b ?? cp;
+    }
+
+    if (/*cp?.children?.length > 1 &&*/ cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.["@virtual"] || cp?.["@mapped"])) {
+        element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number)=>getNode(cl)) ?? unwrap(cp?.children)));
     } else
-    if (Array.isArray(cp)) {
-        element?.append?.(...cp?.map?.((cl, i: number)=>getNode(cl, mapper, i)));
+    if (Array.isArray(unwrap(cp))) {
+        element?.append?.(...unwrap(cp?.map?.((cl, _: number)=>getNode(cl)) ?? cp));
     } else {
-        element?.append?.(getNode(cp, mapper, element?.childNodes?.length));
+        element?.append?.(getNode(cp));
     }
 }
 
 // when possible, don't create new Text nodes
 export const replaceChildren = (element, cp, index, mapper?)=>{
+    if (mapper) {
+        cp = mapper?.(cp) ?? cp;
+        //const b = reMap?.get(cp) ?? mapper?.(cp, element?.childNodes?.length);
+        //if (!reMap?.has?.(old)) { reMap?.set(old, b); };
+        //cp = b ?? cp;
+    }
+
     const cn = element.childNodes?.[index];
     if (cn instanceof Text && typeof cp == "string") {
         cn.textContent = cp;
     } else {
-        const node = getNode(cp, mapper, index);
+        const node = getNode(cp);
         if (cn instanceof Text && node instanceof Text) {
             cn.textContent = node.textContent;
         } else {
@@ -78,11 +94,14 @@ export const replaceChildren = (element, cp, index, mapper?)=>{
 }
 
 //
-export const removeChild = (element, children, index)=>{
-    if (children?.parentNode == element) { children?.remove?.(); } else
-    if (children?.children && children?.children?.length >= 1) {
+export const removeChild = (element, cp, index, mapper?)=>{
+    //if (mapper) { children = mapper?.(children) ?? children; };
+    if (element?.childNodes?.length < 1) return;
+    const ch = element?.childNodes?.[index] ?? (cp = mapper?.(cp) ?? cp);
+    if (ch?.parentNode == element) { ch?.remove?.(); } else
+    if (ch?.children && ch?.children?.length >= 1) {
         // TODO: remove by same string value
-        children?.children?.forEach(c => { const R = (elMap.get(c) ?? reMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });
+        ch?.children?.forEach?.(c => { const R = (elMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });
         //children?.children?.forEach(c => element?.childNodes?.find?.((e)=>(e==))?.remove?.());
     } else { element?.childNodes?.[index]?.remove?.(); }
 }

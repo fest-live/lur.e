@@ -1,5 +1,7 @@
-import { observe } from "./Array.js";
 import {subscribe} from '/externals/lib/object.js';
+
+//
+import { observe } from "./Array.js";
 import { appendChild, removeChild, replaceChildren } from "./DOM.js";
 
 //
@@ -83,12 +85,14 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     const ref = new WeakRef(element);
     //if (element instanceof HTMLElement) element.innerHTML = ``;
 
+    mapper   = (children?.["@mapped"] ? (children as any)?.mapper : mapper) ?? mapper;
+    children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children;
     observe(children, (op, ...args)=>{
         const element = ref.deref(); if (!element) return;
-        if (op == "set")    { replaceChildren(element, args[1], args[0], mapper); } // TODO: replace group
-        if (op == "push")   { appendChild(element, args[0], mapper); };
-        if (op == "splice") { removeChild(element, children[args[0]?.[0]], args[0]?.[0]); };
-        if (op == "pop")    { removeChild(element, null, children?.length); };
+        if (op == "@set")   { replaceChildren(element, args[1], args[0], mapper); } // TODO: replace group
+        if (op == "push")   { appendChild(element, args[0]?.[0], mapper); };
+        if (op == "splice") { removeChild(element, children[args[0]?.[0]], args[0]?.[0], mapper); };
+        if (op == "pop")    { removeChild(element, null, children?.length-1, mapper); };
     });
 }
 
@@ -107,12 +111,13 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
 // forcely update child nodes (and erase current content)
 // ! doesn't create new ones (if was cached or saved)
 export const reformChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    if (!children) return;
+    if (!children) return element;
     const ref = new WeakRef(element);
     if (element instanceof HTMLElement) { element.innerHTML = ``; };
-    return (mapper ? children.map(mapper as any) : children).map((nd)=>{
+    mapper = (children?.["@mapped"] ? (children as any)?.mapper : mapper) ?? mapper;
+    (children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children).map((nd)=>{
         const element = ref.deref(); if (!element) return nd;
-        appendChild(element, nd, mapper);
-        return nd;
+        appendChild(element, nd, mapper); return nd;
     });
+    return element;
 }

@@ -1,4 +1,6 @@
 import { makeReactive } from '/externals/lib/object.js';
+
+//
 import observableArray from './Array';
 import { createElement, elMap } from './DOM';
 import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren } from './Reflect';
@@ -52,7 +54,7 @@ export class El {
 
             // if has event listeners, use it
             if (this.params.on) {
-                Object.entries(this.params.on).forEach(([name, list])=>{
+                Object.entries(this.params.on)?.forEach?.(([name, list])=>{
                     (list as any)?.values()?.forEach?.(fn => {
                         if (typeof fn == "function") {
                             element.addEventListener(name, fn, {});
