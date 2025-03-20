@@ -91,8 +91,8 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         const element = ref.deref(); if (!element) return;
         if (op == "@set")   { replaceChildren(element, args[1], args[0], mapper); } // TODO: replace group
         if (op == "push")   { appendChild(element, args[0]?.[0], mapper); };
-        if (op == "splice") { removeChild(element, children[args[0]?.[0]], args[0]?.[0], mapper); };
-        if (op == "pop")    { removeChild(element, null, children?.length-1, mapper); };
+        if (op == "splice") { removeChild(element, args[2] ?? children[args[0]?.[0]], args[0]?.[0], mapper); };
+        if (op == "pop")    { removeChild(element, args[2], children?.length-1, mapper); };
     });
 }
 

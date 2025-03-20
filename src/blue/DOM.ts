@@ -22,9 +22,6 @@ export const createElement = (selector): HTMLElement|DocumentFragment => {
 
 //
 export const elMap = new WeakMap<any, HTMLElement|DocumentFragment|Text>();
-//export const
-
-//
 export const getNode = (E, mapper?: Function, index?: number)=>{
     if (mapper) {
         //const old = E;
@@ -97,7 +94,8 @@ export const replaceChildren = (element, cp, index, mapper?)=>{
 export const removeChild = (element, cp, index, mapper?)=>{
     //if (mapper) { children = mapper?.(children) ?? children; };
     if (element?.childNodes?.length < 1) return;
-    const ch = element?.childNodes?.[index] ?? (cp = mapper?.(cp) ?? cp);
+    const node = getNode(cp = mapper?.(cp) ?? cp);
+    const ch = node ?? element?.childNodes?.[index];
     if (ch?.parentNode == element) { ch?.remove?.(); } else
     if (ch?.children && ch?.children?.length >= 1) {
         // TODO: remove by same string value

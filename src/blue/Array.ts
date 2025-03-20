@@ -13,8 +13,10 @@ class ObserveMethod {
     }
 
     apply(target, ctx, args) {
+        let removed = null;
+        if (this.#name == "splice") { removed = this.#self[args[0]]; };
         const wp = this.#handle.wrap(Reflect.apply(target, ctx || this.#self, args));
-        this.#handle.trigger(this.#self || ctx, this.#name, args, wp);
+        this.#handle.trigger(this.#self || ctx, this.#name, args, wp, removed);
         return wp;
     }
 
@@ -60,6 +62,15 @@ class ObserveArray {
     has(target, name) { return Reflect.has(target, name); }
     get(target, name, rec) {
         if (name == "@target") return target;
+        if (name == "silentForwardByIndex") {
+            return (index: number) => {
+                if (index < target.length) {
+                    const E = target[index];
+                    target.splice(index, 1);
+                    target.push(E);
+                }
+            }
+        }
         const got = Reflect.get(target, name, rec);
         if (typeof got == "function") { return new Proxy(got, new ObserveMethod(name, this.#handle, target)); };
         return got;
