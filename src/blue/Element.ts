@@ -1,7 +1,9 @@
-import { makeReactive } from '/externals/lib/object.js';
+import observableArray, {importCdn} from './Array';
+
+// @ts-ignore
+const { makeReactive } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
 
 //
-import observableArray from './Array';
 import { createElement, elMap } from './DOM';
 import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren } from './Reflect';
 

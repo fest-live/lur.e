@@ -1,8 +1,9 @@
-import {subscribe} from '/externals/lib/object.js';
-
 //
-import { observe } from "./Array.js";
+import { observe, importCdn } from "./Array.js";
 import { appendChild, removeChild, replaceChildren } from "./DOM.js";
+
+// @ts-ignore
+const { subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{

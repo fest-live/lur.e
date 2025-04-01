@@ -3,6 +3,7 @@ import createExternal from "vite-plugin-external";
 import { compression } from 'vite-plugin-compression2';
 import optimizer from 'vite-plugin-optimizer';
 import { plugins } from "./rollup/rollup.config.js"
+import civetVitePlugin from '@danielx/civet/vite'
 
 //
 export const NAME = "blue";

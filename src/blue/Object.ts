@@ -1,4 +1,9 @@
-import {makeReactive, subscribe} from '/externals/lib/object.js';
+// @ts-ignore /* @vite-ignore */
+import {importCdn} from "/externals/modules/cdnImport.mjs";
+export {importCdn};
+
+// @ts-ignore
+const { makeReactive, subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
 
 //
 const objectAssignNotEqual = (dst, src = {})=>{
