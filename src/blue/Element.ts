@@ -1,7 +1,7 @@
 import observableArray, {importCdn} from './Array';
 
 // @ts-ignore
-const { makeReactive } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
+const { makeReactive, subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
 
 //
 import { createElement, elMap } from './DOM';
@@ -18,6 +18,35 @@ interface Params {
     is?: string;
     on?: any;
 };
+
+//
+export class Tx {
+    ref: any;
+
+    //
+    constructor(ref) {
+        this.ref = ref || makeReactive({ value: null });
+    }
+
+    //
+    get value() { return this.ref?.value; }
+    set value(val: any) { this.ref.value = val; }
+
+    //
+    get element(): HTMLElement|DocumentFragment|Text {
+        if (elMap.has(this)) { const el = elMap.get(this); if (el) { return el; }; }
+
+        //
+        const element = new Text();
+        subscribe([this.ref, "value"], (val)=>(element.textContent = val));
+        elMap.set(this, element);
+        return element;
+    }
+
+    //
+    get ["@virtual"]() { return true; };
+    get children() { return null; };
+}
 
 //
 export class El {
@@ -106,6 +135,11 @@ export const observeSize = (element, box, styles?) => {
 //
 export const E = (selector, params = {}, children?)=>{
     return new El(selector, params, children);
+}
+
+//
+export const T = (ref)=>{
+    return new Tx(ref);
 }
 
 //
