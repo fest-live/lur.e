@@ -44,8 +44,13 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     const callback = (mutationList, _) => {
         for (const mutation of mutationList) {
             if (mutation.type == "attributes") {
-                if (attributes[mutation.attributeName] !== mutation.target.getAttribute(mutation.attributeName)) {
-                    attributes[mutation.attributeName] = mutation.target.getAttribute(mutation.attributeName);
+                const key = mutation.attributeName;
+                const value = mutation.target.getAttribute(mutation.attributeName);
+                if (attributes[key] != null && (attributes[key]?.value != null || (typeof attributes[key] == "object" || typeof attributes[key] == "function"))) {
+                    if (attributes[key]?.value !== value) { attributes[key].value = value; }
+                } else
+                if (attributes[key] !== value) {
+                    attributes[key] = value;
                 }
             }
         }
