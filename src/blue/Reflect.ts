@@ -173,13 +173,18 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     if (!properties) return;
 
     //
+    const weak = new WeakRef(properties);
     subscribe(properties, (value, prop)=>{
+        if (value?.value != null) {
+            subscribe([value, "value"], (curr) => {
+                // sorry, we doesn't allow abuse that mechanic
+                if (weak?.deref?.()?.[prop] === value) {
+                    if (typeof curr == "undefined") { delete element[prop]; } else { element[prop] = curr; }
+                }
+            });
+        } else
         if (element[prop] !== value) {
-            if (typeof value == "undefined") {
-                delete element[prop];
-            } else {
-                element[prop] = value;
-            }
+            if (typeof value == "undefined") { delete element[prop]; } else { element[prop] = value; }
         }
     })
 

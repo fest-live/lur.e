@@ -17,6 +17,7 @@ interface Params {
     slot?: string;
     is?: string;
     on?: any;
+    hidden?: any;
 };
 
 //
@@ -94,6 +95,26 @@ export class El {
                         }
                     });
                 });
+            }
+
+            //
+            if (this.params.hidden != null) {
+                if (typeof this.params.hidden == "object" || typeof this.params.hidden == "function") {
+                    subscribe([this.params.hidden, "value"], (val)=>{
+                        if (element instanceof HTMLInputElement) {
+                            element.hidden = val != null
+                        } else {
+                            if (val == null) { delete element.dataset.hidden; } else { element.dataset.hidden = ""; };
+                        }
+                    });
+                } else {
+                    const isNotHidden = !this.params.hidden && typeof this.params.hidden != "string";
+                    if (element instanceof HTMLInputElement) {
+                        element.hidden = !isNotHidden;
+                    } else {
+                        if (isNotHidden) { delete element.dataset.hidden; } else { element.dataset.hidden = ""; };
+                    }
+                }
             }
         }
         if (this.children) reflectChildren(element, this.children);
