@@ -155,8 +155,8 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
                 handleStyleChange(element, prop, value);
             }
 
-            // subscribe with value with `value` reactivity
-            if (value?.value != null) {
+            // subscribe with value with `value` reactivity (TypedOM isn't valid)
+            if (value?.value != null && !(value instanceof CSSStyleValue)) {
                 subscribe([value, "value"], (curr) => {
                     // sorry, we doesn't allow abuse that mechanic
                     if (weak?.deref?.()?.[prop] === value) {
