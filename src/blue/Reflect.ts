@@ -21,6 +21,8 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
             } else
             if (value?.value != null && typeof value?.value != "object" && typeof value?.value != "function") {
                 element.setAttribute(prop, value.value);
+            } else { // any invalid type is deleted value
+                element.removeAttribute(prop);
             }
         }
 
@@ -37,6 +39,8 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
                     } else
                     if (curr?.value != null && typeof curr?.value != "object" && typeof curr?.value != "function") {
                         element.setAttribute(prop, curr.value);
+                    } else { // any invalid type is deleted value
+                        element.removeAttribute(prop);
                     }
                 }
             });
@@ -65,6 +69,78 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     observer.observe(element, config);
 }
 
+//
+function camelToKebab(str) { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
+function kebabToCamel(str) { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
+
+//
+const deleteStyleProperty = (element, name)=>{
+    element.style.removeProperty(camelToKebab(name));
+}
+
+//
+const setStyleProperty = (element, name, value: any)=>{
+    // custom properties currently doesn't supports Typed OM
+    if (name?.trim?.()?.startsWith?.("--")) {
+        const old = element.style.getProperty(name);
+        value = (value instanceof CSSStyleValue ? value.toString() : value);
+        if (old !== value) { element.style.setProperty(name, value, ""); };
+    } else
+    if (value instanceof CSSStyleValue) {
+        const kebab = camelToKebab(name);
+        if (element.attributeStyleMap != null) {
+            const old = element.attributeStyleMap.get(kebab);
+            if (old !== value) {
+                if (value instanceof CSSUnitValue) {
+                    if (old != null && value.unit && value.unit !== old?.unit) {
+                        element.attributeStyleMap.set(kebab, value);
+                    } else { old.value = value.value; }
+                } else {
+                    element.attributeStyleMap.set(kebab, value);
+                }
+            }
+        } else {
+            element.style.setProperty(kebabToCamel, value.toString(), "");
+        }
+    } else // very specific case if number and unit value can be changed directly
+    if (!Number.isNaN(value?.value ?? value) && element.attributeStyleMap != null) {
+        const kebab = camelToKebab(name);
+        const old = element.attributeStyleMap.get(kebab);
+        if (old instanceof CSSUnitValue) { old.value = value?.value ?? value; } else
+        {   // hard-case
+            const computed = element.computedStyleMap();
+            const oldCmVal = computed.get(kebab);
+            if (oldCmVal instanceof CSSUnitValue) {
+                if (oldCmVal.value != (value?.value ?? value)) {
+                    oldCmVal.value = value?.value ?? value;
+                    element.attributeStyleMap.set(kebab, oldCmVal);
+                }
+            } else {
+                element.style[kebabToCamel(name)] = (value?.value ?? value);
+            }
+        }
+    } else {
+        element.style[kebabToCamel(name)] = (value?.value ?? value);
+    }
+}
+
+//
+const handleStyleChange = (element, prop, value)=>{
+    if (typeof value == "undefined" || value == null) {
+        deleteStyleProperty(element, prop);
+    } else // non-object, except Typed OM
+    if ((typeof value != "object" && typeof value != "function") || value instanceof CSSStyleValue) {
+        setStyleProperty(element, prop, value);
+    } else
+    if (value?.value != null && typeof value?.value != "object" && typeof value?.value != "function") {
+        setStyleProperty(element, prop, value.value);
+    } else { // any invalid type is deleted value
+        deleteStyleProperty(element, prop);
+    }
+}
+
+
+
 // TODO! support observe styles
 export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (!styles) return;
@@ -75,18 +151,8 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     {
         const weak = new WeakRef(styles);
         subscribe(styles, (value, prop)=>{
-            if (element.style[prop] !== value) {
-                if (typeof value == "undefined") {
-                    delete element.style[prop];
-                } else
-                if (typeof value != "object" && typeof value != "function") {
-                    element.style[prop] = value;
-                } else
-                if (value?.value != null && typeof value?.value != "object" && typeof value?.value != "function") {
-                    element.style[prop] = value.value;
-                } else {
-                    element.style[prop] = value;
-                }
+            if (element.style[kebabToCamel(prop)] !== value) {
+                handleStyleChange(element, prop, value);
             }
 
             // subscribe with value with `value` reactivity
@@ -94,15 +160,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
                 subscribe([value, "value"], (curr) => {
                     // sorry, we doesn't allow abuse that mechanic
                     if (weak?.deref?.()?.[prop] === value) {
-                        if (typeof curr == "undefined" || curr == null) {
-                            delete element.style[prop];
-                        } else
-                        if (typeof curr != "object" && typeof curr != "function") {
-                            element.style[prop] = curr;
-                        } else
-                        if (curr?.value != null && typeof curr?.value != "object" && typeof curr?.value != "function") {
-                            element.style[prop] = curr.value;
-                        }
+                        handleStyleChange(element, prop, curr);
                     }
                 });
             }
