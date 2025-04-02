@@ -9,6 +9,7 @@ const { subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"])
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return;
 
+    //
     subscribe(attributes, (value, prop)=>{
         if (element.getAttribute(prop) !== value) {
             if (typeof value == "undefined" || value == null) {
@@ -16,7 +17,25 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
             } else
             if (typeof value != "object" && typeof value != "function") {
                 element.setAttribute(prop, value);
+            } else
+            if (value?.value != null && typeof value?.value != "object" && typeof value?.value != "function") {
+                element.setAttribute(prop, value.value);
             }
+        }
+
+        // subscribe with value with `value` reactivity
+        if (value?.value != null) {
+            subscribe([value, "value"], (curr) => {
+                if (typeof curr == "undefined" || curr == null) {
+                    element.removeAttribute(prop);
+                } else
+                if (typeof curr != "object" && typeof curr != "function") {
+                    element.setAttribute(prop, curr);
+                } else
+                if (curr?.value != null && typeof curr?.value != "object" && typeof curr?.value != "function") {
+                    element.setAttribute(prop, curr.value);
+                }
+            });
         }
     })
 
@@ -41,6 +60,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
 export const reflectProperties = (element: HTMLElement, properties: any)=>{
     if (!properties) return;
 
+    //
     subscribe(properties, (value, prop)=>{
         if (element[prop] !== value) {
             if (typeof value == "undefined") {
@@ -63,16 +83,38 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (!styles) return;
 
-    if (typeof styles == "string") {
-        element.style.cssText = styles;
-    } else {
+    //
+    if (typeof styles == "string") { element.style.cssText = styles; } else
+    if (typeof styles?.value == "string") { subscribe([styles, "value"], (val) => { element.style.cssText = val; }); } else
+    {
         subscribe(styles, (value, prop)=>{
             if (element.style[prop] !== value) {
                 if (typeof value == "undefined") {
                     delete element.style[prop];
+                } else
+                if (typeof value != "object" && typeof value != "function") {
+                    element.style[prop] = value;
+                } else
+                if (value?.value != null && typeof value?.value != "object" && typeof value?.value != "function") {
+                    element.style[prop] = value.value;
                 } else {
                     element.style[prop] = value;
                 }
+            }
+
+            // subscribe with value with `value` reactivity
+            if (value?.value != null) {
+                subscribe([value, "value"], (curr) => {
+                    if (typeof curr == "undefined" || curr == null) {
+                        delete element.style[prop];
+                    } else
+                    if (typeof curr != "object" && typeof curr != "function") {
+                        element.style[prop] = curr;
+                    } else
+                    if (curr?.value != null && typeof curr?.value != "object" && typeof curr?.value != "function") {
+                        element.style[prop] = curr.value;
+                    }
+                });
             }
         });
     }
