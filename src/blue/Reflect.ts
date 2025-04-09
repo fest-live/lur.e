@@ -218,6 +218,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children;
     observe(children, (op, ...args)=>{
         const element = ref.deref(); if (!element) return;
+        if (children?.length == 0 && element instanceof HTMLElement) { element.innerHTML = ``; };
         if (op == "@set")   { replaceChildren(element, args[1], args[0], mapper); } // TODO: replace group
         if (op == "push")   { appendChild(element, args[0]?.[0], mapper); };
         if (op == "splice") { removeChild(element, args[2] ?? children[args[0]?.[0]], args[0]?.[0], mapper); };
