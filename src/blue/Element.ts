@@ -15,6 +15,9 @@ interface Params {
     properties?: any;
     style?: any|string;
     slot?: string;
+    name?: string;
+    type?: string;
+    inert?: boolean|string;
     is?: string;
     on?: any;
     hidden?: any;
@@ -79,7 +82,10 @@ export class El {
 
             //
             if (this.params.slot != null) element.slot = this.params.slot;
+            if (this.params.name != null) element.setAttribute("name", this.params.name);
+            if (this.params.type != null) element.setAttribute("type", this.params.type);
             if (this.params.is != null) element.setAttribute("is", this.params.is);
+            if (this.params.inert || this.params.inert == "") element.setAttribute("inert", "");
 
             // TODO: reflect with dataset
             if (this.params.dataset != null) Object.assign(element.dataset, this.params.dataset);
