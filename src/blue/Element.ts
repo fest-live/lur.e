@@ -70,7 +70,7 @@ export class El {
         }
 
         // create new element if there is not for reflection
-        const element = createElement(this.selector);
+        const element = typeof this.selector == "string" ? createElement(this.selector) : this.selector;
         if (element instanceof HTMLElement) {
             reflectAttributes(element, this.params.attributes);
             reflectStyles(element, this.params.style);
