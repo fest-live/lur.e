@@ -1,6 +1,6 @@
 //
 import { observe, importCdn } from "./Array.js";
-import { appendChild, removeChild, replaceChildren } from "./DOM.js";
+import { appendChild, removeChild, removeChildIndep, replaceChildren } from "./DOM.js";
 
 // @ts-ignore
 const { subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
@@ -216,13 +216,19 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 
     mapper   = (children?.["@mapped"] ? (children as any)?.mapper : mapper) ?? mapper;
     children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children;
-    observe(children, (op, ...args)=>{
+    if (Array.isArray(children) || (children as any)?.length != null) observe(children, (op, ...args)=>{
         const element = ref.deref(); if (!element) return;
         if (children?.length == 0 && element instanceof HTMLElement) { element.innerHTML = ``; };
         if (op == "@set")   { replaceChildren(element, args[1], args[0], mapper); } // TODO: replace group
-        if (op == "push")   { appendChild(element, args[0]?.[0], mapper); };
         if (op == "splice") { removeChild(element, args[2] ?? children[args[0]?.[0]], args[0]?.[0], mapper); };
         if (op == "pop")    { removeChild(element, args[2], children?.length-1, mapper); };
+        if (op == "push")   { appendChild(element, args[0]?.[0], mapper); };
+    }); else
+    subscribe(children, (obj, _, has)=>{
+        const element = ref.deref(); if (!element) return;
+        if ((children as any)?.size == 0 && element instanceof HTMLElement) { element.innerHTML = ``; };
+        if (obj == null && has != null) { removeChildIndep(element, obj ?? has, mapper); };
+        if (obj != null && has == null) { appendChild(element, obj ?? has, mapper); };
     });
 }
 

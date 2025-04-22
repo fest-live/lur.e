@@ -42,7 +42,7 @@ export const getNode = (E, mapper?: Function, index?: number)=>{
     if (E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) {
         return E;
     } else
-    if (typeof E == "object") {
+    if (typeof E == "object" && E != null) {
         return E?.element ?? elMap.get(E);
     }
     return E;
@@ -59,12 +59,12 @@ export const appendChild = (element, cp, mapper?)=>{
     }
 
     if (/*cp?.children?.length > 1 &&*/ cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.["@virtual"] || cp?.["@mapped"])) {
-        element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number)=>getNode(cl)) ?? unwrap(cp?.children)));
+        element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number)=>(getNode(cl)??"")) ?? unwrap(cp?.children)));
     } else
     if (Array.isArray(unwrap(cp))) {
-        element?.append?.(...unwrap(cp?.map?.((cl, _: number)=>getNode(cl)) ?? cp));
+        element?.append?.(...unwrap(cp?.map?.((cl, _: number)=>(getNode(cl)??"")) ?? cp));
     } else {
-        element?.append?.(getNode(cp));
+        element?.append?.((getNode(cp)??""));
     }
 }
 
@@ -95,11 +95,26 @@ export const removeChild = (element, cp, index, mapper?)=>{
     //if (mapper) { children = mapper?.(children) ?? children; };
     if (element?.childNodes?.length < 1) return;
     const node = getNode(cp = mapper?.(cp) ?? cp);
+    console.log(node);
     const ch = node ?? element?.childNodes?.[index];
     if (ch?.parentNode == element) { ch?.remove?.(); } else
     if (ch?.children && ch?.children?.length >= 1) {
         // TODO: remove by same string value
         ch?.children?.forEach?.(c => { const R = (elMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });
         //children?.children?.forEach(c => element?.childNodes?.find?.((e)=>(e==))?.remove?.());
-    } else { element?.childNodes?.[index]?.remove?.(); }
+    } else { (ch || element?.childNodes?.[index])?.remove?.(); }
+}
+
+//
+export const removeChildIndep = (element, cp, mapper?)=>{
+    //if (mapper) { children = mapper?.(children) ?? children; };
+    if (element?.childNodes?.length < 1) return;
+    const node = getNode(cp = mapper?.(cp) ?? cp);
+    const ch = node;
+    if (ch?.parentNode == element) { ch?.remove?.(); } else
+    if (ch?.children && ch?.children?.length >= 1) {
+        // TODO: remove by same string value
+        ch?.children?.forEach?.(c => { const R = (elMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });
+        //children?.children?.forEach(c => element?.childNodes?.find?.((e)=>(e==))?.remove?.());
+    } else { (ch)?.remove?.(); }
 }
