@@ -25,6 +25,27 @@ const handleAttribute = (element, prop, value)=>{
 }
 
 //
+const handleDataset = (element, prop, value)=>{
+    if (!prop) return;
+    if (element.dataset[prop] !== value) {
+        if (typeof value == "undefined" || value == null) {
+            delete element.dataset[prop];
+        } else
+        if (typeof value != "object" && typeof value != "function") {
+            element.dataset[prop] = value;
+        } else
+        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function")) {
+            element.dataset[prop] = value.value;
+        } else { // any invalid type is deleted value
+            console.warn(`Invalid type of attribute value "${prop}":`, value);
+            delete element.dataset[prop];
+        }
+    }
+}
+
+
+
+//
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return;
 
@@ -70,6 +91,32 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     //
     const observer = new MutationObserver(callback);
     observer.observe(element, config);
+}
+
+//
+export const reflectDataset = (element: HTMLElement, attributes: any)=>{
+    if (!attributes) return;
+
+    //
+    const weak = new WeakRef(attributes);
+    if (typeof attributes == "object" || typeof attributes == "function") {
+        subscribe(attributes, (value, prop)=>{
+            handleDataset(element, prop, value);
+
+            // subscribe with value with `value` reactivity
+            if (value?.value != null) {
+                subscribe([value, "value"], (curr) => {
+                    // sorry, we doesn't allow abuse that mechanic
+                    if (weak?.deref?.()?.[prop] === value) {
+                        handleDataset(element, prop, curr);
+                    }
+                });
+            }
+        })
+    } else {
+        console.warn("Invalid dataset object:", attributes);
+    }
+
 }
 
 //

@@ -5,7 +5,7 @@ const { makeReactive, subscribe } = await Promise.try(importCdn, ["/externals/li
 
 //
 import { createElement, elMap } from './DOM';
-import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules } from './Reflect';
+import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules, reflectDataset } from './Reflect';
 
 //
 interface Params {
@@ -66,6 +66,9 @@ export class El {
         this.children = children || observableArray([]);
         this.params   = params;
         this.selector = selector;
+        
+        //
+        if (typeof this.selector != "string") { this.selector = this.element as any; }
     }
 
     //
@@ -82,6 +85,7 @@ export class El {
             reflectStyles(element, this.params.style);
             reflectClassList(element, this.params.classList);
             reflectProperties(element, this.params.properties);
+            reflectDataset(element, this.params.dataset);
 
             // one-shot update
             this.params?.rules?.forEach?.((rule)=>{
@@ -98,7 +102,7 @@ export class El {
             if (this.params.inert || this.params.inert == "") element.setAttribute("inert", "");
 
             // TODO: reflect with dataset
-            if (this.params.dataset != null) Object.assign(element.dataset, this.params.dataset);
+            //if (this.params.dataset != null) Object.assign(element.dataset, this.params.dataset);
 
             // if has event listeners, use it
             if (this.params.on) {
@@ -138,6 +142,7 @@ export class El {
         return element;
     }
 
+    //
     reform() {
         if ((this.element instanceof HTMLElement || this.element instanceof DocumentFragment) && this.children) {
             reformChildren(this.element, this.children);
