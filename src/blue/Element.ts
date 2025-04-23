@@ -5,7 +5,7 @@ const { makeReactive, subscribe } = await Promise.try(importCdn, ["/externals/li
 
 //
 import { createElement, elMap } from './DOM';
-import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren } from './Reflect';
+import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules } from './Reflect';
 
 //
 interface Params {
@@ -23,6 +23,7 @@ interface Params {
     part?: string;
     on?: any;
     hidden?: any;
+    rules?: any[];
 };
 
 //
@@ -81,6 +82,11 @@ export class El {
             reflectStyles(element, this.params.style);
             reflectClassList(element, this.params.classList);
             reflectProperties(element, this.params.properties);
+
+            // one-shot update
+            this.params?.rules?.forEach?.((rule)=>{
+                reflectWithStyleRules(element, rule);
+            });
 
             //
             if (this.params.slot != null) element.slot = this.params.slot;

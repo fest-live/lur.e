@@ -49,17 +49,19 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     }
 
     // bi-directional attribute
-    const config = { attributes: true, childList: false, subtree: false };
+    const config = { attributeOldValue: true, attributes: true, childList: false, subtree: false };
     const callback = (mutationList, _) => {
         for (const mutation of mutationList) {
             if (mutation.type == "attributes") {
                 const key = mutation.attributeName;
-                const value = mutation.target.getAttribute(mutation.attributeName);
-                if (attributes[key] != null && (attributes[key]?.value != null || (typeof attributes[key] == "object" || typeof attributes[key] == "function"))) {
-                    if (attributes[key]?.value !== value) { attributes[key].value = value; }
-                } else
-                if (attributes[key] !== value) {
-                    attributes[key] = value;
+                const value = mutation.target.getAttribute(key);
+                if (value !== mutation.oldValue) { // one-shot update (only valid when attribute is really changes)
+                    if (attributes[key] != null && (attributes[key]?.value != null || (typeof attributes[key] == "object" || typeof attributes[key] == "function"))) {
+                        if (attributes[key]?.value !== value) { attributes[key].value = value; }
+                    } else
+                    if (attributes[key] !== value) {
+                        attributes[key] = value;
+                    }
                 }
             }
         }
@@ -178,6 +180,12 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     } else {
         console.warn("Invalid styles object:", styles);
     }
+}
+
+// one-shot update
+export const reflectWithStyleRules = async (element: HTMLElement, rule: any)=>{
+    const styles = await rule?.(element);
+    return reflectStyles(element, styles);
 }
 
 //
