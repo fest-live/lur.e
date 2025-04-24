@@ -59,7 +59,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
             if (value?.value != null) {
                 subscribe([value, "value"], (curr) => {
                     // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.[prop] === value) {
+                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
                         handleAttribute(element, prop, curr);
                     }
                 });
@@ -107,7 +107,7 @@ export const reflectDataset = (element: HTMLElement, attributes: any)=>{
             if (value?.value != null) {
                 subscribe([value, "value"], (curr) => {
                     // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.[prop] === value) {
+                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
                         handleDataset(element, prop, curr);
                     }
                 });
@@ -116,8 +116,8 @@ export const reflectDataset = (element: HTMLElement, attributes: any)=>{
     } else {
         console.warn("Invalid dataset object:", attributes);
     }
-
 }
+
 
 //
 function camelToKebab(str) { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
@@ -218,7 +218,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
             if (value?.value != null && !(value instanceof CSSStyleValue)) {
                 subscribe([value, "value"], (curr) => {
                     // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.[prop] === value) {
+                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
                         handleStyleChange(element, prop, curr);
                     }
                 });
@@ -245,7 +245,7 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
         if (value?.value != null) {
             subscribe([value, "value"], (curr) => {
                 // sorry, we doesn't allow abuse that mechanic
-                if (weak?.deref?.()?.[prop] === value) {
+                if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
                     if (typeof curr == "undefined") { delete element[prop]; } else { element[prop] = curr; }
                 }
             });

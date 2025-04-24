@@ -95,7 +95,6 @@ export const removeChild = (element, cp, index, mapper?)=>{
     //if (mapper) { children = mapper?.(children) ?? children; };
     if (element?.childNodes?.length < 1) return;
     const node = getNode(cp = mapper?.(cp) ?? cp);
-    console.log(node);
     const ch = node ?? element?.childNodes?.[index];
     if (ch?.parentNode == element) { ch?.remove?.(); } else
     if (ch?.children && ch?.children?.length >= 1) {
