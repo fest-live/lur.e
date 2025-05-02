@@ -1,8 +1,14 @@
 # 🌀 *BLU-E* 🌀
 
+---
+
 <table>
 <tr>
-<td><img width="128" alt="Logo" src="./logo/logo-0.png"/></td>
+<td align="center" colspan="2">
+<img width="128" alt="Logo" src="./logo/logo-0.png"/>
+</td>
+</tr>
+<tr>
 <td>
 
 🌀 Own experimental **UI** library. 🌀
@@ -17,7 +23,6 @@
 - Input changes `value` key to reactive
 
 </td>
-
 <td>
 
 🔌 Shortly, most notable **core** concept. 🔌
@@ -34,6 +39,8 @@
 </td>
 </tr>
 </table>
+
+---
 
 ## *Plans*
 
