@@ -11,7 +11,9 @@
 <tr>
 <td valign="top">
 
-🌀 Own experimental **UI** library. 🌀
+### 🌀 Features 🌀
+
+Own experimental **UI** library.
 
 - Better memory managment
 - Cache and reaction system
@@ -25,7 +27,9 @@
 </td>
 <td valign="top">
 
-🔌 Shortly, most notable **core** concept. 🔌
+### 🔌 API 🔌
+
+Shortly, most notable **core** concept.
 
 - `E(Element|Selector, { attributes: {}, dataset: {}, style: {}, ... }, children[] | mapped)`
    - create DOM element with nodes
