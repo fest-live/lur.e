@@ -17,6 +17,18 @@
 - Input changes `value` key to reactive
 
 </td>
+
+<td>
+
+🔌 Shortly, most notable **core** concept. 🔌
+
+- `E(Element|Selector, { attributes: {}, dataset: {}, style: {}, ... }, children[] | mapped)`
+   - create DOM element with nodes
+- `M(Array|Set, generateCb)` - make mapped elements from array
+- `H(DOMCode)` - create static DOM HTML from code
+- `L(String|StringRef)` - make TextNode object
+
+</td>
 </tr>
 </table>
 
@@ -28,10 +40,9 @@
 - Also I would to implement scroll-driven animations (timelines) and animation worklets, but also have no any viable ideas.
 - Have very weak ideas for ResizeObserver's.
 
-## *Dependency*
-
-- [`Object.TS`](https://github.com/unite-2-re/object.ts) most notable.
-- [`DOM.ts`](https://github.com/unite-2-re/dom.ts) DOM utils (may be appear).
+<table>
+<tr>
+<td>
 
 ## *Interaction*
 
@@ -39,11 +50,14 @@
 - [`Agate.UX`](https://github.com/unite-2-re/agate.ux) honestly, not remembers.
 - [`UI.System`](https://github.com/unite-2-re/ui.system) from v3.
 
-## 🔌 *API* 🔌
+</td>
+<td>
 
-Shortly, most notable **core** concept.
+## *Dependency*
 
-- `E(Element|Selector, { attributes: {}, dataset: {}, style: {}, ... }, children[] | mapped)` - create DOM element with nodes
-- `M(Array|Set, generateCb)` - make mapped elements from array
-- `H(DOMCode)` - create static DOM HTML from code
-- `L(String|StringRef)` - make TextNode object
+- [`Object.TS`](https://github.com/unite-2-re/object.ts) most notable.
+- [`DOM.ts`](https://github.com/unite-2-re/dom.ts) DOM utils (may be appear).
+
+</td>
+</tr>
+</table>
