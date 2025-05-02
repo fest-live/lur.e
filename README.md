@@ -1,10 +1,11 @@
-# BLU-E
+# 🌀 *BLU-E* 🌀
 
-Own experimental frontend framework (runtime).
+<table>
+<tr>
+<td><img width="128" alt="Logo" src="./logo/logo-0.png"/></td>
+<td>
 
-I have no very viable or notable features, used by own projects.
-
-## Notable features
+🌀 Own experimental **UI** library. 🌀
 
 - Better memory managment
 - Cache and reaction system
@@ -15,7 +16,11 @@ I have no very viable or notable features, used by own projects.
 - Mutation Observer (attributes)
 - Input changes `value` key to reactive
 
-## Unknown features
+</td>
+</tr>
+</table>
+
+## *Plans*
 
 - I have no viable ideas about MutationObserver DOM tree features, same as Intersection Observers.
 - I don't know how to use [Web Animations](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API) in context of that framework.
@@ -23,12 +28,22 @@ I have no very viable or notable features, used by own projects.
 - Also I would to implement scroll-driven animations (timelines) and animation worklets, but also have no any viable ideas.
 - Have very weak ideas for ResizeObserver's.
 
-## Dependency
+## *Dependency*
 
 - [`Object.TS`](https://github.com/unite-2-re/object.ts) most notable.
 - [`DOM.ts`](https://github.com/unite-2-re/dom.ts) DOM utils (may be appear).
 
-## Interaction
+## *Interaction*
 
 - [`Existence.TS`](https://github.com/unite-2-re/existence.core) visible or hidden control.
 - [`Agate.UX`](https://github.com/unite-2-re/agate.ux) honestly, not remembers.
+- [`UI.System`](https://github.com/unite-2-re/ui.system) from v3.
+
+## 🔌 *API* 🔌
+
+Shortly, most notable **core** concept.
+
+- `E(Element|Selector, { attributes: {}, dataset: {}, style: {}, ... }, children[] | mapped)` - create DOM element with nodes
+- `M(Array|Set, generateCb)` - make mapped elements from array
+- `H(DOMCode)` - create static DOM HTML from code
+- `L(String|StringRef)` - make TextNode object
