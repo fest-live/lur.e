@@ -24,9 +24,12 @@
 
 - `E(Element|Selector, { attributes: {}, dataset: {}, style: {}, ... }, children[] | mapped)`
    - create DOM element with nodes
-- `M(Array|Set, generateCb)` - make mapped elements from array
-- `H(DOMCode)` - create static DOM HTML from code
-- `L(String|StringRef)` - make TextNode object
+- `M(Array|Set, generateCb)`
+   - make mapped elements from array
+- `H(DOMCode)`
+   - create static DOM HTML from code
+- `L(String|StringRef)`
+   - make TextNode object
 
 </td>
 </tr>
