@@ -15,7 +15,7 @@ const dStyle = { backgroundColor: "black", color: "white" };
 const clone = E("div", { style: dStyle }, []);
 
 // create document fragment
-const dom = H`<div on:click=${()=>alert("Тетрис!")} style=${style}>${children}</div>`;
+const dom = H`<${"div#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}>${children}</div>`;
 console.log(dom);
 
 //

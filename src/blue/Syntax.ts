@@ -3,6 +3,16 @@ import E, { T } from "./Element"
 import M from "./Mapped";
 
 //
+function parseTag(str) {
+    // Пример: "div#myid.class1.class2"
+    const match = str.match(/^([a-zA-Z0-9]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/);
+    if (!match) return { tag: str, id: null, className: null };
+    const [, tag = 'div', id, classStr] = match;
+    const className = classStr ? classStr.replace(/\./g, ' ').trim() : null;
+    return { tag, id, className };
+}
+
+//
 export function html(strings, ...values) { return htmlBuilder({ createElement: null })(strings, ...values); }
 export function htmlBuilder({ createElement = null } = {}) {
     return function(strings, ...values) {
@@ -11,9 +21,16 @@ export function htmlBuilder({ createElement = null } = {}) {
         for (let i = 0; i < strings.length; i++) {
             parts.push(strings?.[i] || "");
             if (i < values.length) {
-                const isAttr = strings[i]?.trim()?.endsWith?.("=") && (strings[i+1]?.search?.(/^[\s\n\r\>]/) != null);
-                const psi = psh.length, ati = atb.length; parts.push(isAttr ? `"#{${ati}}"` : `<!--o:${psi}-->`);
-                if (values?.[i] != null) { (isAttr ? atb : psh).push(values?.[i]); };
+                if (strings[i]?.trim()?.endsWith?.("<")) {
+                    const dat = parseTag(values?.[i]);
+                    parts.push((dat.tag || "div"));
+                    if (dat.id) parts.push(` id="${dat.id}"`);
+                    if (dat.className) parts.push(` class="${dat.className}"`);
+                } else {
+                    const isAttr = strings[i]?.trim()?.endsWith?.("=") && (strings[i+1]?.search?.(/^[\s\n\r\>]/) != null);
+                    const psi = psh.length, ati = atb.length; parts.push(isAttr ? `"#{${ati}}"` : `<!--o:${psi}-->`);
+                    if (values?.[i] != null) { (isAttr ? atb : psh).push(values?.[i]); };
+                }
             }
         }
 
