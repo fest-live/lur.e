@@ -11,7 +11,7 @@ export function htmlBuilder({ createElement = null } = {}) {
         for (let i = 0; i < strings.length; i++) {
             parts.push(strings?.[i] || "");
             if (i < values.length) {
-                const isAttr = strings[i]?.trim()?.endsWith?.("=") && (strings[i+1]?.startsWith?.(" ") || strings[i+1]?.trim()?.startsWith?.(">"));
+                const isAttr = strings[i]?.trim()?.endsWith?.("=") && (strings[i+1]?.search?.(/^[\s\n\r\>]/) != null);
                 const psi = psh.length, ati = atb.length; parts.push(isAttr ? `"#{${ati}}"` : `<!--o:${psi}-->`);
                 if (values?.[i] != null) { (isAttr ? atb : psh).push(values?.[i]); };
             }
@@ -47,7 +47,7 @@ export function htmlBuilder({ createElement = null } = {}) {
             if (el != null) {
                 // TODO: advanced attributes support
                 let style = "", dataset = {}, properties = {}, on = {}, iterate = [];
-                for (const attr of el.attributes) {
+                for (const attr of Array.from(el.attributes)) {
                     const isCustom = attr.value?.startsWith("#{");
                     const value = isCustom ? atb[parseInt(attr.value.match(/^#\{(.+)\}$/)?.[1])] : attr.value;
 
@@ -55,10 +55,11 @@ export function htmlBuilder({ createElement = null } = {}) {
                     if (attr.name == "style") { style = value; } else
                     if (attr.name == "dataset") { dataset = value; } else
                     if (attr.name == "iterate") { iterate = value; } else
-                    if (attr.name.startsWith("on:")) { on[attr.name.replace("on:", Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value))] } else
-                    //if (attr.name.startsWith("data-")) { dataset[attr.name.replace("data-", "")] = value; } else
-                    if (attr.name.startsWith("prop:")) { properties[attr.name.replace("prop:", "")] = value; } else
-                        { attributes[attr.name] = value; }
+                    if (attr.name == "dataset") { dataset = value; } else
+                    if (attr.name == "properties") { properties = value; } else
+                    if (attr.name.startsWith("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
+                    if (attr.name.startsWith("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
+                        { attributes[attr.name.trim()] = value; }
 
                     //
                     if (isCustom) { el.removeAttribute(attr.name); };
