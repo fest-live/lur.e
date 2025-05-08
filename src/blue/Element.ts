@@ -66,7 +66,7 @@ export class El {
         this.children = children || observableArray([]);
         this.params   = params;
         this.selector = selector;
-        
+
         //
         if (typeof this.selector != "string") { this.selector = this.element as any; }
     }
