@@ -6,120 +6,6 @@ import { appendChild, removeChild, removeChildIndep, replaceChildren } from "./D
 const { subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
 
 //
-const handleAttribute = (element, prop, value)=>{
-    if (!prop) return;
-    if (element.getAttribute(prop) !== value) {
-        if (typeof value == "undefined" || value == null) {
-            element.removeAttribute(prop);
-        } else
-        if (typeof value != "object" && typeof value != "function") {
-            element.setAttribute(prop, value);
-        } else
-        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function")) {
-            element.setAttribute(prop, value.value);
-        } else { // any invalid type is deleted value
-            console.warn(`Invalid type of attribute value "${prop}":`, value);
-            element.removeAttribute(prop);
-        }
-    }
-}
-
-//
-const handleDataset = (element, prop, value)=>{
-    if (!prop) return;
-    if (element.dataset[prop] !== value) {
-        if (typeof value == "undefined" || value == null) {
-            delete element.dataset[prop];
-        } else
-        if (typeof value != "object" && typeof value != "function") {
-            element.dataset[prop] = value;
-        } else
-        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function")) {
-            element.dataset[prop] = value.value;
-        } else { // any invalid type is deleted value
-            console.warn(`Invalid type of attribute value "${prop}":`, value);
-            delete element.dataset[prop];
-        }
-    }
-}
-
-
-
-//
-export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
-    if (!attributes) return;
-
-    //
-    const weak = new WeakRef(attributes);
-    if (typeof attributes == "object" || typeof attributes == "function") {
-        subscribe(attributes, (value, prop)=>{
-            handleAttribute(element, prop, value);
-
-            // subscribe with value with `value` reactivity
-            if (value?.value != null) {
-                subscribe([value, "value"], (curr) => {
-                    // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
-                        handleAttribute(element, prop, curr);
-                    }
-                });
-            }
-        })
-    } else {
-        console.warn("Invalid attributes object:", attributes);
-    }
-
-    // bi-directional attribute
-    const config = { attributeOldValue: true, attributes: true, childList: false, subtree: false };
-    const callback = (mutationList, _) => {
-        for (const mutation of mutationList) {
-            if (mutation.type == "attributes") {
-                const key = mutation.attributeName;
-                const value = mutation.target.getAttribute(key);
-                if (value !== mutation.oldValue) { // one-shot update (only valid when attribute is really changes)
-                    if (attributes[key] != null && (attributes[key]?.value != null || (typeof attributes[key] == "object" || typeof attributes[key] == "function"))) {
-                        if (attributes[key]?.value !== value) { attributes[key].value = value; }
-                    } else
-                    if (attributes[key] !== value) {
-                        attributes[key] = value;
-                    }
-                }
-            }
-        }
-    };
-
-    //
-    const observer = new MutationObserver(callback);
-    observer.observe(element, config);
-}
-
-//
-export const reflectDataset = (element: HTMLElement, attributes: any)=>{
-    if (!attributes) return;
-
-    //
-    const weak = new WeakRef(attributes);
-    if (typeof attributes == "object" || typeof attributes == "function") {
-        subscribe(attributes, (value, prop)=>{
-            handleDataset(element, prop, value);
-
-            // subscribe with value with `value` reactivity
-            if (value?.value != null) {
-                subscribe([value, "value"], (curr) => {
-                    // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
-                        handleDataset(element, prop, curr);
-                    }
-                });
-            }
-        })
-    } else {
-        console.warn("Invalid dataset object:", attributes);
-    }
-}
-
-
-//
 function camelToKebab(str) { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
 function kebabToCamel(str) { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
 
@@ -198,7 +84,126 @@ const handleStyleChange = (element, prop, value)=>{
     }
 }
 
+//
+const handleAttribute = (element, prop, value)=>{
+    if (!prop) return;
+    if (element.getAttribute(prop) !== value) {
+        if (typeof value == "undefined" || value == null) {
+            element.removeAttribute(prop);
+        } else
+        if (typeof value != "object" && typeof value != "function") {
+            element.setAttribute(prop, value);
+        } else
+        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function")) {
+            element.setAttribute(prop, value.value);
+        } else { // any invalid type is deleted value
+            console.warn(`Invalid type of attribute value "${prop}":`, value);
+            element.removeAttribute(prop);
+        }
+    }
+}
 
+//
+const handleDataset = (element, prop, value)=>{
+    if (!prop) return;
+    if (element.dataset[prop] !== value) {
+        if (typeof value == "undefined" || value == null) {
+            delete element.dataset[prop];
+        } else
+        if (typeof value != "object" && typeof value != "function") {
+            element.dataset[prop] = value;
+        } else
+        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function")) {
+            element.dataset[prop] = value.value;
+        } else { // any invalid type is deleted value
+            console.warn(`Invalid type of attribute value "${prop}":`, value);
+            delete element.dataset[prop];
+        }
+    }
+}
+
+
+
+//
+export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
+    if (!attributes) return;
+
+    //
+    const weak = new WeakRef(attributes);
+    const wel = new WeakRef(element);
+    if (typeof attributes == "object" || typeof attributes == "function") {
+        subscribe(attributes, (value, prop)=>{
+            handleAttribute(wel?.deref?.(), prop, value);
+
+            // subscribe with value with `value` reactivity
+            if (value?.value != null) {
+                let controller: AbortController|null = null;
+                subscribe([value, "value"], (curr, _, old) => {
+                    controller?.abort?.(); controller = new AbortController();
+                    // sorry, we doesn't allow abuse that mechanic
+                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
+                        if (typeof value?.behavior == "function") {
+                            value?.behavior?.([curr, (value = curr)=>handleAttribute(wel?.deref?.(), prop, value), old], [prop, controller?.signal, wel]);
+                        } else {
+                            handleAttribute(wel?.deref?.(), prop, curr);
+                        }
+                    }
+                });
+            }
+        })
+    } else {
+        console.warn("Invalid attributes object:", attributes);
+    }
+
+    // bi-directional attribute
+    const config = { attributeOldValue: true, attributes: true, childList: false, subtree: false };
+    const callback = (mutationList, _) => {
+        for (const mutation of mutationList) {
+            if (mutation.type == "attributes") {
+                const key = mutation.attributeName;
+                const value = mutation.target.getAttribute(key);
+                if (value !== mutation.oldValue) { // one-shot update (only valid when attribute is really changes)
+                    if (attributes[key] != null && (attributes[key]?.value != null || (typeof attributes[key] == "object" || typeof attributes[key] == "function"))) {
+                        if (attributes[key]?.value !== value) { attributes[key].value = value; }
+                    } else
+                    if (attributes[key] !== value) {
+                        attributes[key] = value;
+                    }
+                }
+            }
+        }
+    };
+
+    //
+    const observer = new MutationObserver(callback);
+    observer.observe(element, config);
+}
+
+//
+export const reflectDataset = (element: HTMLElement, attributes: any)=>{
+    if (!attributes) return;
+
+    //
+    const weak = new WeakRef(attributes);
+    const wel = new WeakRef(element);
+    if (typeof attributes == "object" || typeof attributes == "function") {
+        subscribe(attributes, (value, prop)=>{
+            handleDataset(wel?.deref?.(), prop, value);
+
+            // subscribe with value with `value` reactivity
+            if (value?.value != null) {
+                subscribe([value, "value"], (curr) => {
+                    // sorry, we doesn't allow abuse that mechanic
+                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
+                        handleDataset(wel?.deref?.(), prop, curr);
+                    }
+                });
+            }
+        })
+    } else {
+        console.warn("Invalid dataset object:", attributes);
+    }
+}
 
 // TODO! support observe styles
 export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
@@ -209,17 +214,26 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (typeof styles?.value == "string") { subscribe([styles, "value"], (val) => { element.style.cssText = val; }); } else
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles);
+        const wel = new WeakRef(element);
+
+        //
         subscribe(styles, (value, prop)=>{
-            if (element.style[kebabToCamel(prop)] !== value) {
-                handleStyleChange(element, prop, value);
+            if (wel?.deref?.()?.style[kebabToCamel(prop)] !== value) {
+                handleStyleChange(wel?.deref?.(), prop, value);
             }
 
             // subscribe with value with `value` reactivity (TypedOM isn't valid)
             if (value?.value != null && !(value instanceof CSSStyleValue)) {
-                subscribe([value, "value"], (curr) => {
+                let controller: AbortController|null = null;
+                subscribe([value, "value"], (curr, _, old) => {
+                    controller?.abort?.(); controller = new AbortController();
                     // sorry, we doesn't allow abuse that mechanic
                     if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
-                        handleStyleChange(element, prop, curr);
+                        if (typeof value?.behavior == "function") {
+                            value?.behavior?.([curr, (value = curr)=>handleStyleChange(wel?.deref?.(), prop, value), old], [prop, controller?.signal, wel]);
+                        } else {
+                            handleStyleChange(wel?.deref?.(), prop, curr);
+                        }
                     }
                 });
             }
@@ -241,17 +255,21 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 
     //
     const weak = new WeakRef(properties);
+    const wel = new WeakRef(element);
     subscribe(properties, (value, prop)=>{
         if (value?.value != null) {
             subscribe([value, "value"], (curr) => {
+                const el = wel?.deref?.();
                 // sorry, we doesn't allow abuse that mechanic
-                if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
-                    if (typeof curr == "undefined") { delete element[prop]; } else { element[prop] = curr; }
+                if ((weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) && el) {
+                    if (typeof curr == "undefined") { delete el[prop]; } else { el[prop] = curr; }
                 }
             });
-        } else
-        if (element[prop] !== value) {
-            if (typeof value == "undefined") { delete element[prop]; } else { element[prop] = value; }
+        } else {
+            const el = wel?.deref?.();
+            if (el && el?.[prop] !== value) {
+                if (typeof value == "undefined") { delete el[prop]; } else { el[prop] = value; }
+            }
         }
     })
 
@@ -290,11 +308,15 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 // TODO! observable classList
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return;
+    const wel = new WeakRef(element);
     subscribe(classList, (value: string)=>{
-        if (typeof value == "undefined" || value == null) {
-            element.classList.remove(value);
-        } else {
-            element.classList.add(value);
+        const el = wel?.deref?.();
+        if (el) {
+            if (typeof value == "undefined" || value == null) {
+                if (el.classList.contains(value)) { el.classList.remove(value); }
+            } else {
+                if (!el.classList.contains(value)) { el.classList.add(value); }
+            }
         }
     })
 }
