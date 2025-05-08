@@ -12,7 +12,7 @@ export const H = (str: any, ...values: any[])=>{
         return doc.body.childNodes[0];
     } else
     if (typeof str == "function") { return str?.(); } else
-    if (Array.isArray(str) && values) { return html(str, values); } else
+    if (Array.isArray(str) && values) { return html(str, ...values); } else
     if (str instanceof Node) { return str; }
     return "";
 }

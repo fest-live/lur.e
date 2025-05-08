@@ -11,7 +11,7 @@ export function htmlBuilder({ createElement = null } = {}) {
         for (let i = 0; i < strings.length; i++) {
             parts.push(strings?.[i] || "");
             if (i < values.length) {
-                const isAttr = strings[i]?.endsWith?.("=") && (strings[i+1]?.startsWith?.(" ") || strings[i+1]?.startsWith?.(">"));
+                const isAttr = strings[i]?.trim()?.endsWith?.("=") && (strings[i+1]?.startsWith?.(" ") || strings[i+1]?.trim()?.startsWith?.(">"));
                 const psi = psh.length, ati = atb.length; parts.push(isAttr ? `"#{${ati}}"` : `<!--o:${psi}-->`);
                 if (values?.[i] != null) { (isAttr ? atb : psh).push(values?.[i]); };
             }
@@ -29,28 +29,42 @@ export function htmlBuilder({ createElement = null } = {}) {
             if (node.nodeType === Node.COMMENT_NODE && node.nodeValue.startsWith("o:")) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
                 if (Array.isArray(el)) { el = el.flat(Infinity); }
+                console.log(el);
 
                 //
                 if (typeof el == "object" && "element" in el) { node.replaceWith(el.element); } else
                 if (el instanceof Node) { node.replaceWith(el); } else
                 if (Array.isArray(el) && el.every((v) => v instanceof Node) ) { node.replaceWith(...el); } else
                 if (el == null || el === false) { node.remove(); } else
-                    { node.replaceWith(T(el)); } // text-node
+                    { node.replaceWith(T(el)?.element); } // text-node
             }
         }
 
         //
         if (fragment?.nodeType === Node.ELEMENT_NODE) {
-            const el = fragment;
+            const el = fragment as HTMLElement;
             const attributes = {};
             if (el != null) {
                 // TODO: advanced attributes support
+                let style = "", dataset = {}, properties = {}, on = {};
                 for (const attr of el.attributes) {
-                    { attributes[attr.name] = attr.value?.startsWith("#{") ? atb[parseInt(attr.value.match(/^#\{(.+)\}$/)?.[1])] : attr.value; }
+                    const isCustom = attr.value?.startsWith("#{");
+                    const value = isCustom ? atb[parseInt(attr.value.match(/^#\{(.+)\}$/)?.[1])] : attr.value;
+
+                    //
+                    if (attr.name == "style") { style = value; } else
+                    if (attr.name == "dataset") { dataset = value; } else
+                    if (attr.name.startsWith("on:")) { on[attr.name.replace("on:", Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value))] } else
+                    //if (attr.name.startsWith("data-")) { dataset[attr.name.replace("data-", "")] = value; } else
+                    if (attr.name.startsWith("prop:")) { properties[attr.name.replace("prop:", "")] = value; } else
+                        { attributes[attr.name] = value; }
+
+                    //
+                    if (isCustom) { el.removeAttribute(attr.name); };
                 }
 
                 //
-                return E(el, {attributes}, Array.from(el.childNodes));
+                return E(el, {attributes, dataset, style, properties, on}, Array.from(el.childNodes))?.element;
             }
         }
 
