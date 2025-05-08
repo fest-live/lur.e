@@ -6,7 +6,6 @@ import M from "./Mapped";
 export function html(strings, ...values) { return htmlBuilder({ createElement: null })(strings, ...values); }
 export function htmlBuilder({ createElement = null } = {}) {
     return function(strings, ...values) {
-        //
         let parts = [];
         const psh = [], atb = [];
         for (let i = 0; i < strings.length; i++) {
@@ -30,13 +29,12 @@ export function htmlBuilder({ createElement = null } = {}) {
             const node = walker.currentNode;
             if (node.nodeType === Node.COMMENT_NODE && node.nodeValue.startsWith("o:")) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
-                if (Array.isArray(el)) { el = el.flat(Infinity); };
 
                 // make iteratable array and set
                 if (typeof el == "function") { if (node.parentNode?.getAttribute?.("iterate")) { node.remove(); mapped.set(node.parentNode, el); } else { node.replaceWith(el?.() || ""); } } else
                 if (typeof el == "object" && "element" in el) { node.replaceWith(el.element); } else
                 if (el instanceof Node) { node.replaceWith(el); } else
-                if (Array.isArray(el) && el.every((v) => v instanceof Node) ) { node.replaceWith(...el); } else
+                if (Array.isArray(el))  { node.replaceWith(M(el)?.element); } else
                 if (el == null || el === false) { node.remove(); } else
                     { node.replaceWith(T(el)?.element); } // text-node
             }
