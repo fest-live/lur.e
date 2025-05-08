@@ -303,16 +303,16 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     if (Array.isArray(children) || (children as any)?.length != null) observe(children, (op, ...args)=>{
         controller?.abort?.(); controller = new AbortController();
         const element = ref.deref(); if (!element) return;
-
-        //
-        if (op == "@set")   { toBeReplace.push([element, args[1], args[0], mapper]); } // TODO: replace group
-        if (op == "splice") { toBeRemoved.push([element, args[2] ?? children[args[0]?.[0]], mapper, args[0]?.[0]]); };
-        if (op == "pop")    { toBeRemoved.push([element, args[2], mapper, children?.length-1]); };
-        if (op == "push")   { if (args[0]?.[0] != null) toBeAppend.push([element, args[0]?.[0], mapper]); };
+        if (element) {
+            if (op == "@set")   { toBeReplace.push([element, args[1], args[0], mapper]); } // TODO: replace group
+            if (op == "splice") { toBeRemoved.push([element, args[2] ?? children[args[0]?.[0]], mapper, args[0]?.[0]]); };
+            if (op == "pop")    { toBeRemoved.push([element, args[2], mapper, children?.length-1]); };
+            if (op == "push")   { if (args[0]?.[0] != null) toBeAppend.push([element, args[0]?.[0], mapper]); };
+        }
 
         //
         if (children?.length == 0 && element instanceof HTMLElement) { element.innerHTML = ``; }; // @ts-ignore
-        if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0) {
+        if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0) { // @ts-ignore
             if (typeof children?.behavior == "function") { // @ts-ignore
                 children?.behavior?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, op, ref, args]);
             } else
@@ -322,10 +322,10 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     subscribe(children, (obj, _, has)=>{
         controller?.abort?.(); controller = new AbortController();
         const element = ref.deref(); if (!element) return;
-
-        //
-        if (obj == null && has != null) { toBeRemoved.push([element, obj ?? has, mapper]); };
-        if (obj != null && has == null) { toBeAppend.push([element, obj ?? has, mapper]); };
+        if (element) {
+            if (obj == null && has != null) { toBeRemoved.push([element, obj ?? has, mapper]); };
+            if (obj != null && has == null) { toBeAppend.push([element, obj ?? has, mapper]); };
+        }
 
         //
         if ((children as any)?.size == 0 && element instanceof HTMLElement) { element.innerHTML = ``; }; // @ts-ignore
