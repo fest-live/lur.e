@@ -1,6 +1,6 @@
 //
 import { observe, importCdn } from "./Array.js";
-import { appendChild, removeChild, removeChildIndep, replaceChildren } from "./DOM.js";
+import { appendChild, removeChild, replaceChildren } from "./DOM.js";
 
 // @ts-ignore
 const { subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
@@ -143,7 +143,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
                     // sorry, we doesn't allow abuse that mechanic
                     if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
                         if (typeof value?.behavior == "function") {
-                            value?.behavior?.([curr, (value = curr)=>handleAttribute(wel?.deref?.(), prop, value), old], [prop, controller?.signal, wel]);
+                            value?.behavior?.([curr, (value = curr)=>handleAttribute(wel?.deref?.(), prop, value), old], [controller?.signal, prop, wel]);
                         } else {
                             handleAttribute(wel?.deref?.(), prop, curr);
                         }
@@ -230,7 +230,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
                     // sorry, we doesn't allow abuse that mechanic
                     if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
                         if (typeof value?.behavior == "function") {
-                            value?.behavior?.([curr, (value = curr)=>handleStyleChange(wel?.deref?.(), prop, value), old], [prop, controller?.signal, wel]);
+                            value?.behavior?.([curr, (value = curr)=>handleStyleChange(wel?.deref?.(), prop, value), old], [controller?.signal, prop, wel]);
                         } else {
                             handleStyleChange(wel?.deref?.(), prop, curr);
                         }
@@ -289,19 +289,50 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 
     mapper   = (children?.["@mapped"] ? (children as any)?.mapper : mapper) ?? mapper;
     children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children;
+
+    //
+    const toBeRemoved: any[] = [], toBeAppend: any[] = [], toBeReplace: any[] = [];
+    const merge = ()=>{ // @ts-ignore
+        toBeAppend.forEach((args)=>appendChild(...args)); toBeAppend.splice(0, toBeAppend.length); // @ts-ignore
+        toBeReplace.forEach((args)=>replaceChildren(...args)); toBeReplace.splice(0, toBeReplace.length); // @ts-ignore
+        toBeRemoved.forEach((args)=>removeChild(...args)); toBeRemoved.splice(0, toBeRemoved.length); // @ts-ignore
+    }
+
+    //
+    let controller: AbortController|null = null;
     if (Array.isArray(children) || (children as any)?.length != null) observe(children, (op, ...args)=>{
+        controller?.abort?.(); controller = new AbortController();
         const element = ref.deref(); if (!element) return;
-        if (children?.length == 0 && element instanceof HTMLElement) { element.innerHTML = ``; };
-        if (op == "@set")   { replaceChildren(element, args[1], args[0], mapper); } // TODO: replace group
-        if (op == "splice") { removeChild(element, args[2] ?? children[args[0]?.[0]], args[0]?.[0], mapper); };
-        if (op == "pop")    { removeChild(element, args[2], children?.length-1, mapper); };
-        if (op == "push")   { appendChild(element, args[0]?.[0], mapper); };
+
+        //
+        if (op == "@set")   { toBeReplace.push([element, args[1], args[0], mapper]); } // TODO: replace group
+        if (op == "splice") { toBeRemoved.push([element, args[2] ?? children[args[0]?.[0]], mapper, args[0]?.[0]]); };
+        if (op == "pop")    { toBeRemoved.push([element, args[2], mapper, children?.length-1]); };
+        if (op == "push")   { if (args[0]?.[0] != null) toBeAppend.push([element, args[0]?.[0], mapper]); };
+
+        //
+        if (children?.length == 0 && element instanceof HTMLElement) { element.innerHTML = ``; }; // @ts-ignore
+        if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0) {
+            if (typeof children?.behavior == "function") { // @ts-ignore
+                children?.behavior?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, op, ref, args]);
+            } else
+            { merge(); }
+        }
     }); else
     subscribe(children, (obj, _, has)=>{
+        controller?.abort?.(); controller = new AbortController();
         const element = ref.deref(); if (!element) return;
-        if ((children as any)?.size == 0 && element instanceof HTMLElement) { element.innerHTML = ``; };
-        if (obj == null && has != null) { removeChildIndep(element, obj ?? has, mapper); };
-        if (obj != null && has == null) { appendChild(element, obj ?? has, mapper); };
+
+        //
+        if (obj == null && has != null) { toBeRemoved.push([element, obj ?? has, mapper]); };
+        if (obj != null && has == null) { toBeAppend.push([element, obj ?? has, mapper]); };
+
+        //
+        if ((children as any)?.size == 0 && element instanceof HTMLElement) { element.innerHTML = ``; }; // @ts-ignore
+        if (typeof children?.behavior == "function") { // @ts-ignore
+            children?.behavior?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, _, ref, [obj, has]]);
+        } else
+        { merge(); }
     });
 }
 

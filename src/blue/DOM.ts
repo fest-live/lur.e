@@ -77,7 +77,7 @@ export const replaceChildren = (element, cp, index, mapper?)=>{
         //cp = b ?? cp;
     }
 
-    const cn = element.childNodes?.[index];
+    const cn = element?.childNodes?.[index];
     if (cn instanceof Text && typeof cp == "string") {
         cn.textContent = cp;
     } else {
@@ -91,25 +91,11 @@ export const replaceChildren = (element, cp, index, mapper?)=>{
 }
 
 //
-export const removeChild = (element, cp, index, mapper?)=>{
+export const removeChild = (element, cp, mapper?, index = -1)=>{
     //if (mapper) { children = mapper?.(children) ?? children; };
     if (element?.childNodes?.length < 1) return;
     const node = getNode(cp = mapper?.(cp) ?? cp);
-    const ch = node ?? element?.childNodes?.[index];
-    if (ch?.parentNode == element) { ch?.remove?.(); } else
-    if (ch?.children && ch?.children?.length >= 1) {
-        // TODO: remove by same string value
-        ch?.children?.forEach?.(c => { const R = (elMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });
-        //children?.children?.forEach(c => element?.childNodes?.find?.((e)=>(e==))?.remove?.());
-    } else { (ch || element?.childNodes?.[index])?.remove?.(); }
-}
-
-//
-export const removeChildIndep = (element, cp, mapper?)=>{
-    //if (mapper) { children = mapper?.(children) ?? children; };
-    if (element?.childNodes?.length < 1) return;
-    const node = getNode(cp = mapper?.(cp) ?? cp);
-    const ch = node;
+    const ch = node ?? (index >= 0 ? element?.childNodes?.[index] : null);
     if (ch?.parentNode == element) { ch?.remove?.(); } else
     if (ch?.children && ch?.children?.length >= 1) {
         // TODO: remove by same string value
