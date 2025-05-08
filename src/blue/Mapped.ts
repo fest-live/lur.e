@@ -9,9 +9,9 @@ export class Mp {
     #reMap: WeakMap<any, any>;
 
     //
-    constructor(observable, mapCb) {
+    constructor(observable, mapCb = (el)=>el) {
         this.#observable = observable;
-        this.#mapCb = mapCb;
+        this.#mapCb = mapCb ?? ((el)=>el);
         this.#fragments = document.createDocumentFragment();
         this.#reMap = new WeakMap();
         //reflectChildren(this.#fragments, this.#observable = observable, this.#mapCb = mapCb);

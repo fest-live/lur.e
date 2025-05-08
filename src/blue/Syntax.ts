@@ -1,5 +1,6 @@
 //
 import E, { T } from "./Element"
+import M from "./Mapped";
 
 //
 export function html(strings, ...values) { return htmlBuilder({ createElement: null })(strings, ...values); }
@@ -23,15 +24,16 @@ export function htmlBuilder({ createElement = null } = {}) {
         const fragment = doc.body.firstChild;
 
         //
+        const mapped = new WeakMap();
         const walker = document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null, false);
         while (walker.nextNode()) {
             const node = walker.currentNode;
             if (node.nodeType === Node.COMMENT_NODE && node.nodeValue.startsWith("o:")) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
-                if (Array.isArray(el)) { el = el.flat(Infinity); }
-                console.log(el);
+                if (Array.isArray(el)) { el = el.flat(Infinity); };
 
-                //
+                // make iteratable array and set
+                if (typeof el == "function") { if (node.parentNode?.getAttribute?.("iterate")) { node.remove(); mapped.set(node.parentNode, el); } else { node.replaceWith(el?.() || ""); } } else
                 if (typeof el == "object" && "element" in el) { node.replaceWith(el.element); } else
                 if (el instanceof Node) { node.replaceWith(el); } else
                 if (Array.isArray(el) && el.every((v) => v instanceof Node) ) { node.replaceWith(...el); } else
@@ -46,7 +48,7 @@ export function htmlBuilder({ createElement = null } = {}) {
             const attributes = {};
             if (el != null) {
                 // TODO: advanced attributes support
-                let style = "", dataset = {}, properties = {}, on = {};
+                let style = "", dataset = {}, properties = {}, on = {}, iterate = [];
                 for (const attr of el.attributes) {
                     const isCustom = attr.value?.startsWith("#{");
                     const value = isCustom ? atb[parseInt(attr.value.match(/^#\{(.+)\}$/)?.[1])] : attr.value;
@@ -54,6 +56,7 @@ export function htmlBuilder({ createElement = null } = {}) {
                     //
                     if (attr.name == "style") { style = value; } else
                     if (attr.name == "dataset") { dataset = value; } else
+                    if (attr.name == "iterate") { iterate = value; } else
                     if (attr.name.startsWith("on:")) { on[attr.name.replace("on:", Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value))] } else
                     //if (attr.name.startsWith("data-")) { dataset[attr.name.replace("data-", "")] = value; } else
                     if (attr.name.startsWith("prop:")) { properties[attr.name.replace("prop:", "")] = value; } else
@@ -64,7 +67,7 @@ export function htmlBuilder({ createElement = null } = {}) {
                 }
 
                 //
-                return E(el, {attributes, dataset, style, properties, on}, Array.from(el.childNodes))?.element;
+                return E(el, {attributes, dataset, style, properties, on}, mapped.has(el) ? M(iterate, mapped.get(el)) : Array.from(el.childNodes))?.element;
             }
         }
 
