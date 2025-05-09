@@ -9,6 +9,7 @@
         "paths": {
             "/externals/*": ["externals/*"],
         },
+        "experimentalDecorators": true,
         "target": "ESNext",
         "module": "ESNext",
         "lib": ["ESNext", "DOM", "WebWorker"],

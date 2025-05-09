@@ -6,7 +6,7 @@ import M from "./Mapped";
 //
 function parseTag(str) {
     // Пример: "div#myid.class1.class2"
-    const match = str.match(/^([a-zA-Z0-9]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/);
+    const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/);
     if (!match) return { tag: str, id: null, className: null };
     const [, tag = 'div', id, classStr] = match;
     const className = classStr ? classStr.replace(/\./g, ' ').trim() : null;
