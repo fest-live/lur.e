@@ -1,29 +1,25 @@
 /* @vite-ignore */
-import { ref } from "/externals/lib/object";
+import { ref, makeReactive } from "/externals/lib/object";
 
 //
 //import observableArray from "../src/blue/Array";
-import E, { observeSize } from "../src/blue/Element";
 import H from "../src/blue/HTML";
 
 //
 const children = ref("Движуха!");
-const style = {backgroundColor: "black", color: "white", inlineSize: "100px", blockSize: "100px" };
+const style = makeReactive({backgroundColor: "black", color: "white", inlineSize: "100px", blockSize: "100px" });
 
 //
-const dStyle = { backgroundColor: "black", color: "white" };
-const clone = E("div", { style: dStyle }, []);
+const dStyle = makeReactive({ backgroundColor: "darkred", color: "white" });
 
 // create document fragment
-const dom = H`<${"div#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}>${children}</div>`;
-console.log(dom);
+const dom = H`<${"div#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}><span style=${dStyle}>${children}</span></div>`;
 
 //
 setTimeout(()=>{
     children.value = "Разруха!";
-    style.backgroundColor = "darkblue";
+    dStyle.backgroundColor = "darkblue";
 }, 1000);
 
 //
-document.body.append(clone.element);
 document.body.append(dom);
