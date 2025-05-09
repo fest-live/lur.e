@@ -1,4 +1,5 @@
 import {unwrap} from "./Array.ts";
+import { T } from "./Element";
 
 //
 const
@@ -23,31 +24,14 @@ export const createElement = (selector): HTMLElement|DocumentFragment => {
 //
 export const elMap = new WeakMap<any, HTMLElement|DocumentFragment|Text>();
 export const getNode = (E, mapper?: Function, index?: number)=>{
-    if (mapper) {
-        //const old = E;
-        //if (typeof E == "object" || typeof E == "function") {
-            //const b = reMap?.get(E) ?? mapper?.(E, index); E = getNode(b);
-            //if (!reMap?.has?.(old)) { reMap?.set(old, b); };
-        //} else {
-            E = getNode(mapper?.(E, index));
-        //}
-        return E;
-    }
-    if (typeof E == "function") {
-        return getNode(E()); // mapped arrays always empties after
-    } else
-    if (typeof E == "string") {
-        return new Text(E);
-    } else
-    if (E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) {
-        return E;
-    } else
-    if (typeof E == "object" && E != null) {
-        return E?.element ?? elMap.get(E);
-    }
+    if (mapper) { return (E = getNode(mapper?.(E, index))); }
+    if (typeof E?.value == "string" || typeof E?.value == "number") { return T(E)?.element; } else
+    if (typeof E == "function") { return getNode(E()); } else  // mapped arrays always empties after
+    if (typeof E == "string" || typeof E == "number") { return document.createTextNode(String(E)); } else
+    if (E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) { return E; } else
+    if (typeof E == "object" && E != null) { return E?.element ?? elMap.get(E); }
     return E;
 }
-
 
 //
 export const appendChild = (element, cp, mapper?)=>{

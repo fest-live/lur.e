@@ -1,4 +1,5 @@
 //
+import { getNode } from "./DOM";
 import E, { T } from "./Element"
 import M from "./Mapped";
 
@@ -86,7 +87,7 @@ export function htmlBuilder({ createElement = null } = {}) {
                 if (el instanceof Node) { node.replaceWith(el); } else
                 if (Array.isArray(el))  { node.replaceWith(M(el)?.element); } else
                 if (el == null || el === false) { node.remove(); } else
-                    { node.replaceWith(T(el)?.element); } // text-node
+                    { node.replaceWith(getNode(el)); } // text-node
             }
         }
 
