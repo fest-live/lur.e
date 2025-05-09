@@ -13,11 +13,41 @@ function parseTag(str) {
 }
 
 //
+const connectElement = (el: HTMLElement, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>)=>{
+    const attributes = {};
+    if (el != null) {
+        // TODO: advanced attributes support
+        let style = "", dataset = {}, properties = {}, on = {}, iterate = [];
+        for (const attr of Array.from(el.attributes)) {
+            const isCustom = attr.value?.startsWith("#{");
+            const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match(/^#\{(.+)\}$/)?.[1] || "0")] : attr.value;
+
+            //
+            if (attr.name == "style") { style = value; } else
+            if (attr.name == "dataset") { dataset = value; } else
+            if (attr.name == "iterate") { iterate = value; } else
+            if (attr.name == "dataset") { dataset = value; } else
+            if (attr.name == "properties") { properties = value; } else
+            if (attr.name.startsWith("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
+            if (attr.name.startsWith("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
+                { attributes[attr.name.trim()] = value; }
+
+            //
+            if (isCustom) { el.removeAttribute(attr.name); };
+        }
+
+        //
+        return E(el, {attributes, dataset, style, properties, on}, mapped.has(el) ? M(iterate, mapped.get(el)) : Array.from(el.childNodes))?.element;
+    }
+    return el;
+}
+
+//
 export function html(strings, ...values) { return htmlBuilder({ createElement: null })(strings, ...values); }
 export function htmlBuilder({ createElement = null } = {}) {
     return function(strings, ...values) {
-        let parts = [];
-        const psh = [], atb = [];
+        let parts: string[] = [];
+        const psh: any[] = [], atb: any[] = [];
         for (let i = 0; i < strings.length; i++) {
             parts.push(strings?.[i] || "");
             if (i < values.length) {
@@ -41,9 +71,12 @@ export function htmlBuilder({ createElement = null } = {}) {
 
         //
         const mapped = new WeakMap();
-        const walker = document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null, false);
-        while (walker.nextNode()) {
-            const node = walker.currentNode;
+        const walker: any = fragment ? document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null) : null;
+        while (walker?.nextNode?.()) {
+            const node: any = walker.currentNode;
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                connectElement(node as HTMLElement, atb, psh, mapped);
+            } else
             if (node.nodeType === Node.COMMENT_NODE && node.nodeValue.startsWith("o:")) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
 
@@ -58,36 +91,6 @@ export function htmlBuilder({ createElement = null } = {}) {
         }
 
         //
-        if (fragment?.nodeType === Node.ELEMENT_NODE) {
-            const el = fragment as HTMLElement;
-            const attributes = {};
-            if (el != null) {
-                // TODO: advanced attributes support
-                let style = "", dataset = {}, properties = {}, on = {}, iterate = [];
-                for (const attr of Array.from(el.attributes)) {
-                    const isCustom = attr.value?.startsWith("#{");
-                    const value = isCustom ? atb[parseInt(attr.value.match(/^#\{(.+)\}$/)?.[1])] : attr.value;
-
-                    //
-                    if (attr.name == "style") { style = value; } else
-                    if (attr.name == "dataset") { dataset = value; } else
-                    if (attr.name == "iterate") { iterate = value; } else
-                    if (attr.name == "dataset") { dataset = value; } else
-                    if (attr.name == "properties") { properties = value; } else
-                    if (attr.name.startsWith("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
-                    if (attr.name.startsWith("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
-                        { attributes[attr.name.trim()] = value; }
-
-                    //
-                    if (isCustom) { el.removeAttribute(attr.name); };
-                }
-
-                //
-                return E(el, {attributes, dataset, style, properties, on}, mapped.has(el) ? M(iterate, mapped.get(el)) : Array.from(el.childNodes))?.element;
-            }
-        }
-
-        //
-        return fragment;
+        return connectElement(fragment as HTMLElement, atb, psh, mapped);
     };
 }
