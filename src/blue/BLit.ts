@@ -23,9 +23,10 @@ export function defineElement(name: string, options?: any|null) {
 //
 function withProperties<T extends { new(...args: any[]): {} }>(constructor: T) {
     return class extends constructor {
-        constructor(...args: any[]) {
-            super(...args); Object.entries(this[defKeys]).forEach(([key, def])=>{
+        $init(...args: any[]) {
+            super.$init?.(...args); Object.entries(this[defKeys]).forEach(([key, def])=>{
                 const exists = this[key]; Object.defineProperty(this, key, def); if (exists != null) { this[key] = exists; }
+                return this;
             });
         }
     }
@@ -164,11 +165,12 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         // @ts-ignore
         constructor(...args) { super(...args); }
         protected onInitialize() { return this; }
+        protected $init() { return this; };
         protected render() { return H`<slot>`; }
         public connectedCallback() {
             if (!this.#initialized) {
                 const shadowRoot = this.attachShadow({ mode: "open" });
-                this.#initialized = true; this.onInitialize?.();
+                this.#initialized = true; this.$init?.(); this.onInitialize?.();
                 this[inRenderKey] = true;
                 let styles = ``, props = [], vars: any = null;
                 if (typeof this.styles == "string") { styles = this.styles || "" } else
