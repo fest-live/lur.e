@@ -4,23 +4,29 @@ import { ref, makeReactive } from "/externals/lib/object";
 //
 //import observableArray from "../src/blue/Array";
 import H from "../src/blue/HTML";
-import {BLitElement, defineElement} from "../src/blue/BLit";
+import {BLitElement, defineElement, property} from "../src/blue/BLit";
 import E from "../src/blue/Element";
 
 //
 @defineElement("x-block")
-class XBlock extends BLitElement {
-    constructor() { super(); }
+export class XBlock extends BLitElement() {
+    constructor(...args) { super(...args); }
+
+    //
+    @property() tetris = 0;
+
+    //
     protected render() {
-        E(this, { style: {display: "block"} }, []);
+        console.log(this.tetris);
+        E(this, { style: {display: "block"}, dataset: {tetris: this.tetris} }, []);
         return H`<slot>`;
     }
 
     //
     protected onInitialize(): any {
         super.onInitialize?.();
-
-
+        this.tetris = 1;
+        console.log(this.tetris);
         return this;
     }
 }

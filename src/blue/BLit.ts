@@ -9,28 +9,42 @@ import { makeReactive, ref } from "/externals/lib/object.js";
 const propStore = new WeakMap<object, Map<string, any>>();
 
 //
-export function defineElement(name: string, options?: any) {
+export function defineElement(name: string, options?: any|null) {
     return function(target: any, key: string) {
-        customElements.define(name, target, options);
+        @withProperties class el extends target {};
+        customElements.define(name, el, options);
+    }
+}
+
+//
+const inRenderKey = Symbol.for("@render@");
+const defKeys = Symbol.for("@defKeys@");
+
+//
+function withProperties<T extends { new(...args: any[]): {} }>(constructor: T) {
+    return class extends constructor {
+        constructor(...args: any[]) {
+            super(...args); Object.entries(this[defKeys]).forEach(([key, def])=>{
+                const exists = this[key]; Object.defineProperty(this, key, def); this[key] = exists;
+            });
+        }
     }
 }
 
 //
 export function property() {
     return function (target: any, key: string) {
-        Object.defineProperty(target, key, {
-            get: function () {
-                // Определяем, вызывается ли из render
-                const stack = new Error().stack;
-                const inRender = stack && stack.includes('render');
+        if (!target[defKeys]) target[defKeys] = {};
+        target[defKeys][key] = {
+            get() {
+                const inRender = this[inRenderKey];
                 const stored = propStore.get(this)?.get?.(key);
-                if (stored?.value != null) {
-                    return inRender ? stored : stored.value;
-                }
+                if (stored?.value != null && !inRender) { return stored.value; }
                 return stored;
             },
-            set: function (newValue: any) {
-                const store = propStore.get(this);
+            set(newValue: any) {
+                let store = propStore.get(this);
+                if (!store) { propStore.set(this, store = new Map()); }
                 if (!store?.has?.(key)) {
                     if (newValue?.value != null) {
                         store?.set?.(key, newValue);
@@ -39,38 +53,50 @@ export function property() {
                     }
                 } else {
                     const exists = store?.get?.(key);
-                    if (typeof newValue === 'object' && newValue !== null) {
-                        Object.assign(exists, newValue);
-                    } else {
-                        exists.value = newValue;
+                    if (typeof exists == "object" || typeof exists == "function") {
+                        if (typeof newValue === 'object' && newValue !== null) {
+                            Object.assign(exists, newValue);
+                        } else {
+                            exists.value = newValue;
+                        }
                     }
                 }
             },
             enumerable: true,
             configurable: true,
-        });
+        }
     }
 }
 
 //
-export class BLitElement extends HTMLElement {
-    #initialized: boolean = false;
-    #styleElement?: HTMLStyleElement;
-    #framework: any;
-    styles: string = "";
+const CSM = new WeakMap();
 
-    //
-    constructor() { super(); }
+//
+export const BLitElement = (derrivate = HTMLElement)=>{
+    if (CSM.has(derrivate)) return CSM.get(derrivate);
+    @withProperties class EX extends derrivate {
+        #initialized: boolean = false;
+        #styleElement?: HTMLStyleElement;
+        #framework: any;
+        styles: string = "";
 
-    //
-    protected onInitialize() { return this; }
-    protected render() { return H`<slot>`; }
-    protected connectedCallback() {
-        if (!this.#initialized) {
-            const shadowRoot = this.attachShadow({ mode: "open" });
-            this.#initialized = true; this.onInitialize?.();
-            this.#framework = E(shadowRoot, {}, [this.render?.(), this.#styleElement = loadInlineStyle(URL.createObjectURL(new Blob([this.styles || ""], {type: "text/css"})))])
+        // @ts-ignore
+        constructor(...args) { super(...args); }
+
+        //
+        protected onInitialize() { return this; }
+        protected render() { return H`<slot>`; }
+        protected connectedCallback() {
+            if (!this.#initialized) {
+                const shadowRoot = this.attachShadow({ mode: "open" });
+                this.#initialized = true; this.onInitialize?.();
+                this[inRenderKey] = true;
+                this.#framework = E(shadowRoot, {}, [this.render?.(), this.#styleElement = loadInlineStyle(URL.createObjectURL(new Blob([this.styles || ""], {type: "text/css"})))])
+                delete this[inRenderKey];
+            }
+            return this;
         }
-        return this;
     }
+    CSM.set(derrivate, EX);
+    return EX;
 }
