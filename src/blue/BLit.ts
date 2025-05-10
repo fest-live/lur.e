@@ -7,6 +7,10 @@ import { attrRef, checkedRef, localStorageRef, makeReactive, matchMediaRef, ref,
 
 //
 const propStore = new WeakMap<object, Map<string, any>>();
+const inRenderKey = Symbol.for("@render@");
+const defKeys = Symbol.for("@defKeys@");
+const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const CSM = new WeakMap();
 
 //
 export function defineElement(name: string, options?: any|null) {
@@ -15,10 +19,6 @@ export function defineElement(name: string, options?: any|null) {
         customElements.define(name, el, options);
     }
 }
-
-//
-const inRenderKey = Symbol.for("@render@");
-const defKeys = Symbol.for("@defKeys@");
 
 //
 function withProperties<T extends { new(...args: any[]): {} }>(constructor: T) {
@@ -34,6 +34,14 @@ function withProperties<T extends { new(...args: any[]): {} }>(constructor: T) {
 //
 function camelToKebab(str) { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
 function kebabToCamel(str) { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
+function generateName(length = 8) {
+    let result = '';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
 
 //
 const whenBoxValid = (name)=>{
@@ -119,19 +127,6 @@ export function property({attribute, source, name}: { attribute?: string|boolean
     }
 }
 
-// declare all characters
-const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-
-//
-function generateName(length = 8) {
-    let result = '';
-    const charactersLength = characters.length;
-    for ( let i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-}
-
 //
 export const css = (strings, ...values)=>{
     let props: string[] = [];
@@ -158,9 +153,6 @@ export const useVars = (holder, vars)=>{
 }
 
 //
-const CSM = new WeakMap();
-
-//
 export const BLitElement = (derrivate = HTMLElement)=>{
     if (CSM.has(derrivate)) return CSM.get(derrivate);
     @withProperties class EX extends derrivate {
@@ -171,8 +163,6 @@ export const BLitElement = (derrivate = HTMLElement)=>{
 
         // @ts-ignore
         constructor(...args) { super(...args); }
-
-        //
         protected onInitialize() { return this; }
         protected render() { return H`<slot>`; }
         public connectedCallback() {
@@ -182,7 +172,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
                 this[inRenderKey] = true;
                 let styles = ``, props = [], vars: any = null;
                 if (typeof this.styles == "string") { styles = this.styles || "" } else
-                if (typeof this.styles == "function") { const cs = this.styles?.call?.(this); styles = cs.css, props = cs.props, vars = cs.vars; console.log(styles); };
+                if (typeof this.styles == "function") { const cs = this.styles?.call?.(this); styles = cs.css, props = cs.props, vars = cs.vars; };
                 if (vars) { useVars(this, vars); };
                 this.#framework = E(shadowRoot, {}, [this.render?.(), this.#styleElement = loadInlineStyle(URL.createObjectURL(new Blob([styles], {type: "text/css"})))])
                 delete this[inRenderKey];

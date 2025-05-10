@@ -25,10 +25,10 @@ export const createElement = (selector): HTMLElement|DocumentFragment => {
 export const elMap = new WeakMap<any, HTMLElement|DocumentFragment|Text>();
 export const getNode = (E, mapper?: Function, index?: number)=>{
     if (mapper) { return (E = getNode(mapper?.(E, index))); }
+    if (E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) { return E; } else
     if (typeof E?.value == "string" || typeof E?.value == "number") { return T(E)?.element; } else
     if (typeof E == "function") { return getNode(E()); } else  // mapped arrays always empties after
     if (typeof E == "string" || typeof E == "number") { return document.createTextNode(String(E)); } else
-    if (E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) { return E; } else
     if (typeof E == "object" && E != null) { return E?.element ?? elMap.get(E); }
     return E;
 }
