@@ -1,10 +1,10 @@
 /* @vite-ignore */
-import { ref, makeReactive } from "/externals/lib/object";
+import { ref, makeReactive, assign } from "/externals/lib/object";
 
 //
 //import observableArray from "../src/blue/Array";
 import H from "../src/blue/HTML";
-import {BLitElement, defineElement, property} from "../src/blue/BLit";
+import {BLitElement, defineElement, property, css} from "../src/blue/BLit";
 import E from "../src/blue/Element";
 
 //
@@ -13,11 +13,17 @@ export class XBlock extends BLitElement() {
     constructor(...args) { super(...args); }
 
     //
-    @property() tetris = 0;
+    @property({source: "attr"}) tetris = 1;
+    @property() opacity = 1;
+
+    //
+    protected styles = function() {
+        return css`:host {opacity: ${this.opacity};}`;
+    }
 
     //
     protected render() {
-        console.log(this.tetris);
+        assign(this.opacity, this.tetris);
         E(this, { style: {display: "block"}, dataset: {tetris: this.tetris} }, []);
         return H`<slot>`;
     }
@@ -25,7 +31,6 @@ export class XBlock extends BLitElement() {
     //
     protected onInitialize(): any {
         super.onInitialize?.();
-        this.tetris = 1;
         console.log(this.tetris);
         return this;
     }
