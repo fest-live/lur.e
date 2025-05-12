@@ -6,8 +6,8 @@ import { appendChild, removeChild, replaceChildren } from "./DOM.js";
 const { subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
 
 //
-function camelToKebab(str) { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
-function kebabToCamel(str) { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
+function camelToKebab(str) { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
+function kebabToCamel(str) { return str?.replace?.(/-([a-z])/g, (_, char) => char.toUpperCase()); }
 
 //
 const deleteStyleProperty = (element, name)=>{
@@ -86,7 +86,7 @@ const handleStyleChange = (element, prop, value)=>{
 
 //
 const handleAttribute = (element, prop, value)=>{
-    if (!prop) return;
+    if (!prop) return; prop = camelToKebab(prop) || prop;
     if (element.getAttribute(prop) !== value) {
         if (typeof value == "undefined" || value == null) {
             element.removeAttribute(prop);
@@ -105,7 +105,7 @@ const handleAttribute = (element, prop, value)=>{
 
 //
 const handleDataset = (element, prop, value)=>{
-    if (!prop) return;
+    if (!prop) return; prop = kebabToCamel(prop) || prop;
     if (element.dataset[prop] !== value) {
         if (typeof value == "undefined" || value == null) {
             delete element.dataset[prop];
@@ -178,14 +178,14 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
 }
 
 //
-export const reflectARIA = (element: HTMLElement, attributes: any)=>{
-    if (!attributes) return;
+export const reflectARIA = (element: HTMLElement, aria: any)=>{
+    if (!aria) return;
 
     //
-    const weak = new WeakRef(attributes);
+    const weak = new WeakRef(aria);
     const wel = new WeakRef(element);
-    if (typeof attributes == "object" || typeof attributes == "function") {
-        subscribe(attributes, (value, prop)=>{
+    if (typeof aria == "object" || typeof aria == "function") {
+        subscribe(aria, (value, prop)=>{
             handleAttribute(wel?.deref?.(), "aria-"+prop, value);
 
             // subscribe with value with `value` reactivity
@@ -199,19 +199,19 @@ export const reflectARIA = (element: HTMLElement, attributes: any)=>{
             }
         })
     } else {
-        console.warn("Invalid dataset object:", attributes);
+        console.warn("Invalid ARIA object:", aria);
     }
 }
 
 //
-export const reflectDataset = (element: HTMLElement, attributes: any)=>{
-    if (!attributes) return;
+export const reflectDataset = (element: HTMLElement, dataset: any)=>{
+    if (!dataset) return;
 
     //
-    const weak = new WeakRef(attributes);
+    const weak = new WeakRef(dataset);
     const wel = new WeakRef(element);
-    if (typeof attributes == "object" || typeof attributes == "function") {
-        subscribe(attributes, (value, prop)=>{
+    if (typeof dataset == "object" || typeof dataset == "function") {
+        subscribe(dataset, (value, prop)=>{
             handleDataset(wel?.deref?.(), prop, value);
 
             // subscribe with value with `value` reactivity
@@ -225,7 +225,7 @@ export const reflectDataset = (element: HTMLElement, attributes: any)=>{
             }
         })
     } else {
-        console.warn("Invalid dataset object:", attributes);
+        console.warn("Invalid dataset object:", dataset);
     }
 }
 
