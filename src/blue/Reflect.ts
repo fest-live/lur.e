@@ -1,6 +1,6 @@
 //
 import { observe, importCdn } from "./Array.js";
-import { appendChild, removeChild, replaceChildren } from "./DOM.js";
+import { appendChild, removeChild, removeNotExists, replaceChildren } from "./DOM.js";
 
 // @ts-ignore
 const { subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
@@ -335,7 +335,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         }
 
         //
-        if (children?.length == 0 && element instanceof HTMLElement) { element.innerHTML = ``; }; // @ts-ignore
+        if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
         if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0) { // @ts-ignore
             if (typeof children?.behavior == "function") { // @ts-ignore
                 children?.behavior?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, op, ref, args]);
@@ -352,7 +352,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         }
 
         //
-        if ((children as any)?.size == 0 && element instanceof HTMLElement) { element.innerHTML = ``; }; // @ts-ignore
+        if ((children as any)?.size == 0 && element instanceof HTMLElement) { removeNotExists(element, children, mapper);/*element.innerHTML = ``;*/ }; // @ts-ignore
         if (typeof children?.behavior == "function") { // @ts-ignore
             children?.behavior?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, _, ref, [obj, has]]);
         } else
@@ -381,7 +381,7 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
 export const reformChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
     if (!children) return element;
     const ref = new WeakRef(element);
-    if (element instanceof HTMLElement) { element.innerHTML = ``; };
+    removeNotExists(element, children, mapper);
     mapper = (children?.["@mapped"] ? (children as any)?.mapper : mapper) ?? mapper;
     (children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children).map((nd)=>{
         const element = ref.deref(); if (!element) return nd;

@@ -43,12 +43,13 @@ export const appendChild = (element, cp, mapper?)=>{
     }
 
     if (/*cp?.children?.length > 1 &&*/ cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.["@virtual"] || cp?.["@mapped"])) {
-        element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number)=>(getNode(cl)??"")) ?? unwrap(cp?.children)));
+        element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number)=>(getNode(cl)??""))?.filter?.((el)=>el!=null) ?? unwrap(cp?.children)));
     } else
     if (Array.isArray(unwrap(cp))) {
-        element?.append?.(...unwrap(cp?.map?.((cl, _: number)=>(getNode(cl)??"")) ?? cp));
+        element?.append?.(...unwrap(cp?.map?.((cl, _: number)=>(getNode(cl)??""))?.filter?.((el)=>el!=null) ?? unwrap(cp)));
     } else {
-        element?.append?.((getNode(cp)??""));
+        const node = getNode(cp);
+        if (node != null && (!node?.parentNode || node?.parentNode != element)) { element?.append?.(node); }
     }
 }
 
@@ -61,14 +62,16 @@ export const replaceChildren = (element, cp, index, mapper?)=>{
         //cp = b ?? cp;
     }
 
+    //
     const cn = element?.childNodes?.[index];
     if (cn instanceof Text && typeof cp == "string") {
         cn.textContent = cp;
     } else {
         const node = getNode(cp);
         if (cn instanceof Text && node instanceof Text) {
-            cn.textContent = node.textContent;
-        } else {
+            if (cn.textContent != node.textContent) { cn.textContent = node.textContent; }
+        } else
+        if (cn != node && (!node?.parentNode || node?.parentNode != element)) {
             cn?.replaceWith?.(node);
         }
     }
@@ -86,4 +89,12 @@ export const removeChild = (element, cp, mapper?, index = -1)=>{
         ch?.children?.forEach?.(c => { const R = (elMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });
         //children?.children?.forEach(c => element?.childNodes?.find?.((e)=>(e==))?.remove?.());
     } else { (ch)?.remove?.(); }
+    return element;
+}
+
+//
+export const removeNotExists = (element, children, mapper)=>{
+    const uw = Array.from(unwrap(children))?.map?.((cp)=>getNode(mapper?.(cp) ?? cp));
+    Array.from(element.childNodes).forEach((nd: any)=>{ if (uw!?.find?.((cp)=>(cp == nd))) nd?.remove?.(); });
+    return element;
 }
