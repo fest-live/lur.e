@@ -18,7 +18,7 @@ const connectElement = (el: HTMLElement, atb: any[], psh: any[], mapped: WeakMap
     const attributes = {};
     if (el != null) {
         // TODO: advanced attributes support
-        let style = "", dataset = {}, properties = {}, on = {}, iterate = [];
+        let style = "", dataset = {}, properties = {}, on = {}, aria = {}, iterate = [];
         for (const attr of Array.from(el.attributes)) {
             const isCustom = attr.value?.startsWith("#{");
             const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match(/^#\{(.+)\}$/)?.[1] || "0")] : attr.value;
@@ -29,6 +29,7 @@ const connectElement = (el: HTMLElement, atb: any[], psh: any[], mapped: WeakMap
             if (attr.name == "iterate") { iterate = value; } else
             if (attr.name == "dataset") { dataset = value; } else
             if (attr.name == "properties") { properties = value; } else
+            if (attr.name == "aria") { aria = value; } else
             if (attr.name.startsWith("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
             if (attr.name.startsWith("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
                 { attributes[attr.name.trim()] = value; }
@@ -38,7 +39,7 @@ const connectElement = (el: HTMLElement, atb: any[], psh: any[], mapped: WeakMap
         }
 
         //
-        return E(el, {attributes, dataset, style, properties, on}, mapped.has(el) ? M(iterate, mapped.get(el)) : Array.from(el.childNodes))?.element;
+        return E(el, {aria, attributes, dataset, style, properties, on}, mapped.has(el) ? M(iterate, mapped.get(el)) : Array.from(el.childNodes))?.element;
     }
     return el;
 }

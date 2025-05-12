@@ -5,7 +5,7 @@ const { makeReactive, subscribe } = await Promise.try(importCdn, ["/externals/li
 
 //
 import { createElement, elMap } from './DOM';
-import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules, reflectDataset } from './Reflect';
+import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules, reflectDataset, reflectARIA } from './Reflect';
 
 //
 interface Params {
@@ -14,15 +14,17 @@ interface Params {
     dataset?: any;
     properties?: any;
     style?: any|string;
-    slot?: string;
-    name?: string;
-    type?: string;
-    icon?: string;
+    slot?: any|string;
+    name?: any|string;
+    type?: any|string;
+    icon?: any|string;
+    role?: any|string;
     inert?: boolean|string;
-    is?: string;
-    part?: string;
+    is?: any|string;
+    part?: any|string;
     on?: any;
     hidden?: any;
+    aria?: any;
     rules?: any[];
 };
 
@@ -86,6 +88,7 @@ export class El {
             reflectClassList(element, this.params.classList);
             reflectProperties(element, this.params.properties);
             reflectDataset(element, this.params.dataset);
+            reflectARIA(element, this.params.aria);
 
             // one-shot update
             this.params?.rules?.forEach?.((rule)=>{
@@ -93,12 +96,13 @@ export class El {
             });
 
             //
-            if (this.params.slot != null) element.slot = this.params.slot;
-            if (this.params.part != null) element.setAttribute("part", this.params.part);
-            if (this.params.name != null) element.setAttribute("name", this.params.name);
-            if (this.params.type != null) element.setAttribute("type", this.params.type);
-            if (this.params.icon != null) element.setAttribute("icon", this.params.icon);
-            if (this.params.is != null) element.setAttribute("is", this.params.is);
+            if (this.params.role != null) element.role = this.params.role?.value ?? this.params.role;
+            if (this.params.slot != null) element.slot = this.params.slot?.value ?? this.params.slot;
+            if (this.params.part != null) element.setAttribute("part", this.params.part?.value ?? this.params.part);
+            if (this.params.name != null) element.setAttribute("name", this.params.name?.value ?? this.params.name);
+            if (this.params.type != null) element.setAttribute("type", this.params.type?.value ?? this.params.type);
+            if (this.params.icon != null) element.setAttribute("icon", this.params.icon?.value ?? this.params.icon);
+            if (this.params.is != null) element.setAttribute("is", this.params.is?.value ?? this.params.is);
             if (this.params.inert || this.params.inert == "") element.setAttribute("inert", "");
 
             // TODO: reflect with dataset

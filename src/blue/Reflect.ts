@@ -122,8 +122,6 @@ const handleDataset = (element, prop, value)=>{
     }
 }
 
-
-
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return;
@@ -177,6 +175,32 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     //
     const observer = new MutationObserver(callback);
     observer.observe(element, config);
+}
+
+//
+export const reflectARIA = (element: HTMLElement, attributes: any)=>{
+    if (!attributes) return;
+
+    //
+    const weak = new WeakRef(attributes);
+    const wel = new WeakRef(element);
+    if (typeof attributes == "object" || typeof attributes == "function") {
+        subscribe(attributes, (value, prop)=>{
+            handleAttribute(wel?.deref?.(), "aria-"+prop, value);
+
+            // subscribe with value with `value` reactivity
+            if (value?.value != null) {
+                subscribe([value, "value"], (curr) => {
+                    // sorry, we doesn't allow abuse that mechanic
+                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
+                        handleAttribute(wel?.deref?.(), "aria-"+prop, curr);
+                    }
+                });
+            }
+        })
+    } else {
+        console.warn("Invalid dataset object:", attributes);
+    }
 }
 
 //
