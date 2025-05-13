@@ -129,6 +129,21 @@ export function property({attribute, source, name}: { attribute?: string|boolean
 }
 
 //
+export const setAttributesIfNull = (element, attrs = {})=>{
+    const entries = attrs instanceof Map ? attrs.entries() : Object.entries(attrs || {})
+    return Array.from(entries).map(([name, value])=>{
+        const old = element.getAttribute(name = camelToKebab(name) || name);
+        if (old != value) {
+            if (value == null) {
+                element.removeAttribute(name);
+            } else {
+                element.setAttribute(name, old == "" ? (value ?? old) : (old ?? value));
+            }
+        }
+    });
+}
+
+//
 export const css = (strings, ...values)=>{
     let props: string[] = [];
     let parts: string[] = [], vars: Map<string, any> = new Map();
@@ -161,16 +176,21 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         #styleElement?: HTMLStyleElement;
         #framework: any;
         styles?: any;
+        initialAttributes?: any; // you can set initial attributes
+        classList?: any; // TODO: add support for initial class lists
 
         // @ts-ignore
         constructor(...args) { super(...args); }
         protected onInitialize() { return this; }
         protected $init() { return this; };
         protected render() { return H`<slot>`; }
+
+        //
+        public createShadowRoot() { return this.attachShadow({ mode: "open" }); }
         public connectedCallback() {
             if (!this.#initialized) {
-                const shadowRoot = this.attachShadow({ mode: "open" });
-                this.#initialized = true; this.$init?.(); this.onInitialize?.();
+                const shadowRoot = this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" });
+                this.#initialized = true; this.$init?.(); setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.();
                 this[inRenderKey] = true;
                 let styles = ``, props = [], vars: any = null;
                 if (typeof this.styles == "string") { styles = this.styles || "" } else
