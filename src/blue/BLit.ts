@@ -130,6 +130,7 @@ export function property({attribute, source, name}: { attribute?: string|boolean
 }
 
 //
+export const useVars = (holder, vars)=>{ vars?.entries?.()?.forEach?.(([key, vr])=>subscribe([vr,'value'], (val)=>(holder?.style ?? holder)?.setProperty?.(`--${key}`, val, ""))); return holder; }
 export const setAttributesIfNull = (element, attrs = {})=>{
     const entries = attrs instanceof Map ? attrs.entries() : Object.entries(attrs || {})
     return Array.from(entries).map(([name, value])=>{
@@ -164,12 +165,6 @@ export const css = (strings, ...values)=>{
 }
 
 //
-export const useVars = (holder, vars)=>{
-    vars?.entries?.()?.forEach?.(([key, vr])=>subscribe([vr,'value'], (val)=>(holder?.style ?? holder)?.setProperty?.(`--${key}`, val, "")));
-    return holder;
-}
-
-//
 export const BLitElement = (derrivate = HTMLElement)=>{
     if (CSM.has(derrivate)) return CSM.get(derrivate);
     @withProperties class EX extends derrivate {
@@ -187,14 +182,8 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         protected $init() { return this; };
         protected render() { return H`<slot>`; }
 
-        //
-        public loadTheme() {
-            const root = this.shadowRoot;
-            // @ts-ignore
-            return Promise.try(importCdn, ["/externals/core/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console));
-        }
-
-        //
+        // @ts-ignore
+        public loadTheme() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/core/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
         public createShadowRoot() { return this.shadowRoot ?? this.attachShadow({ mode: "open" }); }
         public connectedCallback() {
             if (!this.#initialized) {
@@ -205,7 +194,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
                 if (typeof this.styles == "string") { styles = this.styles || "" } else
                 if (typeof this.styles == "function") { const cs = this.styles?.call?.(this); styles = cs.css, props = cs.props, vars = cs.vars; };
                 if (vars) { useVars(this, vars); };
-                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render?.(), this.#styleElement = loadInlineStyle(URL.createObjectURL(new Blob([styles], {type: "text/css"})))]))
+                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render?.(), this.#styleElement = loadInlineStyle(styles, shadowRoot, "ux-layer")]))
                 delete this[inRenderKey];
             }
             return this;
