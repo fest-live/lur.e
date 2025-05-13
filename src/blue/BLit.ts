@@ -1,3 +1,4 @@
+import observableArray from "./Array";
 import E from "./Element";
 import H from "./HTML";
 
@@ -178,6 +179,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         styles?: any;
         initialAttributes?: any; // you can set initial attributes
         classList?: any; // TODO: add support for initial class lists
+        themeStyle?: HTMLStyleElement;
 
         // @ts-ignore
         constructor(...args) { super(...args); }
@@ -186,17 +188,24 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         protected render() { return H`<slot>`; }
 
         //
-        public createShadowRoot() { return this.attachShadow({ mode: "open" }); }
+        public loadTheme() {
+            const root = this.shadowRoot;
+            // @ts-ignore
+            return Promise.try(importCdn, ["/externals/core/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console));
+        }
+
+        //
+        public createShadowRoot() { return this.shadowRoot ?? this.attachShadow({ mode: "open" }); }
         public connectedCallback() {
             if (!this.#initialized) {
-                const shadowRoot = this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" });
+                const shadowRoot = this.createShadowRoot?.() ?? this.shadowRoot ?? this.attachShadow({ mode: "open" });
                 this.#initialized = true; this.$init?.(); setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.();
                 this[inRenderKey] = true;
                 let styles = ``, props = [], vars: any = null;
                 if (typeof this.styles == "string") { styles = this.styles || "" } else
                 if (typeof this.styles == "function") { const cs = this.styles?.call?.(this); styles = cs.css, props = cs.props, vars = cs.vars; };
                 if (vars) { useVars(this, vars); };
-                this.#framework = E(shadowRoot, {}, [this.render?.(), this.#styleElement = loadInlineStyle(URL.createObjectURL(new Blob([styles], {type: "text/css"})))])
+                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render?.(), this.#styleElement = loadInlineStyle(URL.createObjectURL(new Blob([styles], {type: "text/css"})))]))
                 delete this[inRenderKey];
             }
             return this;
