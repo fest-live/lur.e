@@ -4,19 +4,16 @@ export {importCdn};
 
 // @ts-ignore
 const { subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
+const observeMaps = new WeakMap<any[], ObserveArray>();
 
 //
 class ObserveMethod {
-    #handle: any;
-    #name: string;
-    #self: any;
-
+    #handle: any; #name: string; #self: any;
     constructor(name, handle, self) {
         this.#name   = name;
         this.#handle = handle;
         this.#self   = self;
     }
-
     apply(target, ctx, args) {
         let removed = null;
         if (this.#name == "splice") { removed = this.#self[args[0]]; };
@@ -24,26 +21,15 @@ class ObserveMethod {
         this.#handle.trigger(this.#self || ctx, this.#name, args, wp, removed);
         return wp;
     }
-
     get(target, name, rec) {
         return Reflect.get(target, name, rec);
     }
 }
 
 //
-const observeMaps = new WeakMap<any[], ObserveArray>();
-
-//
 class ObserveArray {
-    #handle: any;
-    #events: WeakMap<any[], Set<Function>>;
-
-    //
-    get events() {
-        return this.#events;
-    }
-
-    //
+    #handle: any; #events: WeakMap<any[], Set<Function>>;
+    get events() { return this.#events; }
     constructor(arr: any[]) {
         this.#events = new WeakMap(); //
         this.#events.set(arr, new Set<Function>([]));
@@ -62,8 +48,6 @@ class ObserveArray {
             }
         }
     }
-
-    //
     has(target, name) { return Reflect.has(target, name); }
     get(target, name, rec) {
         if (name == "@target") return target;
@@ -88,8 +72,6 @@ class ObserveArray {
         this.#handle.trigger(target, "@set", name, value, old);
         return got;
     }
-
-    //
     deleteProperty(target, name) {
         const old = target?.[name];
         const got = Reflect.deleteProperty(target, name);
@@ -109,6 +91,7 @@ export const observableArray = (arr: any[])=>{
 };
 
 //
+export const unwrap = (arr)=>{ return arr?.["@target"] ?? arr; }
 export const observe = (arr, cb)=>{
     const orig = arr?.["@target"] ?? arr;
     const obs = observeMaps.get(orig);
@@ -118,9 +101,6 @@ export const observe = (arr, cb)=>{
     });
     evt?.get(orig)?.add?.(cb);
 };
-
-//
-export default observableArray;
 
 //
 export const observableBySet = (set)=>{
@@ -162,6 +142,4 @@ export const observableByMap = (map)=>{
 }
 
 //
-export const unwrap = (arr)=>{
-    return arr?.["@target"] ?? arr;
-}
+export default observableArray;

@@ -7,60 +7,13 @@ import { loadInlineStyle, hash } from "/externals/lib/dom.js";
 import { attrRef, checkedRef, localStorageRef, makeReactive, matchMediaRef, ref, sizeRef, subscribe, valueAsNumberRef, valueRef, scrollRef } from "/externals/lib/object.js";
 
 //
-const propStore = new WeakMap<object, Map<string, any>>();
-const inRenderKey = Symbol.for("@render@");
-const defKeys = Symbol.for("@defKeys@");
-const characters ='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-const CSM = new WeakMap();
-
-//
-export function defineElement(name: string, options?: any|null) {
-    return function(target: any, key: string) {
-        @withProperties class el extends target {};
-        customElements.define(name, el, options);
-    }
-}
-
-//
-function withProperties<T extends { new(...args: any[]): {} }>(constructor: T) {
-    return class extends constructor {
-        $init(...args: any[]) {
-            super.$init?.(...args); Object.entries(this[defKeys]).forEach(([key, def])=>{
-                const exists = this[key]; Object.defineProperty(this, key, def); if (exists != null) { this[key] = exists; }
-                return this;
-            });
-        }
-    }
-}
-
-//
-function camelToKebab(str) { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
-function kebabToCamel(str) { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
-function generateName(length = 8) {
-    let result = '';
-    const charactersLength = characters.length;
-    for ( let i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
-}
-
-//
-const whenBoxValid = (name)=>{
-    const cb = camelToKebab(name);
-    if (["border-box", "content-box", "device-pixel-content-box"].indexOf(cb) >= 0) return cb;
-    return null;
-}
-
-//
-const whenAxisValid = (name)=>{
-    const cb = camelToKebab(name);
-    if (cb?.startsWith?.("inline")) { return "inline"; };
-    if (cb?.startsWith?.("block")) { return "block"; };
-    return null;
-}
-
-//
+const camelToKebab = (str) => { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
+const kebabToCamel = (str) => { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
+const whenBoxValid = (name)=>{ const cb = camelToKebab(name); if (["border-box", "content-box", "device-pixel-content-box"].indexOf(cb) >= 0) return cb; return null; }
+const whenAxisValid = (name)=>{ const cb = camelToKebab(name); if (cb?.startsWith?.("inline")) { return "inline"; }; if (cb?.startsWith?.("block")) { return "block"; }; return null; }
+const propStore = new WeakMap<object, Map<string, any>>(), CSM = new WeakMap();
+const inRenderKey = Symbol.for("@render@"), defKeys = Symbol.for("@defKeys@");
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const defineSource = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "media") { return matchMediaRef; }
     if (source == "localStorage") { return localStorageRef; }
@@ -78,6 +31,29 @@ const defineSource = (source: string|any, holder: any, name?: string|null)=>{
 }
 
 //
+function withProperties<T extends { new(...args: any[]): {} }>(constructor: T) {
+    return class extends constructor {
+        $init(...args: any[]) {
+            super.$init?.(...args); Object.entries(this[defKeys]).forEach(([key, def])=>{
+                const exists = this[key]; Object.defineProperty(this, key, def); if (exists != null) { this[key] = exists; }
+                return this;
+            });
+        }
+    }
+}
+
+//
+function generateName(length = 8) {
+    let result = '';
+    const charactersLength = characters.length;
+    for ( let i = 0; i < length; i++ ) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+    }
+    return result;
+}
+
+//
+export function defineElement(name: string, options?: any|null) { return function(target: any, key: string) { @withProperties class el extends target {}; customElements.define(name, el, options); } }
 export function property({attribute, source, name}: { attribute?: string|boolean, source?: string|any, name?: string|null } = {}) {
     return function (target: any, key: string) {
         if (!target[defKeys]) target[defKeys] = {};
@@ -200,6 +176,5 @@ export const BLitElement = (derrivate = HTMLElement)=>{
             return this;
         }
     }
-    CSM.set(derrivate, EX);
-    return EX;
+    CSM.set(derrivate, EX); return EX;
 }
