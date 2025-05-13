@@ -83,12 +83,8 @@ export function htmlBuilder({ createElement = null } = {}) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
 
                 // make iteratable array and set
-                if (typeof el == "function") { if (node.parentNode?.getAttribute?.("iterate")) { node.remove(); mapped.set(node.parentNode, el); } else { node.replaceWith(el?.() || ""); } } else
-                if (typeof el == "object" && "element" in el) { node.replaceWith(el.element); } else
-                if (el instanceof Node) { node.replaceWith(el); } else
-                if (Array.isArray(el))  { node.replaceWith(M(el)?.element); } else
-                if (el == null || el === false) { node.remove(); } else
-                    { node.replaceWith(getNode(el)); } // text-node
+                if (typeof el == "function") { if (node.parentNode?.getAttribute?.("iterate")) { node.remove(); mapped.set(node.parentNode, el); } else { node.replaceWith(getNode(el?.())); } } else
+                if (el == null || el === false) { node.remove(); } else { node.replaceWith(getNode(Array.isArray(el) ? M(el) : el)); } // text-node
             }
         }
 
