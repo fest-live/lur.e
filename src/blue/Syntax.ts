@@ -1,19 +1,11 @@
-//
+import observableArray from "./Array";
 import { getNode } from "./DOM";
 import E, { T } from "./Element"
 import M from "./Mapped";
 
 //
-function parseTag(str) {
-    // Пример: "div#myid.class1.class2"
-    const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/);
-    if (!match) return { tag: str, id: null, className: null };
-    const [, tag = 'div', id, classStr] = match;
-    const className = classStr ? classStr.replace(/\./g, ' ').trim() : null;
-    return { tag, id, className };
-}
-
-//
+const EMap = new WeakMap();
+const parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
 const connectElement = (el: HTMLElement, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>)=>{
     const attributes = {};
     if (el != null) {
@@ -39,7 +31,8 @@ const connectElement = (el: HTMLElement, atb: any[], psh: any[], mapped: WeakMap
         }
 
         //
-        return E(el, {aria, attributes, dataset, style, properties, on}, mapped.has(el) ? M(iterate, mapped.get(el)) : Array.from(el.childNodes))?.element;
+        const ex = E(el, {aria, attributes, dataset, style, properties, on}, mapped.has(el) ? M(iterate, mapped.get(el)) : observableArray(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
+        EMap.set(el, ex); return ex?.element ?? el;
     }
     return el;
 }
@@ -67,13 +60,8 @@ export function htmlBuilder({ createElement = null } = {}) {
         }
 
         //
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(parts.join("").trim(), "text/html");
-        const fragment = doc.body.firstChild;
-
-        //
         const mapped = new WeakMap();
-        const walker: any = fragment ? document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null) : null;
+        const parser = new DOMParser(), doc = parser.parseFromString(parts.join("").trim(), "text/html"), fragment = doc.body.firstChild, walker: any = fragment ? document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null) : null;
         while (walker?.nextNode?.()) {
             const node: any = walker.currentNode;
             if (node.nodeType === Node.ELEMENT_NODE) {

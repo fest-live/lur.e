@@ -30,18 +30,11 @@ interface Params {
 
 //
 export class Tx {
-    ref: any;
-
-    //
-    constructor(ref) {
-        this.ref = ref || makeReactive({ value: null });
-    }
-
-    //
+    ref: any; constructor(ref) { this.ref = ref || makeReactive({ value: null }); }
+    get ["@virtual"]() { return true; };
     get value() { return this.ref?.value; }
     set value(val: any) { this.ref.value = val; }
-
-    //
+    get children() { return null; };
     get element(): HTMLElement|DocumentFragment|Text {
         if (elMap.has(this)) { const el = elMap.get(this); if (el) { return el; }; }
 
@@ -51,10 +44,6 @@ export class Tx {
         elMap.set(this, element);
         return element;
     }
-
-    //
-    get ["@virtual"]() { return true; };
-    get children() { return null; };
 }
 
 //
@@ -74,6 +63,7 @@ export class El {
     }
 
     //
+    get ["@virtual"]() { return true; };
     get element(): HTMLElement|DocumentFragment|Text {
         if (elMap.has(this)) {
             const el = elMap.get(this);
@@ -104,9 +94,6 @@ export class El {
             if (this.params.icon != null) element.setAttribute("icon", this.params.icon?.value ?? this.params.icon);
             if (this.params.is != null) element.setAttribute("is", this.params.is?.value ?? this.params.is);
             if (this.params.inert || this.params.inert == "") element.setAttribute("inert", "");
-
-            // TODO: reflect with dataset
-            //if (this.params.dataset != null) Object.assign(element.dataset, this.params.dataset);
 
             // if has event listeners, use it
             if (this.params.on) {
@@ -147,15 +134,7 @@ export class El {
     }
 
     //
-    reform() {
-        if ((this.element instanceof HTMLElement || this.element instanceof DocumentFragment) && this.children) {
-            reformChildren(this.element, this.children);
-        }
-        return this;
-    }
-
-    //
-    get ["@virtual"]() { return true; };
+    reform() { if ((this.element instanceof HTMLElement || this.element instanceof DocumentFragment) && this.children) { reformChildren(this.element, this.children); }; return this; }
 }
 
 //
@@ -179,14 +158,6 @@ export const observeSize = (element, box, styles?) => {
 }
 
 //
-export const E = (selector, params = {}, children?)=>{
-    return new El(selector, params, children);
-}
-
-//
-export const T = (ref)=>{
-    return new Tx(ref);
-}
-
-//
+export const E = (selector, params = {}, children?)=>{ return new El(selector, params, children); }
+export const T = (ref)=>{ return new Tx(ref); }
 export default E;

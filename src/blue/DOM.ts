@@ -35,59 +35,33 @@ export const getNode = (E, mapper?: Function, index?: number)=>{
 
 //
 export const appendChild = (element, cp, mapper?)=>{
-    if (mapper) {
-        cp = mapper?.(cp) ?? cp;
-        //const b = reMap?.get(cp) ?? mapper?.(cp, element?.childNodes?.length);
-        //if (!reMap?.has?.(old)) { reMap?.set(old, b); };
-        //cp = b ?? cp;
-    }
-
-    if (/*cp?.children?.length > 1 &&*/ cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.["@virtual"] || cp?.["@mapped"])) {
-        element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number)=>(getNode(cl)??""))?.filter?.((el)=>el!=null) ?? unwrap(cp?.children)));
-    } else
-    if (Array.isArray(unwrap(cp))) {
-        element?.append?.(...unwrap(cp?.map?.((cl, _: number)=>(getNode(cl)??""))?.filter?.((el)=>el!=null) ?? unwrap(cp)));
-    } else {
-        const node = getNode(cp);
-        if (node != null && (!node?.parentNode || node?.parentNode != element)) { element?.append?.(node); }
-    }
+    if (mapper) { cp = mapper?.(cp) ?? cp; }
+    if (cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.["@virtual"] || cp?.["@mapped"]))
+        { element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number)=>(getNode(cl)??""))?.filter?.((el)=>el!=null) ?? unwrap(cp?.children))); } else
+    if (Array.isArray(unwrap(cp)))
+        { element?.append?.(...unwrap(cp?.map?.((cl, _: number)=>(getNode(cl)??""))?.filter?.((el)=>el!=null) ?? unwrap(cp))); } else
+        { const node = getNode(cp); if (node != null && (!node?.parentNode || node?.parentNode != element)) { element?.append?.(node); } }
 }
 
 // when possible, don't create new Text nodes
 export const replaceChildren = (element, cp, index, mapper?)=>{
-    if (mapper) {
-        cp = mapper?.(cp) ?? cp;
-        //const b = reMap?.get(cp) ?? mapper?.(cp, element?.childNodes?.length);
-        //if (!reMap?.has?.(old)) { reMap?.set(old, b); };
-        //cp = b ?? cp;
-    }
-
-    //
+    if (mapper) { cp = mapper?.(cp) ?? cp; }
     const cn = element?.childNodes?.[index];
-    if (cn instanceof Text && typeof cp == "string") {
-        cn.textContent = cp;
-    } else {
+    if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else {
         const node = getNode(cp);
-        if (cn instanceof Text && node instanceof Text) {
-            if (cn.textContent != node.textContent) { cn.textContent = node.textContent; }
-        } else
-        if (cn != node && (!node?.parentNode || node?.parentNode != element)) {
-            cn?.replaceWith?.(node);
-        }
+        if (cn instanceof Text && node instanceof Text) { if (cn.textContent != node.textContent) { cn.textContent = node.textContent; } } else
+        if (cn != node && (!node?.parentNode || node?.parentNode != element)) { cn?.replaceWith?.(node); }
     }
 }
 
 //
 export const removeChild = (element, cp, mapper?, index = -1)=>{
-    //if (mapper) { children = mapper?.(children) ?? children; };
     if (element?.childNodes?.length < 1) return;
     const node = getNode(cp = mapper?.(cp) ?? cp);
     const ch = node ?? (index >= 0 ? element?.childNodes?.[index] : null);
     if (ch?.parentNode == element) { ch?.remove?.(); } else
-    if (ch?.children && ch?.children?.length >= 1) {
-        // TODO: remove by same string value
+    if (ch?.children && ch?.children?.length >= 1) { // TODO: remove by same string value
         ch?.children?.forEach?.(c => { const R = (elMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });
-        //children?.children?.forEach(c => element?.childNodes?.find?.((e)=>(e==))?.remove?.());
     } else { (ch)?.remove?.(); }
     return element;
 }

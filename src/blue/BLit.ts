@@ -184,10 +184,10 @@ export const BLitElement = (derrivate = HTMLElement)=>{
 
         // @ts-ignore
         public loadTheme() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/core/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
-        public createShadowRoot() { return this.shadowRoot ?? this.attachShadow({ mode: "open" }); }
+        public createShadowRoot() { return (this.shadowRoot ?? this.attachShadow({ mode: "open" })); }
         public connectedCallback() {
             if (!this.#initialized) {
-                const shadowRoot = this.createShadowRoot?.() ?? this.shadowRoot ?? this.attachShadow({ mode: "open" });
+                const shadowRoot = this.createShadowRoot?.() ?? (this.shadowRoot ?? this.attachShadow({ mode: "open" }));
                 this.#initialized = true; this.$init?.(); setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.();
                 this[inRenderKey] = true;
                 let styles = ``, props = [], vars: any = null;

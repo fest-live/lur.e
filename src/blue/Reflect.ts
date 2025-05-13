@@ -10,11 +10,7 @@ function camelToKebab(str) { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').t
 function kebabToCamel(str) { return str?.replace?.(/-([a-z])/g, (_, char) => char.toUpperCase()); }
 
 //
-const deleteStyleProperty = (element, name)=>{
-    element.style.removeProperty(camelToKebab(name));
-}
-
-//
+const deleteStyleProperty = (element, name)=>{ element.style.removeProperty(camelToKebab(name)); }
 const setStyleProperty = (element, name, value: any)=>{
     // custom properties currently doesn't supports Typed OM
     if (name?.trim?.()?.startsWith?.("--")) {
@@ -68,38 +64,23 @@ const setStyleProperty = (element, name, value: any)=>{
 //
 const handleStyleChange = (element, prop, value)=>{
     if (!prop || typeof prop != "string") return;
-
-    //
-    if (typeof value == "undefined" || value == null) {
-        deleteStyleProperty(element, prop);
-    } else // non-object, except Typed OM
-    if ((typeof value != "object" && typeof value != "function") || value instanceof CSSStyleValue) {
-        setStyleProperty(element, prop, value);
-    } else
-    if (value?.value != null && (typeof value.value != "object" && typeof value.value != "function")) {
-        setStyleProperty(element, prop, value.value);
-    } else { // any invalid type is deleted value
-        console.warn(`Invalid value for style property "${prop}":`, value);
-        deleteStyleProperty(element, prop);
-    }
+    if (typeof value == "undefined" || value == null) { deleteStyleProperty(element, prop); } else // non-object, except Typed OM
+    if ((typeof value != "object" && typeof value != "function") || value instanceof CSSStyleValue)
+        { setStyleProperty(element, prop, value); } else
+    if (value?.value != null && (typeof value.value != "object" && typeof value.value != "function"))
+        { setStyleProperty(element, prop, value.value); } else // any invalid type is deleted value
+        { deleteStyleProperty(element, prop); console.warn(`Invalid value for style property "${prop}":`, value); }
 }
 
 //
 const handleAttribute = (element, prop, value)=>{
     if (!prop) return; prop = camelToKebab(prop) || prop;
     if (element.getAttribute(prop) !== value) {
-        if (typeof value == "undefined" || value == null) {
-            element.removeAttribute(prop);
-        } else
-        if (typeof value != "object" && typeof value != "function") {
-            element.setAttribute(prop, value);
-        } else
-        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function")) {
-            element.setAttribute(prop, value.value);
-        } else { // any invalid type is deleted value
-            console.warn(`Invalid type of attribute value "${prop}":`, value);
-            element.removeAttribute(prop);
-        }
+        if (typeof value == "undefined" || value == null) { element.removeAttribute(prop); } else
+        if (typeof value != "object" && typeof value != "function") { element.setAttribute(prop, value); } else
+        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function"))
+            { element.setAttribute(prop, value.value); } else  // any invalid type is deleted value
+            { element.removeAttribute(prop); console.warn(`Invalid type of attribute value "${prop}":`, value); }
     }
 }
 
@@ -107,28 +88,18 @@ const handleAttribute = (element, prop, value)=>{
 const handleDataset = (element, prop, value)=>{
     if (!prop) return; prop = kebabToCamel(prop) || prop;
     if (element.dataset[prop] !== value) {
-        if (typeof value == "undefined" || value == null) {
-            delete element.dataset[prop];
-        } else
-        if (typeof value != "object" && typeof value != "function") {
-            element.dataset[prop] = value;
-        } else
-        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function")) {
-            element.dataset[prop] = value.value;
-        } else { // any invalid type is deleted value
-            console.warn(`Invalid type of attribute value "${prop}":`, value);
-            delete element.dataset[prop];
-        }
+        if (typeof value == "undefined" || value == null) { delete element.dataset[prop]; } else
+        if (typeof value != "object" && typeof value != "function") { element.dataset[prop] = value; } else
+        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function"))
+            { element.dataset[prop] = value.value; } else // any invalid type is deleted value
+            { delete element.dataset[prop]; console.warn(`Invalid type of attribute value "${prop}":`, value); }
     }
 }
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
-    if (!attributes) return;
-
-    //
-    const weak = new WeakRef(attributes);
-    const wel = new WeakRef(element);
+    if (!attributes) return element;
+    const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
         subscribe(attributes, (value, prop)=>{
             handleAttribute(wel?.deref?.(), prop, value);
@@ -149,9 +120,8 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
                 });
             }
         })
-    } else {
-        console.warn("Invalid attributes object:", attributes);
-    }
+    } else
+    { console.warn("Invalid attributes object:", attributes); }
 
     // bi-directional attribute
     const config = { attributeOldValue: true, attributes: true, childList: false, subtree: false };
@@ -174,16 +144,13 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
 
     //
     const observer = new MutationObserver(callback);
-    observer.observe(element, config);
+    observer.observe(element, config); return element;
 }
 
 //
 export const reflectARIA = (element: HTMLElement, aria: any)=>{
-    if (!aria) return;
-
-    //
-    const weak = new WeakRef(aria);
-    const wel = new WeakRef(element);
+    if (!aria) return element;
+    const weak = new WeakRef(aria), wel = new WeakRef(element);
     if (typeof aria == "object" || typeof aria == "function") {
         subscribe(aria, (value, prop)=>{
             handleAttribute(wel?.deref?.(), "aria-"+prop, value);
@@ -198,18 +165,14 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
                 });
             }
         })
-    } else {
-        console.warn("Invalid ARIA object:", aria);
-    }
+    } else
+    { console.warn("Invalid ARIA object:", aria);}; return element;
 }
 
 //
 export const reflectDataset = (element: HTMLElement, dataset: any)=>{
-    if (!dataset) return;
-
-    //
-    const weak = new WeakRef(dataset);
-    const wel = new WeakRef(element);
+    if (!dataset) return element;
+    const weak = new WeakRef(dataset), wel = new WeakRef(element);
     if (typeof dataset == "object" || typeof dataset == "function") {
         subscribe(dataset, (value, prop)=>{
             handleDataset(wel?.deref?.(), prop, value);
@@ -224,23 +187,17 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
                 });
             }
         })
-    } else {
-        console.warn("Invalid dataset object:", dataset);
-    }
+    } else
+    { console.warn("Invalid dataset object:", dataset); }; return element;
 }
 
 // TODO! support observe styles
 export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
-    if (!styles) return;
-
-    //
+    if (!styles) return element;
     if (typeof styles == "string") { element.style.cssText = styles; } else
     if (typeof styles?.value == "string") { subscribe([styles, "value"], (val) => { element.style.cssText = val; }); } else
     if (typeof styles == "object" || typeof styles == "function") {
-        const weak = new WeakRef(styles);
-        const wel = new WeakRef(element);
-
-        //
+        const weak = new WeakRef(styles), wel = new WeakRef(element);
         subscribe(styles, (value, prop)=>{
             if (wel?.deref?.()?.style[kebabToCamel(prop)] !== value) {
                 handleStyleChange(wel?.deref?.(), prop, value);
@@ -262,24 +219,14 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
                 });
             }
         });
-    } else {
-        console.warn("Invalid styles object:", styles);
-    }
+    } else
+    { console.warn("Invalid styles object:", styles); } return element;
 }
 
 // one-shot update
-export const reflectWithStyleRules = async (element: HTMLElement, rule: any)=>{
-    const styles = await rule?.(element);
-    return reflectStyles(element, styles);
-}
-
-//
+export const reflectWithStyleRules = async (element: HTMLElement, rule: any)=>{ const styles = await rule?.(element); return reflectStyles(element, styles); }
 export const reflectProperties = (element: HTMLElement, properties: any)=>{
-    if (!properties) return;
-
-    //
-    const weak = new WeakRef(properties);
-    const wel = new WeakRef(element);
+    if (!properties) return element; const weak = new WeakRef(properties), wel = new WeakRef(element);
     subscribe(properties, (value, prop)=>{
         if (value?.value != null) {
             subscribe([value, "value"], (curr) => {
@@ -302,15 +249,12 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
         if (ev?.target?.value != null && ev?.target?.value !== properties.value) properties.value = ev?.target?.value;
         if (ev?.target?.valueAsNumber != null && ev?.target?.valueAsNumber !== properties.valueAsNumber) properties.valueAsNumber = ev?.target?.valueAsNumber;
         if (ev?.target?.checked != null && ev?.target?.checked !== properties.checked) properties.checked = ev?.target?.checked;
-    });
+    }); return element;
 }
 
-// TODO! reactive arrays
+//
 export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    if (!children) return;
-    const ref = new WeakRef(element);
-    //if (element instanceof HTMLElement) element.innerHTML = ``;
-
+    if (!children) return element; const ref = new WeakRef(element);
     mapper   = (children?.["@mapped"] ? (children as any)?.mapper : mapper) ?? mapper;
     children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children;
 
@@ -357,13 +301,12 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
             children?.behavior?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, _, ref, [obj, has]]);
         } else
         { merge(); }
-    });
+    }); return element;
 }
 
-// TODO! observable classList
+//
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
-    if (!classList) return;
-    const wel = new WeakRef(element);
+    if (!classList) return element; const wel = new WeakRef(element);
     subscribe(classList, (value: string)=>{
         const el = wel?.deref?.();
         if (el) {
@@ -373,19 +316,15 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
                 if (!el.classList.contains(value)) { el.classList.add(value); }
             }
         }
-    })
+    }); return element;
 }
 
 // forcely update child nodes (and erase current content)
-// ! doesn't create new ones (if was cached or saved)
 export const reformChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    if (!children) return element;
-    const ref = new WeakRef(element);
-    removeNotExists(element, children, mapper);
+    if (!children) return element; const ref = new WeakRef(element); removeNotExists(element, children, mapper);
     mapper = (children?.["@mapped"] ? (children as any)?.mapper : mapper) ?? mapper;
     (children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children).map((nd)=>{
         const element = ref.deref(); if (!element) return nd;
         appendChild(element, nd, mapper); return nd;
-    });
-    return element;
+    }); return element;
 }
