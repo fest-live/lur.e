@@ -106,6 +106,7 @@ export function property({attribute, source, name}: { attribute?: string|boolean
 }
 
 //
+export const customElement = defineElement;
 export const useVars = (holder, vars)=>{ vars?.entries?.()?.forEach?.(([key, vr])=>subscribe([vr,'value'], (val)=>(holder?.style ?? holder)?.setProperty?.(`--${key}`, val, ""))); return holder; }
 export const setAttributesIfNull = (element, attrs = {})=>{
     const entries = attrs instanceof Map ? attrs.entries() : Object.entries(attrs || {})
@@ -159,7 +160,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         protected render() { return H`<slot>`; }
 
         // @ts-ignore
-        public loadTheme() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/core/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
+        public loadThemeLibrary() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/core/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
         public createShadowRoot() { return (this.shadowRoot ?? this.attachShadow({ mode: "open" })); }
         public connectedCallback() {
             if (!this.#initialized) {
@@ -168,7 +169,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
                 this[inRenderKey] = true;
                 let styles = ``, props = [], vars: any = null;
                 if (typeof this.styles == "string") { styles = this.styles || "" } else
-                if (typeof this.styles == "function") { const cs = this.styles?.call?.(this); styles = cs.css, props = cs.props, vars = cs.vars; };
+                if (typeof this.styles == "function") { const cs = this.styles?.call?.(this); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
                 if (vars) { useVars(this, vars); };
                 this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render?.(), this.#styleElement = loadInlineStyle(styles, shadowRoot, "ux-layer")]))
                 delete this[inRenderKey];
