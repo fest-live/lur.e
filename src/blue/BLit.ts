@@ -1,3 +1,8 @@
+// @ts-ignore /* @vite-ignore */
+import {importCdn} from "/externals/modules/cdnImport.mjs";
+export {importCdn};
+
+//
 import observableArray from "./Array";
 import E from "./Element";
 import H from "./HTML";
@@ -31,15 +36,24 @@ const defineSource = (source: string|any, holder: any, name?: string|null)=>{
 }
 
 //
-function withProperties<T extends { new(...args: any[]): {} }>(constructor: T) {
-    return class extends constructor {
+function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
+    const $has = (ctr?.prototype ?? ctr)?.$init;
+    (ctr?.prototype ?? ctr).$init = function (...args) {
+        $has?.call(this, ...args); if (this?.[defKeys]) { Object.entries(this[defKeys]).forEach(([key, def])=>{
+            const exists = this[key]; Object.defineProperty(this, key, def); if (exists != null) { this[key] = exists; }
+            return this;
+        }); };
+    }
+    return ctr;
+    /*return class extends constructor {
+        constructor(...args) { super(...args); }
         $init(...args: any[]) {
-            super.$init?.(...args); Object.entries(this[defKeys]).forEach(([key, def])=>{
+            super.$init?.(...args); if (this[defKeys]) { Object.entries(this[defKeys]).forEach(([key, def])=>{
                 const exists = this[key]; Object.defineProperty(this, key, def); if (exists != null) { this[key] = exists; }
                 return this;
-            });
+            }); };
         }
-    }
+    }*/
 }
 
 //
@@ -53,7 +67,7 @@ function generateName(length = 8) {
 }
 
 //
-export const selectedElement = (host, selector: string)=>{ return new Proxy(host, new SelectedElementHandler(selector) as ProxyHandler<any>); }
+export const selectedElement = (host, selector: string)=>{ return typeof host == "object" ? new Proxy(host, new SelectedElementHandler(selector) as ProxyHandler<any>) : host; }
 export class SelectedElementHandler {
     selector = "";
     constructor(selector?: string) {
@@ -95,9 +109,8 @@ export class SelectedElementHandler {
 }
 
 //
-export function defineElement(name: string, options?: any|null) { return function(target: any, key: string) { @withProperties class el extends target {}; customElements.define(name, el, options); } }
+export function defineElement(name: string, options?: any|null) { return function(target: any, key: string) { customElements.define(name, target, options); return target; }; }
 export function property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {}) {
-    const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? selectedElement(this, from) : this);
     return function (target: any, key: string) {
         if (!target[defKeys]) target[defKeys] = {};
         if (attribute != null) {
@@ -108,6 +121,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
         target[defKeys][key] = {
             get() {
                 const inRender = this[inRenderKey];
+                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? selectedElement(this, from) : this);
 
                 //
                 let store = propStore.get(this);
@@ -123,19 +137,22 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                 return stored;
             },
             set(newValue: any) {
+                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? selectedElement(this, from) : this);
+
+                //
                 let store = propStore.get(this);
                 if (!store) { propStore.set(this, store = new Map()); }
                 if (!store?.has?.(key)) {
                     if (newValue?.value != null) {
                         store?.set?.(key, newValue);
                     } else {
-                        store?.set?.(key, typeof newValue === 'object' && newValue !== null ? makeReactive(newValue) : defineSource(source, sourceTarget, name || key)?.(newValue));
+                        store?.set?.(key, (typeof newValue === 'object' && newValue !== null) ? makeReactive(newValue) : defineSource(source, sourceTarget, name || key)?.(newValue));
                     }
                 } else {
                     const exists = store?.get?.(key);
                     if (typeof exists == "object" || typeof exists == "function") {
-                        if (typeof newValue === 'object' && newValue !== null) {
-                            Object.assign(exists, newValue);
+                        if (typeof newValue === 'object' && newValue !== null && (newValue?.value == null || typeof newValue?.value == "object" || typeof newValue?.value == "function")) {
+                            Object.assign(exists, newValue?.value ?? newValue);
                         } else {
                             exists.value = newValue?.value ?? newValue;
                         }
@@ -187,38 +204,41 @@ export const css = (strings, ...values)=>{
 //
 export const BLitElement = (derrivate = HTMLElement)=>{
     if (CSM.has(derrivate)) return CSM.get(derrivate);
-    @withProperties class EX extends derrivate {
+    const EX = withProperties(class EX extends derrivate {
         #initialized: boolean = false;
         #styleElement?: HTMLStyleElement;
         #framework: any;
         styles?: any;
         initialAttributes?: any; // you can set initial attributes
-        classList?: any; // TODO: add support for initial class lists
         themeStyle?: HTMLStyleElement;
+        render = (weak?: WeakRef<any>) => { return H("<slot/>"); }
 
         // @ts-ignore
-        constructor(...args) { super(...args); }
-        protected onInitialize() { return this; }
+        constructor(...args) { super(); }
+        protected onInitialize(weak?: WeakRef<any>) { return this; }
+        protected onRender(weak?: WeakRef<any>) { return this; }
         protected $init() { return this; };
-        protected render(weak?: WeakRef<any>) { return H`<slot>`; }
+        protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
 
         // @ts-ignore
         public loadThemeLibrary() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/core/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
         public createShadowRoot() { return (this.shadowRoot ?? this.attachShadow({ mode: "open" })); }
         public connectedCallback() {
             const weak = new WeakRef(this);
-            if (!this.#initialized) {
+            if (!this.#initialized) { this.#initialized = true;
                 const shadowRoot = this.createShadowRoot?.() ?? (this.shadowRoot ?? this.attachShadow({ mode: "open" }));
-                this.#initialized = true; this.$init?.(); setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.();
-                this[inRenderKey] = true; let styles = ``, props = [], vars: any = null;
+                this.$init?.(); this[inRenderKey] = true;
+                setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes);
+                this.onInitialize?.call(this, weak); let styles = ``, props = [], vars: any = null;
                 if (typeof this.styles == "string") { styles = this.styles || "" } else
                 if (typeof this.styles == "function") { const cs = this.styles?.call?.(this, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
                 if (vars) { useVars(this, vars); };
-                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render.call(this, weak), this.#styleElement = loadInlineStyle(styles, shadowRoot, "ux-layer")]))
+                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render?.call?.(this, weak), this.#styleElement = loadInlineStyle(styles, shadowRoot, "ux-layer")]))
+                this.onRender?.call?.(this, weak);
                 delete this[inRenderKey];
             }
             return this;
         }
-    }
+    });
     CSM.set(derrivate, EX); return EX;
 }

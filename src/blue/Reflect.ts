@@ -76,9 +76,9 @@ const handleStyleChange = (element, prop, value)=>{
 const handleAttribute = (element, prop, value)=>{
     if (!prop) return; prop = camelToKebab(prop) || prop;
     if (element.getAttribute(prop) !== value) {
-        if (typeof value == "undefined" || value == null) { element.removeAttribute(prop); } else
+        if (typeof value == "undefined" || value == null || value === false) { element.removeAttribute(prop); } else
         if (typeof value != "object" && typeof value != "function") { element.setAttribute(prop, value); } else
-        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function"))
+        if (value?.value != null && value?.value !== false && (typeof value?.value != "object" && typeof value?.value != "function"))
             { element.setAttribute(prop, value.value); } else  // any invalid type is deleted value
             { element.removeAttribute(prop); console.warn(`Invalid type of attribute value "${prop}":`, value); }
     }
@@ -88,9 +88,9 @@ const handleAttribute = (element, prop, value)=>{
 const handleDataset = (element, prop, value)=>{
     if (!prop) return; prop = kebabToCamel(prop) || prop;
     if (element.dataset[prop] !== value) {
-        if (typeof value == "undefined" || value == null) { delete element.dataset[prop]; } else
+        if (typeof value == "undefined" || value == null || value === false) { delete element.dataset[prop]; } else
         if (typeof value != "object" && typeof value != "function") { element.dataset[prop] = value; } else
-        if (value?.value != null && (typeof value?.value != "object" && typeof value?.value != "function"))
+        if (value?.value != null && value?.value !== false && (typeof value?.value != "object" && typeof value?.value != "function"))
             { element.dataset[prop] = value.value; } else // any invalid type is deleted value
             { delete element.dataset[prop]; console.warn(`Invalid type of attribute value "${prop}":`, value); }
     }

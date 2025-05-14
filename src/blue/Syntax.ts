@@ -12,7 +12,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
     if (el != null) {
         // TODO: advanced attributes support
         let style = "", dataset = {}, properties = {}, on = {}, aria = {}, iterate = [];
-        for (const attr of Array.from(el.attributes)) {
+        for (const attr of Array.from(el?.attributes || [])) {
             const isCustom = attr.value?.startsWith("#{");
             const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match(/^#\{(.+)\}$/)?.[1] || "0")] : attr.value;
 
@@ -63,12 +63,10 @@ export function htmlBuilder({ createElement = null } = {}) {
 
         //
         const mapped = new WeakMap();
-        const parser = new DOMParser(), doc = parser.parseFromString(parts.join("").trim(), "text/html"), fragment = doc.body, walker: any = fragment ? document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null) : null;
-        while (walker?.nextNode?.()) {
+        const parser = new DOMParser(), doc = parser.parseFromString(parts.join("").trim(), "text/html"), fragment = (doc.querySelector("template")?.content ?? doc.body), walker: any = fragment ? document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null) : null;
+        do {
             const node: any = walker.currentNode;
-            if (node.nodeType === Node.ELEMENT_NODE) {
-                connectElement(node as HTMLElement, atb, psh, mapped);
-            } else
+            if (node.nodeType === Node.ELEMENT_NODE) { connectElement(node as HTMLElement, atb, psh, mapped); } else
             if (node.nodeType === Node.COMMENT_NODE && node.nodeValue.startsWith("o:")) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
 
@@ -76,11 +74,11 @@ export function htmlBuilder({ createElement = null } = {}) {
                 if (typeof el == "function") { if (node.parentNode?.getAttribute?.("iterate")) { node.remove(); mapped.set(node.parentNode, el); } else { node.replaceWith(getNode(el?.())); } } else
                 if (el == null || el === false) { node.remove(); } else { node.replaceWith(getNode(Array.isArray(el) ? M(el) : el)); } // text-node
             }
-        }
+        } while (walker?.nextNode?.());
 
         //
-        const frag = fragment.childNodes.length > 0 ? document.createDocumentFragment() : null;
-        frag?.append?.(...Array.from(fragment.childNodes).map((e: any)=>connectElement(e, atb, psh, mapped)).filter((e:any)=>(e!=null)) as any);
-        return fragment.childNodes.length > 0 ? frag : connectElement(fragment?.firstChild as any, atb, psh, mapped);
+        if (fragment instanceof DocumentFragment) { return fragment; } else
+        if (fragment?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag?.append?.(...Array.from(fragment.childNodes).filter((e:any)=>(e!=null)) as any); return frag; }
+        return fragment?.childNodes?.[0];
     };
 }
