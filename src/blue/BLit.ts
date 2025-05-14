@@ -201,6 +201,30 @@ export const css = (strings, ...values)=>{
     return {props, css: parts.join(""), vars};
 }
 
+
+//
+const styleCache = new Map();
+const styleElementCache = new WeakMap();
+const loadCachedStyles = (bTo, src)=>{
+    const cached = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache).get(src);
+    let styleElement = cached?.styleElement;
+    let vars = cached?.vars;
+
+    //
+    if (!cached) {
+        const weak = new WeakRef(bTo);
+        let styles = ``, props = [];
+        if (typeof src == "string") { styles = src || "" } else
+        if (typeof src == "function") { const cs = src?.call?.(bTo, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
+        ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache).set(src, { css: styles, props, vars, styleElement: (styleElement = loadInlineStyle(styles, bTo, "ux-layer")) });
+    }
+
+    //
+    if (vars) { useVars(this, vars); };
+    return styleElement;
+}
+
+
 //
 export const BLitElement = (derrivate = HTMLElement)=>{
     if (CSM.has(derrivate)) return CSM.get(derrivate);
@@ -228,12 +252,8 @@ export const BLitElement = (derrivate = HTMLElement)=>{
             if (!this.#initialized) { this.#initialized = true;
                 const shadowRoot = this.createShadowRoot?.() ?? (this.shadowRoot ?? this.attachShadow({ mode: "open" }));
                 this.$init?.(); this[inRenderKey] = true;
-                setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes);
-                this.onInitialize?.call(this, weak); let styles = ``, props = [], vars: any = null;
-                if (typeof this.styles == "string") { styles = this.styles || "" } else
-                if (typeof this.styles == "function") { const cs = this.styles?.call?.(this, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
-                if (vars) { useVars(this, vars); };
-                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render?.call?.(this, weak), this.#styleElement = loadInlineStyle(styles, shadowRoot, "ux-layer")]))
+                setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.call(this, weak);
+                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render?.call?.(this, weak), this.#styleElement = loadCachedStyles(this, this.styles)]))
                 this.onRender?.call?.(this, weak);
                 delete this[inRenderKey];
             }
