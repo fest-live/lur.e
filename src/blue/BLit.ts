@@ -53,8 +53,51 @@ function generateName(length = 8) {
 }
 
 //
+export const selectedElement = (host, selector: string)=>{ return new Proxy(host, new SelectedElementHandler(selector) as ProxyHandler<any>); }
+export class SelectedElementHandler {
+    selector = "";
+    constructor(selector?: string) {
+        if (selector) { this.selector = selector; };
+    }
+    get(target, name, rec) {
+        const selected = target.querySelector(this.selector);
+        const vp = selected?.[name];
+        if (name == "self" && !vp) { return target; }
+        if (name == "selector" && !vp) { return this.selector; }
+        if (name == "current" && !vp) { return selected; }
+        return typeof vp == "function" ? vp?.bind?.(selected) : vp;
+    }
+    set(target, name, val) {
+        const selected = target.querySelector(this.selector);
+        if (selected) return Reflect.set(selected, name, val);
+        return true;
+    }
+    has(target, name) {
+        const selected = target.querySelector(this.selector);
+        if (selected) return Reflect.has(selected, name);
+        return false;
+    }
+    deleteProperty(target, name) {
+        const selected = target.querySelector(this.selector);
+        if (selected) return Reflect.deleteProperty(selected, name);
+        return true;
+    }
+    ownKeys(target) {
+        const selected = target.querySelector(this.selector);
+        if (selected) return Reflect.ownKeys(selected);
+        return [];
+    }
+    defineProperty(target, a, b) {
+        const selected = target.querySelector(this.selector);
+        if (selected) return Reflect.defineProperty(selected, a, b);
+        return;
+    }
+}
+
+//
 export function defineElement(name: string, options?: any|null) { return function(target: any, key: string) { @withProperties class el extends target {}; customElements.define(name, el, options); } }
-export function property({attribute, source, name}: { attribute?: string|boolean, source?: string|any, name?: string|null } = {}) {
+export function property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {}) {
+    const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? selectedElement(this, from) : this);
     return function (target: any, key: string) {
         if (!target[defKeys]) target[defKeys] = {};
         if (attribute != null) {
@@ -72,7 +115,7 @@ export function property({attribute, source, name}: { attribute?: string|boolean
                 if (stored == null && source != null) {
                     if (!store) { propStore.set(this, store = new Map()); }
                     if (!store?.has?.(key))
-                        { store?.set?.(key, stored = defineSource(source, this, name || key)?.(0)); }
+                        { store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(0)); }
                 }
 
                 //
@@ -86,7 +129,7 @@ export function property({attribute, source, name}: { attribute?: string|boolean
                     if (newValue?.value != null) {
                         store?.set?.(key, newValue);
                     } else {
-                        store?.set?.(key, typeof newValue === 'object' && newValue !== null ? makeReactive(newValue) : defineSource(source, this, name || key)?.(newValue));
+                        store?.set?.(key, typeof newValue === 'object' && newValue !== null ? makeReactive(newValue) : defineSource(source, sourceTarget, name || key)?.(newValue));
                     }
                 } else {
                     const exists = store?.get?.(key);
@@ -157,21 +200,21 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         constructor(...args) { super(...args); }
         protected onInitialize() { return this; }
         protected $init() { return this; };
-        protected render() { return H`<slot>`; }
+        protected render(weak?: WeakRef<any>) { return H`<slot>`; }
 
         // @ts-ignore
         public loadThemeLibrary() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/core/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
         public createShadowRoot() { return (this.shadowRoot ?? this.attachShadow({ mode: "open" })); }
         public connectedCallback() {
+            const weak = new WeakRef(this);
             if (!this.#initialized) {
                 const shadowRoot = this.createShadowRoot?.() ?? (this.shadowRoot ?? this.attachShadow({ mode: "open" }));
                 this.#initialized = true; this.$init?.(); setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.();
-                this[inRenderKey] = true;
-                let styles = ``, props = [], vars: any = null;
+                this[inRenderKey] = true; let styles = ``, props = [], vars: any = null;
                 if (typeof this.styles == "string") { styles = this.styles || "" } else
-                if (typeof this.styles == "function") { const cs = this.styles?.call?.(this); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
+                if (typeof this.styles == "function") { const cs = this.styles?.call?.(this, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
                 if (vars) { useVars(this, vars); };
-                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render?.(), this.#styleElement = loadInlineStyle(styles, shadowRoot, "ux-layer")]))
+                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.render.call(this, weak), this.#styleElement = loadInlineStyle(styles, shadowRoot, "ux-layer")]))
                 delete this[inRenderKey];
             }
             return this;

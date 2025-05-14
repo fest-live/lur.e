@@ -1,12 +1,13 @@
 import observableArray from "./Array";
 import { getNode } from "./DOM";
-import E, { T } from "./Element"
+import E from "./Element"
 import M from "./Mapped";
 
 //
 const EMap = new WeakMap();
 const parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
-const connectElement = (el: HTMLElement, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>)=>{
+const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>)=>{
+    if (!el) return el;
     const attributes = {};
     if (el != null) {
         // TODO: advanced attributes support
@@ -61,7 +62,7 @@ export function htmlBuilder({ createElement = null } = {}) {
 
         //
         const mapped = new WeakMap();
-        const parser = new DOMParser(), doc = parser.parseFromString(parts.join("").trim(), "text/html"), fragment = doc.body.firstChild, walker: any = fragment ? document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null) : null;
+        const parser = new DOMParser(), doc = parser.parseFromString(parts.join("").trim(), "text/html"), fragment = doc.body, walker: any = fragment ? document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null) : null;
         while (walker?.nextNode?.()) {
             const node: any = walker.currentNode;
             if (node.nodeType === Node.ELEMENT_NODE) {
@@ -77,6 +78,8 @@ export function htmlBuilder({ createElement = null } = {}) {
         }
 
         //
-        return connectElement(fragment as HTMLElement, atb, psh, mapped);
+        const frag = fragment.childNodes.length > 0 ? document.createDocumentFragment() : null;
+        frag?.append?.(...Array.from(fragment.childNodes).map((e: any)=>connectElement(e, atb, psh, mapped)).filter((e:any)=>(e!=null)) as any);
+        return fragment.childNodes.length > 0 ? frag : connectElement(fragment?.firstChild as any, atb, psh, mapped);
     };
 }
