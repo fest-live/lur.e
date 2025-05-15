@@ -2,14 +2,18 @@
 import {importCdn} from "/externals/modules/cdnImport.mjs";
 export {importCdn};
 
-//
-import observableArray from "./Array";
-import E from "./Element";
-import H from "./HTML";
+// @ts-ignore /* @vite-ignore */
+import { loadInlineStyle, hash } from "/externals/lib/dom.js";
+
+// @ts-ignore /* @vite-ignore */
+import { makeReactive, ref, subscribe, observableArray } from "/externals/lib/object.js";
+
 
 //
-import { loadInlineStyle, hash } from "/externals/lib/dom.js";
-import { attrRef, checkedRef, localStorageRef, makeReactive, matchMediaRef, ref, sizeRef, subscribe, valueAsNumberRef, valueRef, scrollRef } from "/externals/lib/object.js";
+import E from "./Element";
+import H from "./HTML";
+import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./DOM";
+
 
 //
 const camelToKebab = (str) => { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
@@ -22,7 +26,7 @@ const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const defineSource = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "media") { return matchMediaRef; }
     if (source == "localStorage") { return localStorageRef; }
-    if (source == "attr") { return attrRef.bind(null, holder, name); }
+    if (source == "attr") { return attrRef.bind(null, holder, name || ""); }
     if (source == "inline-size") { return sizeRef.bind(null, holder, "inline", whenBoxValid(name) || "border-box"); }
     if (source == "block-size") { return sizeRef.bind(null, holder, "block", whenBoxValid(name) || "border-box"); }
     if (source == "border-box") { return sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "border-box"); }
@@ -34,13 +38,28 @@ const defineSource = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "value-as-number") { return valueAsNumberRef.bind(null, holder); }
     return ref;
 }
+const getDef = (source?: string|any|null): any =>{
+    if (source == "media") return false;
+    if (source == "localStorage") return null;
+    if (source == "attr") return null;
+    if (source == "inline-size") return 0;
+    if (source == "block-size") return 0;
+    if (source == "border-box") return 0;
+    if (source == "content-box") return 0;
+    if (source == "scroll") return 0;
+    if (source == "device-pixel-content-box") return 0;
+    if (source == "checked") return false;
+    if (source == "value") return "";
+    if (source == "value-as-number") return 0;
+    return null;
+}
 
 //
 function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
     const $has = (ctr?.prototype ?? ctr)?.$init;
     (ctr?.prototype ?? ctr).$init = function (...args) {
         $has?.call(this, ...args); if (this?.[defKeys]) { Object.entries(this[defKeys]).forEach(([key, def])=>{
-            const exists = this[key]; Object.defineProperty(this, key, def); if (exists != null) { this[key] = exists; }
+            const exists = this[key]; Object.defineProperty(this, key, def as any); if (exists != null) { this[key] = exists; }
             return this;
         }); };
     }
@@ -129,7 +148,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                 if (stored == null && source != null) {
                     if (!store) { propStore.set(this, store = new Map()); }
                     if (!store?.has?.(key))
-                        { store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(0)); }
+                        { store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source))); }
                 }
 
                 //

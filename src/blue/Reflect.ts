@@ -1,9 +1,8 @@
 //
-import { observe, importCdn } from "./Array.js";
 import { appendChild, removeChild, removeNotExists, replaceChildren } from "./DOM.js";
 
-// @ts-ignore
-const { subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
+// @ts-ignore /* @vite-ignore */
+import { subscribe, observe } from "/externals/lib/object.js";
 
 //
 function camelToKebab(str) { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }

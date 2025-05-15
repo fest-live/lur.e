@@ -1,4 +1,7 @@
-import observableArray from "./Array";
+// @ts-ignore /* @vite-ignore */
+import { observableArray } from "/externals/lib/object.js";
+
+//
 import { getNode } from "./DOM";
 import E from "./Element"
 import M from "./Mapped";

@@ -1,7 +1,5 @@
-import observableArray, {importCdn} from './Array';
-
-// @ts-ignore
-const { makeReactive, subscribe } = await Promise.try(importCdn, ["/externals/lib/object.js"]);
+// @ts-ignore /* @vite-ignore */
+import { makeReactive, subscribe, importCdn, observableArray } from "/externals/lib/object.js";
 
 //
 import { createElement, elMap } from './DOM';
