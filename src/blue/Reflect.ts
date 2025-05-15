@@ -12,19 +12,20 @@ function kebabToCamel(str) { return str?.replace?.(/-([a-z])/g, (_, char) => cha
 //
 const deleteStyleProperty = (element, name)=>{ element.style.removeProperty(camelToKebab(name)); }
 const setStyleProperty = (element, name, value: any)=>{
+    if (!element) return;
     // custom properties currently doesn't supports Typed OM
     if (name?.trim?.()?.startsWith?.("--")) {
-        const old = element.style.getProperty(name);
+        const old = element.style?.getProperty?.(name);
         value = (value instanceof CSSStyleValue ? value.toString() : value);
-        if (old !== value) { element.style.setProperty(name, value, ""); };
+        if (old !== value) { element.style?.setProperty?.(name, value, ""); };
     } else
     if (value instanceof CSSStyleValue) {
         const kebab = camelToKebab(name);
         if (element.attributeStyleMap != null) {
-            const old = element.attributeStyleMap.get(kebab);
+            const old = element.attributeStyleMap?.get?.(kebab);
             if (old !== value) {
                 // CSSStyleValue is internally reactive itself!
-                element.attributeStyleMap.set(kebab, value);
+                element.attributeStyleMap?.set?.(kebab, value);
 
                 // bred, changing `.value` in CSSStyleValue isn't change value again
                 /*if (value instanceof CSSUnitValue) {
@@ -36,29 +37,28 @@ const setStyleProperty = (element, name, value: any)=>{
                 }*/
             }
         } else {
-            element.style.setProperty(kebab, value.toString(), "");
+            element?.style?.setProperty(kebab, value.toString(), "");
         }
     } else // very specific case if number and unit value can be changed directly
     if (!Number.isNaN(value?.value ?? value) && element.attributeStyleMap != null) {
         const numeric = value?.value ?? value;
         const kebab = camelToKebab(name);
-        const old = element.attributeStyleMap.get(kebab);
+        const old = element.attributeStyleMap?.get?.(kebab);
         if (old instanceof CSSUnitValue) { old.value = numeric; } else
         {   // hard-case
-            const computed = element.computedStyleMap();
-            const oldCmVal = computed.get(kebab);
+            const computed = element?.computedStyleMap?.();
+            const oldCmVal = computed?.get?.(kebab);
             if (oldCmVal instanceof CSSUnitValue) {
                 if (oldCmVal.value != numeric) {
                     oldCmVal.value = numeric;
-                    element.attributeStyleMap.set(kebab, oldCmVal);
+                    element.attributeStyleMap?.set?.(kebab, oldCmVal);
                 }
             } else {
-                element.style.setProperty(kebab, numeric);
+                element.style?.setProperty?.(kebab, numeric);
             }
         }
-    } else {
-        element.style[kebabToCamel(name)] = (value?.value ?? value);
-    }
+    } else
+    if (element.style) { element.style[kebabToCamel(name)] = (value?.value ?? value); }
 }
 
 //
@@ -69,7 +69,7 @@ const handleStyleChange = (element, prop, value)=>{
         { setStyleProperty(element, prop, value); } else
     if (value?.value != null && (typeof value.value != "object" && typeof value.value != "function"))
         { setStyleProperty(element, prop, value.value); } else // any invalid type is deleted value
-        { deleteStyleProperty(element, prop); console.warn(`Invalid value for style property "${prop}":`, value); }
+        { deleteStyleProperty(element, prop); if (value?.value !== false) console.warn(`Invalid value for style property "${prop}":`, value); }
 }
 
 //
@@ -80,7 +80,7 @@ const handleAttribute = (element, prop, value)=>{
         if (typeof value != "object" && typeof value != "function") { element.setAttribute(prop, value); } else
         if (value?.value != null && value?.value !== false && (typeof value?.value != "object" && typeof value?.value != "function"))
             { element.setAttribute(prop, value.value); } else  // any invalid type is deleted value
-            { element.removeAttribute(prop); console.warn(`Invalid type of attribute value "${prop}":`, value); }
+            { element.removeAttribute(prop); if (value?.value !== false) console.warn(`Invalid type of attribute value "${prop}":`, value); }
     }
 }
 
@@ -92,7 +92,7 @@ const handleDataset = (element, prop, value)=>{
         if (typeof value != "object" && typeof value != "function") { element.dataset[prop] = value; } else
         if (value?.value != null && value?.value !== false && (typeof value?.value != "object" && typeof value?.value != "function"))
             { element.dataset[prop] = value.value; } else // any invalid type is deleted value
-            { delete element.dataset[prop]; console.warn(`Invalid type of attribute value "${prop}":`, value); }
+            { delete element.dataset[prop]; if (value?.value !== false) console.warn(`Invalid type of attribute value "${prop}":`, value); }
     }
 }
 
