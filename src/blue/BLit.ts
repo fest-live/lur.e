@@ -261,7 +261,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
 
         // @ts-ignore
-        public loadThemeLibrary() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/core/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
+        public loadThemeLibrary() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/modules/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
         public createShadowRoot() { return (this.shadowRoot ?? this.attachShadow({ mode: "open" })); }
         public connectedCallback() {
             const weak = new WeakRef(this);

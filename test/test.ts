@@ -1,5 +1,5 @@
 /* @vite-ignore */
-import { ref, makeReactive, assign } from "/externals/lib/object";
+import { ref, makeReactive, assign } from "/externals/modules/object.js";
 
 //
 //import observableArray from "../src/blue/Array";
