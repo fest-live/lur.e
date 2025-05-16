@@ -14,8 +14,9 @@ const setStyleProperty = (element, name, value: any)=>{
     if (!element) return;
     // custom properties currently doesn't supports Typed OM
     if (name?.trim?.()?.startsWith?.("--")) {
-        const old = element.style?.getProperty?.(name);
-        value = (value instanceof CSSStyleValue ? value.toString() : value);
+        const old = element.style?.getPropertyValue?.(name);
+        const val = (value?.value ?? value);
+        value = (value instanceof CSSStyleValue ? value.toString() : val);
         if (old !== value) { element.style?.setProperty?.(name, value, ""); };
     } else
     if (value instanceof CSSStyleValue) {
@@ -57,7 +58,12 @@ const setStyleProperty = (element, name, value: any)=>{
             }
         }
     } else
-    if (element.style) { element.style[kebabToCamel(name)] = (value?.value ?? value); }
+    if (element.style) {
+        const camel = kebabToCamel(name), val = value?.value ?? value;
+        if (element.style[camel] != val || !element.style[camel]) {
+            element.style[camel] = val;
+        }
+    }
 }
 
 //
