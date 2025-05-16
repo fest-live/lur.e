@@ -110,8 +110,8 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
                     controller?.abort?.(); controller = new AbortController();
                     // sorry, we doesn't allow abuse that mechanic
                     if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
-                        if (typeof value?.behavior == "function") {
-                            value?.behavior?.([curr, (value = curr)=>handleAttribute(wel?.deref?.(), prop, value), old], [controller?.signal, prop, wel]);
+                        if (typeof value?.behaviour == "function") {
+                            value?.behaviour?.([curr, (value = curr)=>handleAttribute(wel?.deref?.(), prop, value), old], [controller?.signal, prop, wel]);
                         } else {
                             handleAttribute(wel?.deref?.(), prop, curr);
                         }
@@ -209,8 +209,8 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
                     controller?.abort?.(); controller = new AbortController();
                     // sorry, we doesn't allow abuse that mechanic
                     if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
-                        if (typeof value?.behavior == "function") {
-                            value?.behavior?.([curr, (value = curr)=>handleStyleChange(wel?.deref?.(), prop, value), old], [controller?.signal, prop, wel]);
+                        if (typeof value?.behaviour == "function") {
+                            value?.behaviour?.([curr, (value = curr)=>handleStyleChange(wel?.deref?.(), prop, value), old], [controller?.signal, prop, wel]);
                         } else {
                             handleStyleChange(wel?.deref?.(), prop, curr);
                         }
@@ -280,8 +280,8 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         //
         if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
         if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0) { // @ts-ignore
-            if (typeof children?.behavior == "function") { // @ts-ignore
-                children?.behavior?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, op, ref, args]);
+            if (typeof children?.behaviour == "function") { // @ts-ignore
+                children?.behaviour?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, op, ref, args]);
             } else
             { merge(); }
         }
@@ -296,8 +296,8 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 
         //
         if ((children as any)?.size == 0 && element instanceof HTMLElement) { removeNotExists(element, children, mapper);/*element.innerHTML = ``;*/ }; // @ts-ignore
-        if (typeof children?.behavior == "function") { // @ts-ignore
-            children?.behavior?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, _, ref, [obj, has]]);
+        if (typeof children?.behaviour == "function") { // @ts-ignore
+            children?.behaviour?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, _, ref, [obj, has]]);
         } else
         { merge(); }
     }); return element;
