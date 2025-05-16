@@ -2,7 +2,7 @@
 import { appendChild, removeChild, removeNotExists, replaceChildren } from "./DOM.js";
 
 // @ts-ignore /* @vite-ignore */
-import { subscribe, observe } from "/externals/lib/object.js";
+import { subscribe, observe } from "/externals/modules/object.js";
 
 //
 function camelToKebab(str) { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }

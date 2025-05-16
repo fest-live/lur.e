@@ -1,9 +1,7 @@
 // @ts-ignore /* @vite-ignore */
-import { makeReactive, subscribe, importCdn, observableArray } from "/externals/lib/object.js";
-
-//
-import { createElement, elMap } from './DOM';
+import { makeReactive, subscribe, observableArray } from "/externals/modules/object.js";
 import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules, reflectDataset, reflectARIA } from './Reflect';
+import { createElement, elMap } from './DOM';
 
 //
 interface Params {

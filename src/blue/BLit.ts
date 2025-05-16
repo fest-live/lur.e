@@ -1,19 +1,16 @@
 // @ts-ignore /* @vite-ignore */
 import {importCdn} from "/externals/modules/cdnImport.mjs";
-export {importCdn};
 
 // @ts-ignore /* @vite-ignore */
-import { loadInlineStyle, hash } from "/externals/lib/dom.js";
+import { loadInlineStyle, hash } from "/externals/modules/dom.js";
 
 // @ts-ignore /* @vite-ignore */
-import { makeReactive, ref, subscribe, observableArray } from "/externals/lib/object.js";
-
+import { makeReactive, ref, subscribe, observableArray } from "/externals/modules/object.js";
 
 //
 import E from "./Element";
 import H from "./HTML";
 import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./DOM";
-
 
 //
 const camelToKebab = (str) => { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }

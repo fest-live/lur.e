@@ -1,10 +1,10 @@
 import { T } from "./Element";
 
 // @ts-ignore /* @vite-ignore */
-import { makeReactive, subscribe, unwrap } from "/externals/lib/object.js";
+import { makeReactive, subscribe, unwrap } from "/externals/modules/object.js";
 
 // @ts-ignore /* @vite-ignore */
-import { observeAttributeBySelector } from "/externals/lib/dom.js";
+import { observeAttributeBySelector } from "/externals/modules/dom.js";
 
 //
 const

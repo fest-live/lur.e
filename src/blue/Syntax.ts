@@ -1,5 +1,5 @@
 // @ts-ignore /* @vite-ignore */
-import { observableArray } from "/externals/lib/object.js";
+import { observableArray } from "/externals/modules/object.js";
 
 //
 import { getNode } from "./DOM";
