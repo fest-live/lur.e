@@ -217,32 +217,46 @@ export const css = (strings, ...values)=>{
     return {props, css: parts.join(""), vars};
 }
 
-
 //
 const styleCache = new Map();
 const styleElementCache = new WeakMap();
-const loadCachedStyles = (bTo, src)=>{
-    const cached = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache).get(src);
-    let styleElement = cached?.styleElement;
-    let vars = cached?.vars;
-
-    //
+const loadCachedStyles = (bTo, src, withVars = true)=>{
+    const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
+    const cached = source.get(src);
+    let styleElement = cached?.styleElement, vars = cached?.vars;
     if (!cached) {
         const weak = new WeakRef(bTo);
         let styles = ``, props = [];
         if (typeof src == "string") { styles = src || "" } else
         if (typeof src == "function") { const cs = src?.call?.(bTo, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
-        ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache).set(src, { css: styles, props, vars, styleElement: (styleElement = loadInlineStyle(styles, bTo, "ux-layer")) });
+        source.set(src, { css: styles, props, vars, styleElement: (styleElement = loadInlineStyle(styles, bTo, "ux-layer")) });
     }
-
-    //
-    if (vars) { useVars(this, vars); };
+    if (vars && withVars) { useVars(this, vars); };
     return styleElement;
 }
 
 //
 const defaultStyle = document.createElement("style");
-defaultStyle.innerHTML = `@layer ux-preload,ux-layer;@layer ux-preload{:host{display:none;};:host>*,::slotted{content-visibility:hidden;};style{display:none!important;}}`;
+defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
+@layer ux-preload {
+    :where(
+        :host(:not(:defined)),
+        :not(:defined),
+        ::slotted(:not(:defined)),
+        :host:not(:has(style[loaded])),
+        :host
+    ) { display: none; }
+    :where(
+        :host(:not(:defined)),
+        :host:not(:has(style[loaded])),
+        ::slotted(:not(:defined))
+    ) { display: none; }
+    :where(
+        :host(:not(:defined)),
+        ::slotted(:not(:defined))
+    ) { content-visibility: hidden; }
+    style { display: none !important; }
+}`;
 
 //
 export const BLitElement = (derrivate = HTMLElement)=>{
@@ -259,8 +273,8 @@ export const BLitElement = (derrivate = HTMLElement)=>{
 
         // @ts-ignore
         constructor(...args) {
-            super(); this.#styleElement ??= loadCachedStyles(this, this.styles);
-            this.#defaultStyle = defaultStyle?.cloneNode?.(true) as HTMLStyleElement;
+            super(); const shadowRoot = this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" });
+            shadowRoot.append(this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
         }
         protected onInitialize(weak?: WeakRef<any>) { return this; }
         protected onRender(weak?: WeakRef<any>) { return this; }
@@ -273,10 +287,10 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         public connectedCallback() {
             const weak = new WeakRef(this);
             if (!this.#initialized) { this.#initialized = true;
-                const shadowRoot = this.createShadowRoot?.() ?? (this.shadowRoot ?? this.attachShadow({ mode: "open" }));
+                const shadowRoot = this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" });
                 this.$init?.(); this[inRenderKey] = true;
                 setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.call(this, weak);
-                this.#framework = E(shadowRoot, {}, observableArray([this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement, this.themeStyle, this.render?.call?.(this, weak), this.#styleElement = loadCachedStyles(this, this.styles)]))
+                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.#defaultStyle, this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)]))
                 this.onRender?.call?.(this, weak);
                 delete this[inRenderKey];
             }
