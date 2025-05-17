@@ -247,6 +247,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
     const EX = withProperties(class EX extends derrivate {
         #initialized: boolean = false;
         #styleElement?: HTMLStyleElement;
+        #defaultStyle?: HTMLStyleElement;
         #framework: any;
         styles?: any;
         initialAttributes?: any; // you can set initial attributes
@@ -254,7 +255,12 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         render = (weak?: WeakRef<any>) => { return H("<slot/>"); }
 
         // @ts-ignore
-        constructor(...args) { super(); this.#styleElement ??= loadCachedStyles(this, this.styles); }
+        constructor(...args) {
+            super(); this.#styleElement ??= loadCachedStyles(this, this.styles);
+            const defaultStyle = document.createElement("style");
+            defaultStyle.innerHTML = `@layer ux-preload,ux-layer;@layer ux-preload{:host{display:none;};style{display:none!important;}}`;
+            this.#defaultStyle = defaultStyle;
+        }
         protected onInitialize(weak?: WeakRef<any>) { return this; }
         protected onRender(weak?: WeakRef<any>) { return this; }
         protected $init() { return this; };
@@ -267,10 +273,9 @@ export const BLitElement = (derrivate = HTMLElement)=>{
             const weak = new WeakRef(this);
             if (!this.#initialized) { this.#initialized = true;
                 const shadowRoot = this.createShadowRoot?.() ?? (this.shadowRoot ?? this.attachShadow({ mode: "open" }));
-                const defaultStyle = document.createElement("style"); defaultStyle.innerHTML = `@layer ux-preload,ux-layer;@layer ux-preload{:host{display:none;};style{display:none!important;}}`;
                 this.$init?.(); this[inRenderKey] = true;
                 setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.call(this, weak);
-                this.#framework = E(shadowRoot, {}, observableArray([defaultStyle, this.themeStyle, this.render?.call?.(this, weak), this.#styleElement = loadCachedStyles(this, this.styles)]))
+                this.#framework = E(shadowRoot, {}, observableArray([this.#defaultStyle, this.themeStyle, this.render?.call?.(this, weak), this.#styleElement = loadCachedStyles(this, this.styles)]))
                 this.onRender?.call?.(this, weak);
                 delete this[inRenderKey];
             }
