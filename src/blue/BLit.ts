@@ -13,6 +13,9 @@ import H from "./HTML";
 import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./DOM";
 
 //
+const styleCache = new Map();
+const styleElementCache = new WeakMap();
+const defaultStyle = document.createElement("style");
 const camelToKebab = (str) => { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
 const kebabToCamel = (str) => { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
 const whenBoxValid = (name)=>{ const cb = camelToKebab(name); if (["border-box", "content-box", "device-pixel-content-box"].indexOf(cb) >= 0) return cb; return null; }
@@ -52,6 +55,43 @@ const getDef = (source?: string|any|null): any =>{
 }
 
 //
+defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
+@layer ux-preload {
+    :where(ui-select-row, ui-button-row),
+    :host(ui-select-row, ui-button-row),
+    ::slotted(ui-select-row, ui-button-row) {
+        display: none;
+        content-visibility: hidden;
+    }
+    :where(
+        :host(:not(:defined)),
+        :not(:defined),
+        ::slotted(:not(:defined)),
+        :host:not(:has(style[loaded])),
+        :host
+    ) {
+        display: none;
+        :where(*:not(ui-icon) {
+            content-visibility: hidden;
+        }
+    }
+    :host:not(:has(style[loaded]))::slotted(*) { display: none; }
+    :where(
+        :host(:not(:defined)),
+        :host:not(:has(style[loaded])),
+        ::slotted(:not(:defined))
+    ) { display: none;
+        ::slotted(ui-icon) { display: none; content-visibility: hidden; }
+    }
+    :where(
+        :host(:not(:defined)),
+        ::slotted(:not(:defined))
+    ) { content-visibility: hidden; }
+    style { display: none !important; }
+}`
+
+//
+function generateName(length = 8) { let r = ''; const l = characters.length; for ( let i = 0; i < length; i++ ) { r += characters.charAt(Math.floor(Math.random() * l)); }; return r; }
 function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
     const $has = (ctr?.prototype ?? ctr)?.$init;
     (ctr?.prototype ?? ctr).$init = function (...args) {
@@ -70,16 +110,6 @@ function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
             }); };
         }
     }*/
-}
-
-//
-function generateName(length = 8) {
-    let result = '';
-    const charactersLength = characters.length;
-    for ( let i = 0; i < length; i++ ) {
-        result += characters.charAt(Math.floor(Math.random() * charactersLength));
-    }
-    return result;
 }
 
 //
@@ -218,9 +248,7 @@ export const css = (strings, ...values)=>{
 }
 
 //
-const styleCache = new Map();
-const styleElementCache = new WeakMap();
-const loadCachedStyles = (bTo, src, withVars = true)=>{
+export const loadCachedStyles = (bTo, src, withVars = true)=>{
     const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
     const cached = source.get(src);
     let styleElement = cached?.styleElement, vars = cached?.vars;
@@ -234,29 +262,6 @@ const loadCachedStyles = (bTo, src, withVars = true)=>{
     if (vars && withVars) { useVars(this, vars); };
     return styleElement;
 }
-
-//
-const defaultStyle = document.createElement("style");
-defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
-@layer ux-preload {
-    :where(
-        :host(:not(:defined)),
-        :not(:defined),
-        ::slotted(:not(:defined)),
-        :host:not(:has(style[loaded])),
-        :host
-    ) { display: none; }
-    :where(
-        :host(:not(:defined)),
-        :host:not(:has(style[loaded])),
-        ::slotted(:not(:defined))
-    ) { display: none; }
-    :where(
-        :host(:not(:defined)),
-        ::slotted(:not(:defined))
-    ) { content-visibility: hidden; }
-    style { display: none !important; }
-}`;
 
 //
 export const BLitElement = (derrivate = HTMLElement)=>{
