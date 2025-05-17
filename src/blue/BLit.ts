@@ -240,6 +240,9 @@ const loadCachedStyles = (bTo, src)=>{
     return styleElement;
 }
 
+//
+const defaultStyle = document.createElement("style");
+defaultStyle.innerHTML = `@layer ux-preload,ux-layer;@layer ux-preload{:host{display:none;};:host>*,::slotted{content-visibility:hidden;};style{display:none!important;}}`;
 
 //
 export const BLitElement = (derrivate = HTMLElement)=>{
@@ -257,9 +260,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         // @ts-ignore
         constructor(...args) {
             super(); this.#styleElement ??= loadCachedStyles(this, this.styles);
-            const defaultStyle = document.createElement("style");
-            defaultStyle.innerHTML = `@layer ux-preload,ux-layer;@layer ux-preload{:host{display:none;};style{display:none!important;}}`;
-            this.#defaultStyle = defaultStyle;
+            this.#defaultStyle = defaultStyle?.cloneNode?.(true) as HTMLStyleElement;
         }
         protected onInitialize(weak?: WeakRef<any>) { return this; }
         protected onRender(weak?: WeakRef<any>) { return this; }
@@ -275,7 +276,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
                 const shadowRoot = this.createShadowRoot?.() ?? (this.shadowRoot ?? this.attachShadow({ mode: "open" }));
                 this.$init?.(); this[inRenderKey] = true;
                 setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.call(this, weak);
-                this.#framework = E(shadowRoot, {}, observableArray([this.#defaultStyle, this.themeStyle, this.render?.call?.(this, weak), this.#styleElement = loadCachedStyles(this, this.styles)]))
+                this.#framework = E(shadowRoot, {}, observableArray([this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement, this.themeStyle, this.render?.call?.(this, weak), this.#styleElement = loadCachedStyles(this, this.styles)]))
                 this.onRender?.call?.(this, weak);
                 delete this[inRenderKey];
             }
