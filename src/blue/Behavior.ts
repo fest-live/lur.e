@@ -21,15 +21,19 @@ export const bindStore = (element: HTMLElement, valSet: Set<any>, store: any)=>{
 }
 
 //
+export const getElementRelated = (element)=>{
+    return {
+        valSet: boundValSets.get(element),
+        mixinSet: boundMixinSet.get(element),
+        behaviorSet: boundBehaviors.get(element)
+    }
+}
+
+//
 export const bindMixins = (element, mixSet, mixin)=>{
     const weak = new WeakRef(element);
     if (!mixSet.has(mixin)) { mixSet.add(mixin);
-        mixin?.connect?.(weak, {
-            mixin: new WeakRef(mixin),
-            valSet: boundValSets.get(element),
-            mixinSet: boundMixinSet.get(element),
-            behaviorSet: boundBehaviors.get(element)
-        });
+        mixin?.connect?.(weak, new WeakRef(mixin), getElementRelated(element));
     }
     return element;
 }
@@ -83,4 +87,3 @@ export const refCtl = (value)=>{
     return ctl;
 }
 
-// TODO! named mixins and DOM attributes
