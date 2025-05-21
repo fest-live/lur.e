@@ -2,6 +2,7 @@
 import { makeReactive, subscribe, observableArray } from "/externals/modules/object.js";
 import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules, reflectDataset, reflectARIA } from './Reflect';
 import { createElement, elMap } from './DOM';
+import { reflectStores, reflectBehaviors } from "./Behavior";
 
 //
 interface Params {
@@ -9,6 +10,8 @@ interface Params {
     attributes?: any;
     dataset?: any;
     properties?: any;
+    behaviors?: any;
+    stores?: any[]|Set<any>|Map<any,any>;
     style?: any|string;
     slot?: any|string;
     name?: any|string;
@@ -68,13 +71,15 @@ export class El {
 
         // create new element if there is not for reflection
         const element = typeof this.selector == "string" ? createElement(this.selector) : this.selector;
-        if (element instanceof HTMLElement) {
+        if (element instanceof HTMLElement && this.params) {
             reflectAttributes(element, this.params.attributes);
             reflectStyles(element, this.params.style);
             reflectClassList(element, this.params.classList);
             reflectProperties(element, this.params.properties);
             reflectDataset(element, this.params.dataset);
             reflectARIA(element, this.params.aria);
+            reflectBehaviors(element, this.params.behaviors);
+            reflectStores(element, this.params.stores);
 
             // one-shot update
             this.params?.rules?.forEach?.((rule)=>{

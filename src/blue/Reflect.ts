@@ -1,4 +1,3 @@
-//
 import { appendChild, removeChild, removeNotExists, replaceChildren } from "./DOM.js";
 
 // @ts-ignore /* @vite-ignore */
@@ -333,3 +332,4 @@ export const reformChildren = (element: HTMLElement|DocumentFragment, children: 
         appendChild(element, nd, mapper); return nd;
     }); return element;
 }
+
