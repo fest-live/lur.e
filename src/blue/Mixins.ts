@@ -103,7 +103,7 @@ export class DOMMixin {
 
     //
     elementStore(element) { return namedStoreMaps.get(this.name)?.get?.(element); };
-    get storage() { return namedStoreMaps.get(this.name); }
     get elements() { return mixinElements.get(this); }
+    get storage() { return namedStoreMaps.get(this.name); }
     get name() { return mixinNamespace.get(this); }
 }
