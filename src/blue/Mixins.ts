@@ -27,22 +27,35 @@ export const getElementRelated = (element)=>{
 //
 export const bindMixins = (element, mixSet, mixin)=>{
     const weak = new WeakRef(element);
-    if (!mixSet.has(mixin)) { mixSet.add(mixin);
+    if (!mixSet.has(mixin)) { mixSet.add(mixin); mixinElements.get(mixin)?.add?.(new WeakRef(element));
         mixin?.connect?.(weak, new WeakRef(mixin), getElementRelated(element));
     }
     return element;
 }
 
+// element <--> mixin-set
+export const boundMixinSet  = new WeakMap();
+export const mixinElements  = new WeakMap<any, any>();
+
+// mixin-set <--> naming
+export const mixinRegistry  = new Map<string, any>;
+export const mixinNamespace = new WeakMap<any, string>;
+
 //
-export const boundMixinSet = new WeakMap();
 export const updateMixinAttributesAll = (elements, mixin)=>{ elements.forEach((e)=>updateMixinAttributes(e, mixin)) }
 export const updateMixinAttributes = (element, mixin)=>{
-    if (typeof mixin == "string") { mixin = mixinRegistry.get(mixin); }
+    if (typeof mixin == "string") { mixin = mixinRegistry.get(mixin)?.deref?.(); }
     const names  = new Set([...(element.dataset.mixin?.split?.(" ") || [])]);
-    const mixins = new Set([...names].map((n)=>mixinRegistry.get(n)).filter((m)=>!!m));
+    const mixins = new Set([...names].map((n)=>mixinRegistry.get(n)?.deref?.()).filter((m)=>!!m));
     const mixinSet = boundMixinSet.get(element) ?? new Set();
+
+    //
+    if (!mixinElements.has(mixin)) { mixinElements.set(mixin, new Set()); }
     if (!boundMixinSet.has(element)) { boundMixinSet.set(element, mixinSet); }
+
+    //
     if (!mixinSet.has(mixin)) {
+        mixinElements.get(mixin)?.add?.(new WeakRef(element));
         if (!mixins.has(mixin)) { mixin?.disconnect?.(new WeakRef(element), new WeakRef(mixin), getElementRelated(element)); }
         if ( mixins.has(mixin)) { mixin?.connect?.(new WeakRef(element), new WeakRef(mixin), getElementRelated(element));
             names.add(mixinNamespace.get(mixin)); mixinSet.add(mixin);
@@ -62,9 +75,6 @@ export const updateAllMixins = (element)=>{
 }
 
 //
-export const mixinRegistry  = new Map<string, any>;
-export const mixinNamespace = new WeakMap<any, string>;
-export const mixinElements  = new WeakMap<any, any>();
 export const roots = new Set([document]);
 
 //
@@ -84,10 +94,17 @@ const updateMixinAttributesAllInRoots = (mixin) => {
 }
 
 //
+export const nameRegistryF = new FinalizationRegistry((key: any)=>{ mixinRegistry.delete(key); });
 export const registerMixin = (name, mixin) => {
-    mixinRegistry.set(name?.trim?.(), mixin);
-    mixinNamespace.set(mixin, name?.trim?.());
-    updateMixinAttributesAllInRoots(mixin);
+    if (!mixinNamespace.has(mixin)) {
+        const key = name?.trim?.();
+        if (key) {
+            mixinNamespace.set(mixin, key);
+            mixinRegistry.set(key, new WeakRef(mixin));
+            nameRegistryF.register(mixin, key);
+            updateMixinAttributesAllInRoots(mixin);
+        }
+    }
 };
 
 //
@@ -95,7 +112,7 @@ addRoot(document);
 
 //
 export class DOMMixin {
-    constructor() {}
+    constructor(name) { if (name) { registerMixin(name, this); } }
 
     //
     connect(wElement, wSelf, related) { return this; }
