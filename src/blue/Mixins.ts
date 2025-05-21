@@ -71,11 +71,7 @@ export const roots = new Set([document]);
 export const addRoot = (root: any = document) => {
     if (!roots.has(root)) {
         roots.add(root);
-        // Запускаем наблюдение за data-mixin в новом корне
-        observeAttributeBySelector(root, "*", "data-mixin", (mutation) => {
-            //updateMixinAttributes(mutation.target, mixinRegistry.get(mutation.target.dataset.mixin));
-            updateAllMixins(mutation.target);
-        });
+        observeAttributeBySelector(root, "*", "data-mixin", (mutation) => updateAllMixins(mutation.target));
     }
     return root;
 };
@@ -91,8 +87,6 @@ const updateMixinAttributesAllInRoots = (mixin) => {
 export const registerMixin = (name, mixin) => {
     mixinRegistry.set(name?.trim?.(), mixin);
     mixinNamespace.set(mixin, name?.trim?.());
-
-    // Обновляем во всех корнях
     updateMixinAttributesAllInRoots(mixin);
 };
 
