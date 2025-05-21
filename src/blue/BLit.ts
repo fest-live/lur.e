@@ -11,6 +11,7 @@ import { makeReactive, ref, subscribe, observableArray } from "/externals/module
 import E from "./Element";
 import H from "./HTML";
 import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./DOM";
+import { addRoot } from "./Mixins";
 
 //
 const styleCache = new Map();
@@ -288,7 +289,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
 
         // @ts-ignore
         public loadThemeLibrary() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/modules/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
-        public createShadowRoot() { return (this.shadowRoot ?? this.attachShadow({ mode: "open" })); }
+        public createShadowRoot() { return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as any; }
         public connectedCallback() {
             const weak = new WeakRef(this);
             if (!this.#initialized) { this.#initialized = true;

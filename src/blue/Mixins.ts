@@ -37,7 +37,7 @@ export const mixinElements  = new WeakMap<any, any>();
 export const roots = new Set([document]);
 
 //
-export const addRoot = (root = document) => {
+export const addRoot = (root: any = document) => {
     if (!roots.has(root)) {
         roots.add(root);
         // Запускаем наблюдение за data-mixin в новом корне
@@ -46,6 +46,7 @@ export const addRoot = (root = document) => {
             updateAllMixins(mutation.target);
         });
     }
+    return root;
 };
 
 //
