@@ -2,7 +2,8 @@
 import { makeReactive, subscribe, observableArray } from "/externals/modules/object.js";
 import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules, reflectDataset, reflectARIA } from './Reflect';
 import { createElement, elMap } from './DOM';
-import { reflectStores, reflectBehaviors } from "./Behavior";
+import { reflectBehaviors } from "./Behavior";
+import { reflectStores } from "./Store";
 
 //
 interface Params {

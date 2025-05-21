@@ -1,9 +1,40 @@
-import { boundMixinSet, getElementRelated } from "./Behavior";
-
 // @ts-ignore /* @vite-ignore */
 import { observeAttributeBySelector } from "/externals/modules/dom.js";
 
 //
+import { boundBehaviors } from "./Behavior";
+import { namedStoreMaps } from "./Store";
+
+// mixin { connect: (element, { ... })=>{},  disconnect: (element, { ... }): ()=>{}}
+export const reflectMixins = (element, mixins)=>{
+    if (!element) return;
+    if (mixins) {
+        const mixinSet = boundMixinSet.get(element) ?? new Set();
+        if (!boundMixinSet.has(element)) { boundMixinSet.set(element, mixinSet); }
+        [...(mixins?.values?.() || [])].map((e)=>bindMixins(element, mixinSet, e));
+    }
+    return element;
+}
+
+//
+export const getElementRelated = (element)=>{
+    return {
+        mixinSet: boundMixinSet.get(element),
+        behaviorSet: boundBehaviors.get(element)
+    }
+}
+
+//
+export const bindMixins = (element, mixSet, mixin)=>{
+    const weak = new WeakRef(element);
+    if (!mixSet.has(mixin)) { mixSet.add(mixin);
+        mixin?.connect?.(weak, new WeakRef(mixin), getElementRelated(element));
+    }
+    return element;
+}
+
+//
+export const boundMixinSet = new WeakMap();
 export const updateMixinAttributesAll = (elements, mixin)=>{ elements.forEach((e)=>updateMixinAttributes(e, mixin)) }
 export const updateMixinAttributes = (element, mixin)=>{
     if (typeof mixin == "string") { mixin = mixinRegistry.get(mixin); }
@@ -77,6 +108,8 @@ export class DOMMixin {
     disconnect(wElement, wSelf, related) { return this; }
 
     //
+    elementStore(element) { return namedStoreMaps.get(this.name)?.get?.(element); };
+    get storage() { return namedStoreMaps.get(this.name); }
     get elements() { return mixinElements.get(this); }
     get name() { return mixinNamespace.get(this); }
 }
