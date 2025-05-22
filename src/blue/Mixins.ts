@@ -3,7 +3,7 @@ import { observeAttributeBySelector } from "/externals/modules/dom.js";
 
 //
 import { boundBehaviors } from "./Behavior";
-import { namedStoreMaps } from "./Store";
+import { getStoresOfElement, namedStoreMaps } from "./Store";
 
 // mixin { connect: (element, { ... })=>{},  disconnect: (element, { ... }): ()=>{}}
 export const reflectMixins = (element, mixins)=>{
@@ -11,7 +11,7 @@ export const reflectMixins = (element, mixins)=>{
     if (mixins) {
         const mixinSet = boundMixinSet.get(element) ?? new Set();
         if (!boundMixinSet.has(element)) { boundMixinSet.set(element, mixinSet); }
-        [...(mixins?.values?.() || [])].map((e)=>bindMixins(element, mixinSet, e));
+        [...(mixins?.values?.() || [])].map((e)=>bindMixins(element, e, mixinSet));
     }
     return element;
 }
@@ -19,15 +19,17 @@ export const reflectMixins = (element, mixins)=>{
 //
 export const getElementRelated = (element)=>{
     return {
+        storeSet: getStoresOfElement(namedStoreMaps, element),
         mixinSet: boundMixinSet.get(element),
         behaviorSet: boundBehaviors.get(element)
     }
 }
 
 //
-export const bindMixins = (element, mixSet, mixin)=>{
-    const weak = new WeakRef(element);
+export const bindMixins = (element, mixin, mixSet?)=>{
+    const weak = new WeakRef(element); mixSet ||= boundMixinSet.get(element);
     if (!mixSet.has(mixin)) { mixSet.add(mixin); mixinElements.get(mixin)?.add?.(new WeakRef(element));
+        if (mixin.name) { element.dataset.mixin += " " + mixin.name; }
         mixin?.connect?.(weak, new WeakRef(mixin), getElementRelated(element));
     }
     return element;
@@ -119,7 +121,8 @@ export class DOMMixin {
     disconnect(wElement, wSelf, related) { return this; }
 
     //
-    elementStore(element) { return namedStoreMaps.get(this.name)?.get?.(element); };
+    storeForElement(element) { return namedStoreMaps.get(this.name)?.get?.(element); };
+    relatedForElement(element) { return getElementRelated(element); }
     get elements() { return mixinElements.get(this); }
     get storage() { return namedStoreMaps.get(this.name); }
     get name() { return mixinNamespace.get(this); }

@@ -1,4 +1,4 @@
-/* @vite-ignore */
+// @ts-ignore /* @vite-ignore */
 import { ref, makeReactive, assign } from "/externals/modules/object.js";
 
 //

@@ -54,6 +54,12 @@ export const bindBeh = (element, store, behavior) => {
 };
 
 //
+export const getStoresOfElement = ( map: Map<any, WeakMap<any, any>>, element: any): Map<any, any> => {
+    const E = [...map.entries()||[]] as [any, any][];
+    return new Map<any, any>((E?.map?.(([n,m])=>[n,m?.get?.(element)])?.filter?.(([n,e])=>!!e)||[]) as any);;
+}
+
+//
 export const bindStore = (element, name, obj) => {
     let weakMap = namedStoreMaps.get(name);
     if (!weakMap) {
