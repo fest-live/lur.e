@@ -4,6 +4,8 @@ import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, re
 import { createElement, elMap } from './DOM';
 import { reflectBehaviors } from "./Behavior";
 import { reflectStores } from "./Store";
+import { reflectMixins } from "./Mixins";
+import { reflectControllers } from "./Controller";
 
 //
 interface Params {
@@ -20,6 +22,8 @@ interface Params {
     icon?: any|string;
     role?: any|string;
     inert?: boolean|string;
+    mixins?: any;
+    ctrls?: any;
     is?: any|string;
     part?: any|string;
     on?: any;
@@ -81,6 +85,8 @@ export class El {
             reflectARIA(element, this.params.aria);
             reflectBehaviors(element, this.params.behaviors);
             reflectStores(element, this.params.stores);
+            reflectMixins(element, this.params.mixins);
+            reflectControllers(element, this.params.ctrls);
 
             // one-shot update
             this.params?.rules?.forEach?.((rule)=>{
