@@ -248,6 +248,24 @@ export const css = (strings, ...values)=>{
     return {props, css: parts.join(""), vars};
 }
 
+/*
+//
+export const loadCachedStyles = (bTo, src, withVars = true)=>{
+    const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
+    const cached = source.get(src);
+    let styleElement = cached?.styleElement, vars = cached?.vars;
+    //if (!cached) {
+        const weak = new WeakRef(bTo);
+        let styles = ``, props = [];
+        if (typeof src == "string") { styles = src || "" } else
+        if (typeof src == "function") { const cs = src?.call?.(bTo, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
+        let _ = { css: styles, props, vars, styleElement: (styleElement = (styles as any) instanceof HTMLStyleElement ? styles : loadInlineStyle(styles, bTo, "ux-layer")) };
+        //source.set(src, _ );
+    //}
+    if (vars && withVars) { useVars(this, vars); };
+    return styleElement;
+}*/
+
 //
 export const loadCachedStyles = (bTo, src, withVars = true)=>{
     const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
@@ -258,7 +276,7 @@ export const loadCachedStyles = (bTo, src, withVars = true)=>{
         let styles = ``, props = [];
         if (typeof src == "string") { styles = src || "" } else
         if (typeof src == "function") { const cs = src?.call?.(bTo, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
-        source.set(src, { css: styles, props, vars, styleElement: (styleElement = loadInlineStyle(styles, bTo, "ux-layer")) });
+        source.set(src, { css: styles, props, vars, styleElement: (styleElement = (styles as any) instanceof HTMLStyleElement ? styles : loadInlineStyle(styles, bTo, "ux-layer")) });
     }
     if (vars && withVars) { useVars(this, vars); };
     return styleElement;
