@@ -8,7 +8,7 @@ export const checkboxCtrl = (ref)=>{
 // form.addEventListener("change")
 export const radioCtrl = (ref, name)=>{
     return (ev)=>{
-        const selector = `input[type="radio"][name="${name}"]:checked`;
+        const selector = `input[name="${name}"]:checked`;
         ref.value = (ev?.target?.matches?.(selector) ? ev?.target : ev?.target?.querySelector?.(selector))?.value ?? ref.value;
     }
 }
