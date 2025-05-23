@@ -15,7 +15,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
     if (el != null) {
         const attributes = {};
         // TODO: advanced attributes support
-        let style = "", dataset = {}, properties = {}, on = {}, aria = {}, iterate = [];
+        let style = "", dataset = {}, properties = {}, on = {}, aria = {}, iterate = [], ctrls = new Map();
         for (const attr of Array.from(el?.attributes || [])) {
             const isCustom = attr.value?.startsWith("#{");
             const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match(/^#\{(.+)\}$/)?.[1] || "0")] : attr.value;
@@ -29,7 +29,8 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
             if (attr.name.startsWith("@")) { on[attr.name.trim().replace("@", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
             if (attr.name.startsWith("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
             if (attr.name.startsWith("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
-                { attributes[attr.name.trim()] = value; }
+            if (attr.name.startsWith("ctrl:")) { ctrls.set(attr.name.trim().replace("ctrl:", "").trim(), value); } else
+            { attributes[attr.name.trim()] = value; }
 
             //
             if (isCustom) { el.removeAttribute(attr.name); };
@@ -37,7 +38,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
 
         //
         if (!EMap.has(el)) { cmdBuffer.push(()=>{
-            const ex = E(el, {aria, attributes, dataset, style, properties, on}, mapped.has(el) ? M(iterate, mapped.get(el)) : observableArray(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
+            const ex = E(el, {aria, attributes, dataset, style, properties, on, stores: ctrls}, mapped.has(el) ? M(iterate, mapped.get(el)) : observableArray(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
             EMap.set(el, ex); return ex?.element ?? el;
         }); };
     }
