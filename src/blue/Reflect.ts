@@ -1,104 +1,9 @@
-import { appendChild, removeChild, removeNotExists, replaceChildren } from "./DOM.js";
-
 // @ts-ignore /* @vite-ignore */
 import { subscribe, observe } from "/externals/modules/object.js";
 
 //
-function camelToKebab(str) { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
-function kebabToCamel(str) { return str?.replace?.(/-([a-z])/g, (_, char) => char.toUpperCase()); }
-
-//
-const deleteStyleProperty = (element, name)=>{ element.style.removeProperty(camelToKebab(name)); }
-const setStyleProperty = (element, name, value: any)=>{
-    if (!element) return;
-    // custom properties currently doesn't supports Typed OM
-    if (name?.trim?.()?.startsWith?.("--")) {
-        const old = element.style?.getPropertyValue?.(name);
-        const val = (value?.value ?? value);
-        value = (value instanceof CSSStyleValue ? value.toString() : val);
-        if (old !== value) { element.style?.setProperty?.(name, value, ""); };
-    } else
-    if (value instanceof CSSStyleValue) {
-        const kebab = camelToKebab(name);
-        if (element.attributeStyleMap != null) {
-            const old = element.attributeStyleMap?.get?.(kebab);
-            if (old !== value) {
-                // CSSStyleValue is internally reactive itself!
-                element.attributeStyleMap?.set?.(kebab, value);
-
-                // bred, changing `.value` in CSSStyleValue isn't change value again
-                /*if (value instanceof CSSUnitValue) {
-                    if (old != null && value.unit && value.unit !== old?.unit) {
-                        element.attributeStyleMap.set(kebab, value);
-                    } else { old.value = value.value; }
-                } else {
-                    element.attributeStyleMap.set(kebab, value);
-                }*/
-            }
-        } else {
-            element?.style?.setProperty(kebab, value.toString(), "");
-        }
-    } else // very specific case if number and unit value can be changed directly
-    if (!Number.isNaN(value?.value ?? value) && element.attributeStyleMap != null) {
-        const numeric = value?.value ?? value;
-        const kebab = camelToKebab(name);
-        const old = element.attributeStyleMap?.get?.(kebab);
-        if (old instanceof CSSUnitValue) { old.value = numeric; } else
-        {   // hard-case
-            const computed = element?.computedStyleMap?.();
-            const oldCmVal = computed?.get?.(kebab);
-            if (oldCmVal instanceof CSSUnitValue) {
-                if (oldCmVal.value != numeric) {
-                    oldCmVal.value = numeric;
-                    element.attributeStyleMap?.set?.(kebab, oldCmVal);
-                }
-            } else {
-                element.style?.setProperty?.(kebab, numeric);
-            }
-        }
-    } else
-    if (element.style) {
-        const camel = kebabToCamel(name), val = value?.value ?? value;
-        if (element.style[camel] != val || !element.style[camel]) {
-            element.style[camel] = val;
-        }
-    }
-}
-
-//
-const handleStyleChange = (element, prop, value)=>{
-    if (!prop || typeof prop != "string") return;
-    if (typeof value == "undefined" || value == null) { deleteStyleProperty(element, prop); } else // non-object, except Typed OM
-    if ((typeof value != "object" && typeof value != "function") || value instanceof CSSStyleValue)
-        { setStyleProperty(element, prop, value); } else
-    if (value?.value != null && (typeof value.value != "object" && typeof value.value != "function"))
-        { setStyleProperty(element, prop, value.value); } else // any invalid type is deleted value
-        { deleteStyleProperty(element, prop); if (value?.value !== false) console.warn(`Invalid value for style property "${prop}":`, value); }
-}
-
-//
-const handleAttribute = (element, prop, value)=>{
-    if (!prop) return; prop = camelToKebab(prop) || prop;
-    if (element.getAttribute(prop) !== value) {
-        if (typeof value == "undefined" || value == null || value === false) { element.removeAttribute(prop); } else
-        if (typeof value != "object" && typeof value != "function") { element.setAttribute(prop, value); } else
-        if (value?.value != null && value?.value !== false && (typeof value?.value != "object" && typeof value?.value != "function"))
-            { element.setAttribute(prop, value.value); } else  // any invalid type is deleted value
-            { element.removeAttribute(prop); if (value?.value !== false) console.warn(`Invalid type of attribute value "${prop}":`, value); }
-    }
-}
-
-//
-const handleDataset = (element, prop, value)=>{
-    if (!prop) return; prop = kebabToCamel(prop) || prop;
-    if (element.dataset[prop] !== value) {
-        if (typeof value == "undefined" || value == null || value === false) { delete element.dataset[prop]; } else
-        if (typeof value != "object" && typeof value != "function") { element.dataset[prop] = value; } else
-        if (value?.value != null && value?.value !== false && (typeof value?.value != "object" && typeof value?.value != "function"))
-            { element.dataset[prop] = value.value; } else // any invalid type is deleted value
-            { delete element.dataset[prop]; if (value?.value !== false) console.warn(`Invalid type of attribute value "${prop}":`, value); }
-    }
-}
+import { handleAttribute, handleDataset, handleStyleChange, kebabToCamel } from "./DOM.js";
+import { removeNotExists, appendChild } from "./Node.js";
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
@@ -203,7 +108,8 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
         subscribe(styles, (value, prop)=>{
-            if (wel?.deref?.()?.style[kebabToCamel(prop)] !== value) {
+            const cby = kebabToCamel(prop);
+            if (wel?.deref?.()?.style?.[cby] !== value) {
                 handleStyleChange(wel?.deref?.(), prop, value);
             }
 
@@ -213,7 +119,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
                 subscribe([value, "value"], (curr, _, old) => {
                     controller?.abort?.(); controller = new AbortController();
                     // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
+                    if (weak?.deref?.()?.style?.[cby] === value || !(weak?.deref?.())) {
                         if (typeof value?.behaviour == "function") {
                             value?.behaviour?.([curr, (value = curr)=>handleStyleChange(wel?.deref?.(), prop, value), old], [controller?.signal, prop, wel]);
                         } else {
@@ -332,4 +238,3 @@ export const reformChildren = (element: HTMLElement|DocumentFragment, children: 
         appendChild(element, nd, mapper); return nd;
     }); return element;
 }
-

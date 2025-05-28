@@ -1,14 +1,14 @@
 // @ts-ignore /* @vite-ignore */
-import {importCdn} from "/externals/modules/cdnImport.mjs";
+import { importCdn } from "/externals/modules/cdnImport.mjs";
 
 // @ts-ignore /* @vite-ignore */
-import { loadInlineStyle, addRoot, hash } from "/externals/modules/dom.js";
+import { loadInlineStyle, addRoot } from "/externals/modules/dom.js";
 
 // @ts-ignore /* @vite-ignore */
 import { makeReactive, ref, subscribe, observableArray } from "/externals/modules/object.js";
 
 //
-import { E, H } from "./Element";
+import { E } from "./Element";
 import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./DOM";
 
 //
@@ -291,7 +291,7 @@ export const BLitElement = (derrivate = HTMLElement)=>{
         styles?: any;
         initialAttributes?: any; // you can set initial attributes
         themeStyle?: HTMLStyleElement;
-        render = (weak?: WeakRef<any>) => { return H("<slot/>"); }
+        render = (weak?: WeakRef<any>) => { return document.createElement("slot"); }
 
         // @ts-ignore
         constructor(...args) {
