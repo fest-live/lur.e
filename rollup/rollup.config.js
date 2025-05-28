@@ -81,5 +81,5 @@ export const terserOptions = {
 //
 const tsconfig = await readFile(resolve(__dirname, "./tsconfig.json"), {encoding: "utf8"});
 export const plugins = [
-    //terser(terserOptions),
+    terser(terserOptions),
 ];

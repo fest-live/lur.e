@@ -3,8 +3,7 @@ import { observableArray } from "/externals/modules/object.js";
 
 //
 import { getNode } from "./DOM";
-import E from "./Element"
-import M from "./Mapped";
+import { E, M } from "./Element"
 
 //
 const EMap = new WeakMap();
