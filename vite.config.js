@@ -6,7 +6,7 @@ import { plugins } from "./rollup/rollup.config.js"
 import civetVitePlugin from '@danielx/civet/vite'
 
 //
-export const NAME = "blue";
+export const NAME = "blue"; // TODO! rename to lure
 export const __dirname = resolve(import.meta.dirname, "./");
 export default {
     plugins: [

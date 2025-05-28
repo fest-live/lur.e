@@ -281,7 +281,7 @@ export const loadCachedStyles = (bTo, src, withVars = true)=>{
 }
 
 //
-export const BLitElement = (derrivate = HTMLElement)=>{
+export const GLitElement = (derrivate = HTMLElement)=>{
     if (CSM.has(derrivate)) return CSM.get(derrivate);
     const EX = withProperties(class EX extends derrivate {
         #initialized: boolean = false;

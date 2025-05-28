@@ -1,15 +1,13 @@
+import E from "../src/lure/Element";
+import { css, defineElement, GLitElement, property } from "../src/lure/Glit";
+import { H } from "../src/lure/Syntax";
+
 // @ts-ignore /* @vite-ignore */
 import { ref, makeReactive, assign } from "/externals/modules/object.js";
 
 //
-//import observableArray from "../src/blue/Array";
-import H from "../src/blue/HTML";
-import {BLitElement, defineElement, property, css} from "../src/blue/BLit";
-import E from "../src/blue/Element";
-
-//
 @defineElement("x-block")
-export class XBlock extends BLitElement() {
+export class XBlock extends GLitElement() {
     constructor(...args) { super(...args); }
 
     //

@@ -6,7 +6,7 @@ import typescript from '@rollup/plugin-typescript';
 import { readFile } from "node:fs/promises";
 
 //
-export const NAME = "blue";
+export const NAME = "blue"; // TODO! rename to lure
 export const __dirname = resolve(import.meta.dirname, "../");
 export const terserOptions = {
     ecma: 2020,
