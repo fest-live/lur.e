@@ -1,8 +1,36 @@
+// @ts-ignore /* @vite-ignore */
+import { subscribe, ref } from "/externals/modules/object.js";
+
+// @ts-ignore /* @vite-ignore */
+import { namedStoreMaps, boundBehaviors } from "/externals/modules/dom.js";
+
+//
+export const bindBeh = (element, store, behavior) => {
+    const weak = element instanceof WeakRef ? element : new WeakRef(element);
+    const [name, obj] = store;
+    if (behavior) {
+        subscribe?.(store, (value, prop, old) => {
+            const valMap = namedStoreMaps.get(name);
+            behavior?.([value, prop, old], [weak, store, valMap?.get(weak.deref?.())]);
+        });
+    }
+    return element;
+};
+
+//
+export const refCtl = (value) => {
+    let self: any = null;
+    let ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => {
+        boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
+            (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
+        });
+    });
+    return ctl;
+};
+
 // for checkbox
 export const checkboxCtrl = (ref)=>{
-    return (ev)=>{
-        if (ref) { ref.value = ev?.target?.checked ?? !ref.value; }
-    }
+    return (ev)=>{ if (ref) { ref.value = ev?.target?.checked ?? !ref.value; } }
 }
 
 // form.addEventListener("change")

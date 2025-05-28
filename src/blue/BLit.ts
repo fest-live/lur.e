@@ -2,7 +2,7 @@
 import {importCdn} from "/externals/modules/cdnImport.mjs";
 
 // @ts-ignore /* @vite-ignore */
-import { loadInlineStyle, hash } from "/externals/modules/dom.js";
+import { loadInlineStyle, addRoot, hash } from "/externals/modules/dom.js";
 
 // @ts-ignore /* @vite-ignore */
 import { makeReactive, ref, subscribe, observableArray } from "/externals/modules/object.js";
@@ -11,7 +11,6 @@ import { makeReactive, ref, subscribe, observableArray } from "/externals/module
 import E from "./Element";
 import H from "./HTML";
 import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./DOM";
-import { addRoot } from "./Mixins";
 
 //
 const styleCache = new Map();

@@ -1,11 +1,13 @@
 // @ts-ignore /* @vite-ignore */
 import { makeReactive, subscribe, observableArray } from "/externals/modules/object.js";
+
+// @ts-ignore /* @vite-ignore */
+import { reflectBehaviors, reflectStores, reflectMixins } from "/externals/modules/dom.js";
+
+//
 import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules, reflectDataset, reflectARIA } from './Reflect';
-import { createElement, elMap } from './DOM';
-import { reflectBehaviors } from "./Behavior";
-import { reflectStores } from "./Store";
-import { reflectMixins } from "./Mixins";
 import { reflectControllers } from "./Controller";
+import { createElement, elMap } from './DOM';
 
 //
 interface Params {
