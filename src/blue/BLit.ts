@@ -9,7 +9,7 @@ import { makeReactive, ref, subscribe, observableArray } from "/externals/module
 
 //
 import { E } from "./Element";
-import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./DOM";
+import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./Binding";
 
 //
 const styleCache = new Map();

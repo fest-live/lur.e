@@ -2,8 +2,8 @@
 import { subscribe, observe } from "/externals/modules/object.js";
 
 //
-import { handleAttribute, handleDataset, handleStyleChange, kebabToCamel } from "./DOM.js";
-import { removeNotExists, appendChild } from "./Node.js";
+import { handleAttribute, handleDataset, handleStyleChange, kebabToCamel } from "./Binding.js";
+import { removeNotExists, appendChild } from "./DOM.js";
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{

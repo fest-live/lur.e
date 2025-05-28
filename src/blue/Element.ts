@@ -6,8 +6,8 @@ import { reflectBehaviors, reflectStores, reflectMixins } from "/externals/modul
 
 //
 import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules, reflectDataset, reflectARIA } from './Reflect';
-import { createElement, elMap, Tx } from "./Node";
-import { reflectControllers } from './DOM';
+import { createElement, elMap, Tx } from "./DOM";
+import { reflectControllers } from './Binding';
 
 //
 interface Params {
