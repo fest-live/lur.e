@@ -8,8 +8,7 @@ import { loadInlineStyle, addRoot, hash } from "/externals/modules/dom.js";
 import { makeReactive, ref, subscribe, observableArray } from "/externals/modules/object.js";
 
 //
-import E from "./Element";
-import H from "./HTML";
+import { E, H } from "./Element";
 import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./DOM";
 
 //
