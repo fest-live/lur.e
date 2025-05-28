@@ -58,19 +58,24 @@ Shortly, most notable **core** concept.
 <tr>
 <td valign="top">
 
-## *Interaction*
+## *Dependency*
 
-- [`Existence.TS`](https://github.com/unite-2-re/existence.core) visible or hidden control.
-- [`Agate.UX`](https://github.com/unite-2-re/agate.ux) honestly, not remembers.
-- [`UI.System`](https://github.com/unite-2-re/ui.system) from v3.
+- [`Object.TS`](https://github.com/unite-2-re/object.ts) most notable.
+- [`DOM.ts`](https://github.com/unite-2-re/dom.ts) DOM utils.
 
 </td>
 <td valign="top">
 
-## *Dependency*
+## *Interaction*
 
-- [`Object.TS`](https://github.com/unite-2-re/object.ts) most notable.
-- [`DOM.ts`](https://github.com/unite-2-re/dom.ts) DOM utils (may be appear).
+- [`Theme.Core`](https://github.com/unite-2-re/theme.core) optional loading theme.
+
+</td>
+<td valign="top">
+
+## *Subsets*
+
+- [`UI.System`](https://github.com/unite-2-re/ui.system) from v3 (***rigid***, no-active).
 
 </td>
 </tr>
