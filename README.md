@@ -2,14 +2,14 @@
 
 ---
 
-<table>
+<table width="100%">
 <tr>
 <td align="center" colspan="2">
 <img width="128" alt="Logo" src="./logo/logo-0.png"/>
 </td>
 </tr>
 <tr>
-<td valign="top">
+<td valign="top" width="33%">
 
 ### 🌀 Features 🌀
 
@@ -27,6 +27,43 @@ Own experimental **UI** library.
 </td>
 <td valign="top">
 
+<table width="100%">
+<tr>
+<td valign="top">
+
+## *Dependency*
+
+- [`Object.TS`](https://github.com/unite-2-re/object.ts) reactivity.
+- [`DOM.ts`](https://github.com/unite-2-re/dom.ts) DOM utils.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+## *Interaction*
+
+- [`Theme.Core`](https://github.com/unite-2-re/theme.core) optional loading theme.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+## *Subsets*
+
+- [`UI.System`](https://github.com/unite-2-re/ui.system) from v3 (***rigid***, no-active).
+
+</td>
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+
+---
+
 ### 🔌 API 🔌
 
 Shortly, most notable **core** concept.
@@ -40,12 +77,6 @@ Shortly, most notable **core** concept.
 - `L(String|StringRef)`
    - make TextNode object
 
-</td>
-</tr>
-</table>
-
----
-
 ## *Plans*
 
 - I have no viable ideas about MutationObserver DOM tree features, same as Intersection Observers.
@@ -54,29 +85,3 @@ Shortly, most notable **core** concept.
 - Also I would to implement scroll-driven animations (timelines) and animation worklets, but also have no any viable ideas.
 - Have very weak ideas for ResizeObserver's.
 
-<table>
-<tr>
-<td valign="top" width="33%">
-
-## *Dependency*
-
-- [`Object.TS`](https://github.com/unite-2-re/object.ts) reactivity.
-- [`DOM.ts`](https://github.com/unite-2-re/dom.ts) DOM utils.
-
-</td>
-<td valign="top" width="33%">
-
-## *Interaction*
-
-- [`Theme.Core`](https://github.com/unite-2-re/theme.core) optional loading theme.
-
-</td>
-<td valign="top" width="33%">
-
-## *Subsets*
-
-- [`UI.System`](https://github.com/unite-2-re/ui.system) from v3 (***rigid***, no-active).
-
-</td>
-</tr>
-</table>
