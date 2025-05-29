@@ -25,7 +25,7 @@ Own experimental **UI** library.
 - Input changes `value` key to reactive
 
 </td>
-<td valign="top">
+<td valign="top"  width="66%">
 
 <table width="100%">
 <tr width="100%">
