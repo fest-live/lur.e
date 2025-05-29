@@ -56,22 +56,22 @@ Shortly, most notable **core** concept.
 
 <table>
 <tr>
-<td valign="top">
+<td valign="top" width="33%">
 
 ## *Dependency*
 
-- [`Object.TS`](https://github.com/unite-2-re/object.ts) reactive.
+- [`Object.TS`](https://github.com/unite-2-re/object.ts) reactivity.
 - [`DOM.ts`](https://github.com/unite-2-re/dom.ts) DOM utils.
 
 </td>
-<td valign="top">
+<td valign="top" width="33%">
 
 ## *Interaction*
 
 - [`Theme.Core`](https://github.com/unite-2-re/theme.core) optional loading theme.
 
 </td>
-<td valign="top">
+<td valign="top" width="33%">
 
 ## *Subsets*
 
