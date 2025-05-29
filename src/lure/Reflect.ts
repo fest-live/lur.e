@@ -1,9 +1,6 @@
 // @ts-ignore /* @vite-ignore */
 import { subscribe, observe } from "/externals/modules/object.js";
-
-//
-import { handleAttribute, handleDataset, handleStyleChange, kebabToCamel } from "./Binding.js";
-import { removeNotExists, appendChild } from "./DOM.js";
+import { removeNotExists, appendChild, handleAttribute, handleDataset, handleStyleChange, kebabToCamel } from "./DOM.js";
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{

@@ -2,7 +2,7 @@
 import { importCdn } from "/externals/modules/cdnImport.mjs";
 
 // @ts-ignore /* @vite-ignore */
-import { loadInlineStyle, addRoot } from "/externals/modules/dom.js";
+import { loadInlineStyle, addRoot, Q } from "/externals/modules/dom.js";
 
 // @ts-ignore /* @vite-ignore */
 import { makeReactive, ref, subscribe, observableArray } from "/externals/modules/object.js";
@@ -112,48 +112,6 @@ function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
 }
 
 //
-export const selectedElement = (host, selector: string)=>{ return typeof host == "object" ? new Proxy(host, new SelectedElementHandler(selector) as ProxyHandler<any>) : host; }
-export class SelectedElementHandler {
-    selector = "";
-    constructor(selector?: string) {
-        if (selector) { this.selector = selector; };
-    }
-    get(target, name, rec) {
-        const selected = target.querySelector(this.selector);
-        const vp = selected?.[name];
-        if (name == "self" && !vp) { return target; }
-        if (name == "selector" && !vp) { return this.selector; }
-        if (name == "current" && !vp) { return selected; }
-        return typeof vp == "function" ? vp?.bind?.(selected) : vp;
-    }
-    set(target, name, val) {
-        const selected = target.querySelector(this.selector);
-        if (selected) return Reflect.set(selected, name, val);
-        return true;
-    }
-    has(target, name) {
-        const selected = target.querySelector(this.selector);
-        if (selected) return Reflect.has(selected, name);
-        return false;
-    }
-    deleteProperty(target, name) {
-        const selected = target.querySelector(this.selector);
-        if (selected) return Reflect.deleteProperty(selected, name);
-        return true;
-    }
-    ownKeys(target) {
-        const selected = target.querySelector(this.selector);
-        if (selected) return Reflect.ownKeys(selected);
-        return [];
-    }
-    defineProperty(target, a, b) {
-        const selected = target.querySelector(this.selector);
-        if (selected) return Reflect.defineProperty(selected, a, b);
-        return;
-    }
-}
-
-//
 export function defineElement(name: string, options?: any|null) { return function(target: any, key: string) { customElements.define(name, target, options); return target; }; }
 export function property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {}) {
     return function (target: any, key: string) {
@@ -166,7 +124,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
         target[defKeys][key] = {
             get() {
                 const inRender = this[inRenderKey];
-                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? selectedElement(this, from) : this);
+                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q(from, this) : this);
 
                 //
                 let store = propStore.get(this);
@@ -182,7 +140,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                 return stored;
             },
             set(newValue: any) {
-                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? selectedElement(this, from) : this);
+                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q(from, this) : this);
 
                 //
                 let store = propStore.get(this);
