@@ -3,12 +3,12 @@
 ---
 
 <table width="100%">
-<tr>
+<tr width="100%">
 <td align="center" colspan="2" width="100%">
 <img width="128" alt="Logo" src="./logo/logo-0.png"/>
 </td>
 </tr>
-<tr>
+<tr width="100%">
 <td valign="top" width="33%">
 
 ### 🌀 Features 🌀
