@@ -60,7 +60,7 @@ Shortly, most notable **core** concept.
 
 ## *Dependency*
 
-- [`Object.TS`](https://github.com/unite-2-re/object.ts) reactivity.
+- [`Object.TS`](https://github.com/unite-2-re/object.ts) reactive.
 - [`DOM.ts`](https://github.com/unite-2-re/dom.ts) DOM utils.
 
 </td>
