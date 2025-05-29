@@ -28,7 +28,7 @@ Own experimental **UI** library.
 <td valign="top">
 
 <table width="100%">
-<tr>
+<tr width="100%">
 <td valign="top" width="100%">
 
 ## *Dependency*
@@ -38,7 +38,7 @@ Own experimental **UI** library.
 
 </td>
 </tr>
-<tr>
+<tr width="100%">
 <td valign="top" width="100%">
 
 ## *Interaction*
@@ -47,7 +47,7 @@ Own experimental **UI** library.
 
 </td>
 </tr>
-<tr>
+<tr width="100%">
 <td valign="top" width="100%">
 
 ## *Subsets*
