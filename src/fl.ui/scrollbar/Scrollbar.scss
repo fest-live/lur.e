@@ -1,0 +1,116 @@
+
+//
+@mixin scroll-box {
+    & {
+        contain-intrinsic-inline-size: auto;
+        content-visibility: auto;
+        pointer-events: auto;
+        isolation: isolate;
+        overflow-x: hidden;
+        overflow-y: auto !important;
+        scrollbar-color: transparent !important;
+        scrollbar-gutter: auto !important;
+        scrollbar-width: none !important;
+    }
+}
+
+//
+@mixin anchor {
+    & {
+        anchor-name: --ux-scrollbox;
+        scroll-timeline-name: --ux-scrollbox-x, --ux-scrollbox-y;
+        timeline-scope: --ux-scrollbox-x, --ux-scrollbox-y;
+    }
+}
+
+//
+@mixin scrollbar ($selector: ".scrollbar", $anchor: ux-scrollbox) {
+    :where(
+        #{$selector}-x,
+        #{$selector}-y
+    )
+    {
+        & { --fit-unit: calc((var(--content-size, 1) * 1px - 1rem) / var(--content-size, 1)); };
+        & { --scroll-coef: 0; }
+        & {
+            user-select: none;
+            touch-action: none;
+            pointer-events: none;
+
+            //
+            inset: 0px;
+            display: block flow;
+            z-index: 9999;
+            box-sizing: border-box;
+
+            //
+            background-color: transparent !important;
+            position-anchor: --#{$anchor};
+            container-type: normal;
+            writing-mode: horizontal-tb !important;
+            line-height: 0px;
+            visibility: collapse;
+            direction: ltr !important;
+            overflow: hidden;
+            position: fixed;
+        }
+
+        //
+        & :where(.thumb)
+        {
+            & {
+                background-color: oklch(from var(--scrollbar-color, #101010A0) l c h / 0.8) !important;
+                position-anchor: --#{$anchor};
+                pointer-events: auto;
+                border-radius: 0.25rem;
+                touch-action: none;
+                writing-mode: horizontal-tb !important;
+                user-select: none;
+                line-height: 0px;
+                box-sizing: border-box;
+                visibility: auto;
+                direction: ltr !important;
+                position: relative;
+                overflow: hidden;
+                display: block flow;
+            }
+        }
+    }
+}
+
+//
+@mixin axis-scrollbar($selector, $fit: inline, $timeline-name: ux-scrollbox) {
+    $cqf: 100cqi; @if $fit == block { $cqb: 100cqb; }
+    $inv: block ; @if $fit == block { $inv: inline; };
+
+    //
+    & :is(#{$selector}) {
+        & {
+            #{$inv}-size: 0.5rem;
+            #{$fit}-size: calc(#{$cqf} - 1rem);
+
+            //
+            animation-timeline: --#{$timeline-name};
+            inset-#{$inv}-start: auto;
+            inset-#{$fit}-start: calc(anchor(start, 0px) + 0.5rem);
+            inset-#{$inv}-end: calc(anchor(end, 0px) + 1px);
+            inset-#{$fit}-end: auto;
+        }
+
+        //
+        & :where(.thumb)
+        {   --max-size: min(100%, calc(#{$cqf} - 1rem));//min(100%, anchor-size(inline, 100%));
+
+            //
+            #{$inv}-size: 100%;
+            #{$fit}-size: min(calc(var(--max-size, 100%) * var(--scroll-coef, 1)), var(--max-size, 100%));
+
+            //
+            @if $fit == block {
+                translate: 0px calc(var(--scroll-left, 0) * var(--scroll-coef, 0) * var(--fit-unit, 1px)) 0px;
+            } @else {
+                translate: calc(var(--scroll-left, 0) * var(--scroll-coef, 0) * var(--fit-unit, 1px)) 0px 0px;
+            }
+        }
+    }
+}
