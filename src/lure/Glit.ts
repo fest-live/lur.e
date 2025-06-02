@@ -2,23 +2,21 @@
 import { importCdn } from "/externals/modules/cdnImport.mjs";
 
 // @ts-ignore /* @vite-ignore */
-import { loadInlineStyle, addRoot, Q } from "/externals/modules/dom.js";
+import { Q, loadInlineStyle, addRoot } from "/externals/modules/dom.js";
+import { E } from "./Element";
 
 // @ts-ignore /* @vite-ignore */
 import { makeReactive, ref, subscribe, observableArray } from "/externals/modules/object.js";
-
-//
-import { E } from "./Element";
 import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./Binding";
 
 //
 const styleCache = new Map();
 const styleElementCache = new WeakMap();
-const defaultStyle = document.createElement("style");
-const camelToKebab = (str) => { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
-const kebabToCamel = (str) => { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
-const whenBoxValid = (name)=>{ const cb = camelToKebab(name); if (["border-box", "content-box", "device-pixel-content-box"].indexOf(cb) >= 0) return cb; return null; }
-const whenAxisValid = (name)=>{ const cb = camelToKebab(name); if (cb?.startsWith?.("inline")) { return "inline"; }; if (cb?.startsWith?.("block")) { return "block"; }; return null; }
+const defaultStyle  = document.createElement("style");
+const camelToKebab  = (str)  => { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
+const kebabToCamel  = (str)  => { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
+const whenBoxValid  = (name) => { const cb = camelToKebab(name); if (["border-box", "content-box", "device-pixel-content-box"].indexOf(cb) >= 0) return cb; return null; }
+const whenAxisValid = (name) => { const cb = camelToKebab(name); if (cb?.startsWith?.("inline")) { return "inline"; }; if (cb?.startsWith?.("block")) { return "block"; }; return null; }
 const propStore = new WeakMap<object, Map<string, any>>(), CSM = new WeakMap();
 const inRenderKey = Symbol.for("@render@"), defKeys = Symbol.for("@defKeys@");
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
@@ -98,8 +96,7 @@ function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
             const exists = this[key]; Object.defineProperty(this, key, def as any); if (exists != null) { this[key] = exists; }
             return this;
         }); };
-    }
-    return ctr;
+    }; return ctr;
     /*return class extends constructor {
         constructor(...args) { super(...args); }
         $init(...args: any[]) {
@@ -203,24 +200,6 @@ export const css = (strings, ...values)=>{
     }
     return {props, css: parts.join(""), vars};
 }
-
-/*
-//
-export const loadCachedStyles = (bTo, src, withVars = true)=>{
-    const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
-    const cached = source.get(src);
-    let styleElement = cached?.styleElement, vars = cached?.vars;
-    //if (!cached) {
-        const weak = new WeakRef(bTo);
-        let styles = ``, props = [];
-        if (typeof src == "string") { styles = src || "" } else
-        if (typeof src == "function") { const cs = src?.call?.(bTo, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
-        let _ = { css: styles, props, vars, styleElement: (styleElement = (styles as any) instanceof HTMLStyleElement ? styles : loadInlineStyle(styles, bTo, "ux-layer")) };
-        //source.set(src, _ );
-    //}
-    if (vars && withVars) { useVars(this, vars); };
-    return styleElement;
-}*/
 
 //
 export const loadCachedStyles = (bTo, src, withVars = true)=>{

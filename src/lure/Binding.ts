@@ -12,9 +12,7 @@ export const localStorageRef = (key, initial?: any)=>{
             if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
         }
     });
-    subscribe([ref, "value"], (val)=>{
-        localStorage.setItem(key, val);
-    });
+    subscribe([ref, "value"], (val)=> localStorage.setItem(key, val));
     return ref;
 }
 
@@ -104,7 +102,7 @@ export const sizeRef = (element, axis: "inline"|"block", box: ResizeObserverBoxO
 export const scrollRef = (element, axis: "inline"|"block", initial?: any)=>{
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis=="inline"?"left":"top"]: (initial?.value ?? initial) }); };
     const val = makeReactive({ value: (axis == "inline" ? element?.scrollLeft : element?.scrollTop) || 0 });
-    subscribe([val, "value"], ()=>element?.scrollTo?.({ [axis=="inline"?"left":"top"]: (val?.value ?? val) }));
+    subscribe([val, "value"],  () => element?.scrollTo?.({ [axis=="inline"?"left":"top"]: (val?.value ?? val) }));
     element?.addEventListener?.("scroll", (ev)=>{ val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true });
     return val;
 }
@@ -167,45 +165,25 @@ export const bindBeh = (element, store, behavior) => {
             const valMap = namedStoreMaps.get(name);
             behavior?.([value, prop, old], [weak, store, valMap?.get(weak.deref?.())]);
         });
-    }
-    return element;
-};
+    }; return element;
+}
 
 //
 export const refCtl = (value) => {
     let self: any = null;
-    let ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => {
-        boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
-            (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
-        });
-    });
-    return ctl;
-};
-
-// for checkbox
-export const checkboxCtrl = (ref)=>{
-    return (ev)=>{ if (ref) { ref.value = ev?.target?.checked ?? !ref.value; } }
+    let ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
+        (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
+    })); return ctl;
 }
 
-// form.addEventListener("change")
-export const radioCtrl = (ref, name)=>{
+// for checkbox
+export const checkboxCtrl = (ref)=>{ return (ev)=>{ if (ref) { ref.value = ev?.target?.checked ?? !ref.value; } } }
+export const numberCtrl   = (ref)=>{ return (ev)=>{ if (ref) { ref.value = ev?.target?.valueAsNumber ?? !ref.value; }} }
+export const valueCtrl    = (ref)=>{ return (ev)=>{ if (ref) { ref.value = ev?.target?.value ?? !ref.value; }} }
+export const radioCtrl    = (ref, name)=>{
     return (ev)=>{
         const selector = `input[name="${name}"]:checked`;
         ref.value = (ev?.target?.matches?.(selector) ? ev?.target : ev?.target?.querySelector?.(selector))?.value ?? ref.value;
-    }
-}
-
-// "change" | "input" | "click"
-export const numberCtrl = (ref)=>{
-    return (ev)=>{
-        if (ref) { ref.value = ev?.target?.valueAsNumber ?? !ref.value; }
-    }
-}
-
-// "change" | "input" | "click"
-export const valueCtrl = (ref)=>{
-    return (ev)=>{
-        if (ref) { ref.value = ev?.target?.value ?? !ref.value; }
     }
 }
 
@@ -225,8 +203,7 @@ export const bindCtrl = (element, ctrl)=>{
 
 // TODO: make able to cancel controlling
 export const reflectControllers = (element, ctrls)=>{
-    for (let ctrl of ctrls) { bindCtrl(element, ctrl); }
-    return element;
+    for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element;
 }
 
 // TODO: currently, there is no visable usage

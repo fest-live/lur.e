@@ -28,6 +28,9 @@ const
 	REGEX = '^(?:' + MATCH + ')|^#' + MATCH + '|^\\.' + MATCH + '|^\\[' + MATCH + '(?:([*$|~^]?=)(["\'])((?:(?=(\\\\?))\\8.)*?)\\6)?\\]';
 
 //
+export const deleteStyleProperty = (element, name)=>{ element.style.removeProperty(camelToKebab(name)); }
+export const camelToKebab  = (str) => { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
+export const kebabToCamel  = (str) => { return str?.replace?.(/-([a-z])/g, (_, char) => char.toUpperCase()); }
 export const createElement = (selector): HTMLElement|DocumentFragment => {
     if (selector == ":fragment:") return document.createDocumentFragment();
     const create = document.createElement.bind(document);
@@ -93,11 +96,6 @@ export const removeNotExists = (element, children, mapper)=>{
     Array.from(element.childNodes).forEach((nd: any)=>{ if (uw!?.find?.((cp)=>(cp == nd))) nd?.remove?.(); });
     return element;
 }
-
-//
-export const deleteStyleProperty = (element, name)=>{ element.style.removeProperty(camelToKebab(name)); }
-export const camelToKebab = (str) => { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
-export const kebabToCamel = (str) => { return str?.replace?.(/-([a-z])/g, (_, char) => char.toUpperCase()); }
 
 //
 export const handleDataset = (element, prop, value)=>{

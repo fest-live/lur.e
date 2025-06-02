@@ -1,12 +1,10 @@
 // @ts-ignore /* @vite-ignore */
 import { subscribe, observableArray } from "/externals/modules/object.js";
+import { createElement, elMap, Tx } from "./DOM";
 
 // @ts-ignore /* @vite-ignore */
 import { reflectBehaviors, reflectStores, reflectMixins } from "/externals/modules/dom.js";
-
-//
-import { reflectAttributes, reflectChildren, reflectClassList, reflectStyles, reflectProperties, reformChildren, reflectWithStyleRules, reflectDataset, reflectARIA } from './Reflect';
-import { createElement, elMap, Tx } from "./DOM";
+import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reformChildren, reflectWithStyleRules, reflectARIA } from './Reflect';
 import { reflectControllers } from './Binding';
 
 //

@@ -1,9 +1,6 @@
 // @ts-ignore /* @vite-ignore */
 import { observableArray } from "/externals/modules/object.js";
-
-//
-import { E, M } from "./Element";
-import { getNode } from "./DOM";
+import { getNode } from "./DOM"; import { E, M } from "./Element";
 
 //
 const EMap = new WeakMap();
