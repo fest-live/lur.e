@@ -8,20 +8,6 @@ import { setProperty, zoomOf } from "/externals/modules/dom.js";
 import { scrollRef, sizeRef } from "/externals/modules/blue.js";
 
 //
-const axisConfig = [
-    {
-        name: "x", tName: "inline",
-        cssScrollProperty: ["--scroll-left", "calc(var(--percent-x, 0) * max(calc(var(--scroll-size, 1) - var(--content-size, 1)), 0))"] as [string, string],
-        cssPercentProperty: "--percent-x"
-    },
-    {
-        name: "y", tName: "block",
-        cssScrollProperty: ["--scroll-top", "calc(var(--percent-y, 0) * max(calc(var(--scroll-size, 1) - var(--content-size, 1)), 0))"] as [string, string],
-        cssPercentProperty: "--percent-y"
-    }
-];
-
-//
 export interface ScrollBarStatus {
     pointerId: number;
     scroll: number;
@@ -30,32 +16,34 @@ export interface ScrollBarStatus {
 };
 
 //
-const effectProperty = {
-    fill: "both",
-    delay: 0,
-    easing: "linear",
-    rangeStart: "cover 0%",
-    rangeEnd: "cover 100%",
-    duration: 1
-};
+const axisConfig = [{
+    name: "x", tName: "inline",
+    cssScrollProperty: ["--scroll-left", "calc(var(--percent-x, 0) * max(calc(var(--scroll-size, 1) - var(--content-size, 1)), 0))"] as [string, string],
+    cssPercentProperty: "--percent-x"
+}, {
+    name: "y", tName: "block",
+    cssScrollProperty: ["--scroll-top", "calc(var(--percent-y, 0) * max(calc(var(--scroll-size, 1) - var(--content-size, 1)), 0))"] as [string, string],
+    cssPercentProperty: "--percent-y"
+}];
 
 //
-const asWeak = (source)=>{
-    return ((source instanceof WeakRef || typeof source?.deref == "function") ? source : new WeakRef(source)) as any;
-}
+const fx      = new Set<any>([]);
+const asWeak  = (source)=>{ return ((source instanceof WeakRef || typeof source?.deref == "function") ? source : new WeakRef(source)) as any; }
+const stepped = (count = 100)=>{ return Array.from({ length: count }, (_, i) => i / count).concat([1]); }
 
 //
 const makeTimeline = (source, axis: number)=>{
-    const target  = asWeak(source);
-    const scroll  = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
-    const content = sizeRef  (source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
-    const percent = computed (scroll, (vl)=> ((vl || 0) / ((target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] - content?.value) || 1)));
+    const target   = asWeak(source);
+    const scroll   = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
+    const content  = sizeRef  (source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
+    const percent  = computed (scroll, (vl)=> ((vl || 0) / ((target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] - content?.value) || 1)));
     subscribe(content, (vl: any)=>((scroll?.value || 0) / ((target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] - vl) || 1)));
     return percent;
 }
 
 //
-const scrollbarCoef = (source: HTMLElement, axis: number)=>{ // @ts-ignore
+const effectProperty = { fill: "both", delay: 0, easing: "linear", rangeStart: "cover 0%", rangeEnd: "cover 100%", duration: 1 };
+const scrollbarCoef  = (source: HTMLElement, axis: number)=>{ // @ts-ignore
     const target  = asWeak(source);
     const scroll  = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
     const content = sizeRef  (source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
@@ -85,22 +73,6 @@ const animateByTimeline = async (source: HTMLElement, properties = {}, timeline:
             setProperty(target?.deref?.(), name, (values[0] * (1 - val) + values[1] * val))
         }));
     })
-};
-
-//
-const fx = new Set<any>([]);
-const stepped = (count = 100)=>{
-    return Array.from({ length: count }, (_, i) => i / count).concat([1]);
-}
-
-//
-export const doAnimate = async ()=>{
-    let inWork = {value: true};
-    while(inWork?.value) { // @ts-ignore
-        fx.values().forEach((cb)=>Promise?.try?.(cb)?.catch?.(console.warn.bind(console))); fx.clear();
-        await new Promise((r)=>requestAnimationFrame(r));
-    }
-    return inWork;
 }
 
 //
@@ -162,37 +134,38 @@ const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {})
 }
 
 //
+export const doAnimate = async ()=>{
+    let inWork = {value: true};
+    while(inWork?.value) { // @ts-ignore
+        fx.values().forEach((cb)=>Promise?.try?.(cb)?.catch?.(console.warn.bind(console))); fx.clear();
+        await new Promise((r)=>requestAnimationFrame(r));
+    }; return inWork;
+}
+
+//
 export class ScrollBar {
     scrollbar: HTMLDivElement;
-    holder: HTMLElement;
-    status: ScrollBarStatus;
     content: HTMLDivElement;
+    status: ScrollBarStatus;
+    holder: HTMLElement;
 
     //
     constructor({holder, scrollbar, content}, axis = 0) {
-        this.scrollbar = scrollbar;
-        this.holder    = holder;
-        this.content   = content;
-        this.status    = {
-            delta: 0,
-            scroll: 0,
-            pointerId: -1,
-            point: 0
-        };
+        this.scrollbar   = scrollbar;
+        this.holder      = holder;
+        this.content     = content;
+        this.status      = { delta: 0, scroll: 0, point: 0, pointerId: -1 };
 
         //
-        const currAxis = axisConfig[axis];
-        const bar    = this.scrollbar; bar?.style?.setProperty(...currAxis.cssScrollProperty, "");
-        const source = this.content; // @ts-ignore
-        const native = typeof ScrollTimeline != "undefined", timeline: any = native ? new ScrollTimeline({ source, axis: currAxis.tName }) : makeTimeline(source, axis);
+        const currAxis   = axisConfig[axis]; // @ts-ignore
+        const bar        = this.scrollbar; bar?.style?.setProperty(...currAxis.cssScrollProperty, ""), source = this.content; // @ts-ignore
+        const native     = typeof ScrollTimeline != "undefined", timeline: any = native ? new ScrollTimeline({ source, axis: currAxis.tName }) : makeTimeline(source, axis);
         const properties = { [currAxis.cssPercentProperty]: native ? stepped(100) : [0,1] };
 
         //
-        if (native) { // @ts-ignore
-            bar?.animate(properties, { ...effectProperty, timeline });
-        } else {
-            animateByTimeline(bar, properties, timeline);
-        }
+        if (native) // @ts-ignore
+            { bar?.animate(properties, { ...effectProperty, timeline }); } else
+            { animateByTimeline(bar, properties, timeline); }
 
         //
         setProperty    (this.scrollbar, "visibility", "collapse");
@@ -203,4 +176,4 @@ export class ScrollBar {
 }
 
 //
-doAnimate();
+doAnimate?.();
