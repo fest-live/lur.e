@@ -43,6 +43,8 @@ export const visibleRef = (element, initial?: any)=>{
 
 // one-shot update
 export const attrRef = (element, attribute: string, initial?: any)=>{
+    if (!element) return;
+
     // bi-directional attribute
     const val = makeReactive({ value: element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial)) });
     if (initial != null && element?.getAttribute?.(attribute) == null && (typeof val.value != "object" && typeof val.value != "function") && (val.value != null && val.value !== false)) { element?.setAttribute?.(attribute, val.value); };
@@ -69,8 +71,7 @@ export const attrRef = (element, attribute: string, initial?: any)=>{
         observeAttributeBySelector(element.self, element.selector, attribute, onMutation);
     } else {
         const callback = (mutationList, _) => { for (const mutation of mutationList) { onMutation(mutation); } };
-        const observer = new MutationObserver(callback);
-        if (element instanceof HTMLElement) { observer.observe(element, config); }
+        const observer = new MutationObserver(callback); observer.observe(element?.element ?? element?.self ?? element, config);
     }
 
     //
@@ -90,13 +91,12 @@ export const attrRef = (element, attribute: string, initial?: any)=>{
 
 // ! you can't change size, due it's may break styles
 export const sizeRef = (element, axis: "inline"|"block", box: ResizeObserverBoxOptions = "border-box")=>{
-    const val = makeReactive({ value: 0 });
-    const obs = new ResizeObserver((entries)=>{
+    const val = makeReactive({ value: 0 }), obs = new ResizeObserver((entries)=>{
         if (box == "border-box") { val.value = axis == "inline" ? entries[0].borderBoxSize[0].inlineSize : entries[0].borderBoxSize[0].blockSize };
         if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
         if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
     });
-    if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.self ?? element, {box}); };
+    if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.element ?? element?.self ?? element, {box}); };
     return val;
 }
 
@@ -256,6 +256,6 @@ export const observeSize = (element, box, styles?) => {
             styles.inlineSize = `${mut[0].devicePixelContentBoxSize[0].inlineSize}px`;
             styles.blockSize = `${mut[0].devicePixelContentBoxSize[0].blockSize}px`;
         }
-    }).observe(element?.element ?? element, {box});
+    }).observe(element?.element ?? element?.self ?? element, {box});
     return styles;
 }
