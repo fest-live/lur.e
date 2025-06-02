@@ -6,8 +6,6 @@ const updateTime        = () => setElementContent(".ui-time", new Date().toLocal
 const setElementIcon    = (selector, value)=> throttleMap.set(selector, ()=> roots.forEach((root)=>root.querySelectorAll(selector).forEach((element)=>{ if (element?.getAttribute?.("icon") != value) { element?.setAttribute?.("icon", value); }})));
 const setElementContent = (selector, value)=> throttleMap.set(selector, ()=> roots.forEach((root)=>root.querySelectorAll(selector).forEach((element)=>{ if (element.innerHTML != value) { element.innerHTML = value; }; })));
 
-
-
 //
 const runBatteryStatus = (async()=>{
     // @ts-ignore
@@ -44,8 +42,6 @@ const runBatteryStatus = (async()=>{
         changeBatteryStatus();
     });
 });
-
-
 
 // TODO! support of seconds option (user-defined)
 export const runTimeStatus   = (async()=>{ updateTime(); setIdleInterval(updateTime, 15000); document.addEventListener("DOMContentLoaded", updateTime, { once: true }); });

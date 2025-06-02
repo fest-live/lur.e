@@ -161,14 +161,9 @@ export const blockClickTrigger = (_: MouseEvent | PointerEvent | TouchEvent | nu
     }, 100);
 }
 
+//
 export const getPxValue = (element, name)=>{
-    if ("computedStyleMap" in element) {
-        const cm = element?.computedStyleMap();
-        return cm.get(name)?.value || 0;
-    } else
-    if (element instanceof HTMLElement) {
-        const cs = getComputedStyle(element, "");
-        return (parseFloat(cs.getPropertyValue(name)?.replace?.("px", "")) || 0);
-    }
+    if ("computedStyleMap" in element)  { const cm = element?.computedStyleMap(); return cm.get(name)?.value || 0; } else
+    if (element instanceof HTMLElement) { const cs = getComputedStyle(element, ""); return (parseFloat(cs.getPropertyValue(name)?.replace?.("px", "")) || 0); }
     return 0;
 }

@@ -18,12 +18,8 @@ export const localStorageRef = (key, initial?: any)=>{
 
 // reacts only from media, you can't change media condition
 export const matchMediaRef = (condition: string)=>{
-    const med = matchMedia(condition);
-    const ref = makeReactive({value: med.matches});
-    med.addEventListener("change", (ev)=>{
-        ref.value = ev.matches;
-    });
-    return ref;
+    const med = matchMedia(condition), ref = makeReactive({value: med.matches});
+    med.addEventListener("change", (ev)=>ref.value = ev.matches); return ref;
 }
 
 // one-shot update
@@ -75,11 +71,9 @@ export const attrRef = (element, attribute: string, initial?: any)=>{
     //
     subscribe([val, "value"], (v)=>{
         if (v !== element?.getAttribute?.(attribute)) {
-            if (v == null || v === false || typeof v == "object" || typeof v == "function") {
-                element?.removeAttribute?.(attribute);
-            } else {
-                element?.setAttribute?.(attribute, v);
-            }
+            if (v == null || v === false || typeof v == "object" || typeof v == "function") 
+                { element?.removeAttribute?.(attribute); } else
+                { element?.setAttribute?.(attribute, v); }
         }
     });
 
@@ -94,8 +88,7 @@ export const sizeRef = (element, axis: "inline"|"block", box: ResizeObserverBoxO
         if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
         if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
     });
-    if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.element ?? element?.self ?? element, {box}); };
-    return val;
+    if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.element ?? element?.self ?? element, {box}); }; return val;
 }
 
 //
@@ -120,8 +113,7 @@ export const checkedRef = (element)=>{
             element.checked = !!v;
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
-    })
-    return val;
+    }); return val;
 }
 
 // for string inputs
@@ -135,31 +127,26 @@ export const valueRef = (element)=>{
                 bubbles: true
             }));
         }
-    })
-    return val;
+    }); return val;
 }
 
 // for numeric inputs
 export const valueAsNumberRef = (element)=>{
     const val = makeReactive({ value: Number(element?.valueAsNumber) || 0 });
-    (element?.self ?? element)?.addEventListener?.("change", (ev)=>{
-        if (val.value != ev?.target?.valueAsNumber) { val.value = Number(ev?.target?.valueAsNumber); }
-    });
+    (element?.self ?? element)?.addEventListener?.("change", (ev)=>{ if (val.value != ev?.target?.valueAsNumber) { val.value = Number(ev?.target?.valueAsNumber); } });
     subscribe([val, "value"], (v)=>{
         if (element && element?.valueAsNumber != v && typeof element?.valueAsNumber == "number") {
             element.valueAsNumber = Number(v);
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
-    })
-    return val;
+    }); return val;
 }
 
 
 
 //
 export const bindBeh = (element, store, behavior) => {
-    const weak = element instanceof WeakRef ? element : new WeakRef(element);
-    const [name, obj] = store;
+    const weak = element instanceof WeakRef ? element : new WeakRef(element), [name, obj] = store;
     if (behavior) {
         subscribe?.(store, (value, prop, old) => {
             const valMap = namedStoreMaps.get(name);
@@ -170,8 +157,7 @@ export const bindBeh = (element, store, behavior) => {
 
 //
 export const refCtl = (value) => {
-    let self: any = null;
-    let ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
+    let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
         (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
     })); return ctl;
 }
@@ -193,17 +179,11 @@ export const bindCtrl = (element, ctrl)=>{
     element?.addEventListener?.("click", ctrl);
     element?.addEventListener?.("input", ctrl);
     element?.addEventListener?.("change", ctrl);
-    const cancel = ()=>{
+    return ()=>{
         element?.removeEventListener?.("click", ctrl);
         element?.removeEventListener?.("input", ctrl);
         element?.removeEventListener?.("change", ctrl);
-    }
-    return cancel;
-}
-
-// TODO: make able to cancel controlling
-export const reflectControllers = (element, ctrls)=>{
-    for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element;
+    };
 }
 
 // TODO: currently, there is no visable usage
@@ -217,7 +197,8 @@ export const OOBTrigger = (element, ref, selector?)=>{
     ROOT.addEventListener("click", checker); return cancel;
 }
 
-//
+// TODO: make able to cancel controlling
+export const reflectControllers = (element, ctrls)=>{ for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
 export const observeSize = (element, box, styles?) => {
     if (!styles) styles = makeReactive({});
     new ResizeObserver((mut)=>{

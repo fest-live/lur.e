@@ -6,28 +6,28 @@ import { Q, loadInlineStyle, addRoot } from "/externals/modules/dom.js";
 import { E } from "./Element";
 
 // @ts-ignore /* @vite-ignore */
-import { makeReactive, ref, subscribe, observableArray } from "/externals/modules/object.js";
-import { attrRef, checkedRef, localStorageRef, sizeRef, matchMediaRef, valueAsNumberRef, valueRef, scrollRef } from "./Binding";
+import { makeReactive , ref, subscribe, observableArray } from "/externals/modules/object.js";
+import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "./Binding";
 
 //
-const styleCache = new Map();
-const styleElementCache = new WeakMap();
-const defaultStyle  = document.createElement("style");
-const camelToKebab  = (str)  => { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
-const kebabToCamel  = (str)  => { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
+const styleCache    = new Map(), styleElementCache = new WeakMap();
+const propStore     = new WeakMap<object, Map<string, any>>(), CSM = new WeakMap();
+const camelToKebab  = (str ) => { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
+const kebabToCamel  = (str ) => { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
 const whenBoxValid  = (name) => { const cb = camelToKebab(name); if (["border-box", "content-box", "device-pixel-content-box"].indexOf(cb) >= 0) return cb; return null; }
 const whenAxisValid = (name) => { const cb = camelToKebab(name); if (cb?.startsWith?.("inline")) { return "inline"; }; if (cb?.startsWith?.("block")) { return "block"; }; return null; }
-const propStore = new WeakMap<object, Map<string, any>>(), CSM = new WeakMap();
-const inRenderKey = Symbol.for("@render@"), defKeys = Symbol.for("@defKeys@");
-const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-const defineSource = (source: string|any, holder: any, name?: string|null)=>{
+const characters    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const inRenderKey   = Symbol.for("@render@"), defKeys = Symbol.for("@defKeys@");
+const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
+    if (source == "attr")  { return attrRef.bind(null, holder, name || ""); }
     if (source == "media") { return matchMediaRef; }
+    if (source == "query") { return (val)=>Q?.(name || "", holder); }
+    if (source == "query-shadow") { return (val)=>Q?.(name || "", holder?.shadowRoot ?? holder); }
     if (source == "localStorage") { return localStorageRef; }
-    if (source == "attr") { return attrRef.bind(null, holder, name || ""); }
     if (source == "inline-size") { return sizeRef.bind(null, holder, "inline", whenBoxValid(name) || "border-box"); }
+    if (source == "content-box") { return sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "content-box"); }
     if (source == "block-size") { return sizeRef.bind(null, holder, "block", whenBoxValid(name) || "border-box"); }
     if (source == "border-box") { return sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "border-box"); }
-    if (source == "content-box") { return sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "content-box"); }
     if (source == "scroll") { return scrollRef.bind(null, holder, whenAxisValid(name) || "inline"); }
     if (source == "device-pixel-content-box") { sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "device-pixel-content-box"); }
     if (source == "checked") { return checkedRef.bind(null, holder); }
@@ -52,6 +52,7 @@ const getDef = (source?: string|any|null): any =>{
 }
 
 //
+const defaultStyle = document.createElement("style");
 defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
 @layer ux-preload {
     :where(ui-select-row, ui-button-row),
@@ -88,27 +89,17 @@ defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
 }`
 
 //
-function generateName(length = 8) { let r = ''; const l = characters.length; for ( let i = 0; i < length; i++ ) { r += characters.charAt(Math.floor(Math.random() * l)); }; return r; }
-function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
+export function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
     const $has = (ctr?.prototype ?? ctr)?.$init;
     (ctr?.prototype ?? ctr).$init = function (...args) {
         $has?.call(this, ...args); if (this?.[defKeys]) { Object.entries(this[defKeys]).forEach(([key, def])=>{
-            const exists = this[key]; Object.defineProperty(this, key, def as any); if (exists != null) { this[key] = exists; }
-            return this;
+            const exists = this[key]; Object.defineProperty(this, key, def as any); if (exists != null) { this[key] = exists; }; return this;
         }); };
     }; return ctr;
-    /*return class extends constructor {
-        constructor(...args) { super(...args); }
-        $init(...args: any[]) {
-            super.$init?.(...args); if (this[defKeys]) { Object.entries(this[defKeys]).forEach(([key, def])=>{
-                const exists = this[key]; Object.defineProperty(this, key, def); if (exists != null) { this[key] = exists; }
-                return this;
-            }); };
-        }
-    }*/
 }
 
 //
+export function generateName (length = 8) { let r = ''; const l = characters.length; for ( let i = 0; i < length; i++ ) { r += characters.charAt(Math.floor(Math.random() * l)); }; return r; }
 export function defineElement(name: string, options?: any|null) { return function(target: any, key: string) { customElements.define(name, target, options); return target; }; }
 export function property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {}) {
     return function (target: any, key: string) {
@@ -120,42 +111,32 @@ export function property({attribute, source, name, from}: { attribute?: string|b
         };
         target[defKeys][key] = {
             get() {
-                const inRender = this[inRenderKey];
-                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q(from, this) : this);
+                const inRender = this[inRenderKey], sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, this) : this);
 
                 //
-                let store = propStore.get(this);
-                let stored = store?.get?.(key);
+                let store = propStore.get(this), stored = store?.get?.(key);
                 if (stored == null && source != null) {
                     if (!store) { propStore.set(this, store = new Map()); }
-                    if (!store?.has?.(key))
-                        { store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source))); }
+                    if (!store?.has?.(key)) { store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source))); }
                 }
-
-                //
-                if (stored?.value != null && !inRender) { return stored.value; }
-                return stored;
+                if (stored?.value != null && !inRender) { return stored.value; }; return stored;
             },
             set(newValue: any) {
-                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q(from, this) : this);
+                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, this) : this);
 
                 //
                 let store = propStore.get(this);
                 if (!store) { propStore.set(this, store = new Map()); }
                 if (!store?.has?.(key)) {
-                    if (newValue?.value != null) {
-                        store?.set?.(key, newValue);
-                    } else {
-                        store?.set?.(key, (typeof newValue === 'object' && newValue !== null) ? makeReactive(newValue) : defineSource(source, sourceTarget, name || key)?.(newValue));
-                    }
+                    if (newValue?.value != null)
+                        { store?.set?.(key, newValue); } else
+                        { store?.set?.(key, (typeof newValue === 'object' && newValue !== null) ? makeReactive(newValue) : defineSource(source, sourceTarget, name || key)?.(newValue)); }
                 } else {
                     const exists = store?.get?.(key);
                     if (typeof exists == "object" || typeof exists == "function") {
-                        if (typeof newValue === 'object' && newValue !== null && (newValue?.value == null || typeof newValue?.value == "object" || typeof newValue?.value == "function")) {
-                            Object.assign(exists, newValue?.value ?? newValue);
-                        } else {
-                            exists.value = newValue?.value ?? newValue;
-                        }
+                        if (typeof newValue === 'object' && newValue !== null && (newValue?.value == null || typeof newValue?.value == "object" || typeof newValue?.value == "function"))
+                            { Object.assign(exists, newValue?.value ?? newValue); } else
+                            { exists.value = newValue?.value ?? newValue; }
                     }
                 }
             },
@@ -172,13 +153,7 @@ export const setAttributesIfNull = (element, attrs = {})=>{
     const entries = attrs instanceof Map ? attrs.entries() : Object.entries(attrs || {})
     return Array.from(entries).map(([name, value])=>{
         const old = element.getAttribute(name = camelToKebab(name) || name);
-        if (old != value) {
-            if (value == null) {
-                element.removeAttribute(name);
-            } else {
-                element.setAttribute(name, old == "" ? (value ?? old) : (old ?? value));
-            }
-        }
+        if (old != value) { if (value == null) { element.removeAttribute(name); } else { element.setAttribute(name, old == "" ? (value ?? old) : (old ?? value)); } }
     });
 }
 
@@ -213,18 +188,19 @@ export const loadCachedStyles = (bTo, src, withVars = true)=>{
         if (typeof src == "function") { const cs = src?.call?.(bTo, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
         source.set(src, { css: styles, props, vars, styleElement: (styleElement = (styles as any) instanceof HTMLStyleElement ? styles : loadInlineStyle(styles, bTo, "ux-layer")) });
     }
-    if (vars && withVars) { useVars(this, vars); };
-    return styleElement;
+    if (vars && withVars) { useVars(this, vars); }; return styleElement;
 }
 
 //
 export const GLitElement = (derrivate = HTMLElement)=>{
     if (CSM.has(derrivate)) return CSM.get(derrivate);
     const EX = withProperties(class EX extends derrivate {
+        #framework: any;
         #initialized: boolean = false;
         #styleElement?: HTMLStyleElement;
         #defaultStyle?: HTMLStyleElement;
-        #framework: any;
+
+        //
         styles?: any;
         initialAttributes?: any; // you can set initial attributes
         themeStyle?: HTMLStyleElement;
@@ -235,6 +211,8 @@ export const GLitElement = (derrivate = HTMLElement)=>{
             super(); const shadowRoot = this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" });
             shadowRoot.append(this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
         }
+
+        //
         protected onInitialize(weak?: WeakRef<any>) { return this; }
         protected onRender(weak?: WeakRef<any>) { return this; }
         protected $init() { return this; };
