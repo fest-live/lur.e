@@ -1,8 +1,7 @@
 import { placeWithCursor } from "../layout/ps-anchor.js";
 
 //
-const excSel = "ui-button";
-const ctx: string = "ui-modal[type=\"contextmenu\"]";
+const excSel = "ui-button", ctx: string = "ui-modal[type=\"contextmenu\"]";
 
 //
 export const hideOnClick = (ev?)=>{
