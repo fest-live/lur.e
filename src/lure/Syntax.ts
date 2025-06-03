@@ -3,8 +3,7 @@ import { observableArray } from "/externals/modules/object.js";
 import { getNode } from "./DOM"; import { E, M } from "./Element";
 
 //
-const EMap = new WeakMap();
-const parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
+const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
 const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType === Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.startsWith("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
 const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[])=>{
     if (!el) return el;
@@ -37,8 +36,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
             const ex = E(el, {aria, attributes, dataset, style, properties, on, ctrls}, mapped.has(el) ? M(iterate, mapped.get(el)) : observableArray(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
             EMap.set(el, ex); return ex?.element ?? el;
         }); };
-    }
-    return el;
+    }; return el;
 }
 
 //
@@ -107,6 +105,5 @@ export const H = (str: any, ...values: any[])=>{
     } else
     if (typeof str == "function") { return H(str?.()); } else
     if (Array.isArray(str) && values) { return html(str, ...values); } else
-    if (str instanceof Node) { return str; }
-    return null;
+    if (str instanceof Node) { return str; }; return null;
 }
