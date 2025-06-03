@@ -1,3 +1,5 @@
+import AxGesture from "../../ext/interact/Gesture";
+
 // @ts-ignore /* @vite-ignore */
 import {importCdn} from "/externals/modules/cdnImport.mjs";
 

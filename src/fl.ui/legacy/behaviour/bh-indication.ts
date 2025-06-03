@@ -1,4 +1,4 @@
-import { setAttributes } from "../../$ext$/shared/Utils";
+import { setAttributes } from "../../ext/core/Utils";
 
 //
 export const doIndication = (ev?: any, self?: HTMLElement, input?: HTMLInputElement)=>{

@@ -62,15 +62,12 @@ export const taskManage = (self, taskManager) => { taskManager.on("*", ({task, i
 export const focusTask  = (taskManager, target: HTMLElement, deActiveWhenFocus = false)=>{
     const targetId = ((target as any)?.taskId || target.dataset.id || target.querySelector(".ui-content")?.id || target.id || "");
     const hash = "#" + targetId?.replace?.("#", "");
-    if (taskManager?.inFocus?.(hash, false) && matchMedia("((hover: hover) or (pointer: fine)) and ((width >= 9in) or (orientation: landscape))").matches && deActiveWhenFocus) {
-        taskManager?.deactivate?.(hash);
-    } else {
-        taskManager?.focus?.(hash);
-    }
+    if (taskManager?.inFocus?.(hash, false) && matchMedia("((hover: hover) or (pointer: fine)) and ((width >= 9in) or (orientation: landscape))").matches && deActiveWhenFocus)
+        { taskManager?.deactivate?.(hash); } else
+        { taskManager?.focus?.(hash); }
 
     //
     const bar = document.querySelector("ui-taskbar") as HTMLElement;
-    if (matchMedia("not (((hover: hover) or (pointer: fine)) and ((width >= 9in) or (orientation: landscape)))").matches) {
-        if (bar) { bar.dataset.hidden = ""; };
-    }
+    if (matchMedia("not (((hover: hover) or (pointer: fine)) and ((width >= 9in) or (orientation: landscape)))").matches)
+        { if (bar) { bar.dataset.hidden = ""; }; }
 }

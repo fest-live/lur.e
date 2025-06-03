@@ -1,0 +1,38 @@
+@scope(:host, :root, :scope) {
+    @property --client-x { initial-value: 0; syntax: "<number>"; inherits: true; };
+    @property --client-y { initial-value: 0; syntax: "<number>"; inherits: true; };
+
+    //
+    @property --page-x { initial-value: 0; syntax: "<number>"; inherits: true; };
+    @property --page-y { initial-value: 0; syntax: "<number>"; inherits: true; };
+};
+
+//
+@mixin ps-anchor {
+    // fallback
+    & {
+        inset-inline-start: max(calc(var(--client-x, 0) * 1px), 0px);
+        inset-block-start: max(calc(var(--client-y, 0) * 1px), 0px);
+        inset-inline-end: auto;
+        inset-block-end: auto;
+
+        // by default not prefer
+        direction: ltr;
+        writing-mode: horizontal-tb;
+        translate: 0% 0% 0%;
+    };
+
+    //
+    & {
+        --translate-x: round(nearest, min(0px, calc(100cqi - (100% + var(--client-x, 0) * 1px))), calc(1px / var(--pixel-ratio, 1))) !important;
+        --translate-y: round(nearest, min(0px, calc(100cqb - (100% + var(--client-y, 0) * 1px))), calc(1px / var(--pixel-ratio, 1))) !important;
+    };
+
+    // from bottom side (without gap)
+    @supports(position-anchor: --example) {
+        position-anchor: var(--anchor-group);
+        inset-inline-start: anchor(var(--anchor-group) start);
+        inset-block-start: anchor(var(--anchor-group) end);
+        inline-size: anchor-size(var(--anchor-group) self-inline);
+    }
+};

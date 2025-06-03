@@ -3,7 +3,7 @@ import {importCdn} from "/externals/modules/cdnImport.mjs";
 
 //
 export const generateId = (len = 16) => {
-    var arr = new Uint8Array((len || 16) / 2); window.crypto.getRandomValues(arr);
+    const arr = new Uint8Array((len || 16) / 2); window.crypto.getRandomValues(arr);
     return Array.from(arr, (dec)=>dec.toString(16).padStart(2, "0")).join('')
 }
 

@@ -1,0 +1,44 @@
+@scope(
+    :scope,
+    :host,
+    :root
+)
+{
+    @property --drag-d { initial-value: 0.01; syntax: "<number>"; inherits: true; }
+    @property --drag-x { initial-value: 0; syntax: "<number>"; inherits: true; }
+    @property --drag-y { initial-value: 0; syntax: "<number>"; inherits: true; }
+    @property --rx { initial-value: 0px; syntax: "<length-percentage>"; inherits: true; }
+    @property --ry { initial-value: 0px; syntax: "<length-percentage>"; inherits: true; }
+    @property --sp-x { initial-value: 0px; syntax: "<length-percentage>"; inherits: true; }
+    @property --sp-y { initial-value: 0px; syntax: "<length-percentage>"; inherits: true; }
+    @property --bound-inline-size { initial-value: 100cqi; syntax: "<length-percentage>"; inherits: true; }
+    @property --bound-block-size { initial-value: 100cqb; syntax: "<length-percentage>"; inherits: true; }
+    @property --limit-shift-x { initial-value: 100%; syntax: "<length-percentage>"; inherits: true; }
+    @property --limit-shift-y { initial-value: 100%; syntax: "<length-percentage>"; inherits: true; }
+    @property --limit-drag-x { initial-value: 100%; syntax: "<length-percentage>"; inherits: true; }
+    @property --limit-drag-y { initial-value: 100%; syntax: "<length-percentage>"; inherits: true; }
+    @property --ds-x { initial-value: 0px; syntax: "<length-percentage>"; inherits: true; }
+    @property --ds-y { initial-value: 0px; syntax: "<length-percentage>"; inherits: true; }
+};
+
+//
+@mixin ps-draggable {
+    & { position: fixed; };
+    & {
+        inset-inline-start: calc(var(--sp-x, 0px) + var(--rs-x, 0) * 0.5 + 50%);//var(--ds-x, 0px);
+        inset-block-start : calc(var(--sp-y, 0px) + var(--rs-y, 0) * 0.5 + 50%);//var(--ds-y, 0px);
+        inset-inline-end  : auto;
+        inset-block-end   : auto;
+        touch-action: none;
+        translate: 0% 0% 0%;
+        transform-origin: 0% 0%;
+
+        //
+        --translate-x: calc(var(--ds-x, 0px) - 50%) !important;
+        --translate-y: calc(var(--ds-y, 0px) - 50%) !important;
+
+        // by default not prefer
+        direction: ltr;
+        writing-mode: horizontal-tb;
+    };
+};

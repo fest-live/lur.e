@@ -1,4 +1,4 @@
-import { placeWithCursor } from "@service/layout/ps-anchor.js";
+import { placeWithCursor } from "../layout/ps-anchor.js";
 
 //
 const excSel = "ui-button";

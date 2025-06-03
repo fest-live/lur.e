@@ -1,19 +1,12 @@
 // @ts-ignore /* @vite-ignore */
 import { importCdn } from "/externals/modules/cdnImport.mjs";
-
-//
-import { includeSelf } from "./Utils";
-import { ScrollBar } from "./Scrollbar";
+import { ScrollBar } from "../ext/scrollbar/Scrollbar";
+import { includeSelf } from "../ext/core/Utils";
 
 // @ts-ignore /* @vite-ignore */
 const { observeBySelector } = await Promise.try(importCdn, ["/externals/modules/dom.js"]);
 export const doButtonAction = (button, input: HTMLInputElement)=>{
-    //
-    if (button.matches(".u2-copy") && input?.matches?.("input") && (input?.selectionStart != input?.selectionEnd)) {
-        navigator.clipboard.writeText(input.value.substring(input.selectionStart || 0, input.selectionEnd || input.selectionStart || 0));
-    }
-
-    //
+    if (button.matches(".u2-copy") && input?.matches?.("input") && (input?.selectionStart != input?.selectionEnd)) { navigator.clipboard.writeText(input.value.substring(input.selectionStart || 0, input.selectionEnd || input.selectionStart || 0)); }
     if (button.matches(".u2-paste") && input?.selectionStart != null) {
         navigator.clipboard.readText().then(
             (clipText) => {
@@ -178,20 +171,8 @@ export const makeInput = (host?: HTMLElement, ROOT = document.documentElement)=>
     }
 
     //
-    const toFocus = ()=>{
-        if (document.activeElement != input) {
-            input?.focus?.();
-        }
-    };
-
-    //
-    const preventDrag = (ev)=>{
-        ev.preventDefault();
-        if (ev.dataTransfer) {
-            ev.dataTransfer.dropEffect = "none";
-        }
-    }
-
+    const toFocus = ()=>{ if (document.activeElement != input) { input?.focus?.(); } }
+    const preventDrag = (ev)=>{ ev.preventDefault(); if (ev.dataTransfer) { ev.dataTransfer.dropEffect = "none"; } }
     {   //
         const box = host?.shadowRoot?.querySelector?.(".u2-input-box") as HTMLElement;
         box?.addEventListener?.("scroll"   , preventScroll, {capture: true, passive: true});
@@ -267,30 +248,16 @@ export const synchronizeInputs = (state, wrapper = ".u2-input", fields = documen
     //
     fields.addEventListener("input", onChange);
     fields.addEventListener("change", onChange);
-
-    //
-    requestIdleCallback(()=>{
-        fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target));
-    }, {timeout: 100});
+    fields.addEventListener("u2-appear", ()=>requestIdleCallback(()=> fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target)), {timeout: 100}));
 
     // cross-window or frame syncretism
-    subscribe?.(state, (value, property)=>{
-        fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target));
-    });
-
-    //
+    subscribe?.(state, (value, property)=>{ fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target)); });
+    requestIdleCallback(()=>{ fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target)); }, {timeout: 100});
     observeBySelector(fields, wrapper, (mutations)=>{
         mutations.addedNodes.forEach((target)=>{
             requestIdleCallback(()=>{
                 updateInput(state, target);
             }, {timeout: 100});
         });
-    });
-
-    //
-    fields.addEventListener("u2-appear", ()=>{
-        requestIdleCallback(()=>{
-            fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target));
-        }, {timeout: 100});
     });
 }

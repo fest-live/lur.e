@@ -1,0 +1,39 @@
+@scope(
+    :scope,
+    :host,
+    :root
+)
+{
+    @property --resize-d { initial-value: 0.01; syntax: "<number>"; inherits: true; }
+    @property --resize-x { initial-value: 0; syntax: "<number>"; inherits: true; }
+    @property --resize-y { initial-value: 0; syntax: "<number>"; inherits: true; }
+    @property --inline-size { initial-value: 100%; syntax: "<length-percentage>"; inherits: true; }
+    @property --block-size  { initial-value: 100%; syntax: "<length-percentage>"; inherits: true; }
+    @property --bound-inline-size { initial-value: 100cqi; syntax: "<length-percentage>"; inherits: true; }
+    @property --bound-block-size  { initial-value: 100cqb; syntax: "<length-percentage>"; inherits: true; }
+    @property --rs-x { initial-value: 0px; syntax: "<length-percentage>"; inherits: true; }
+    @property --rs-y { initial-value: 0px; syntax: "<length-percentage>"; inherits: true; }
+    @property --initial-inline-size { initial-value: 100%; syntax: "<length-percentage>"; inherits: true; }
+    @property --initial-block-size  { initial-value: 100%; syntax: "<length-percentage>"; inherits: true; }
+};
+
+//
+@mixin ps-resizable {
+    & {
+        inline-size: 100%;
+        block-size: 100%;
+
+        // by default not prefer
+        direction: ltr;
+        writing-mode: horizontal-tb;
+    };
+
+    /* */
+    & {
+        min-inline-size: var(--initial-inline-size, 0px);
+        min-block-size : var(--initial-block-size , 0px);
+        inline-size:   clamp(0px, var(--inline-size, 100%), calc(var(--bound-inline-size, 0px) /*- var(--rx, 0px)*/));
+        block-size :   clamp(0px, var(--block-size , 100%), calc(var(--bound-block-size , 0px) /*- var(--ry, 0px)*/));
+        touch-action: none;
+    };
+};

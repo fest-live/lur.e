@@ -1,5 +1,5 @@
 import AxGesture from "./Gesture";
-import { setProperty } from "./Utils";
+import { setProperty } from "../core/Utils";
 
 // @ts-ignore /* @vite-ignore */
 import { importCdn } from "/externals/modules/cdnImport.mjs";
