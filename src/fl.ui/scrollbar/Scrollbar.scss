@@ -1,6 +1,4 @@
 @mixin anchor($name: "ux-scrollbox") { & { anchor-name : --#{$name}; } }
-
-//
 @mixin scroll-tm($source: "", $name: "ux-scrollbox", $axis: "block") {
     & #{$source} { scroll-timeline-axis :   #{$axis}; }
     & #{$source} { scroll-timeline-name : --#{$name}; }
@@ -21,9 +19,8 @@
     &                 { timeline-scope: --#{$name}; }
 }
 
-
-
 //
+@function lerp($a, $b, $i: "var(--percent, 0)") { @return calc(#{$a} * #{$i} + #{$b} * (1 - #{$i})); }
 @function starts-with ($string, $prefix) { @return str-slice($string, 1, str-length($prefix)) == $prefix; }
 @function strip-prefix($string, $prefix) { @if   starts-with($string, $prefix) { @return str-slice($string, str-length($prefix) + 1); }; @return $string; }
 
@@ -48,8 +45,6 @@
         @keyframes #{$name} { from { #{$prop}: 0.0; }; to { #{$prop}: 1.0; }}
     }}
 
-
-
 //
 $counter: 0;
 @mixin timeline-interpol-coef($property: "percent", $timeline: "ux-scrollbox", $name: "percent-coef-A" + $counter) {
@@ -59,7 +54,6 @@ $counter: 0;
 }
 
 //
-@function lerp($a, $b, $i: "var(--percent, 0)") { @return calc(#{$a} * #{$i} + #{$b} * (1 - #{$i})); }
 @include  inner-property();
 
 //
