@@ -37,8 +37,7 @@ const makeTimeline = (source, axis: number)=>{
     const scroll   = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
     const content  = sizeRef  (source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
     const percent  = computed (scroll, (vl)=> ((vl || 0) / ((target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] - content?.value) || 1)));
-    subscribe(content,  (vl: any)=>((scroll?.value || 0) / ((target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] - vl) || 1)));
-    return percent;
+    subscribe(content,  (vl: any)=>((scroll?.value || 0) / ((target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] - vl) || 1))); return percent;
 }
 
 //
@@ -48,8 +47,7 @@ const scrollbarCoef  = (source: HTMLElement, axis: number)=>{ // @ts-ignore
     const scroll  = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
     const content = sizeRef  (source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
     const percent = computed (content, (vl)=> (vl / target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]]));
-    subscribe(scroll, ()=>percent.value = (content?.value / (target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] || 1)));
-    return percent;
+    subscribe(scroll, ()=>percent.value = (content?.value / (target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] || 1))); return percent;
 }
 
 //

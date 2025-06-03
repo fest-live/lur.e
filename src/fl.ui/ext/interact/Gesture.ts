@@ -509,7 +509,7 @@ export class AxGesture {
         const {actionState}    = self;
         const [startX, startY] = actionState.startCoord;
         const [lastX, lastY]   = actionState.lastCoord;
-        const distance         = Math.hypot(lastX - startX, lastY - startY);
+        const  distance        = Math.hypot(lastX - startX, lastY - startY);
         return distance <= (self.options.maxOffsetRadius ?? 10);
     }
 
