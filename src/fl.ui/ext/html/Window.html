@@ -1,0 +1,12 @@
+<template>
+    <div class="ui-title-bar" part="ui-title-bar" data-alpha="0" data-highlight="0" data-scheme="solid">
+        <div class="ui-title-handle" part="ui-title-handle" data-alpha="0" data-highlight="0" data-scheme="solid"></div>
+        <slot name="ui-title-bar" data-alpha="0" data-highlight="0" data-scheme="solid"></slot>
+        <div class="ui-buttons" data-alpha="0" data-highlight="0" data-scheme="solid">
+            <button data-alpha="0" class="ui-btn-maximize" data-highlight="2" data-chroma="0.9" data-scheme="solid" data-highlight-hover="4"><ui-icon data-alpha="0" icon="maximize-2"/></button>
+            <button data-alpha="1" class="ui-btn-close" data-highlight="2" data-chroma="0.1" data-scheme="inverse" data-highlight-hover="4"><ui-icon data-alpha="0" icon="x"/></button>
+        </div>
+    </div>
+    <div data-scheme="solid" data-highlight="0" data-alpha="0" data-chroma="0" class="ui-content-box" part="ui-content"><slot></slot></div> <div style="background-color: transparent;" data-alpha="0" part="ui-resize" class="ui-resize"></div>
+    <canvas style="display: none;" class="ui-phantom" width="1" height="1"></canvas>
+</template>

@@ -5,6 +5,11 @@ import { unwrap, makeReactive, subscribe } from "/externals/modules/object.js";
 import { setStyleProperty } from "/externals/modules/dom.js";
 
 //
+const
+	MATCH = '(-?[_a-zA-Z]+[_a-zA-Z0-9-]*)',
+	REGEX = '^(?:' + MATCH + ')|^#' + MATCH + '|^\\.' + MATCH + '|^\\[' + MATCH + '(?:([*$|~^]?=)(["\'])((?:(?=(\\\\?))\\8.)*?)\\6)?\\]';
+
+//
 export class Tx {
     ref: any; constructor(ref) { this.ref = ref || makeReactive({ value: null }); }
     get ["@virtual"]() { return true; };
@@ -21,11 +26,6 @@ export class Tx {
         return element;
     }
 }
-
-//
-const
-	MATCH = '(-?[_a-zA-Z]+[_a-zA-Z0-9-]*)',
-	REGEX = '^(?:' + MATCH + ')|^#' + MATCH + '|^\\.' + MATCH + '|^\\[' + MATCH + '(?:([*$|~^]?=)(["\'])((?:(?=(\\\\?))\\8.)*?)\\6)?\\]';
 
 //
 export const deleteStyleProperty = (element, name)=>{ element.style.removeProperty(camelToKebab(name)); }

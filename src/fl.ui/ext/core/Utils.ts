@@ -1,8 +1,5 @@
 // @ts-ignore /* @vite-ignore */
-import { importCdn } from "/externals/modules/cdnImport.mjs";
-
-// @ts-ignore /* @vite-ignore */
-import { orientOf } from "/externals/modules/dom.js";
+import { orientOf, loadInlineStyle, setStyleProperty } from "/externals/modules/dom.js";
 
 //
 export interface InteractStatus { pointerId?: number; };
@@ -98,8 +95,6 @@ export const doContentObserve = (element, cb: any = ()=>{}) => {
                     if (contentBoxSize) {
                         element[contentBoxWidth]  = Math.min(contentBoxSize.inlineSize, element.clientWidth);
                         element[contentBoxHeight] = Math.min(contentBoxSize.blockSize, element.clientHeight);
-                        //element[contentBoxWidth]  = (contentBoxSize.inlineSize + (getPxValue(element, "padding-left") + getPxValue(element, "padding-right" ))) * fixedClientZoom(element);
-                        //element[contentBoxHeight] = (contentBoxSize.blockSize  + (getPxValue(element, "padding-top")  + getPxValue(element, "padding-bottom"))) * fixedClientZoom(element);
                         cb?.(element);
                     }
                 }
@@ -163,7 +158,15 @@ export const blockClickTrigger = (_: MouseEvent | PointerEvent | TouchEvent | nu
 
 //
 export const getPxValue = (element, name)=>{
-    if ("computedStyleMap" in element)  { const cm = element?.computedStyleMap(); return cm.get(name)?.value || 0; } else
-    if (element instanceof HTMLElement) { const cs = getComputedStyle(element, ""); return (parseFloat(cs.getPropertyValue(name)?.replace?.("px", "")) || 0); }
+    if ("computedStyleMap" in element)  { const cm = element?.computedStyleMap?.();   return cm.get(name)?.value || 0; } else
+    if (element instanceof HTMLElement) { const cs = getComputedStyle?.(element, ""); return (parseFloat(cs.getPropertyValue(name)?.replace?.("px", "")) || 0); }
     return 0;
+}
+
+//
+export const preloadStyle = (styles: string)=>{
+    const preInit = URL.createObjectURL(new Blob([styles], {type: "text/css"}));
+    const loading = fetch(preInit, {priority: "high", keepalive: true, cache: "force-cache", mode: "same-origin"});
+    const styled  = loadInlineStyle(preInit, null, "ux-layer");
+    return styled;
 }

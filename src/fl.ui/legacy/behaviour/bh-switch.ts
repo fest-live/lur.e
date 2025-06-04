@@ -149,10 +149,4 @@ export const makeSwitchBH = async (self?: HTMLElement)=>{
             ROOT.addEventListener("pointermove", whenMove);
         }
     }));
-
-    //
-    /*self?.addEventListener?.("click", agWrapEvent((ev: any)=>{
-        const boundingBox = getBoundingOrientRect?.(self);
-        doExaction(weak?.deref?.(), ev.orient[0], ev.orient[1], true, boundingBox, ev?.type);
-    }));*/
 };

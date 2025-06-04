@@ -1,15 +1,11 @@
-// @ts-ignore /* @vite-ignore */
-import {importCdn} from "/externals/modules/cdnImport.mjs";
 import { bbh, bbw, blockClickTrigger, borderBoxHeight, borderBoxWidth, cbh, cbw, clamp, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT, setProperty, type InteractStatus } from "../core/Utils";
 
 // @ts-ignore /* @vite-ignore */
-const { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } = await Promise.try(importCdn, ["/externals/modules/dom.js"]);
-// @ts-ignore /* @vite-ignore */
-const { ref } = await Promise.try(importCdn, ["/externals/modules/object.js"]);
-// @ts-ignore /* @vite-ignore */
-const { E } = await Promise.try(importCdn, ["/externals/modules/blue.js"]);
+import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "/externals/modules/dom.js"; // @ts-ignore /* @vite-ignore */
+import { ref } from "/externals/modules/object.js"; // @ts-ignore /* @vite-ignore */
+import {  E  } from "/externals/modules/blue.js";
 
-//resizing = [ref(0), ref(0)];
+//
 export class AxGesture {
     #holder: HTMLElement;
     #resizing = [{value: 0}, {value: 0}];

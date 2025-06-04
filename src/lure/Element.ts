@@ -39,6 +39,7 @@ export class El {
     selector: string;
 
     //
+    reform() { if ((this.element instanceof HTMLElement || this.element instanceof DocumentFragment) && this.children) { reformChildren(this.element, this.children); }; return this; }
     constructor(selector, params = {}, children?) {
         this.children = children || observableArray([]);
         this.params   = params;
@@ -122,9 +123,6 @@ export class El {
         elMap.set(this, element);
         return element;
     }
-
-    //
-    reform() { if ((this.element instanceof HTMLElement || this.element instanceof DocumentFragment) && this.children) { reformChildren(this.element, this.children); }; return this; }
 }
 
 //

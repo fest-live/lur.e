@@ -4,6 +4,8 @@ import { makeReactive, subscribe, ref } from "/externals/modules/object.js";
 // @ts-ignore /* @vite-ignore */
 import { observeAttributeBySelector, namedStoreMaps, boundBehaviors } from "/externals/modules/dom.js";
 
+
+
 // reacts by change storage, loads from storage, and reacts from storage event changes
 export const localStorageRef = (key, initial?: any)=>{
     const ref = makeReactive({value: localStorage.getItem(key) ?? (initial?.value ?? initial)});
@@ -19,7 +21,7 @@ export const localStorageRef = (key, initial?: any)=>{
 // reacts only from media, you can't change media condition
 export const matchMediaRef = (condition: string)=>{
     const med = matchMedia(condition), ref = makeReactive({value: med.matches});
-    med.addEventListener("change", (ev)=>ref.value = ev.matches); return ref;
+    med?.addEventListener?.("change", (ev)=>ref.value = ev.matches); return ref;
 }
 
 // one-shot update

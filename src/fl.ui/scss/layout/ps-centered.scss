@@ -1,12 +1,13 @@
-//
 @mixin ps-centered {
     & {
         inset-inline-start: max(50%, 0px);
         inset-block-start: max(50%, 0px);
         inset-inline-end: auto;
         inset-block-end: auto;
+        writing-mode: horizontal-tb;
 
-        //
+        // by default not prefer
+        direction: ltr;
         translate: 0% 0% 0%;
         transform:
             scale3d(var(--scale, 1), var(--scale, 1), var(--scale, 1))
@@ -16,12 +17,7 @@
             , 0%);
         transform-origin: 0% 0%;
 
-        // by default not prefer
-        direction: ltr;
-        writing-mode: horizontal-tb;
-
         //
-        --translate-x: 0px;
-        --translate-y: 0px;
+        --translate-x: 0px; --translate-y: 0px;
     };
 };
