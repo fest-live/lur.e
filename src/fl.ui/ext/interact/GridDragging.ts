@@ -1,4 +1,4 @@
-import AxGesture from "./Gesture";
+import    AxGesture    from "./Gesture";
 import { setProperty } from "../core/Utils";
 
 // @ts-ignore /* @vite-ignore */
