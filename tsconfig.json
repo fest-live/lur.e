@@ -1,16 +1,11 @@
 {
-    "include": ["./src/**/*", "./src/*", "../object.ts/src/$core$/Array.ts"],
-    "exclude": [
-        "./test/**/*", "./dist/**/*", "./u2re/**/*",
-        "node_modules/**", "u2re/**", "frontend/**"
-    ],
+    "include": ["./src/**/*"],
+    "exclude": ["./test/**/*", "./dist/**/*", "./externals/**/*"],
     "compilerOptions": {
         "paths": {
-            "u2re/*": ["../*"],
-            "u2re-src/*": ["../*"]
+            "u2re/*": ["./externals/modules/*"],
+            "u2re-src/*": ["../*"],
         },
-        "baseUrl": "./",
-        "experimentalDecorators": true,
         "target": "ESNext",
         "module": "ESNext",
         "lib": ["ESNext", "DOM", "WebWorker"],
@@ -24,12 +19,11 @@
         "allowUnreachableCode": true,
         "allowUnusedLabels": true,
         "noImplicitAny": false,
+        "declaration": false,
         "noImplicitThis": false,
-        "inlineSources": false,
+        "inlineSources": true,
         "inlineSourceMap": true,
         "sourceMap": false,
-        "skipLibCheck": true,
-        "allowImportingTsExtensions": true,
-        "noEmit": true,
-    }
+        "typeRoots": ["plugins/global.d.ts"]
+    },
 }

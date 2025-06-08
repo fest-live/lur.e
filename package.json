@@ -9,15 +9,20 @@
         "preview": "vite preview"
     },
     "devDependencies": {
-        "@danielx/civet": "^0.10.1",
+        "@danielx/civet": "^0.10.4",
         "@rollup/plugin-terser": "^0.4.4",
         "@rollup/plugin-typescript": "^12.1.2",
+        "cssnano": "^7.0.7",
+        "cssnano-preset-advanced": "^7.0.7",
+        "postcss-preset-env": "^10.2.1",
         "sass-embedded": "^1.89.1",
+        "terser": "^5.41.0",
         "typescript": "~5.7.2",
         "vite": "^6.2.4",
-        "vite-plugin-compression2": "^1.3.3",
-        "vite-plugin-external": "^6.0.1",
+        "vite-plugin-compression2": "^1.4.0",
+        "vite-plugin-external": "^6.2.2",
         "vite-plugin-externalize-deps": "^0.9.0",
-        "vite-plugin-optimizer": "^1.4.3"
+        "vite-plugin-optimizer": "^1.4.3",
+        "vite-tsconfig-paths": "^5.1.4"
     }
 }
