@@ -1,5 +1,5 @@
-import {resolve} from "node:path";
-import {readFile} from "node:fs/promises";
+import { resolve  } from "node:path";
+import { readFile } from "node:fs/promises";
 
 //
 function objectAssign(target, ...sources) {
@@ -33,10 +33,10 @@ const importConfig = (url, ...args)=>{
 export const NAME = "blue"; // TODO! rename to lure
 export const __dirname = resolve(import.meta.dirname, "./");
 export default objectAssign(
-    {},
-    importConfig(resolve(__dirname, "../shared/rollup.config.js"),
+    await importConfig(resolve(__dirname, "../shared/vite.config.js"),
         NAME,
         await readFile(resolve(__dirname, "./tsconfig.json"), {encoding: "utf8"}),
         __dirname
-    )
+    ),
+    {}
 );
