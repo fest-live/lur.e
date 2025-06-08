@@ -1,5 +1,5 @@
 // @ts-ignore /* @vite-ignore */
-import { observableArray } from "/externals/modules/object.js";
+import { observableArray } from "u2re/object";
 import { getNode } from "./DOM"; import { E, M } from "./Element";
 
 //

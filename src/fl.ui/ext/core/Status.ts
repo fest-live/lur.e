@@ -1,7 +1,7 @@
 import { setIdleInterval } from "./Utils";
 
 // @ts-ignore /* @vite-ignore */
-import { ref } from "/externals/modules/object.ts";
+import { ref } from "u2re/object.ts";
 
 //
 export const batteryStatusRef = ()=>{

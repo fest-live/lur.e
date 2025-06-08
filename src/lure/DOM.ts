@@ -1,8 +1,8 @@
 // @ts-ignore /* @vite-ignore */
-import { unwrap, makeReactive, subscribe } from "/externals/modules/object.js";
+import { unwrap, makeReactive, subscribe } from "u2re/object";
 
 // @ts-ignore /* @vite-ignore */
-import { setStyleProperty } from "/externals/modules/dom.js";
+import { setStyleProperty } from "u2re/dom";
 
 //
 const

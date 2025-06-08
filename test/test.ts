@@ -3,7 +3,7 @@ import { css, defineElement, GLitElement, property } from "../src/lure/Glit";
 import { H } from "../src/lure/Syntax";
 
 // @ts-ignore /* @vite-ignore */
-import { ref, makeReactive, assign } from "/externals/modules/object.js";
+import { ref, makeReactive, assign } from "u2re/object";
 
 //
 @defineElement("x-block")

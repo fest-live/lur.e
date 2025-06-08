@@ -1,5 +1,5 @@
 // @ts-ignore /* @vite-ignore */
-import { orientOf, loadInlineStyle, setStyleProperty } from "/externals/modules/dom.js";
+import { orientOf, loadInlineStyle, setStyleProperty } from "u2re/dom";
 
 //
 export interface InteractStatus { pointerId?: number; };

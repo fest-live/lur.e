@@ -1,11 +1,11 @@
 // @ts-ignore /* @vite-ignore */
-import { computed, subscribe } from "/externals/modules/object.js";
+import { computed, subscribe } from "u2re/object";
 
 // @ts-ignore /* @vite-ignore */
-import { setProperty, zoomOf } from "/externals/modules/dom.js";
+import { setProperty, zoomOf } from "u2re/dom";
 
 // @ts-ignore /* @vite-ignore */
-import { scrollRef, sizeRef } from "/externals/modules/blue.js";
+import { scrollRef, sizeRef } from "u2re/lure";
 
 //
 export interface ScrollBarStatus {

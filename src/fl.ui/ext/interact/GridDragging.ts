@@ -1,14 +1,14 @@
 // @ts-ignore /* @vite-ignore */
-import {  importCdn  } from "/externals/modules/cdnImport.mjs";
+import {  importCdn  } from "u2re/cdnImport";
 import { setProperty } from "../core/Utils";
 import    AxGesture    from "./Gesture";
 
 //
 export const reflectCell = async (newItem: any, pArgs: any, withAnimate = false)=>{
     // @ts-ignore /* @vite-ignore */
-    const { redirectCell } = await Promise.try(importCdn, ["/externals/modules/dom.js"]);
+    const { redirectCell } = await Promise.try(importCdn, ["u2re/dom"]);
     // @ts-ignore
-    const {subscribe, makeObjectAssignable, makeReactive } = await Promise.try(importCdn, ["/externals/modules/object.js"]);
+    const {subscribe, makeObjectAssignable, makeReactive } = await Promise.try(importCdn, ["u2re/object"]);
     const layout = [pArgs?.layout?.columns || pArgs?.layout?.[0] || 4, pArgs?.layout?.rows || pArgs?.layout?.[1] || 8];
     const {item, list, items} = pArgs;
     await new Promise((r)=>requestAnimationFrame(r));
@@ -28,13 +28,13 @@ export const ROOT = document.documentElement;
 export const bindInteraction = async (newItem: any, pArgs: any)=>{
 
     // @ts-ignore /* @vite-ignore */
-    const { grabForDrag, redirectCell, getBoundingOrientRect, agWrapEvent, orientOf, convertOrientPxToCX, doAnimate } = await Promise.try(importCdn, ["/externals/modules/dom.js"]);
+    const { grabForDrag, redirectCell, getBoundingOrientRect, agWrapEvent, orientOf, convertOrientPxToCX, doAnimate } = await Promise.try(importCdn, ["u2re/dom"]);
 
     // @ts-ignore /* @vite-ignore */
-    const { ref, subscribe } = await Promise.try(importCdn, ["/externals/modules/object.js"]);
+    const { ref, subscribe } = await Promise.try(importCdn, ["u2re/object"]);
 
     // @ts-ignore /* @vite-ignore */
-    const { E } = await Promise.try(importCdn, ["/externals/modules/blue.js"]);
+    const { E } = await Promise.try(importCdn, ["u2re/lure"]);
     await new Promise((r)=>requestAnimationFrame(r)); reflectCell(newItem, pArgs, true);
     const {item, list, items} = pArgs, layout = [pArgs?.layout?.columns || pArgs?.layout?.[0] || 4, pArgs?.layout?.rows || pArgs?.layout?.[1] || 8];
     const dragging    = [ ref(0), ref(0) ], gesture = new AxGesture(newItem);

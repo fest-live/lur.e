@@ -1,12 +1,12 @@
 // @ts-ignore /* @vite-ignore */
-import { importCdn } from "/externals/modules/cdnImport.mjs";
+import { importCdn } from "u2re/cdnImport";
 
 // @ts-ignore /* @vite-ignore */
-import { Q, loadInlineStyle, addRoot } from "/externals/modules/dom.js";
+import { Q, loadInlineStyle, addRoot } from "u2re/dom";
 import { E } from "./Element";
 
 // @ts-ignore /* @vite-ignore */
-import { makeReactive , ref, subscribe, observableArray } from "/externals/modules/object.js";
+import { makeReactive , ref, subscribe, observableArray } from "u2re/object";
 import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "./Binding";
 
 //
@@ -219,7 +219,7 @@ export const GLitElement = (derrivate = HTMLElement)=>{
         protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
 
         // @ts-ignore
-        public loadThemeLibrary() { const root = this.shadowRoot; return Promise.try(importCdn, ["/externals/modules/theme.js"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
+        public loadThemeLibrary() { const root = this.shadowRoot; return Promise.try(importCdn, ["u2re/theme"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
         public createShadowRoot() { return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as any; }
         public connectedCallback() {
             const weak = new WeakRef(this);

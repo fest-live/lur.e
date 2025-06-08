@@ -1,14 +1,15 @@
 {
     "include": ["./src/**/*", "./src/*", "../object.ts/src/$core$/Array.ts"],
     "exclude": [
-        "./test/**/*", "./dist/**/*", "./externals/**/*",
-        "node_modules/**", "externals/**", "frontend/**"
+        "./test/**/*", "./dist/**/*", "./u2re/**/*",
+        "node_modules/**", "u2re/**", "frontend/**"
     ],
     "compilerOptions": {
-        "baseUrl": "./",
         "paths": {
-            "/externals/*": ["externals/*"],
+            "u2re/*": ["../*"],
+            "u2re-src/*": ["../*"]
         },
+        "baseUrl": "./",
         "experimentalDecorators": true,
         "target": "ESNext",
         "module": "ESNext",

@@ -1,13 +1,13 @@
 import AxGesture from "../../ext/interact/Gesture";
 
 // @ts-ignore /* @vite-ignore */
-import {importCdn} from "/externals/modules/cdnImport.mjs";
+import {importCdn} from "u2re/cdnImport";
 
 //
 const ROOT = document.documentElement;
 export const runTooltip = async ()=>{
     // @ts-ignore
-    const { getBoundingOrientRect, agWrapEvent, pointerMap } = await Promise.try(importCdn, ["/externals/modules/dom.js"]);
+    const { getBoundingOrientRect, agWrapEvent, pointerMap } = await Promise.try(importCdn, ["u2re/dom"]);
 
     //
     const timer = Symbol("@disappear");

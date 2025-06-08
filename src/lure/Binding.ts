@@ -1,20 +1,18 @@
 // @ts-ignore /* @vite-ignore */
-import { makeReactive, subscribe, ref } from "/externals/modules/object.js";
+import { makeReactive, subscribe, ref } from "u2re/object";
 
 // @ts-ignore /* @vite-ignore */
-import { observeAttributeBySelector, namedStoreMaps, boundBehaviors } from "/externals/modules/dom.js";
-
-
+import { observeAttributeBySelector, namedStoreMaps, boundBehaviors } from "u2re/dom";
 
 // reacts by change storage, loads from storage, and reacts from storage event changes
 export const localStorageRef = (key, initial?: any)=>{
     const ref = makeReactive({value: localStorage.getItem(key) ?? (initial?.value ?? initial)});
+    subscribe([ref, "value"], (val)=> localStorage.setItem(key, val));
     addEventListener("storage", (ev)=>{
         if (ev.storageArea == localStorage && ev.key == key) {
             if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
         }
     });
-    subscribe([ref, "value"], (val)=> localStorage.setItem(key, val));
     return ref;
 }
 

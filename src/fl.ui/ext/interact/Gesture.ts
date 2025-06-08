@@ -1,9 +1,9 @@
 import { bbh, bbw, blockClickTrigger, borderBoxHeight, borderBoxWidth, cbh, cbw, clamp, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT, setProperty, type InteractStatus } from "../core/Utils";
 
 // @ts-ignore /* @vite-ignore */
-import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "/externals/modules/dom.js"; // @ts-ignore /* @vite-ignore */
-import { ref } from "/externals/modules/object.js"; // @ts-ignore /* @vite-ignore */
-import {  E  } from "/externals/modules/blue.js";
+import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "u2re/dom"; // @ts-ignore /* @vite-ignore */
+import { ref } from "u2re/object"; // @ts-ignore /* @vite-ignore */
+import {  E  } from "u2re/lure";
 
 //
 export class AxGesture {

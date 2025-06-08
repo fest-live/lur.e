@@ -2,13 +2,13 @@
 import styles from "@scss/foreign/fe-icon.scss?inline";
 
 // @ts-ignore /* @vite-ignore */
-import {importCdn} from "/externals/modules/cdnImport.mjs";
+import {importCdn} from "u2re/cdnImport";
 
 // @ts-ignore /* @vite-ignore */
-import { BLitElement, defineElement, E, H, property } from "/externals/modules/blue.js";
+import { BLitElement, defineElement, E, H, property } from "u2re/lure";
 
 // @ts-ignore /* @vite-ignore */
-import { subscribe } from "/externals/modules/object.js";
+import { subscribe } from "u2re/object";
 
 //
 import { preloadStyle } from "../ext/core/Utils";
@@ -52,7 +52,7 @@ export class UILucideIcon extends BLitElement() {
         if (icon ||= (this.icon?.value ?? (typeof this.icon == "string" ? this.icon : "")) || "");
 
         // @ts-ignore
-        Promise.try(importCdn, ["/externals/vendor/lucide.min.js"])?.then?.((icons)=>{
+        Promise.try(importCdn, ["/u2re/vendor/lucide.min.js"])?.then?.((icons)=>{
             const ICON = toCamelCase(icon || "");
             if (icons?.[ICON]) {
                 const self = this as any;

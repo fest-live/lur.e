@@ -1,5 +1,5 @@
 // @ts-ignore /* @vite-ignore */
-import { subscribe, observe } from "/externals/modules/object.js";
+import { subscribe, observe } from "u2re/object";
 import { kebabToCamel, appendChild, handleDataset, handleAttribute, handleStyleChange, removeNotExists } from "./DOM.js";
 
 //
