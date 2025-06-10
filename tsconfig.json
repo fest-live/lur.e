@@ -7,7 +7,7 @@
             "u2re-src/*": ["../*"],
             "u2re/cdnImport": ["../cdnImport.mjs"],
             "u2re/dom": ["../dom.ts/src/index.ts"],
-            "u2re/lure": ["../BLU.E/src/index.ts"],
+            "u2re/lure": ["./src/index.ts"],
             "u2re/object": ["../object.ts/src/index.ts"],
             "u2re/uniform": ["../uniform.ts/src/index.ts"],
             "u2re/theme": ["../theme.core/src/index.ts"],

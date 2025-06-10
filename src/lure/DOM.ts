@@ -1,6 +1,4 @@
-
 import { unwrap, makeReactive, subscribe } from "u2re/object";
-
 import { setStyleProperty } from "u2re/dom";
 
 //

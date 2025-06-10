@@ -3,7 +3,7 @@ import styles from "@scss/foreign/fe-icon.scss?inline";
 
 import {importCdn} from "u2re/cdnImport";
 
-import { BLitElement, defineElement, E, H, property } from "u2re/lure";
+import { BLitElement, defineElement, E, H, property } from "../..";
 
 import { subscribe } from "u2re/object";
 

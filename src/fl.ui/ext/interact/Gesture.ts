@@ -2,7 +2,7 @@ import { bbh, bbw, blockClickTrigger, borderBoxHeight, borderBoxWidth, cbh, cbw,
 
 import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "u2re/dom"; 
 import { ref } from "u2re/object"; 
-import {  E  } from "u2re/lure";
+import {  E  } from "../../..";
 
 //
 export class AxGesture {

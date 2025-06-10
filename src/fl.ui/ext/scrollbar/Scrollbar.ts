@@ -3,7 +3,7 @@ import { computed, subscribe } from "u2re/object";
 
 import { setProperty, zoomOf } from "u2re/dom";
 
-import { scrollRef, sizeRef } from "u2re/lure";
+import { scrollRef, sizeRef } from "../../..";
 
 //
 export interface ScrollBarStatus {

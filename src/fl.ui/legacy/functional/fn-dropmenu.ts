@@ -1,5 +1,5 @@
 import { placeWithElement } from "../layout/ps-anchor.js";
-import { closeContextMenu, openContextMenu } from "../functional/fn-contextmenu.js";
+import { closeContextMenu, openContextMenu } from "./fn-contextmenu.js";
 
 //
 export const openDropMenu = (button: any, ev?: any)=>{

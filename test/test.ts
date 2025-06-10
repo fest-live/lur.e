@@ -1,8 +1,9 @@
-import E from "../src/lure/Element";
-import { css, defineElement, GLitElement, property } from "../src/lure/Glit";
-import { H } from "../src/lure/Syntax";
-
 import { ref, makeReactive, assign } from "u2re/object";
+import { css, defineElement, GLitElement, property } from "../src/lure/Glit";
+
+//
+import { E } from "../src/lure/Element";
+import { H } from "../src/lure/Syntax";
 
 //
 @defineElement("x-block")
