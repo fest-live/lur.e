@@ -36,7 +36,17 @@ export class XBlock extends GLitElement() {
 
 //
 const children = ref("Движуха!");
-const style = makeReactive({ backgroundColor: "darkred", color: "white", inlineSize: "100px", blockSize: "100px" });
+const style = makeReactive({
+    backgroundColor: "darkred",
+    color: "white",
+    inlineSize: "100px",
+    blockSize: "100px",
+    display: "flex",
+    placeContent: "center",
+    placeItems: "center",
+    fontFamily: "\"Fira Code\"",
+    fontSize: "0.8em"
+});
 
 // create document fragment
 const dom = H`<${"x-block#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}><span>${children}</span></div>`;
