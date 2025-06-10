@@ -1,24 +1,7 @@
 
 import { subscribe, observe } from "u2re/object";
-import { kebabToCamel, appendChild, handleDataset, handleAttribute, handleStyleChange, removeNotExists } from "./DOM.js";
-
-//
-export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any)=>{
-    if (value?.value == null || value instanceof CSSStyleValue) return;
-    let controller: AbortController|null = null; // @ts-ignore
-    controller?.abort?.(); controller = new AbortController();
-
-    // sorry, we doesn't allow abuse that mechanic
-    subscribe([value, "value"], (curr, _, old) => {
-        if (set?.deref?.()?.style?.[prop] === value || !(set?.deref?.())) {
-            if (typeof value?.behaviour == "function") {
-                value?.behaviour?.([curr, (value = curr)=>handler(el?.deref?.(), prop, value), old], [controller?.signal, prop, el]);
-            } else {
-                handler(el?.deref?.(), prop, curr);
-            }
-        }
-    });
-}
+import { kebabToCamel, appendChild, handleDataset, handleAttribute, handleStyleChange, removeNotExists } from "./DOM";
+import { bindHandler } from "./Binding";
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{

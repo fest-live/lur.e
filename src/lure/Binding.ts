@@ -215,3 +215,21 @@ export const observeSize = (element, box, styles?) => {
     }).observe(element?.element ?? element?.self ?? element, {box});
     return styles;
 }
+
+//
+export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any)=>{
+    if (value?.value == null || value instanceof CSSStyleValue) return;
+    let controller: AbortController|null = null; // @ts-ignore
+    controller?.abort?.(); controller = new AbortController();
+
+    // sorry, we doesn't allow abuse that mechanic
+    subscribe([value, "value"], (curr, _, old) => {
+        if (set?.deref?.()?.style?.[prop] === value || !(set?.deref?.())) {
+            if (typeof value?.behaviour == "function") {
+                value?.behaviour?.([curr, (value = curr)=>handler(el?.deref?.(), prop, value), old], [controller?.signal, prop, el]);
+            } else {
+                handler(el?.deref?.(), prop, curr);
+            }
+        }
+    });
+}
