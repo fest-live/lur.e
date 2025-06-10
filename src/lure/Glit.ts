@@ -64,11 +64,8 @@ defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
     :where(
         :host(:not(:defined)),
         :not(:defined),
-        ::slotted(:not(:defined)),
-        :host:not(:has(style[loaded])),
-        :host
+        ::slotted(:not(:defined))
     ) {
-        display: none;
         :where(*:not(ui-icon) {
             content-visibility: hidden;
         }
@@ -76,7 +73,6 @@ defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
     :host:not(:has(style[loaded]))::slotted(*) { display: none; }
     :where(
         :host(:not(:defined)),
-        :host:not(:has(style[loaded])),
         ::slotted(:not(:defined))
     ) { display: none;
         ::slotted(ui-icon) { display: none; content-visibility: hidden; }

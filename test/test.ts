@@ -16,7 +16,7 @@ export class XBlock extends GLitElement() {
 
     //
     protected styles = function() {
-        return css`:host {opacity: ${this.opacity};}`;
+        return css`:host {opacity: ${this.opacity}; display: block; }`;
     }
 
     //
@@ -36,18 +36,15 @@ export class XBlock extends GLitElement() {
 
 //
 const children = ref("Движуха!");
-const style = makeReactive({backgroundColor: "black", color: "white", inlineSize: "100px", blockSize: "100px" });
-
-//
-const dStyle = makeReactive({ backgroundColor: "darkred", color: "white" });
+const style = makeReactive({ backgroundColor: "darkred", color: "white", inlineSize: "100px", blockSize: "100px" });
 
 // create document fragment
-const dom = H`<${"x-block#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}><span style=${dStyle}>${children}</span></div>`;
+const dom = H`<${"x-block#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}><span>${children}</span></div>`;
 
 //
 setTimeout(()=>{
     children.value = "Разруха!";
-    dStyle.backgroundColor = "darkblue";
+    style.backgroundColor = "darkblue";
 }, 1000);
 
 //
