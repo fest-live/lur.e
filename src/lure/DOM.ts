@@ -1,7 +1,6 @@
-// @ts-ignore /* @vite-ignore */
+
 import { unwrap, makeReactive, subscribe } from "u2re/object";
 
-// @ts-ignore /* @vite-ignore */
 import { setStyleProperty } from "u2re/dom";
 
 //

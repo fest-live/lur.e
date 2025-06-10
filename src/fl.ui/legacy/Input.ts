@@ -1,9 +1,8 @@
-// @ts-ignore /* @vite-ignore */
+
 import { importCdn } from "u2re/cdnImport";
 import { ScrollBar } from "../ext/scrollbar/Scrollbar";
 import { includeSelf } from "../ext/core/Utils";
 
-// @ts-ignore /* @vite-ignore */
 const { observeBySelector } = await Promise.try(importCdn, ["u2re/dom"]);
 export const doButtonAction = (button, input: HTMLInputElement)=>{
     if (button.matches(".u2-copy") && input?.matches?.("input") && (input?.selectionStart != input?.selectionEnd)) { navigator.clipboard.writeText(input.value.substring(input.selectionStart || 0, input.selectionEnd || input.selectionStart || 0)); }

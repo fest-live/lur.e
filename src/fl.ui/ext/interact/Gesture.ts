@@ -1,8 +1,7 @@
 import { bbh, bbw, blockClickTrigger, borderBoxHeight, borderBoxWidth, cbh, cbw, clamp, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT, setProperty, type InteractStatus } from "../core/Utils";
 
-// @ts-ignore /* @vite-ignore */
-import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "u2re/dom"; // @ts-ignore /* @vite-ignore */
-import { ref } from "u2re/object"; // @ts-ignore /* @vite-ignore */
+import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "u2re/dom"; 
+import { ref } from "u2re/object"; 
 import {  E  } from "u2re/lure";
 
 //

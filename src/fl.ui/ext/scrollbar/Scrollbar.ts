@@ -1,10 +1,8 @@
-// @ts-ignore /* @vite-ignore */
+
 import { computed, subscribe } from "u2re/object";
 
-// @ts-ignore /* @vite-ignore */
 import { setProperty, zoomOf } from "u2re/dom";
 
-// @ts-ignore /* @vite-ignore */
 import { scrollRef, sizeRef } from "u2re/lure";
 
 //

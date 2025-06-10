@@ -1,13 +1,10 @@
 // @ts-ignore
 import styles from "@scss/foreign/fe-icon.scss?inline";
 
-// @ts-ignore /* @vite-ignore */
 import {importCdn} from "u2re/cdnImport";
 
-// @ts-ignore /* @vite-ignore */
 import { BLitElement, defineElement, E, H, property } from "u2re/lure";
 
-// @ts-ignore /* @vite-ignore */
 import { subscribe } from "u2re/object";
 
 //

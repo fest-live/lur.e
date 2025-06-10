@@ -1,6 +1,5 @@
 import { setIdleInterval } from "./Utils";
 
-// @ts-ignore /* @vite-ignore */
 import { ref } from "u2re/object.ts";
 
 //

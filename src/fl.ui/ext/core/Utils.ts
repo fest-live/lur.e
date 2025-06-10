@@ -1,4 +1,4 @@
-// @ts-ignore /* @vite-ignore */
+
 import { orientOf, loadInlineStyle, setStyleProperty } from "u2re/dom";
 
 //

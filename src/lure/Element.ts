@@ -1,8 +1,7 @@
-// @ts-ignore /* @vite-ignore */
+
 import { subscribe, observableArray } from "u2re/object";
 import { createElement, elMap, Tx } from "./DOM";
 
-// @ts-ignore /* @vite-ignore */
 import { reflectBehaviors, reflectStores, reflectMixins } from "u2re/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reformChildren, reflectWithStyleRules, reflectARIA } from './Reflect';
 import { reflectControllers } from './Binding';

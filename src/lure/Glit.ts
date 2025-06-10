@@ -1,11 +1,9 @@
-// @ts-ignore /* @vite-ignore */
+
 import { importCdn } from "u2re/cdnImport";
 
-// @ts-ignore /* @vite-ignore */
 import { Q, loadInlineStyle, addRoot } from "u2re/dom";
 import { E } from "./Element";
 
-// @ts-ignore /* @vite-ignore */
 import { makeReactive , ref, subscribe, observableArray } from "u2re/object";
 import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "./Binding";
 

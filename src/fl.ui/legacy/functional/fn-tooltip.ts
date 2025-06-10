@@ -1,6 +1,5 @@
 import AxGesture from "../../ext/interact/Gesture";
 
-// @ts-ignore /* @vite-ignore */
 import {importCdn} from "u2re/cdnImport";
 
 //

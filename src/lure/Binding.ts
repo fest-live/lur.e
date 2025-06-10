@@ -1,7 +1,4 @@
-// @ts-ignore /* @vite-ignore */
 import { makeReactive, subscribe, ref } from "u2re/object";
-
-// @ts-ignore /* @vite-ignore */
 import { observeAttributeBySelector, namedStoreMaps, boundBehaviors } from "u2re/dom";
 
 // reacts by change storage, loads from storage, and reacts from storage event changes
