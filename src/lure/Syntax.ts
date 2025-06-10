@@ -1,6 +1,6 @@
-
 import { observableArray } from "u2re/object";
-import { getNode } from "./DOM"; import { E, M } from "./Element";
+import { getNode } from "./DOM";
+import { E, M } from "./Element";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }

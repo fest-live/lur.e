@@ -1,6 +1,7 @@
 
 import { subscribe, observe } from "u2re/object";
-import { kebabToCamel, appendChild, handleDataset, handleAttribute, handleStyleChange, removeNotExists } from "./DOM";
+import { kebabToCamel, appendChild, removeNotExists } from "./DOM";
+import { handleAttribute, handleDataset, handleStyleChange } from "./Handler";
 import { bindHandler } from "./Binding";
 
 //

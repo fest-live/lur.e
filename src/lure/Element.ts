@@ -1,9 +1,10 @@
 
 import { subscribe, observableArray } from "u2re/object";
-import { createElement, elMap, Tx } from "./DOM";
-
 import { reflectBehaviors, reflectStores, reflectMixins } from "u2re/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reformChildren, reflectWithStyleRules, reflectARIA } from './Reflect';
+
+//
+import { createElement, elMap, Tx } from "./DOM";
 import { reflectControllers } from './Binding';
 
 //
