@@ -9,7 +9,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return element;
     const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
-        subscribe(attributes, (value, prop)=>{
+        subscribe(attributes, (value, prop: any)=>{
             handleAttribute(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleAttribute, weak);
         })
@@ -58,7 +58,7 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
     if (!dataset) return element;
     const weak = new WeakRef(dataset), wel = new WeakRef(element);
     if (typeof dataset == "object" || typeof dataset == "function") {
-        subscribe(dataset, (value, prop)=>{
+        subscribe(dataset, (value, prop: any)=>{
             handleDataset(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleDataset, weak);
         })
@@ -73,7 +73,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (typeof styles?.value == "string") { subscribe([styles, "value"], (val) => { element.style.cssText = val; }); } else
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
-        subscribe(styles, (value, prop)=>{
+        subscribe(styles, (value, prop: any)=>{
             const cby = kebabToCamel(prop);
             handleStyleChange(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleStyleChange, weak);
