@@ -3,28 +3,31 @@ import { subscribe, observe } from "u2re/object";
 import { kebabToCamel, appendChild, handleDataset, handleAttribute, handleStyleChange, removeNotExists } from "./DOM.js";
 
 //
+export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any)=>{
+    if (value?.value == null || value instanceof CSSStyleValue) return;
+    let controller: AbortController|null = null; // @ts-ignore
+    controller?.abort?.(); controller = new AbortController();
+
+    // sorry, we doesn't allow abuse that mechanic
+    subscribe([value, "value"], (curr, _, old) => {
+        if (set?.deref?.()?.style?.[prop] === value || !(set?.deref?.())) {
+            if (typeof value?.behaviour == "function") {
+                value?.behaviour?.([curr, (value = curr)=>handler(el?.deref?.(), prop, value), old], [controller?.signal, prop, el]);
+            } else {
+                handler(el?.deref?.(), prop, curr);
+            }
+        }
+    });
+}
+
+//
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return element;
     const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
         subscribe(attributes, (value, prop)=>{
             handleAttribute(wel?.deref?.(), prop, value);
-
-            // subscribe with value with `value` reactivity
-            if (value?.value != null) {
-                let controller: AbortController|null = null;
-                subscribe([value, "value"], (curr, _, old) => {
-                    controller?.abort?.(); controller = new AbortController();
-                    // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
-                        if (typeof value?.behaviour == "function") {
-                            value?.behaviour?.([curr, (value = curr)=>handleAttribute(wel?.deref?.(), prop, value), old], [controller?.signal, prop, wel]);
-                        } else {
-                            handleAttribute(wel?.deref?.(), prop, curr);
-                        }
-                    }
-                });
-            }
+            bindHandler(wel, value, prop, handleAttribute, weak);
         })
     } else
     { console.warn("Invalid attributes object:", attributes); }
@@ -58,18 +61,9 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
     if (!aria) return element;
     const weak = new WeakRef(aria), wel = new WeakRef(element);
     if (typeof aria == "object" || typeof aria == "function") {
-        subscribe(aria, (value, prop)=>{
-            handleAttribute(wel?.deref?.(), "aria-"+prop, value);
-
-            // subscribe with value with `value` reactivity
-            if (value?.value != null) {
-                subscribe([value, "value"], (curr) => {
-                    // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
-                        handleAttribute(wel?.deref?.(), "aria-"+prop, curr);
-                    }
-                });
-            }
+        subscribe(aria, (value, prop)=>{ // @ts-ignore
+            handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value);
+            bindHandler(wel, value, prop, handleAttribute, weak);
         })
     } else
     { console.warn("Invalid ARIA object:", aria);}; return element;
@@ -82,16 +76,7 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
     if (typeof dataset == "object" || typeof dataset == "function") {
         subscribe(dataset, (value, prop)=>{
             handleDataset(wel?.deref?.(), prop, value);
-
-            // subscribe with value with `value` reactivity
-            if (value?.value != null) {
-                subscribe([value, "value"], (curr) => {
-                    // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) {
-                        handleDataset(wel?.deref?.(), prop, curr);
-                    }
-                });
-            }
+            bindHandler(wel, value, prop, handleDataset, weak);
         })
     } else
     { console.warn("Invalid dataset object:", dataset); }; return element;
@@ -106,25 +91,8 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
         const weak = new WeakRef(styles), wel = new WeakRef(element);
         subscribe(styles, (value, prop)=>{
             const cby = kebabToCamel(prop);
-            if (wel?.deref?.()?.style?.[cby] !== value) {
-                handleStyleChange(wel?.deref?.(), prop, value);
-            }
-
-            // subscribe with value with `value` reactivity (TypedOM isn't valid)
-            if (value?.value != null && !(value instanceof CSSStyleValue)) {
-                let controller: AbortController|null = null;
-                subscribe([value, "value"], (curr, _, old) => {
-                    controller?.abort?.(); controller = new AbortController();
-                    // sorry, we doesn't allow abuse that mechanic
-                    if (weak?.deref?.()?.style?.[cby] === value || !(weak?.deref?.())) {
-                        if (typeof value?.behaviour == "function") {
-                            value?.behaviour?.([curr, (value = curr)=>handleStyleChange(wel?.deref?.(), prop, value), old], [controller?.signal, prop, wel]);
-                        } else {
-                            handleStyleChange(wel?.deref?.(), prop, curr);
-                        }
-                    }
-                });
-            }
+            handleStyleChange(wel?.deref?.(), prop, value);
+            bindHandler(wel, value, prop, handleStyleChange, weak);
         });
     } else
     { console.warn("Invalid styles object:", styles); } return element;
