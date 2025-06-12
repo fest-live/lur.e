@@ -1,4 +1,5 @@
 import { unwrap, makeReactive, subscribe } from "u2re/object";
+import { $mapped, $virtual } from "./Binding";
 
 //
 const
@@ -55,7 +56,7 @@ export const getNode = (E, mapper?: Function, index?: number)=>{
 //
 export const appendChild = (element, cp, mapper?)=>{
     if (mapper) { cp = mapper?.(cp) ?? cp; }
-    if (cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.["@virtual"] || cp?.["@mapped"]))
+    if (cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.[$virtual] || cp?.[$mapped]))
         { element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number)=>(getNode(cl)??""))?.filter?.((el)=>el!=null) ?? unwrap(cp?.children))); } else
     if (Array.isArray(unwrap(cp)))
         { element?.append?.(...unwrap(cp?.map?.((cl, _: number)=>(getNode(cl)??""))?.filter?.((el)=>el!=null) ?? unwrap(cp))); } else

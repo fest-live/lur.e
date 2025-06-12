@@ -2,7 +2,7 @@
 import { subscribe, observe } from "u2re/object";
 import { kebabToCamel, appendChild, removeNotExists } from "./DOM";
 import { handleAttribute, handleDataset, handleStyleChange } from "./Handler";
-import { bindHandler } from "./Binding";
+import { $mapped, bindHandler } from "./Binding";
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
@@ -114,8 +114,8 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 //
 export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
     if (!children) return element; const ref = new WeakRef(element);
-    mapper   = (children?.["@mapped"] ? (children as any)?.mapper : mapper) ?? mapper;
-    children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children;
+    mapper   = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
+    children = (children?.[$mapped] ? (children as any)?.children : children) ?? children;
 
     //
     const toBeRemoved: any[] = [], toBeAppend: any[] = [], toBeReplace: any[] = [];
@@ -181,8 +181,8 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
 // forcely update child nodes (and erase current content)
 export const reformChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
     if (!children) return element; const ref = new WeakRef(element); removeNotExists(element, children, mapper);
-    mapper = (children?.["@mapped"] ? (children as any)?.mapper : mapper) ?? mapper;
-    (children = (children?.["@mapped"] ? (children as any)?.children : children) ?? children).map((nd)=>{
+    mapper = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
+    (children = (children?.[$mapped] ? (children as any)?.children : children) ?? children).map((nd)=>{
         const element = ref.deref(); if (!element) return nd;
         appendChild(element, nd, mapper); return nd;
     }); return element;

@@ -5,7 +5,7 @@ import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, ref
 
 //
 import { createElement, elMap, Tx } from "./DOM";
-import { reflectControllers } from './Binding';
+import { $mapped, reflectControllers } from './Binding';
 
 //
 interface Params {
@@ -141,7 +141,7 @@ export class Mp {
     }
 
     //
-    get ["@mapped"]() { return true; };
+    get [$mapped]() { return true; };
     get element (): HTMLElement|DocumentFragment|Text|null { return reformChildren(this.#fragments as DocumentFragment, this.#observable, this.mapper); }
     get children() { return this.#observable; } //.map((...args)=>(reMap.get(args[0]) ?? elMap.get(args[0]) ?? this.#mapCb?.(...args) ?? args[0]));
     get mapper  () {

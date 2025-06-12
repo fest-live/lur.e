@@ -1,6 +1,10 @@
 import { makeReactive, subscribe, ref, numberRef, stringRef, booleanRef } from "u2re/object";
 import { observeAttributeBySelector, namedStoreMaps, boundBehaviors } from "u2re/dom";
 
+//
+export const $mapped  = Symbol.for("@mapped");
+export const $virtual = Symbol.for("@virtual");
+
 // reacts by change storage, loads from storage, and reacts from storage event changes
 export const localStorageRef = (key, initial?: any)=>{
     const ref = stringRef(localStorage.getItem(key) ?? (initial?.value ?? initial));
