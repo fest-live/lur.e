@@ -187,8 +187,8 @@ export const loadCachedStyles = (bTo, src, withVars = true)=>{
 
 //
 export const GLitElement = (derrivate = HTMLElement)=>{
-    if (CSM.has(derrivate)) return CSM.get(derrivate);
-    const EX = withProperties(class EX extends derrivate {
+    // !experimental `getOrInsert` feature!
+    return CSM.getOrInsert(derrivate, withProperties(class EX extends derrivate {
         #framework: any;
         #initialized: boolean = false;
         #styleElement?: HTMLStyleElement;
@@ -227,6 +227,5 @@ export const GLitElement = (derrivate = HTMLElement)=>{
             }
             return this;
         }
-    });
-    CSM.set(derrivate, EX); return EX;
+    }));
 }

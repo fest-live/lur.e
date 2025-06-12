@@ -13,13 +13,12 @@ const marked  = H`<div class="fill"></div>`;
 const iconMap = new Map<string, Promise<string>>();
 const rasterizeSVG = async (blob)=>{ return URL.createObjectURL(blob); }
 const loadAsImage  = (name: string, creator?: (name: string)=>any)=>{
-    if (iconMap.has(name)) { return iconMap.get(name); };
-
-    //
-    const element = creator ? creator(name) : null;
-    const text = element.outerHTML, file = new Blob([`<?xml version=\"1.0\" encoding=\"UTF-8\"?>`, text], { type: "image/svg+xml" });
-    const url = rasterizeSVG(file); iconMap.set(name, url);
-    return url;
+    // !experimental `getOrInsert` feature!
+    iconMap.getOrInsertComputed(name, ()=>{
+        const element = creator ? creator(name) : null;
+        const text = element.outerHTML, file = new Blob([`<?xml version=\"1.0\" encoding=\"UTF-8\"?>`, text], { type: "image/svg+xml" });
+        return rasterizeSVG(file);
+    });
 };
 
 // @ts-ignore

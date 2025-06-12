@@ -147,9 +147,8 @@ export class Mp {
     get mapper  () {
         return (...args)=>{
             if (typeof args?.[0] == "object" || typeof args?.[0] == "function") {
-                if (this.#reMap.has(args?.[0])) return this.#reMap.get(args?.[0]);
-                const re = this.#mapCb(...args); this.#reMap.set(args?.[0], re);
-                return re;
+                // !experimental `getOrInsert` feature!
+                return this.#reMap.getOrInsert(args?.[0], this.#mapCb(...args));
             }; return this.#mapCb(...args);
         }
     }

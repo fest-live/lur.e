@@ -14,13 +14,13 @@ export class Tx {
     set value(val: any) { this.ref.value = val; }
     get children() { return null; };
     get element(): HTMLElement|DocumentFragment|Text {
-        if (elMap.has(this)) { const el = elMap.get(this); if (el) { return el; }; }
-
-        //
-        const element = new Text();
-        subscribe([this.ref, "value"], (val)=>(element.textContent = val));
-        elMap.set(this, element);
-        return element;
+        // !experimental `getOrInsert` feature!
+        const el = elMap.getOrInsertComputed(this, ()=>{
+            const element = new Text();
+            subscribe([this.ref, "value"], (val)=>(element.textContent = val));
+            return element;
+        });
+        if (el) { return el; };
     }
 }
 
