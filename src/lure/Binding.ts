@@ -2,8 +2,9 @@ import { makeReactive, subscribe, ref, numberRef, stringRef, booleanRef } from "
 import { observeAttributeBySelector, namedStoreMaps, boundBehaviors } from "u2re/dom";
 
 //
-export const $mapped  = Symbol.for("@mapped");
-export const $virtual = Symbol.for("@virtual");
+export const $mapped   = Symbol.for("@mapped");
+export const $virtual  = Symbol.for("@virtual");
+export const $behavior = Symbol.for("@behavior");
 
 // reacts by change storage, loads from storage, and reacts from storage event changes
 export const localStorageRef = (key, initial?: any)=>{
@@ -229,8 +230,8 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     // sorry, we doesn't allow abuse that mechanic
     subscribe([value, "value"], (curr, _, old) => {
         if (set?.deref?.()?.style?.[prop] === value || !(set?.deref?.())) {
-            if (typeof value?.behaviour == "function") {
-                value?.behaviour?.([curr, (value = curr)=>handler(el?.deref?.(), prop, value), old], [controller?.signal, prop, el]);
+            if (typeof value?.[$behavior] == "function") {
+                value?.[$behavior]?.([curr, (value = curr)=>handler(el?.deref?.(), prop, value), old], [controller?.signal, prop, el]);
             } else {
                 handler(el?.deref?.(), prop, curr);
             }

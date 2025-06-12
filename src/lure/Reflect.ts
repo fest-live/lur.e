@@ -2,7 +2,7 @@
 import { subscribe, observe } from "u2re/object";
 import { kebabToCamel, appendChild, removeNotExists } from "./DOM";
 import { handleAttribute, handleDataset, handleStyleChange } from "./Handler";
-import { $mapped, bindHandler } from "./Binding";
+import { $mapped, $behavior, bindHandler } from "./Binding";
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
@@ -140,8 +140,8 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         //
         if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
         if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0) { // @ts-ignore
-            if (typeof children?.behaviour == "function") { // @ts-ignore
-                children?.behaviour?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, op, ref, args]);
+            if (typeof children?.[$behavior] == "function") { // @ts-ignore
+                children?.[$behavior]?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, op, ref, args]);
             } else
             { merge(); }
         }
@@ -156,8 +156,8 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 
         //
         if ((children as any)?.size == 0 && element instanceof HTMLElement) { removeNotExists(element, children, mapper);/*element.innerHTML = ``;*/ }; // @ts-ignore
-        if (typeof children?.behaviour == "function") { // @ts-ignore
-            children?.behaviour?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, _, ref, [obj, has]]);
+        if (typeof children?.[$behavior] == "function") { // @ts-ignore
+            children?.[$behavior]?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, _, ref, [obj, has]]);
         } else
         { merge(); }
     }); return element;
