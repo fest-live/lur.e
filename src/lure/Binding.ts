@@ -1,9 +1,9 @@
-import { makeReactive, subscribe, ref } from "u2re/object";
+import { makeReactive, subscribe, ref, numberRef, stringRef, booleanRef } from "u2re/object";
 import { observeAttributeBySelector, namedStoreMaps, boundBehaviors } from "u2re/dom";
 
 // reacts by change storage, loads from storage, and reacts from storage event changes
 export const localStorageRef = (key, initial?: any)=>{
-    const ref = makeReactive({value: localStorage.getItem(key) ?? (initial?.value ?? initial)});
+    const ref = stringRef(localStorage.getItem(key) ?? (initial?.value ?? initial));
     subscribe([ref, "value"], (val)=> localStorage.setItem(key, val));
     addEventListener("storage", (ev)=>{
         if (ev.storageArea == localStorage && ev.key == key) {
@@ -15,14 +15,14 @@ export const localStorageRef = (key, initial?: any)=>{
 
 // reacts only from media, you can't change media condition
 export const matchMediaRef = (condition: string)=>{
-    const med = matchMedia(condition), ref = makeReactive({value: med.matches});
+    const med = matchMedia(condition), ref = booleanRef(med.matches);
     med?.addEventListener?.("change", (ev)=>ref.value = ev.matches); return ref;
 }
 
 // one-shot update
 export const visibleRef = (element, initial?: any)=>{
     // bi-directional attribute
-    const val = makeReactive({ value: (initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null) });
+    const val = booleanRef((initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null));
     if ((initial?.value ?? initial) != null && element?.getAttribute?.("data-hidden") == null) { if (initial?.value ?? initial) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } };
 
     //
@@ -37,7 +37,7 @@ export const attrRef = (element, attribute: string, initial?: any)=>{
     if (!element) return;
 
     // bi-directional attribute
-    const val = makeReactive({ value: element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial)) });
+    const val = stringRef(element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial)));
     if (initial != null && element?.getAttribute?.(attribute) == null && (typeof val.value != "object" && typeof val.value != "function") && (val.value != null && val.value !== false)) { element?.setAttribute?.(attribute, val.value); };
     const config = {
         attributeFilter: [attribute],
@@ -81,7 +81,7 @@ export const attrRef = (element, attribute: string, initial?: any)=>{
 // reacts by change storage, loads from storage, and reacts from storage event changes
 // ! you can't change size, due it's may break styles
 export const sizeRef = (element, axis: "inline"|"block", box: ResizeObserverBoxOptions = "border-box")=>{
-    const val = makeReactive({ value: 0 }), obs = new ResizeObserver((entries)=>{
+    const val = numberRef(0), obs = new ResizeObserver((entries)=>{
         if (box ==  "border-box") { val.value = axis == "inline" ? entries[0].borderBoxSize [0].inlineSize : entries[0].borderBoxSize [0].blockSize };
         if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
         if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
@@ -92,7 +92,7 @@ export const sizeRef = (element, axis: "inline"|"block", box: ResizeObserverBoxO
 //
 export const scrollRef = (element, axis: "inline"|"block", initial?: any)=>{
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis=="inline"?"left":"top"]: (initial?.value ?? initial) }); };
-    const val = makeReactive({ value: (axis == "inline" ? element?.scrollLeft : element?.scrollTop) || 0 });
+    const val = numberRef((axis == "inline" ? element?.scrollLeft : element?.scrollTop) || 0);
     subscribe([val, "value"],  () => element?.scrollTo?.({ [axis=="inline"?"left":"top"]: (val?.value ?? val) }));
     element?.addEventListener?.("scroll", (ev)=>{ val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true });
     return val;
@@ -100,7 +100,7 @@ export const scrollRef = (element, axis: "inline"|"block", initial?: any)=>{
 
 // for checkbox
 export const checkedRef = (element)=>{
-    const val = makeReactive({ value: (!!element?.checked) || false });
+    const val = booleanRef((!!element?.checked) || false );
     if (element?.self ?? element) {
         (element?.self ?? element)?.addEventListener?.("change", (ev)=>{ if (val.value != ev?.target?.checked) { val.value = (!!ev?.target?.checked) || false; } });
         (element?.self ?? element)?.addEventListener?.("input", (ev)=>{ if (val.value != ev?.target?.checked) { val.value = (!!ev?.target?.checked) || false; } });
@@ -116,7 +116,7 @@ export const checkedRef = (element)=>{
 
 // for string inputs
 export const valueRef = (element)=>{
-    const val = makeReactive({ value: element?.value || "" });
+    const val = stringRef(element?.value || "");
     (element?.self ?? element)?.addEventListener?.("change", (ev) => { if (val.value != ev?.target?.value) { val.value = ev?.target?.value; } });
     subscribe([val, "value"], (v)=>{
         if (element && element?.value != v) {
@@ -130,7 +130,7 @@ export const valueRef = (element)=>{
 
 // for numeric inputs
 export const valueAsNumberRef = (element)=>{
-    const val = makeReactive({ value: Number(element?.valueAsNumber) || 0 });
+    const val = numberRef(Number(element?.valueAsNumber) || 0);
     (element?.self ?? element)?.addEventListener?.("change", (ev)=>{ if (val.value != ev?.target?.valueAsNumber) { val.value = Number(ev?.target?.valueAsNumber); } });
     subscribe([val, "value"], (v)=>{
         if (element && element?.valueAsNumber != v && typeof element?.valueAsNumber == "number") {
