@@ -1,21 +1,18 @@
 // @ts-ignore
 import styles from "@scss/foreign/fe-icon.scss?inline";
-
-import {importCdn} from "u2re/cdnImport";
-
-import { BLitElement, defineElement, E, H, property } from "../..";
-
-import { subscribe } from "u2re/object";
-
-//
 import { preloadStyle } from "../ext/core/Utils";
 
 //
-const rasterizeSVG = async (blob)=>{ return URL.createObjectURL(blob); }
+import { GLitElement, defineElement, E, H, property } from "u2re/lure";
+import { subscribe } from "u2re/object";
+import { importCdn } from "u2re/cdnImport";
 
 //
+const styled  = preloadStyle(styles);
+const marked  = H`<div class="fill"></div>`;
 const iconMap = new Map<string, Promise<string>>();
-const loadAsImage = (name: string, creator?: (name: string)=>any)=>{
+const rasterizeSVG = async (blob)=>{ return URL.createObjectURL(blob); }
+const loadAsImage  = (name: string, creator?: (name: string)=>any)=>{
     if (iconMap.has(name)) { return iconMap.get(name); };
 
     //
@@ -25,13 +22,9 @@ const loadAsImage = (name: string, creator?: (name: string)=>any)=>{
     return url;
 };
 
-//
-const styled  = preloadStyle(styles);
-const marked  = H`<div class="fill"></div>`;
-
 // @ts-ignore
 @defineElement('ui-icon')
-export class UILucideIcon extends BLitElement() {
+export class UILucideIcon extends GLitElement() {
     @property() protected iconElement?: SVGElement;
     @property({ source: "attr" }) icon?: string;
     @property({ source: "attr" }) width?: number;

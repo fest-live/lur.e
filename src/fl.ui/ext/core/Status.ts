@@ -1,6 +1,5 @@
 import { setIdleInterval } from "./Utils";
-
-import { ref } from "u2re/object.ts";
+import { ref } from "u2re/object";
 
 //
 export const batteryStatusRef = ()=>{

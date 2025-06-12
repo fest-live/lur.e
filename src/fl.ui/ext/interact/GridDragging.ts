@@ -5,7 +5,6 @@ import    AxGesture    from "./Gesture";
 
 //
 export const reflectCell = async (newItem: any, pArgs: any, withAnimate = false)=>{
-    
     const { redirectCell } = await Promise.try(importCdn, ["u2re/dom"]);
     // @ts-ignore
     const {subscribe, makeObjectAssignable, makeReactive } = await Promise.try(importCdn, ["u2re/object"]);
@@ -27,13 +26,13 @@ export const reflectCell = async (newItem: any, pArgs: any, withAnimate = false)
 export const ROOT = document.documentElement;
 export const bindInteraction = async (newItem: any, pArgs: any)=>{
 
-    
+
     const { grabForDrag, redirectCell, getBoundingOrientRect, agWrapEvent, orientOf, convertOrientPxToCX, doAnimate } = await Promise.try(importCdn, ["u2re/dom"]);
 
-    
+
     const { ref, subscribe } = await Promise.try(importCdn, ["u2re/object"]);
 
-    
+
     const { E } = await Promise.try(importCdn, ["u2re/lure"]);
     await new Promise((r)=>requestAnimationFrame(r)); reflectCell(newItem, pArgs, true);
     const {item, list, items} = pArgs, layout = [pArgs?.layout?.columns || pArgs?.layout?.[0] || 4, pArgs?.layout?.rows || pArgs?.layout?.[1] || 8];

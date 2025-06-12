@@ -1,5 +1,4 @@
-
-import { orientOf, loadInlineStyle, setStyleProperty } from "u2re/dom";
+import { orientOf, loadInlineStyle } from "u2re/dom";
 
 //
 export interface InteractStatus { pointerId?: number; };

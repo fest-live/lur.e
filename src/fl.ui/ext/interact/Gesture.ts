@@ -1,8 +1,9 @@
 import { bbh, bbw, blockClickTrigger, borderBoxHeight, borderBoxWidth, cbh, cbw, clamp, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT, setProperty, type InteractStatus } from "../core/Utils";
+import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "u2re/dom";
 
-import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "u2re/dom"; 
-import { ref } from "u2re/object"; 
-import {  E  } from "../../..";
+//
+import { ref } from "u2re/object";
+import {  E  } from "u2re/lure";
 
 //
 export class AxGesture {
