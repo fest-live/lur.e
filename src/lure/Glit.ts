@@ -1,10 +1,9 @@
-
 import { importCdn } from "u2re/cdnImport";
-
-import { Q, loadInlineStyle, addRoot } from "u2re/dom";
-import { E } from "./Element";
-
 import { makeReactive , ref, subscribe, observableArray } from "u2re/object";
+import { Q, loadInlineStyle, addRoot } from "u2re/dom";
+
+//
+import { E } from "./Element";
 import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "./Binding";
 
 //
@@ -16,6 +15,8 @@ const whenBoxValid  = (name) => { const cb = camelToKebab(name); if (["border-bo
 const whenAxisValid = (name) => { const cb = camelToKebab(name); if (cb?.startsWith?.("inline")) { return "inline"; }; if (cb?.startsWith?.("block")) { return "block"; }; return null; }
 const characters    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const inRenderKey   = Symbol.for("@render@"), defKeys = Symbol.for("@defKeys@");
+
+//
 const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "attr")  { return attrRef.bind(null, holder, name || ""); }
     if (source == "media") { return matchMediaRef; }
@@ -33,6 +34,8 @@ const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "value-as-number") { return valueAsNumberRef.bind(null, holder); }
     return ref;
 }
+
+//
 const getDef = (source?: string|any|null): any =>{
     if (source == "media") return false;
     if (source == "localStorage") return null;
