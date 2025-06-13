@@ -231,7 +231,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     subscribe([value, "value"], (curr, _, old) => {
         if (set?.deref?.()?.style?.[prop] === value || !(set?.deref?.())) {
             if (typeof value?.[$behavior] == "function") {
-                value?.[$behavior]?.((value = curr)=>handler(el?.deref?.(), prop, value), [curr, prop, old], [controller?.signal, prop, el]);
+                value?.[$behavior]?.((val = curr)=>handler(el?.deref?.(), prop, value?.value ?? val), [curr, prop, old], [controller?.signal, prop, el]);
             } else {
                 handler(el?.deref?.(), prop, curr);
             }
