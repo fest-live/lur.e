@@ -138,6 +138,7 @@ export const removeNotExists = (element, children, mapper) => {
  */
 export const T = (ref) => {
     // !experimental `getOrInsert` feature!
+    // @ts-ignore
     return elMap.getOrInsertComputed(ref, () => {
         const element = document.createTextNode(String(ref?.value ?? ""));
         subscribe([ref, "value"], (val) => (element.textContent = val));

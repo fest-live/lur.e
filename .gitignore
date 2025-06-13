@@ -25,3 +25,8 @@ dist-ssr
 dist/*
 dist/
 dist
+
+docs/*
+docs
+./docs
+./docs/*

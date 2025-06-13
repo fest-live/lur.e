@@ -191,6 +191,7 @@ export const loadCachedStyles = (bTo, src, withVars = true)=>{
 //
 export const GLitElement = (derrivate = HTMLElement)=>{
     // !experimental `getOrInsert` feature!
+    // @ts-ignore
     return CSM.getOrInsert(derrivate, withProperties(class EX extends derrivate {
         #framework: any;
         #initialized: boolean = false;

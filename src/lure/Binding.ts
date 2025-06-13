@@ -333,7 +333,7 @@ export const observeSize = (element, box, styles?) => {
  */
 export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any) => {
     if (value?.value == null || value instanceof CSSStyleValue) return;
-    let controller: AbortController | null = null;
+    let controller: AbortController | null = null; // @ts-ignore
     controller?.abort?.(); controller = new AbortController();
 
     subscribe([value, "value"], (curr, _, old) => {
@@ -367,7 +367,7 @@ export const makeRAFCycle = () => {
         shedule(cb: any) { this.rAFs.add(cb); return this; }
     };
     (async () => {
-        while (!control?.canceled) {
+        while (!control?.canceled) { // @ts-ignore
             await Promise.all((control?.rAFs?.values?.() ?? [])?.map?.((rAF) => Promise.try(rAF)?.catch?.(console.warn.bind(console)))); control.rAFs?.clear?.();
             await new Promise((res) => { control.last = requestAnimationFrame(res); });
         }

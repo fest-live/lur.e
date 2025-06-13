@@ -14,6 +14,7 @@ const iconMap = new Map<string, Promise<string>>();
 const rasterizeSVG = async (blob)=>{ return URL.createObjectURL(blob); }
 const loadAsImage  = (name: string, creator?: (name: string)=>any)=>{
     // !experimental `getOrInsert` feature!
+    // @ts-ignore
     iconMap.getOrInsertComputed(name, ()=>{
         const element = creator ? creator(name) : null;
         const text = element.outerHTML, file = new Blob([`<?xml version=\"1.0\" encoding=\"UTF-8\"?>`, text], { type: "image/svg+xml" });
@@ -31,7 +32,7 @@ export class UILucideIcon extends GLitElement() {
 
     // also "display" may be "contents"
     public styles = ()  => styled.cloneNode(true);
-    public render = (we)=> marked.cloneNode(true);
+    public render = (we)=> marked.cloneNode(true); // @ts-ignore
     public onRender() { this.icon = this.#options?.icon || this.icon; this.updateIcon(); subscribe([this.getProperty("icon"), "value"], (icon)=>{ this.updateIcon() }); }
     constructor(options = {icon: "", padding: ""}) { super(); Object.assign(this.#options, options); }
 
@@ -42,9 +43,11 @@ export class UILucideIcon extends GLitElement() {
 
         // @ts-ignore
         Promise.try(importCdn, ["/u2re/vendor/lucide.min.js"])?.then?.((icons)=>{
+            // @ts-ignore
             const ICON = toCamelCase(icon || "");
             if (icons?.[ICON]) {
                 const self = this as any;
+                // @ts-ignore
                 loadAsImage(ICON, (U)=>icons?.createElement?.(icons?.[U]))?.then?.((url)=>{
                     const src  = `url(\"${url}\")`;
                     const fill = self?.shadowRoot?.querySelector?.(".fill");
