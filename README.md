@@ -4,21 +4,13 @@
 ---
 
 <p align="center">
-  <a href="https://github.com/unite-2-re/lur.e/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/unite-2-re/lur.e?style=flat-square" alt="License"/>
-  </a>
-  <a href="https://github.com/unite-2-re/lur.e/stargazers">
-    <img src="https://img.shields.io/github/stars/unite-2-re/lur.e?style=flat-square" alt="GitHub stars"/>
-  </a>
-  <a href="https://github.com/unite-2-re/lur.e/commits/main">
-    <img src="https://img.shields.io/github/last-commit/unite-2-re/lur.e?style=flat-square" alt="Last Commit"/>
-  </a>
-  <a href="https://github.com/unite-2-re/lur.e/issues">
-    <img src="https://img.shields.io/github/issues/unite-2-re/lur.e?style=flat-square" alt="Issues"/>
-  </a>
+  <a href="https://github.com/unite-2-re/lur.e/blob/main/LICENSE"><img src="https://img.shields.io/github/license/unite-2-re/lur.e?style=flat-square" alt="License"/></a>
+  <a href="https://github.com/unite-2-re/lur.e/stargazers"><img src="https://img.shields.io/github/stars/unite-2-re/lur.e?style=flat-square" alt="GitHub stars"/></a>
+  <a href="https://github.com/unite-2-re/lur.e/commits/main"><img src="https://img.shields.io/github/last-commit/unite-2-re/lur.e?style=flat-square" alt="Last Commit"/></a>
+  <a href="https://github.com/unite-2-re/lur.e/issues"><img src="https://img.shields.io/github/issues/unite-2-re/lur.e?style=flat-square" alt="Issues"/></a>
 </p>
 
-## Overview
+## *Overview*
 
 **LUR-E** is an experimental UI library focused on efficient memory management, advanced reactivity, and compatibility with modern web standards. It provides a low-level API for DOM manipulation, enhanced CSS integration, and supports web components out of the box.
 
