@@ -159,17 +159,13 @@ export class Mp {
 }
 
 //
-export const M = (observable, mapCb?)=>{ return new Mp(observable, mapCb); }
-export const E = (selector, params = {}, children?)=>{ return new El(selector, params, children); }
-
-//
-interface SwitchedParams {
-    index: {value: number}; // Любой computed-индексатор
-    children: any[];
+interface SwitchedParams {  // interactive or reactive iterator
+    index: {value: number}; // candidates
+    mapped: any[];
 }
 
 //
-export class Switched {
+export class Sw {
     params : SwitchedParams;
     current: number = -1;
 
@@ -181,7 +177,7 @@ export class Switched {
 
     get element() {
         if (this.current < 0) return document.createDocumentFragment();
-        return getNode(this.params.children?.[this.current]);
+        return getNode(this.params.mapped?.[this.current]);
     }
 
     _onUpdate() {
@@ -190,9 +186,9 @@ export class Switched {
             const old = this.current; this.current = idx;
 
             //
-            const parent = getNode(this.params.children?.[old])?.parentNode;
-            const newNode = idx >= 0 ? getNode(this.params.children?.[idx]) : null;
-            const oldNode = old >= 0 ? getNode(this.params.children?.[old]) : null;
+            const parent = getNode(this.params.mapped?.[old])?.parentNode;
+            const newNode = idx >= 0 ? getNode(this.params.mapped?.[idx]) : null;
+            const oldNode = old >= 0 ? getNode(this.params.mapped?.[old]) : null;
 
             //
             if (parent && newNode) {
@@ -214,6 +210,10 @@ export const conditionalIndex = (condList: any[])=>{
     return comp;
 }
 
+//
+export const M = (observable, mapCb?)=>{ return new Mp(observable, mapCb); }
+export const E = (selector, params = {}, children?)=>{ return new El(selector, params, children); }
+export const S = (params) => { return new Sw(params); }
 
 //
 export default E;
