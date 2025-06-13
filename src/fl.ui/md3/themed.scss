@@ -36,9 +36,9 @@ $chroma-on-dark: 0.04;
 
 // AI-ver
 @mixin make-toned(
-    $name, 
-    $pure, 
-    $light-tone,    $dark-tone, 
+    $name,
+    $pure,
+    $light-tone,    $dark-tone,
     $light-tone-on, $dark-tone-on,
     $chroma: $chroma-primary,
     $chroma-surf: $chroma-surface,
@@ -57,9 +57,9 @@ $chroma-on-dark: 0.04;
 /*
 // my-ver
 @mixin make-toned(
-    $name, 
-    $pure, 
-    $light-tone,    $dark-tone, 
+    $name,
+    $pure,
+    $light-tone,    $dark-tone,
     $light-tone-on, $dark-tone-on
 ) {
     --#{$name}-light: oklch(from #{$pure} #{$light-tone / 100} calc(c * 0.8) h / a);
@@ -84,8 +84,8 @@ $chroma-on-dark: 0.04;
 
 // needs calibration
 @mixin packed-color-group(
-    $name, $primary, 
-    $surface: var(--base-surface), 
+    $name, $primary,
+    $surface: var(--base-surface),
     $inverse: var(--base-inverse)
 ) {
        --#{$name}-container: #{mixc($primary,    $surface, 0.05)};
@@ -104,8 +104,8 @@ $chroma-on-dark: 0.04;
 
 // needs calibration
 @mixin packed-surface-containers(
-    $primary, 
-    $surface: var(--base-surface), 
+    $primary,
+    $surface: var(--base-surface),
     $inverse: var(--base-inverse)
 ) {
     // mixc($themed, $themedInv, 0.01) is balancing between light and dark (contrastics)
@@ -121,8 +121,8 @@ $chroma-on-dark: 0.04;
 
 // needs calibration
 @mixin packed-inverse-group(
-    $primary, 
-    $surface: var(--surface), 
+    $primary,
+    $surface: var(--surface),
     $inverse: var(--inverse),
     $on-surface: var(--on-surface)
 ) {
@@ -149,10 +149,10 @@ $chroma-on-dark: 0.04;
 
 //
 @mixin packed-palette(
-    $primary  , 
-    $secondary, 
-    $tertiary , 
-    $error    , 
+    $primary  ,
+    $secondary,
+    $tertiary ,
+    $error    ,
     $surface  ,
     $inverse
 ) {
@@ -163,7 +163,7 @@ $chroma-on-dark: 0.04;
     @include packed-neutral-group($primary, $surface, $inverse);
     @include packed-inverse-group($primary, $surface, $inverse);
     @include packed-surface-containers($primary, $surface, $inverse);
-    --shadow: #000; 
+    --shadow: #000;
     --scrim : #000;
 }
 
