@@ -231,10 +231,33 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     subscribe([value, "value"], (curr, _, old) => {
         if (set?.deref?.()?.style?.[prop] === value || !(set?.deref?.())) {
             if (typeof value?.[$behavior] == "function") {
-                value?.[$behavior]?.([curr, (value = curr)=>handler(el?.deref?.(), prop, value), old], [controller?.signal, prop, el]);
+                value?.[$behavior]?.((value = curr)=>handler(el?.deref?.(), prop, value), [curr, prop, old], [controller?.signal, prop, el]);
             } else {
                 handler(el?.deref?.(), prop, curr);
             }
         }
     });
+}
+
+//
+export const makeRAFCycle = ()=>{
+    const control: any = {
+        canceled: false,
+        rAFs: new Set<any>(),
+        last: null,
+        cancel() { this.canceled = true; cancelAnimationFrame(this.last); return this; },
+        shedule(cb: any) { this.rAFs.add(cb); return this; }
+    };
+    (async ()=>{
+        while (!control?.canceled) {
+            await Promise.all((control?.rAFs?.values?.() ?? [])?.map?.((rAF)=>Promise.try(rAF)?.catch?.(console.warn.bind(console)))); control.rAFs?.clear?.();
+            await new Promise((res)=>{ control.last = requestAnimationFrame(res); });
+        }
+    })();
+    return control;
+}
+
+//
+export const RAFBehavior = (cb, shed = makeRAFCycle())=>{
+    return (...args)=>{ return shed.shedule(()=>cb?.(...args)); }
 }

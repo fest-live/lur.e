@@ -141,7 +141,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
         if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0) { // @ts-ignore
             if (typeof children?.[$behavior] == "function") { // @ts-ignore
-                children?.[$behavior]?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, op, ref, args]);
+                children?.[$behavior]?.(merge, [toBeRemoved, toBeAppend, toBeReplace], [controller.signal, op, ref, args]);
             } else
             { merge(); }
         }
@@ -157,7 +157,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         //
         if ((children as any)?.size == 0 && element instanceof HTMLElement) { removeNotExists(element, children, mapper);/*element.innerHTML = ``;*/ }; // @ts-ignore
         if (typeof children?.[$behavior] == "function") { // @ts-ignore
-            children?.[$behavior]?.([[toBeRemoved, toBeAppend, toBeReplace], merge], [controller.signal, _, ref, [obj, has]]);
+            children?.[$behavior]?.(merge, [toBeRemoved, toBeAppend, toBeReplace], [controller.signal, _, ref, [obj, has]]);
         } else
         { merge(); }
     }); return element;
