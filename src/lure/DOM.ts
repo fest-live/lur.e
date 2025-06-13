@@ -1,28 +1,10 @@
-import { unwrap, makeReactive, subscribe } from "u2re/object";
+import { unwrap, subscribe } from "u2re/object";
 import { $mapped, $virtual } from "./Binding";
 
 //
 const
 	MATCH = '(-?[_a-zA-Z]+[_a-zA-Z0-9-]*)',
 	REGEX = '^(?:' + MATCH + ')|^#' + MATCH + '|^\\.' + MATCH + '|^\\[' + MATCH + '(?:([*$|~^]?=)(["\'])((?:(?=(\\\\?))\\8.)*?)\\6)?\\]';
-
-//
-export class Tx {
-    ref: any; constructor(ref) { this.ref = ref || makeReactive({ value: null }); }
-    get ["@virtual"]() { return true; };
-    get value() { return this.ref?.value; }
-    set value(val: any) { this.ref.value = val; }
-    get children() { return null; };
-    get element(): HTMLElement|DocumentFragment|Text {
-        // !experimental `getOrInsert` feature!
-        const el = elMap.getOrInsertComputed(this, ()=>{
-            const element = new Text();
-            subscribe([this.ref, "value"], (val)=>(element.textContent = val));
-            return element;
-        });
-        if (el) { return el; };
-    }
-}
 
 //
 export const camelToKebab  = (str) => { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
@@ -46,7 +28,7 @@ export const elMap   = new WeakMap<any, HTMLElement|DocumentFragment|Text>();
 export const getNode = (E, mapper?: Function, index?: number)=>{
     if (mapper) { return (E = getNode(mapper?.(E, index))); }
     if (E instanceof Node || E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) { return E; } else
-    if (typeof E?.value == "string" || typeof E?.value == "number") { return new Tx(E)?.element; } else
+    if (typeof E?.value == "string" || typeof E?.value == "number") { return T(E); } else
     if (typeof E == "function") { return getNode(E()); } else  // mapped arrays always empties after
     if (typeof E == "string" || typeof E == "number") { return document.createTextNode(String(E)); } else
     if (typeof E == "object" && E != null) { return E?.element ?? elMap.get(E); }
@@ -91,4 +73,13 @@ export const removeNotExists = (element, children, mapper)=>{
     const uw = Array.from(unwrap(children))?.map?.((cp)=>getNode(mapper?.(cp) ?? cp));
     Array.from(element.childNodes).forEach((nd: any)=>{ if (uw!?.find?.((cp)=>(cp == nd))) nd?.remove?.(); });
     return element;
+}
+
+export const T = (ref)=>{
+    // !experimental `getOrInsert` feature!
+    return elMap.getOrInsertComputed(ref, ()=>{
+        const element = document.createTextNode(String(ref?.value ?? ""));
+        subscribe([ref, "value"], (val)=>(element.textContent = val));
+        return element;
+    });
 }

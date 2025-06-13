@@ -1,10 +1,10 @@
 
-import { subscribe, observableArray } from "u2re/object";
+import { subscribe, observableArray, computed, observe } from "u2re/object";
 import { reflectBehaviors, reflectStores, reflectMixins } from "u2re/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reformChildren, reflectWithStyleRules, reflectARIA } from './Reflect';
 
 //
-import { createElement, elMap, Tx } from "./DOM";
+import { createElement, elMap, getNode } from "./DOM";
 import { $mapped, reflectControllers } from './Binding';
 
 //
@@ -125,37 +125,95 @@ export class El {
     }
 }
 
-//
+
+
 export class Mp {
-    #observable: any[];
+    #observable?: any[];
     #fragments: DocumentFragment;
     #mapCb: any;
     #reMap: WeakMap<any, any>;
 
     //
     constructor(observable, mapCb = (el)=>el) {
-        this.#observable = observable;
-        this.#fragments  = document.createDocumentFragment();
+        this.#fragments = document.createDocumentFragment();
         this.#mapCb = mapCb ?? ((el)=>el);
-        this.#reMap = new WeakMap();
+        this.#reMap = new WeakMap(); this._onUpdate();
+        observe?.(this.#observable = observable, () => this._onUpdate());
     }
 
     //
-    get [$mapped]() { return true; };
-    get element (): HTMLElement|DocumentFragment|Text|null { return reformChildren(this.#fragments as DocumentFragment, this.#observable, this.mapper); }
-    get children() { return this.#observable; } //.map((...args)=>(reMap.get(args[0]) ?? elMap.get(args[0]) ?? this.#mapCb?.(...args) ?? args[0]));
+    get [$mapped]() { return true; }
+    get element (): HTMLElement|DocumentFragment|Text|null { return this.#fragments; }
+    get children() { return this.#observable; }
     get mapper  () {
         return (...args)=>{
             if (typeof args?.[0] == "object" || typeof args?.[0] == "function") {
-                // !experimental `getOrInsert` feature!
                 return this.#reMap.getOrInsert(args?.[0], this.#mapCb(...args));
-            }; return this.#mapCb(...args);
+            }
+            return this.#mapCb(...args);
         }
     }
+
+    //
+    _onUpdate() { return reformChildren((getNode(this.#observable?.[0], this.mapper)?.parentNode ?? this.#fragments), this.#observable, this.mapper); }
 }
 
 //
 export const M = (observable, mapCb?)=>{ return new Mp(observable, mapCb); }
 export const E = (selector, params = {}, children?)=>{ return new El(selector, params, children); }
-export const T = (ref)=>{ return new Tx(ref); }
+
+//
+interface SwitchedParams {
+    index: {value: number}; // Любой computed-индексатор
+    children: any[];
+}
+
+//
+export class Switched {
+    params : SwitchedParams;
+    current: number = -1;
+
+    constructor(params: SwitchedParams) {
+        this.params = params;
+        this.current = this.params.index?.value ?? -1;this._onUpdate();
+        subscribe([this.params.index, "value"], () => this._onUpdate());
+    }
+
+    get element() {
+        if (this.current < 0) return document.createDocumentFragment();
+        return getNode(this.params.children?.[this.current]);
+    }
+
+    _onUpdate() {
+        const idx = this.params.index?.value ?? -1;
+        if (idx !== this.current) {
+            const old = this.current; this.current = idx;
+
+            //
+            const parent = getNode(this.params.children?.[old])?.parentNode;
+            const newNode = idx >= 0 ? getNode(this.params.children?.[idx]) : null;
+            const oldNode = old >= 0 ? getNode(this.params.children?.[old]) : null;
+
+            //
+            if (parent && newNode) {
+                if (oldNode) {
+                    try { oldNode.replaceWith(newNode); } catch (e) { console.warn(e); }
+                } else {
+                    parent.appendChild(newNode);
+                }
+            } else if (oldNode && !newNode) {
+                oldNode.remove();
+            }
+        }
+    }
+}
+
+// TODO: support for `computed` from wrapped arrays
+export const conditionalIndex = (condList: any[])=>{
+    const comp = computed(condList, () => condList.findIndex(cb => cb?.()));
+    return comp;
+}
+
+
+//
 export default E;
