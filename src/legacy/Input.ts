@@ -1,7 +1,7 @@
 
 import { importCdn } from "u2re/cdnImport";
-import { ScrollBar } from "../ext/scrollbar/Scrollbar";
-import { includeSelf } from "../ext/core/Utils";
+import { ScrollBar } from "../fl.ui/ext/scrollbar/Scrollbar";
+import { includeSelf } from "../fl.ui/ext/core/Utils";
 
 // @ts-ignore
 const { observeBySelector } = await Promise.try(importCdn, ["u2re/dom"]);

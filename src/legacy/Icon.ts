@@ -1,6 +1,6 @@
 // @ts-ignore
 import styles from "@scss/foreign/fe-icon.scss?inline";
-import { preloadStyle } from "../ext/core/Utils";
+import { preloadStyle } from "../fl.ui/ext/core/Utils";
 
 //
 import { GLitElement, defineElement, E, H, property } from "u2re/lure";
