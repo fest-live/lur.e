@@ -336,10 +336,11 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     let controller: AbortController | null = null; // @ts-ignore
     controller?.abort?.(); controller = new AbortController();
 
+    const wv = new WeakRef(value);
     subscribe([value, "value"], (curr, _, old) => {
-        if (set?.deref?.()?.style?.[prop] === value || !(set?.deref?.())) {
-            if (typeof value?.[$behavior] == "function") {
-                value?.[$behavior]?.((val = curr) => handler(el?.deref?.(), prop, value?.value ?? val), [curr, prop, old], [controller?.signal, prop, el]);
+        if (set?.deref?.()?.style?.[prop] === wv?.deref?.() || !(set?.deref?.())) {
+            if (typeof wv?.deref?.()?.[$behavior] == "function") {
+                wv?.deref?.()?.[$behavior]?.((val = curr) => handler(el?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, el]);
             } else {
                 handler(el?.deref?.(), prop, curr);
             }
