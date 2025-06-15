@@ -3,8 +3,8 @@ import { makeReactive , ref, subscribe, observableArray } from "u2re/object";
 import { Q, loadInlineStyle, addRoot } from "u2re/dom";
 
 //
-import { E } from "./Element";
-import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "./Binding";
+import { E } from "../node/Element";
+import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "../utils/Refs";
 
 //
 const styleCache    = new Map(), styleElementCache = new WeakMap();

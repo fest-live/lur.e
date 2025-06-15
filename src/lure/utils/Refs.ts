@@ -1,24 +1,10 @@
-import { makeReactive, subscribe, ref, numberRef, stringRef, booleanRef, computed } from "u2re/object";
-import { observeAttributeBySelector, namedStoreMaps, boundBehaviors } from "u2re/dom";
-import { handleHidden } from "./Handler";
+import { subscribe, numberRef, stringRef, booleanRef, computed, makeReactive, ref } from "u2re/object";
+import { boundBehaviors, observeAttributeBySelector } from "u2re/dom";
 
-/**
- * Symbol for mapped state
- * @type {unique symbol}
- */
-export const $mapped = Symbol.for("@mapped");
-
-/**
- * Symbol for virtual state
- * @type {unique symbol}
- */
-export const $virtual = Symbol.for("@virtual");
-
-/**
- * Symbol for behavior marker
- * @type {unique symbol}
- */
-export const $behavior = Symbol.for("@behavior");
+//
+import { checkboxCtrl, numberCtrl, valueCtrl } from "../core/Control";
+import { handleHidden } from "../core/Handler";
+import { bindCtrl } from "../core/Binding";
 
 /**
  * Make a two-way <-> ref to a localStorage string value, auto-update on change and storage events
@@ -55,7 +41,8 @@ export const matchMediaRef = (condition: string) => {
  * @returns {ReturnType<typeof booleanRef>}
  */
 export const visibleRef = (element, initial?) => {
-    const val = booleanRef((initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null)); handleHidden(element, computed([val, "value"], (val)=>!val));
+    const val = booleanRef((initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null));
+    handleHidden(element, computed([val, "value"], (val)=>!val));
     element?.addEventListener?.("u2-hidden", () => { val.value = false; }, { passive: true });
     element?.addEventListener?.("u2-visible", () => { val.value = true; }, { passive: true });
     subscribe([val, "value"], (v, p) => { if (v) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } })
@@ -143,7 +130,7 @@ export const scrollRef = (element, axis: "inline" | "block", initial?) => {
  */
 export const checkedRef = (element) => {
     const val = booleanRef((!!element?.checked) || false);
-    bindCtrl(element?.self ?? element, checkboxCtrl(val))
+    bindCtrl(element?.self ?? element, checkboxCtrl(val));
     subscribe([val, "value"], (v) => {
         if (element && element?.checked != v) {
             element.checked = !!v;
@@ -185,112 +172,6 @@ export const valueAsNumberRef = (element) => {
 }
 
 /**
- * Bind reactive behavior to an element given a store and behavior function
- * @param {Element} element
- * @param {[string, any]} store [name, object]
- * @param {(event: any, context: [WeakRef<Element>, [string,any], any])=>void} behavior
- * @returns {Element}
- */
-export const bindBeh = (element, store, behavior) => {
-    const weak = element instanceof WeakRef ? element : new WeakRef(element), [name, obj] = store;
-    if (behavior) {
-        subscribe?.(store, (value, prop, old) => {
-            const valMap = namedStoreMaps.get(name);
-            behavior?.([value, prop, old], [weak, store, valMap?.get(weak.deref?.())]);
-        });
-    }; return element;
-}
-
-/**
- * Create a controller ref which fires all boundBehaviors except self on change
- * @param {*} value
- * @returns {any}
- */
-export const refCtl = (value) => {
-    let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
-        (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
-    })); return ctl;
-}
-
-/**
- * DOM checkbox "controller" event handler for use with bindCtrl
- * @param {ReturnType<typeof booleanRef>} ref
- * @returns {(ev: Event) => void}
- */
-export const checkboxCtrl = (ref) => { return (ev) => { if (ref) { ref.value = ev?.target?.checked ?? !ref.value; } } }
-
-/**
- * DOM number input "controller" event handler for use with bindCtrl
- * @param {ReturnType<typeof numberRef>} ref
- * @returns {(ev: Event) => void}
- */
-export const numberCtrl = (ref) => { return (ev) => { if (ref && ref.value !== ev?.target?.valueAsNumber) { ref.value = Number(ev?.target?.valueAsNumber || 0) ?? 0; } } }
-
-/**
- * DOM value input "controller" event handler for use with bindCtrl
- * @param {ReturnType<typeof stringRef>} ref
- * @returns {(ev: Event) => void}
- */
-export const valueCtrl = (ref) => { return (ev) => { if (ref) { ref.value = (ev?.target?.value ?? ref?.value) || ""; } } }
-
-/**
- * DOM radio group "controller" handler for use with bindCtrl
- * @param {ReturnType<typeof stringRef>} ref
- * @param {string} name
- * @returns {(ev: Event) => void}
- */
-export const radioCtrl = (ref, name) => {
-    return (ev) => {
-        const selector = `input[name="${name}"]:checked`;
-        if (ref) { ref.value = (ev?.target?.matches?.(selector) ? ev?.target : ev?.target?.querySelector?.(selector))?.value ?? ref.value; }
-    }
-}
-
-/**
- * Bind event controller (checkboxCtrl, valueCtrl etc) to element and set initial value.
- * Returns a cancel function.
- * @param {Element} element
- * @param {(ev: Event) => void} ctrl
- * @returns {()=>void} cancel function
- */
-export const bindCtrl = (element, ctrl) => {
-    ctrl?.({ target: element });
-    element?.addEventListener?.("click", ctrl);
-    element?.addEventListener?.("input", ctrl);
-    element?.addEventListener?.("change", ctrl);
-    return () => {
-        element?.removeEventListener?.("click", ctrl);
-        element?.removeEventListener?.("input", ctrl);
-        element?.removeEventListener?.("change", ctrl);
-    };
-}
-
-/**
- * Out-of-bounds trigger (fires ref.value = false if clicked outside)
- * @param {Element} element
- * @param {ReturnType<typeof booleanRef>|{value: boolean}} ref
- * @param {string} [selector] optional CSS selector for target
- * @returns {()=>void} cancel function
- */
-export const OOBTrigger = (element, ref, selector?) => {
-    const ROOT = document.documentElement;
-    const checker = (ev) => {
-        const target = selector ? (ev?.target?.matches?.(selector) ? ev?.target : (ev?.target ?? ROOT)?.querySelector?.(selector)) : ev?.target;
-        if (!target || (element != target)) { ref.value = false; }
-    }
-    const cancel = () => { ROOT.removeEventListener("click", checker); }
-    ROOT.addEventListener("click", checker); return cancel;
-}
-
-/**
- * Reflect multiple event ctrls on an element (does not support cancel)
- * @param {Element} element
- * @param {Array<Function>} ctrls
- * @returns {Element}
- */
-export const reflectControllers = (element, ctrls) => { for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
-
-/**
  * Observe and reactively assign size styles to a reactive object
  * @param {Element} element
  * @param {ResizeObserverBoxOptions} box
@@ -316,70 +197,18 @@ export const observeSize = (element, box, styles?) => {
     return styles;
 }
 
-/**
- * Bind reactive style/prop handler for a ref to an element property, using an optional set WeakRef
- * @param {WeakRef<Element>} el
- * @param {any} value ref object
- * @param {string} prop property name
- * @param {Function} handler handler function
- * @param {WeakRef<any>} [set]
- */
-export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any) => {
-    if (value?.value == null || value instanceof CSSStyleValue) return;
-    let controller: AbortController | null = null; // @ts-ignore
-    controller?.abort?.(); controller = new AbortController();
-
-    const wv = new WeakRef(value);
-    subscribe([value, "value"], (curr, _, old) => {
-        if (set?.deref?.()?.style?.[prop] === wv?.deref?.() || !(set?.deref?.())) {
-            if (typeof wv?.deref?.()?.[$behavior] == "function") {
-                wv?.deref?.()?.[$behavior]?.((val = curr) => handler(el?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, el]);
-            } else {
-                handler(el?.deref?.(), prop, curr);
-            }
-        }
-    });
-}
-
-/**
- * Starts/stops a requestAnimationFrame async scheduler loop.
- * All scheduled cbs will be run after each rAF.
- * @returns {{
- *     canceled: boolean,
- *     rAFs: Set<Function>,
- *     last: any,
- *     cancel: () => any,
- *     shedule: (cb: Function) => any
- * }}
- */
-export const makeRAFCycle = () => {
-    const control: any = {
-        canceled: false,
-        rAFs: new Set<any>(),
-        last: null,
-        cancel() { this.canceled = true; cancelAnimationFrame(this.last); return this; },
-        shedule(cb: any) { this.rAFs.add(cb); return this; }
-    };
-    (async () => {
-        while (!control?.canceled) { // @ts-ignore
-            await Promise.all((control?.rAFs?.values?.() ?? [])?.map?.((rAF) => Promise.try(rAF)?.catch?.(console.warn.bind(console)))); control.rAFs?.clear?.();
-            await new Promise((res) => { control.last = requestAnimationFrame(res); });
-        }
-    })();
-    return control;
-}
-
-/**
- * Produces a "rAF behavior" callback, which defers calls via requestAnimationFrame cycle
- * @param {Function} cb function to call
- * @param {ReturnType<typeof makeRAFCycle>} [shed]
- * @returns {Function}
- */
-export const RAFBehavior = (cb, shed = makeRAFCycle()) => {
-    return (...args) => { return shed.shedule(() => cb?.(...args)); }
-}
-
-// TODO: support for `computed` from wrapped arrays
+//
 export const conditionalIndex = (condList: any[]) => {
     return computed(condList, () => condList.findIndex(cb => cb?.()));
+}
+
+/**
+ * Create a controller ref which fires all boundBehaviors except self on change
+ * @param {*} value
+ * @returns {any}
+ */
+export const refCtl = (value) => {
+    let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
+        (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
+    })); return ctl;
 }
