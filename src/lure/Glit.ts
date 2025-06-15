@@ -20,8 +20,8 @@ const inRenderKey   = Symbol.for("@render@"), defKeys = Symbol.for("@defKeys@");
 const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "attr")  { return attrRef.bind(null, holder, name || ""); }
     if (source == "media") { return matchMediaRef; }
-    if (source == "query") { return (val)=>Q?.(name || "", holder); }
-    if (source == "query-shadow") { return (val)=>Q?.(name || "", holder?.shadowRoot ?? holder); }
+    if (source == "query")        { return (val)=>Q?.(val || name || "", holder); }
+    if (source == "query-shadow") { return (val)=>Q?.(val || name || "", holder?.shadowRoot ?? holder); }
     if (source == "localStorage") { return localStorageRef; }
     if (source == "inline-size") { return sizeRef.bind(null, holder, "inline", whenBoxValid(name) || "border-box"); }
     if (source == "content-box") { return sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "content-box"); }
@@ -37,6 +37,8 @@ const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
 
 //
 const getDef = (source?: string|any|null): any =>{
+    if (source == "query") return "input";
+    if (source == "query-shadow") return "input";
     if (source == "media") return false;
     if (source == "localStorage") return null;
     if (source == "attr") return null;
