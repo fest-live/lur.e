@@ -124,18 +124,15 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         const obj = args?.[0] ?? children?.[idx];
 
         //
-        if (element && isArray) {
-            if (["splice", "pop"].indexOf(op) >= 0 && old != null)  { toBeRemoved.push([element, old, mapper, idx]); };
-            if (["push"].indexOf(op) >= 0 && obj != null)           { toBeAppend .push([element, obj, mapper, idx]); };
-            if (["@set"].indexOf(op) >= 0 && obj != null)           { toBeReplace.push([element, obj, mapper, idx]); };
-        } else {
-            if (obj == null && old != null) { toBeRemoved.push([element, obj ?? old, mapper]); };
-            if (obj != null && old == null) { toBeAppend .push([element, obj ?? old, mapper]); };
+        if (element && (isArray && ["@add", "@set", "@remove"].indexOf(op) >= 0) || (!isArray)) {
+            if (obj != null && (old != null || op == "@set"   )) { toBeReplace.push([element, obj ?? old, mapper]); };
+            if (obj != null && (old == null || op == "@add"   )) { toBeAppend .push([element, obj ?? old, mapper]); };
+            if (old != null && (obj == null || op == "@remove")) { toBeRemoved.push([element, old ?? obj, mapper]); };
         }
 
         //
         if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
-        if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0 || !op) { // @ts-ignore
+        if (op && op != "@get" && ["@add", "@set", "@remove"].indexOf(op) >= 0 || !op) { // @ts-ignore
             if (typeof children?.[$behavior] == "function") { // @ts-ignore
                 children?.[$behavior]?.(merge, [toBeRemoved, toBeAppend, toBeReplace], [controller.signal, op, ref, args]);
             } else
