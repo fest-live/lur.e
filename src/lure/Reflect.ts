@@ -105,46 +105,42 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     //
     const toBeRemoved: any[] = [], toBeAppend: any[] = [], toBeReplace: any[] = [];
     const merge = ()=>{ // @ts-ignore
-        toBeAppend.forEach((args)=>appendChild(...args)); toBeAppend.splice(0, toBeAppend.length); // @ts-ignore
         toBeReplace.forEach((args)=>replaceChildren(...args)); toBeReplace.splice(0, toBeReplace.length); // @ts-ignore
-        toBeRemoved.forEach((args)=>removeChild(...args)); toBeRemoved.splice(0, toBeRemoved.length); // @ts-ignore
+        toBeAppend .forEach((args)=>appendChild(...args));     toBeAppend .splice(0, toBeAppend.length); // @ts-ignore
+        toBeRemoved.forEach((args)=>removeChild(...args));     toBeRemoved.splice(0, toBeRemoved.length); // @ts-ignore
     }
 
     //
     let controller: AbortController|null = null;
-    if (Array.isArray(children) || (children as any)?.length != null) observe(children, (op, ...args)=>{
+    const isArray = Array.isArray(children);
+    subscribe(children, (...args)=>{
         controller?.abort?.(); controller = new AbortController();
+
+        //
         const element = ref.deref(); if (!element) return;
-        if (element) {
-            if (op == "@set")   { toBeReplace.push([element, args[1], args[0], mapper]); } // TODO: replace group
-            if (op == "splice") { toBeRemoved.push([element, args[2] ?? children[args[0]?.[0]], mapper, args[0]?.[0]]); };
-            if (op == "pop")    { toBeRemoved.push([element, args[2], mapper, children?.length-1]); };
-            if (op == "push")   { if (args[0]?.[0] != null) toBeAppend.push([element, args[0]?.[0], mapper]); };
+        const op  = isArray ? (args?.[args.length-1] || "") : null;
+        const old = isArray ? (args?.[args.length-2] ?? -1) : args?.[2];
+        const idx = args?.[1] ?? children?.length;
+        const obj = args?.[0] ?? children?.[idx];
+
+        //
+        if (element && isArray) {
+            if (["@set"].indexOf(op) >= 0)                { toBeReplace.push([element, obj, mapper, idx]); } // TODO: replace group
+            if (["splice", "pop"].indexOf(op) >= 0)       { toBeRemoved.push([element, old, mapper, idx]); };
+            if (["push"].indexOf(op) >= 0 && obj != null) { toBeAppend .push([element, obj, mapper, idx]); };
+        } else {
+            if (obj == null && old != null) { toBeRemoved.push([element, obj ?? old, mapper]); };
+            if (obj != null && old == null) { toBeAppend .push([element, obj ?? old, mapper]); };
         }
 
         //
         if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
-        if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0) { // @ts-ignore
+        if (op && op != "@get" && ["@set", "splice", "pop", "push"].indexOf(op) >= 0 || !op) { // @ts-ignore
             if (typeof children?.[$behavior] == "function") { // @ts-ignore
                 children?.[$behavior]?.(merge, [toBeRemoved, toBeAppend, toBeReplace], [controller.signal, op, ref, args]);
             } else
             { merge(); }
         }
-    }); else
-    subscribe(children, (obj, _, has)=>{
-        controller?.abort?.(); controller = new AbortController();
-        const element = ref.deref(); if (!element) return;
-        if (element) {
-            if (obj == null && has != null) { toBeRemoved.push([element, obj ?? has, mapper]); };
-            if (obj != null && has == null) { toBeAppend.push([element, obj ?? has, mapper]); };
-        }
-
-        //
-        if ((children as any)?.size == 0 && element instanceof HTMLElement) { removeNotExists(element, children, mapper);/*element.innerHTML = ``;*/ }; // @ts-ignore
-        if (typeof children?.[$behavior] == "function") { // @ts-ignore
-            children?.[$behavior]?.(merge, [toBeRemoved, toBeAppend, toBeReplace], [controller.signal, _, ref, [obj, has]]);
-        } else
-        { merge(); }
     }); return element;
 }
 

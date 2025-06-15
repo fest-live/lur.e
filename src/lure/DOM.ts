@@ -87,7 +87,7 @@ export const appendChild = (element, cp, mapper?) => {
  * @param {number} index - Индекс заменяемого дочернего узла.
  * @param {Function} [mapper] - Дополнительная функция отображения.
  */
-export const replaceChildren = (element, cp, index, mapper?) => {
+export const replaceChildren = (element, cp, mapper?, index?) => {
     if (mapper) { cp = mapper?.(cp) ?? cp; }
     const cn = element?.childNodes?.[index];
     if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else {

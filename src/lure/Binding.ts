@@ -1,5 +1,6 @@
 import { makeReactive, subscribe, ref, numberRef, stringRef, booleanRef, computed } from "u2re/object";
 import { observeAttributeBySelector, namedStoreMaps, boundBehaviors } from "u2re/dom";
+import { handleHidden } from "./Handler";
 
 /**
  * Symbol for mapped state
@@ -54,9 +55,7 @@ export const matchMediaRef = (condition: string) => {
  * @returns {ReturnType<typeof booleanRef>}
  */
 export const visibleRef = (element, initial?) => {
-    const val = booleanRef((initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null));
-    if ((initial?.value ?? initial) != null && element?.getAttribute?.("data-hidden") == null) { if (initial?.value ?? initial) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } };
-
+    const val = booleanRef((initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null)); handleHidden(element, computed([val, "value"], (val)=>!val));
     element?.addEventListener?.("u2-hidden", () => { val.value = false; }, { passive: true });
     element?.addEventListener?.("u2-visible", () => { val.value = true; }, { passive: true });
     subscribe([val, "value"], (v, p) => { if (v) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } })
@@ -144,11 +143,7 @@ export const scrollRef = (element, axis: "inline" | "block", initial?) => {
  */
 export const checkedRef = (element) => {
     const val = booleanRef((!!element?.checked) || false);
-    if (element?.self ?? element) {
-        (element?.self ?? element)?.addEventListener?.("change", (ev) => { if (val.value != ev?.target?.checked) { val.value = (!!ev?.target?.checked) || false; } });
-        (element?.self ?? element)?.addEventListener?.("input", (ev) => { if (val.value != ev?.target?.checked) { val.value = (!!ev?.target?.checked) || false; } });
-        (element?.self ?? element)?.addEventListener?.("click", (ev) => { if (val.value != ev?.target?.checked) { val.value = (!!ev?.target?.checked) || false; } });
-    }
+    bindCtrl(element?.self ?? element, checkboxCtrl(val))
     subscribe([val, "value"], (v) => {
         if (element && element?.checked != v) {
             element.checked = !!v;
@@ -164,13 +159,11 @@ export const checkedRef = (element) => {
  */
 export const valueRef = (element) => {
     const val = stringRef(element?.value || "");
-    (element?.self ?? element)?.addEventListener?.("change", (ev) => { if (val.value != ev?.target?.value) { val.value = ev?.target?.value; } });
+    bindCtrl(element?.self ?? element, valueCtrl(val));
     subscribe([val, "value"], (v) => {
         if (element && element?.value != v) {
             element.value = v;
-            element?.dispatchEvent?.(new Event("change", {
-                bubbles: true
-            }));
+            element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
     }); return val;
 }
@@ -182,7 +175,7 @@ export const valueRef = (element) => {
  */
 export const valueAsNumberRef = (element) => {
     const val = numberRef(Number(element?.valueAsNumber) || 0);
-    (element?.self ?? element)?.addEventListener?.("change", (ev) => { if (val.value != ev?.target?.valueAsNumber) { val.value = Number(ev?.target?.valueAsNumber); } });
+    bindCtrl(element?.self ?? element, numberCtrl(val));
     subscribe([val, "value"], (v) => {
         if (element && element?.valueAsNumber != v && typeof element?.valueAsNumber == "number") {
             element.valueAsNumber = Number(v);
@@ -231,14 +224,14 @@ export const checkboxCtrl = (ref) => { return (ev) => { if (ref) { ref.value = e
  * @param {ReturnType<typeof numberRef>} ref
  * @returns {(ev: Event) => void}
  */
-export const numberCtrl = (ref) => { return (ev) => { if (ref) { ref.value = ev?.target?.valueAsNumber ?? !ref.value; } } }
+export const numberCtrl = (ref) => { return (ev) => { if (ref && ref.value !== ev?.target?.valueAsNumber) { ref.value = Number(ev?.target?.valueAsNumber || 0) ?? 0; } } }
 
 /**
  * DOM value input "controller" event handler for use with bindCtrl
  * @param {ReturnType<typeof stringRef>} ref
  * @returns {(ev: Event) => void}
  */
-export const valueCtrl = (ref) => { return (ev) => { if (ref) { ref.value = ev?.target?.value ?? !ref.value; } } }
+export const valueCtrl = (ref) => { return (ev) => { if (ref) { ref.value = (ev?.target?.value ?? ref?.value) || ""; } } }
 
 /**
  * DOM radio group "controller" handler for use with bindCtrl
@@ -249,7 +242,7 @@ export const valueCtrl = (ref) => { return (ev) => { if (ref) { ref.value = ev?.
 export const radioCtrl = (ref, name) => {
     return (ev) => {
         const selector = `input[name="${name}"]:checked`;
-        ref.value = (ev?.target?.matches?.(selector) ? ev?.target : ev?.target?.querySelector?.(selector))?.value ?? ref.value;
+        if (ref) { ref.value = (ev?.target?.matches?.(selector) ? ev?.target : ev?.target?.querySelector?.(selector))?.value ?? ref.value; }
     }
 }
 
@@ -388,6 +381,5 @@ export const RAFBehavior = (cb, shed = makeRAFCycle()) => {
 
 // TODO: support for `computed` from wrapped arrays
 export const conditionalIndex = (condList: any[]) => {
-    const comp = computed(condList, () => condList.findIndex(cb => cb?.()));
-    return comp;
+    return computed(condList, () => condList.findIndex(cb => cb?.()));
 }
