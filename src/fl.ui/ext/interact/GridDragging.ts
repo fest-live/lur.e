@@ -32,8 +32,7 @@ export const bindInteraction = async (newItem: any, pArgs: any)=>{
     const { ref, subscribe } = await Promise.try(importCdn, ["u2re/object"]);
 
     // @ts-ignore
-    const { E } = await Promise.try(importCdn, ["u2re/lure"]);
-    await new Promise((r)=>requestAnimationFrame(r)); reflectCell(newItem, pArgs, true);
+    const { E } = await Promise.try(importCdn, ["u2re/lure"]); await new Promise((r)=>requestAnimationFrame(r)); reflectCell(newItem, pArgs, true);
     const {item, list, items} = pArgs, layout = [pArgs?.layout?.columns || pArgs?.layout?.[0] || 4, pArgs?.layout?.rows || pArgs?.layout?.[1] || 8];
     const dragging    = [ ref(0), ref(0) ], gesture = new AxGesture(newItem);
     const currentCell = [ ref(item?.cell?.[0] || 0), ref(item?.cell?.[1] || 0) ];
@@ -148,21 +147,15 @@ export const bindInteraction = async (newItem: any, pArgs: any)=>{
         //
         const args = {item, list, items, layout, size: [gridSystem?.clientWidth, gridSystem?.clientHeight]};
         const CXa  = convertOrientPxToCX(rel, args, orientOf(gridSystem));
-        const clamped = [Math.floor(CXa[0]), Math.floor(CXa[1])];
-        clamped[0] = Math.max(Math.min(clamped[0], layout[0]-1), 0);
-        clamped[1] = Math.max(Math.min(clamped[1], layout[1]-1), 0);
+        const clamped = [
+            Math.max(Math.min(Math.floor(CXa[0]), layout[0]-1), 0),
+            Math.max(Math.min(Math.floor(CXa[1]), layout[1]-1), 0)
+        ];
 
         //
-        if (ev?.detail?.holding?.modified != null) { ev.detail.holding.modified[0] = 0, ev.detail.holding.modified[1] = 0; }
-        setProperty(newItem, "--p-cell-x", newItem.style.getPropertyValue("--cell-x") || 0);
-        setProperty(newItem, "--p-cell-y", newItem.style.getPropertyValue("--cell-y") || 0);
-
-        //
-        const cell = redirectCell(clamped, args);
-        doAnimate(newItem, cell[0], "x", true)?.then(()=>{if (currentCell[0].value != cell[0]) { try { currentCell[0].value = cell[0]; } catch(e) {}}; });
-        doAnimate(newItem, cell[1], "y", true)?.then(()=>{if (currentCell[1].value != cell[1]) { try { currentCell[1].value = cell[1]; } catch(e) {}}; });
-        try { dragging[0].value = 0; } catch(e) {};
-        try { dragging[1].value = 0; } catch(e) {};
+        if (ev?.detail?.holding?.modified != null) { ev.detail.holding.modified[0] = 0, ev.detail.holding.modified[1] = 0; }; const cell = redirectCell(clamped, args);
+        doAnimate(newItem, cell[0], "x", true)?.then?.(()=>{if (currentCell[0].value != cell[0]) { try { currentCell[0].value = cell[0]; } catch(e) {}}; }); try { dragging[0].value = 0; } catch(e) {};
+        doAnimate(newItem, cell[1], "y", true)?.then?.(()=>{if (currentCell[1].value != cell[1]) { try { currentCell[1].value = cell[1]; } catch(e) {}}; }); try { dragging[1].value = 0; } catch(e) {};
         delete newItem.dataset.dragging;
     });
 
