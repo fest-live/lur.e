@@ -59,10 +59,10 @@ interface Params {
 
 //
 const bindWith = (el, prop, value, handler, set?)=>{
-    const wv = new WeakRef(value);
-    const wel = new WeakRef(el);
-    handler(wel, prop, value);
-    bindHandler(wel, value, prop, handler, set);
+    //const wv  = (typeof value == "object" || typeof value == "function") ? new WeakRef(value) : value;
+    //const wel = new WeakRef(el);
+    handler(el, prop, value);
+    bindHandler(el, value, prop, handler, set);
 }
 
 //
