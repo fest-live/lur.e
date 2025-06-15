@@ -10,6 +10,24 @@ type DatasetValue = string | number | boolean | null | undefined | { value?: str
 const isVal = (v: any) => v != null && v !== false && (typeof v != "object" && typeof v != "function");
 
 //
+export const handleHidden = (element, hidden) => {
+    const isNotHidden = !hidden && typeof hidden != "string";
+    if (typeof hidden == "object" && hidden && "value" in hidden) hidden = hidden.value; // @ts-ignore
+    if (element instanceof HTMLInputElement) { element.hidden = !isNotHidden; } else { if (isNotHidden) { delete element.dataset.hidden; } else { element.dataset.hidden = ""; } }
+    return element;
+}
+
+//
+export const handleProperty = (el?: HTMLElement|null, prop?: string, val?: any)=>{
+    if (!prop || !el) return; prop = kebabToCamel(prop)!; // @ts-ignore
+    if (el.dataset[prop] === val) return; // @ts-ignore
+    if (typeof val == "object" && val && "value" in val) val = val.value; // @ts-ignore
+    if (el && el?.[prop] !== value) {
+        if (typeof val == "undefined") { delete el[prop]; } else { el[prop] = val; }
+    }
+}
+
+//
 export const handleDataset = (el?: HTMLElement|null, prop?: string, val?: DatasetValue) => {
     if (!prop || !el) return; prop = kebabToCamel(prop)!; // @ts-ignore
     if (el.dataset[prop] === val) return; // @ts-ignore

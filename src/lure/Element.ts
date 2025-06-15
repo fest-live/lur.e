@@ -5,7 +5,8 @@ import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, ref
 
 //
 import { createElement, elMap, getNode } from "./DOM";
-import { $mapped, $virtual, reflectControllers } from './Binding';
+import { $mapped, $virtual, bindHandler, reflectControllers } from './Binding';
+import { handleAttribute, handleHidden, handleProperty } from "./Handler";
 
 /**
  * Параметры для создания или конфигурирования элемента.
@@ -55,6 +56,29 @@ interface Params {
     aria?: any;
     rules?: any[];
 };
+
+//
+const bindWith = (el, prop, value, handler, set?)=>{
+    const wv = new WeakRef(value);
+    const wel = new WeakRef(el);
+    handler(wel, prop, value);
+    bindHandler(wel, value, prop, handler, set);
+}
+
+//
+const bindEvents = (element, events)=>{
+    if (events) {
+        Object.entries(events)?.forEach?.(([name, list]) => {
+            (list as any)?.values()?.forEach?.((fn) => {
+                if (typeof fn == "function") {
+                    element.addEventListener(name, fn, {});
+                } else {
+                    element.addEventListener(name, fn?.[0], fn?.[1] || {});
+                }
+            });
+        });
+    }
+}
 
 /**
  * Класс виртуального элемента для управления DOM-элементами и их атрибутами, стилями, событиями и пр.
@@ -122,6 +146,7 @@ export class El {
                 ? createElement(this.selector)
                 : this.selector;
 
+        //
         if (element instanceof HTMLElement && this.params) {
             reflectAttributes(element, this.params.attributes);
             reflectStyles(element, this.params.style);
@@ -134,48 +159,20 @@ export class El {
             reflectMixins(element, this.params.mixins);
             reflectControllers(element, this.params.ctrls);
 
-            // одноразовое обновление правил стилей
-            this.params?.rules?.forEach?.((rule) => {
-                reflectWithStyleRules(element, rule);
-            });
+            //
+            bindWith(element, "role", this.params.role, handleProperty, this.params);
+            bindWith(element, "slot", this.params.slot, handleProperty, this.params);
+            bindWith(element, "part", this.params.part, handleAttribute, this.params);
+            bindWith(element, "name", this.params.name, handleAttribute, this.params);
+            bindWith(element, "type", this.params.type, handleAttribute, this.params);
+            bindWith(element, "icon", this.params.icon, handleAttribute, this.params);
+            bindWith(element, "is", this.params.is, handleAttribute, this.params);
+            bindWith(element, "inert", this.params.inert, handleAttribute, this.params);
+            bindWith(element, "hidden", this.params.hidden, handleHidden, this.params);
+            bindEvents(element, this.params.on);
 
-            // устаналиваем атрибуты
-            if (this.params.role != null) element.role = this.params.role?.value ?? this.params.role;
-            if (this.params.slot != null) element.slot = this.params.slot?.value ?? this.params.slot;
-            if (this.params.part != null) element.setAttribute("part", this.params.part?.value ?? this.params.part);
-            if (this.params.name != null) element.setAttribute("name", this.params.name?.value ?? this.params.name);
-            if (this.params.type != null) element.setAttribute("type", this.params.type?.value ?? this.params.type);
-            if (this.params.icon != null) element.setAttribute("icon", this.params.icon?.value ?? this.params.icon);
-            if (this.params.is != null) element.setAttribute("is", this.params.is?.value ?? this.params.is);
-            if (this.params.inert || this.params.inert == "") element.setAttribute("inert", "");
-            if (this.params.hidden || this.params.hidden == "") element.setAttribute("hidden", "");
-
-            // обработчики событий
-            if (this.params.on) {
-                Object.entries(this.params.on)?.forEach?.(([name, list]) => {
-                    (list as any)?.values()?.forEach?.((fn) => {
-                        if (typeof fn == "function") {
-                            element.addEventListener(name, fn, {});
-                        } else {
-                            element.addEventListener(name, fn?.[0], fn?.[1] || {});
-                        }
-                    });
-                });
-            }
-
-            // состояние скрытости
-            if (this.params.hidden != null) {
-                if (typeof this.params.hidden == "object" || typeof this.params.hidden == "function") {
-                    subscribe([this.params.hidden, "value"], (val) => {
-                        if (element instanceof HTMLInputElement) { element.hidden = val != null; } else {
-                            if (val == null) { delete element.dataset.hidden; } else { element.dataset.hidden = ""; }
-                        }
-                    });
-                } else {
-                    const isNotHidden = !this.params.hidden && typeof this.params.hidden != "string";
-                    if (element instanceof HTMLInputElement) { element.hidden = !isNotHidden; } else { if (isNotHidden) { delete element.dataset.hidden; } else { element.dataset.hidden = ""; } }
-                }
-            }
+            //
+            this.params?.rules?.forEach?.((rule) => reflectWithStyleRules(element, rule));
         }
         // Отражение детей
         if (this.children) reflectChildren(element, this.children);

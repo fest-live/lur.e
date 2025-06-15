@@ -1,7 +1,7 @@
 
 import { subscribe, observe } from "u2re/object";
-import { kebabToCamel, appendChild, removeNotExists } from "./DOM";
-import { handleAttribute, handleDataset, handleStyleChange } from "./Handler";
+import { appendChild, removeNotExists } from "./DOM";
+import { handleAttribute, handleDataset, handleProperty, handleStyleChange } from "./Handler";
 import { $mapped, $behavior, bindHandler } from "./Binding";
 
 //
@@ -27,9 +27,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
                     if (attributes[key] != null && (attributes[key]?.value != null || (typeof attributes[key] == "object" || typeof attributes[key] == "function"))) {
                         if (attributes[key]?.value !== value) { attributes[key].value = value; }
                     } else
-                    if (attributes[key] !== value) {
-                        attributes[key] = value;
-                    }
+                    if (attributes[key] !== value) { attributes[key] = value; }
                 }
             }
         }
@@ -74,7 +72,6 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
         subscribe(styles, (value, prop: any)=>{
-            const cby = kebabToCamel(prop);
             handleStyleChange(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleStyleChange, weak);
         });
@@ -86,22 +83,10 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
 export const reflectWithStyleRules = async (element: HTMLElement, rule: any)=>{ const styles = await rule?.(element); return reflectStyles(element, styles); }
 export const reflectProperties = (element: HTMLElement, properties: any)=>{
     if (!properties) return element; const weak = new WeakRef(properties), wel = new WeakRef(element);
-    subscribe(properties, (value, prop)=>{
-        if (value?.value != null) {
-            subscribe([value, "value"], (curr) => {
-                const el = wel?.deref?.();
-                // sorry, we doesn't allow abuse that mechanic
-                if ((weak?.deref?.()?.[prop] === value || !(weak?.deref?.())) && el) {
-                    if (typeof curr == "undefined") { delete el[prop]; } else { el[prop] = curr; }
-                }
-            });
-        } else {
-            const el = wel?.deref?.();
-            if (el && el?.[prop] !== value) {
-                if (typeof value == "undefined") { delete el[prop]; } else { el[prop] = value; }
-            }
-        }
-    })
+    subscribe(properties, (value, prop: any)=>{
+        handleProperty(wel?.deref?.(), prop, value);
+        bindHandler(wel, value, prop, handleProperty, weak);
+    });
 
     // if any input
     element.addEventListener("change", (ev: any)=>{
