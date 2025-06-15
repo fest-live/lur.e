@@ -91,23 +91,11 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
 
 //
 export const bindWith = (el, prop, value, handler, set?)=>{
-    //const wv  = (typeof value == "object" || typeof value == "function") ? new WeakRef(value) : value;
-    //const wel = new WeakRef(el);
     handler(el, prop, value);
     bindHandler(el, value, prop, handler, set);
 }
 
 //
 export const bindEvents = (element, events)=>{
-    if (events) {
-        Object.entries(events)?.forEach?.(([name, list]) => {
-            (list as any)?.values()?.forEach?.((fn) => {
-                if (typeof fn == "function") {
-                    element.addEventListener(name, fn, {});
-                } else {
-                    element.addEventListener(name, fn?.[0], fn?.[1] || {});
-                }
-            });
-        });
-    }
+    if (events) { Object.entries(events)?.forEach?.(([name, list]) => (list as any)?.values()?.forEach?.((fn) => element.addEventListener(name, (typeof fn == "function") ? fn : fn?.[0], fn?.[1] || {}))); }
 }

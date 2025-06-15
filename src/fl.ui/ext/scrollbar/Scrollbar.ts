@@ -1,9 +1,7 @@
 
 import { computed, subscribe } from "u2re/object";
-
-import { setProperty, zoomOf } from "u2re/dom";
-
-import { scrollRef, sizeRef } from "../../..";
+import { makeRAFCycle, setProperty, zoomOf } from "u2re/dom";
+import { scrollRef, sizeRef } from "u2re/lure";
 
 //
 export interface ScrollBarStatus {
@@ -50,25 +48,28 @@ const scrollbarCoef  = (source: HTMLElement, axis: number)=>{ // @ts-ignore
 
 //
 const controlVisible = async (source: HTMLElement, timeline: any = null)=>{
-    if (!source) return; const target = asWeak(source);
-    return subscribe(timeline, (val: any)=>fx.add(()=>{
-        const hidden = val < 0.001 || val > 0.999; const tg = target?.deref?.();
-        if (tg) {
+    if (!source) return; const target = asWeak(source), wk = asWeak(timeline);
+    const renderCb = ()=>{
+        const tg = target?.deref?.(); if (tg) {
+            const val = wk?.deref?.()?.value || 0, hidden = val < 0.001 || val > 0.999;
             setProperty(tg, "visibility", hidden ? "collapse" : "visible");
             setProperty(tg?.querySelector?.("*"), "pointer-events", hidden ? "none" : "auto");
         }
-    }))
+    };
+    return subscribe(timeline, (val: any)=>sheduler.add(renderCb))
 }
 
 //
 const animateByTimeline = async (source: HTMLElement, properties = {}, timeline: any = null)=>{
-    if (!source) return; const target = asWeak(source);
-    return subscribe(timeline, (val: any)=>{
-        fx.add(()=>Object.entries(properties).forEach(([name, $v])=>{
-            const values = $v as [any, any];
-            setProperty(target?.deref?.(), name, (values[0] * (1 - val) + values[1] * val))
-        }));
-    })
+    if (!source) return; const target = asWeak(source), wk = asWeak(timeline);
+    const  everyCb = ()=>Object.entries(properties).forEach(renderCb);
+    const renderCb = ([name, $v])=>{
+        const tg = target?.deref?.(); if (tg) {
+            const val = wk?.deref?.()?.value || 0, values = $v as [any, any];
+            setProperty(tg, name, (values[0] * (1 - val) + values[1] * val))
+        }
+    }
+    return subscribe(timeline, (val: any)=>sheduler.add(everyCb))
 }
 
 //
@@ -130,13 +131,7 @@ const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {})
 }
 
 //
-export const doAnimate = async ()=>{
-    let inWork = {value: true};
-    while(inWork?.value) { // @ts-ignore
-        fx.values().forEach((cb)=>Promise?.try?.(cb)?.catch?.(console.warn.bind(console))); fx.clear();
-        await new Promise((r)=>requestAnimationFrame(r));
-    }; return inWork;
-}
+const sheduler = makeRAFCycle();
 
 //
 export class ScrollBar {
@@ -170,6 +165,3 @@ export class ScrollBar {
         makeInteractive(this.holder, this.content, this.scrollbar, axis, this.status);
     }
 }
-
-//
-doAnimate?.();

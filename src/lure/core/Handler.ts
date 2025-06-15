@@ -1,4 +1,4 @@
-import { setStyleProperty } from "u2re/dom";
+import { setStyleProperty, makeRAFCycle } from "u2re/dom";
 
 //
 export const camelToKebab = (str: string) => str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
@@ -62,3 +62,13 @@ export const handleAttribute = (el?: HTMLElement|null, prop?: string, val?: any)
         if (val !== false) console.warn(`Invalid type of attribute value "${prop}":`, val);
     }
 };
+
+/**
+ * Produces a "rAF behavior" callback, which defers calls via requestAnimationFrame cycle
+ * @param {Function} cb function to call
+ * @param {ReturnType<typeof makeRAFCycle>} [shed]
+ * @returns {Function}
+ */
+export const RAFBehavior = (cb, shed = makeRAFCycle()) => {
+    return (...args) => { return shed.shedule(() => cb?.(...args)); }
+}
