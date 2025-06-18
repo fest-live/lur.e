@@ -197,11 +197,6 @@ export const observeSize = (element, box, styles?) => {
     return styles;
 }
 
-//
-export const conditionalIndex = (condList: any[]) => {
-    return computed(condList, () => condList.findIndex(cb => cb?.()));
-}
-
 /**
  * Create a controller ref which fires all boundBehaviors except self on change
  * @param {*} value
@@ -211,4 +206,9 @@ export const refCtl = (value) => {
     let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
         (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
     })); return ctl;
+}
+
+//
+export const conditionalIndex = (condList: any[]) => {
+    return computed(condList, () => condList.findIndex(cb => cb?.()));
 }

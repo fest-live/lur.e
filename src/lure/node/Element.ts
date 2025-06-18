@@ -4,8 +4,8 @@ import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, ref
 
 //
 import { createElement, elMap } from "../utils/DOM";
-import { $virtual, bindEvents, bindWith, reflectControllers } from '../core/Binding';
-import { handleAttribute, handleHidden, handleProperty } from "../core/Handler";
+import { bindEvents, reflectControllers, bindWith, $virtual } from '../core/Binding';
+import { handleProperty, handleHidden, handleAttribute,  } from "../core/Handler";
 
 /**
  * Параметры для создания или конфигурирования элемента.
@@ -150,6 +150,7 @@ export class El {
             //
             this.params?.rules?.forEach?.((rule) => reflectWithStyleRules(element, rule));
         }
+
         // Отражение детей
         if (this.children) reflectChildren(element, this.children);
         elMap.set(this, element);

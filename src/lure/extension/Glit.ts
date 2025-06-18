@@ -1,10 +1,10 @@
 import { importCdn } from "u2re/cdnImport";
 import { makeReactive , ref, subscribe, observableArray } from "u2re/object";
-import { Q, loadInlineStyle, addRoot } from "u2re/dom";
+import { loadInlineStyle, Q, addRoot } from "u2re/dom";
 
 //
-import { E } from "../node/Element";
 import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "../utils/Refs";
+import E from "../node/Element";
 
 //
 const styleCache    = new Map(), styleElementCache = new WeakMap();

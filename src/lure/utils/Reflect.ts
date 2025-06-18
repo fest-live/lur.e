@@ -1,10 +1,9 @@
-
 import { subscribe, observe } from "u2re/object";
 
 //
 import { appendChild, removeNotExists } from "./DOM";
-import { handleAttribute, handleDataset, handleProperty, handleStyleChange } from "../core/Handler";
-import { $mapped, $behavior, bindHandler } from "../core/Binding";
+import { bindHandler, $mapped, $behavior } from "../core/Binding";
+import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../core/Handler";
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{

@@ -19,7 +19,6 @@ export const $virtual = Symbol.for("@virtual");
  */
 export const $behavior = Symbol.for("@behavior");
 
-
 /**
  * Bind reactive behavior to an element given a store and behavior function
  * @param {Element} element

@@ -1,5 +1,5 @@
 import { unwrap, subscribe } from "u2re/object";
-import { $mapped, $virtual } from "../core/Binding";
+import { $virtual, $mapped } from "../core/Binding";
 
 //
 const
@@ -145,3 +145,6 @@ export const T = (ref) => {
         return element;
     });
 }
+
+//
+export default getNode;

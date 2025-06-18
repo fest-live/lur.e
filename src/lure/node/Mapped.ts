@@ -1,7 +1,7 @@
 import { observe } from "u2re/object";
+import { getNode } from "../utils/DOM";
 import { $mapped } from "../core/Binding";
 import { reformChildren } from "../utils/Reflect";
-import { getNode } from "../utils/DOM";
 
 /**
  * Mp - Класс-обёртка для управления списком наблюдаемых элементов и их отображением через map-коллбэк.
