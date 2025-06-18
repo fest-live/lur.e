@@ -75,7 +75,7 @@ export const E = (selector: string | HTMLElement, params: Params = {}, children?
     //if (elMap.has(this)) { const el = elMap.get(this); if (el) { return el; } }
 
     /** @type {HTMLElement | DocumentFragment | Text} */
-    const element = Q(typeof selector == "string" ? createElement(selector) : selector);
+    const element = Qp(typeof selector == "string" ? createElement(selector) : selector);
 
     //
     if (element instanceof HTMLElement && params) {
