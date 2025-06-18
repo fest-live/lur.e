@@ -13,7 +13,7 @@ const isVal = (v: any) => v != null && v !== false && (typeof v != "object" && t
 export const handleHidden = (element, hidden) => {
     const isNotHidden = (!hidden && typeof hidden != "string") ? true : (hidden == "" ? false : true);
     if (typeof hidden == "object" && hidden && "value" in hidden) { hidden = hidden.value }; // @ts-ignore
-    if (element instanceof HTMLInputElement) { element.hidden = !isNotHidden; } else { if (isNotHidden) { delete element.dataset.hidden; } else { element.dataset.hidden = ""; } }
+    if (element instanceof HTMLInputElement) { element.hidden = !isNotHidden; } else { if (isNotHidden) { delete element.dataset?.hidden; } else { element.dataset.hidden = ""; } }
     return element;
 }
 
@@ -51,10 +51,33 @@ export const handleStyleChange = (el?: HTMLElement|null, prop?: string, val?: an
     }
 };
 
+
+/*  // DEPRECATED: needs rewrite and embed into `handleAttribute`
+    const config = { attributeOldValue: true, attributes: true, childList: false, subtree: false };
+    const callback = (mutationList, _) => {
+        for (const mutation of mutationList) {
+            if (mutation.type == "attributes") {
+                const key = mutation.attributeName;
+                const value = mutation.target.getAttribute(key);
+                if (value !== mutation.oldValue) { // one-shot update (only valid when attribute is really changes)
+                    if (attributes[key] != null && (attributes[key]?.value != null || (typeof attributes[key] == "object" || typeof attributes[key] == "function"))) {
+                        if (attributes[key]?.value !== value) { attributes[key].value = value; }
+                    } else
+                    if (attributes[key] !== value) { attributes[key] = value; }
+                }
+            }
+        }
+    };
+
+    //
+    const observer = new MutationObserver(callback);
+    observer.observe(element, config); return element;
+*/
+
 //
 export const handleAttribute = (el?: HTMLElement|null, prop?: string, val?: any) => {
     if (!prop || !el) return; prop = camelToKebab(prop)!;
-    if (el.getAttribute(prop) === val) return;
+    if (el.getAttribute?.(prop) === val) return;
     if (typeof val == "object" && val && "value" in val) val = val.value;
     if (val == null || val === false) el.removeAttribute(prop);
     else if (typeof val != "object" && typeof val != "function") el.setAttribute(prop, String(val));

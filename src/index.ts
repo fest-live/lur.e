@@ -1,6 +1,6 @@
 export * from "./lure/core/Binding"
 export * from "./lure/extension/Glit"
-export * from "./lure/node/Element"
+export * from "./lure/node/Bindings"
 export * from "./lure/node/Syntax"
 export * from "./lure/node/Switched"
 export * from "./lure/node/Mapped"

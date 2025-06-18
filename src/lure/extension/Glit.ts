@@ -4,7 +4,7 @@ import { addRoot, Q, loadInlineStyle} from "u2re/dom";
 
 //
 import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "../utils/Refs";
-import E from "../node/Element";
+import E from "../node/Bindings";
 
 //
 const styleCache    = new Map(), styleElementCache = new WeakMap();

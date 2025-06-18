@@ -1,5 +1,11 @@
 import { subscribe } from "u2re/object";
-import { namedStoreMaps } from "u2re/dom";
+import { camelToKebab, namedStoreMaps } from "u2re/dom";
+
+/**
+ * @type {WeakMap<any, (HTMLElement|DocumentFragment|Text)>}
+ * @description Сопоставляет объектам соответствующие DOM-узлы.
+ */
+export const elMap = new WeakMap<any, HTMLElement | DocumentFragment | Text>();
 
 /**
  * Symbol for mapped state
@@ -61,7 +67,42 @@ export const bindCtrl = (element, ctrlCb) => {
  * @param {Array<Function>} ctrls
  * @returns {Element}
  */
-export const reflectControllers = (element, ctrls) => { for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
+export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
+
+//
+export const addToBank = (el, value, prop, handler) => { // @ts-ignore
+    const bank = elMap.getOrInsert(el, new WeakMap());
+    const handlerMap = bank.getOrInsert(handler, {});
+    if (handlerMap[prop] != null) return false;
+    handlerMap[prop] = value; return true;
+}
+
+
+/**
+ * Универсальная функция для установки значения, подписки на изменения и обработки через handler.
+ * Если передан set=true, то создаётся MutationObserver для отслеживания изменений атрибута.
+ */
+export const observeAttribute = (
+    el: HTMLElement,
+    prop: string,
+    value: any
+) => {
+    // 1. Установить значение через handler
+    //handler(el, prop, value);
+
+    // 2. Если set=true, подписаться на изменения атрибута через MutationObserver
+    const attrName = camelToKebab(prop)!;
+    const observer = new MutationObserver((mutationList) => {
+        for (const mutation of mutationList) {
+            if (mutation.type === "attributes" && mutation.attributeName === attrName) {
+                const newValue = el.getAttribute(attrName);
+                if (value.value !== newValue) value.value = newValue;
+            }
+        }
+    });
+    observer.observe(el, { attributes: true, attributeOldValue: true, attributeFilter: [attrName] });
+    return observer; // Можно вернуть observer, если нужно управлять его жизненным циклом
+};
 
 /**
  * Bind reactive style/prop handler for a ref to an element property, using an optional set WeakRef
@@ -71,11 +112,15 @@ export const reflectControllers = (element, ctrls) => { for (let ctrl of ctrls) 
  * @param {Function} handler handler function
  * @param {WeakRef<any>} [set]
  */
-export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any) => {
-    if (value?.value == null || value instanceof CSSStyleValue) return;
+export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean) => {
+    if (value?.value == null || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
+    if (!addToBank(el, value, prop, handler)) return; // prevent data disruption
+
+    //
     let controller: AbortController | null = null; // @ts-ignore
     controller?.abort?.(); controller = new AbortController();
 
+    //
     const wv = new WeakRef(value);
     subscribe([value, "value"], (curr, _, old) => {
         if (set?.deref?.()?.style?.[prop] === wv?.deref?.() || !(set?.deref?.())) {
@@ -86,12 +131,15 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
             }
         }
     });
+
+    //
+    if (withObserver) { observeAttribute(el, prop, value); }
 }
 
 //
-export const bindWith = (el, prop, value, handler, set?)=>{
+export const bindWith = (el, prop, value, handler, set?, withObserver?: boolean)=>{
     handler(el, prop, value);
-    bindHandler(el, value, prop, handler, set);
+    bindHandler(el, value, prop, handler, set, withObserver);
 }
 
 //

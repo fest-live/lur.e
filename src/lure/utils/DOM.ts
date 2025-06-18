@@ -1,5 +1,5 @@
 import { unwrap, subscribe } from "u2re/object";
-import { $virtual, $mapped } from "../core/Binding";
+import { $virtual, $mapped, elMap } from "../core/Binding";
 
 //
 const
@@ -43,13 +43,6 @@ export const createElement = (selector): HTMLElement | DocumentFragment => {
     if (className) node.className = className.slice(1);
     return node;
 };
-
-//
-/**
- * @type {WeakMap<any, (HTMLElement|DocumentFragment|Text)>}
- * @description Сопоставляет объектам соответствующие DOM-узлы.
- */
-export const elMap = new WeakMap<any, HTMLElement | DocumentFragment | Text>();
 
 /**
  * Получает DOM-узел для произвольного значения, поддерживая функции/реактивности.

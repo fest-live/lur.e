@@ -2,7 +2,7 @@ import { subscribe, observe } from "u2re/object";
 
 //
 import { appendChild, removeNotExists } from "./DOM";
-import { bindHandler, $mapped, $behavior } from "../core/Binding";
+import { bindHandler, $mapped, $behavior, addToBank } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../core/Handler";
 
 //
@@ -18,6 +18,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     { console.warn("Invalid attributes object:", attributes); }
 
     // bi-directional attribute
+/*
     const config = { attributeOldValue: true, attributes: true, childList: false, subtree: false };
     const callback = (mutationList, _) => {
         for (const mutation of mutationList) {
@@ -36,7 +37,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
 
     //
     const observer = new MutationObserver(callback);
-    observer.observe(element, config); return element;
+    observer.observe(element, config); return element;*/
 }
 
 //
@@ -97,9 +98,13 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     }); return element;
 }
 
-//
+// TODO! use handlerMap registry
 export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    if (!children) return element; const ref = new WeakRef(element);
+    if (!children) return element;
+    if (!addToBank(element, children, "childNodes", reflectChildren)) { return element; }
+
+    //
+    const ref = new WeakRef(element);
     mapper   = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
     children = (children?.[$mapped] ? (children as any)?.children : children) ?? children;
 
