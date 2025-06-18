@@ -11,33 +11,11 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
         subscribe(attributes, (value, prop: any)=>{
-            handleAttribute(wel?.deref?.(), prop, value);
-            bindHandler(wel, value, prop, handleAttribute, weak);
+            handleAttribute(wel?.deref?.(), prop, value, true);
+            bindHandler(wel, value, prop, handleAttribute, weak, true);
         })
     } else
     { console.warn("Invalid attributes object:", attributes); }
-
-    // bi-directional attribute
-/*
-    const config = { attributeOldValue: true, attributes: true, childList: false, subtree: false };
-    const callback = (mutationList, _) => {
-        for (const mutation of mutationList) {
-            if (mutation.type == "attributes") {
-                const key = mutation.attributeName;
-                const value = mutation.target.getAttribute(key);
-                if (value !== mutation.oldValue) { // one-shot update (only valid when attribute is really changes)
-                    if (attributes[key] != null && (attributes[key]?.value != null || (typeof attributes[key] == "object" || typeof attributes[key] == "function"))) {
-                        if (attributes[key]?.value !== value) { attributes[key].value = value; }
-                    } else
-                    if (attributes[key] !== value) { attributes[key] = value; }
-                }
-            }
-        }
-    };
-
-    //
-    const observer = new MutationObserver(callback);
-    observer.observe((el as any)?.element ?? el, config); return element;*/
 }
 
 //
@@ -46,8 +24,8 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
     const weak = new WeakRef(aria), wel = new WeakRef(element);
     if (typeof aria == "object" || typeof aria == "function") {
         subscribe(aria, (value, prop)=>{ // @ts-ignore
-            handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value);
-            bindHandler(wel, value, prop, handleAttribute, weak);
+            handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);
+            bindHandler(wel, value, prop, handleAttribute, weak, true);
         })
     } else
     { console.warn("Invalid ARIA object:", aria);}; return element;

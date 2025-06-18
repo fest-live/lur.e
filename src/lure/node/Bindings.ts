@@ -58,7 +58,7 @@ interface Params {
 
 // WILL not be released!
 export const Qp = (ref, host = document.documentElement)=>{
-    if (typeof ref == "string" || ref instanceof HTMLElement) { return Q(ref, host); }
+    if (ref?.value == null) { return Q(ref, host); }
     const actual = Q(ref?.value, host);
     subscribe(ref, (value, prop)=>actual?._updateSelector(value));
     return actual;
@@ -93,12 +93,12 @@ export const E = (selector: string | HTMLElement, params: Params = {}, children?
         //
         bindWith(element, "role", params.role, handleProperty, params);
         bindWith(element, "slot", params.slot, handleProperty, params);
-        bindWith(element, "part", params.part, handleAttribute, params);
-        bindWith(element, "name", params.name, handleAttribute, params);
-        bindWith(element, "type", params.type, handleAttribute, params);
-        bindWith(element, "icon", params.icon, handleAttribute, params);
-        bindWith(element, "is", params.is, handleAttribute, params);
-        bindWith(element, "inert", params.inert, handleAttribute, params);
+        bindWith(element, "part", params.part, handleAttribute, params, true);
+        bindWith(element, "name", params.name, handleAttribute, params, true);
+        bindWith(element, "type", params.type, handleAttribute, params, true);
+        bindWith(element, "icon", params.icon, handleAttribute, params, true);
+        bindWith(element, "is", params.is, handleAttribute, params, true);
+        bindWith(element, "inert", params.inert, handleAttribute, params, true);
         bindWith(element, "hidden", params.hidden, handleHidden, params);
         bindEvents(element, params.on);
 

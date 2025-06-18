@@ -138,12 +138,12 @@ export class El {
             //
             bindWith(element, "role", this.params.role, handleProperty, this.params);
             bindWith(element, "slot", this.params.slot, handleProperty, this.params);
-            bindWith(element, "part", this.params.part, handleAttribute, this.params);
-            bindWith(element, "name", this.params.name, handleAttribute, this.params);
-            bindWith(element, "type", this.params.type, handleAttribute, this.params);
-            bindWith(element, "icon", this.params.icon, handleAttribute, this.params);
-            bindWith(element, "is", this.params.is, handleAttribute, this.params);
-            bindWith(element, "inert", this.params.inert, handleAttribute, this.params);
+            bindWith(element, "part", this.params.part, handleAttribute, this.params, true);
+            bindWith(element, "name", this.params.name, handleAttribute, this.params, true);
+            bindWith(element, "type", this.params.type, handleAttribute, this.params, true);
+            bindWith(element, "icon", this.params.icon, handleAttribute, this.params, true);
+            bindWith(element, "is", this.params.is, handleAttribute, this.params, true);
+            bindWith(element, "inert", this.params.inert, handleAttribute, this.params, true);
             bindWith(element, "hidden", this.params.hidden, handleHidden, this.params);
             bindEvents(element, this.params.on);
 
