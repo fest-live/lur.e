@@ -179,7 +179,7 @@ export class LongPressHandler {
         const  distance        = Math.hypot(lastX - startX, lastY - startY);
         return distance <= (self.options.maxOffsetRadius ?? 10);
     }
-
 }
 
+//
 export default LongPressHandler;
