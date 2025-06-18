@@ -77,29 +77,26 @@ export const addToBank = (el, value, prop, handler) => { // @ts-ignore
     handlerMap[prop] = value; return true;
 }
 
-
 /**
  * Универсальная функция для установки значения, подписки на изменения и обработки через handler.
  * Если передан set=true, то создаётся MutationObserver для отслеживания изменений атрибута.
  */
-export const observeAttribute = (
-    el: HTMLElement,
-    prop: string,
-    value: any
-) => {
-    // 1. Установить значение через handler
-    //handler(el, prop, value);
-
-    // 2. Если set=true, подписаться на изменения атрибута через MutationObserver
-    const attrName = camelToKebab(prop)!;
-    const observer = new MutationObserver((mutationList) => {
+export const observeAttribute = (el: HTMLElement, prop: string, value: any) => {
+    const cb = (mutationList)=>{
         for (const mutation of mutationList) {
             if (mutation.type === "attributes" && mutation.attributeName === attrName) {
                 const newValue = el.getAttribute(attrName);
                 if (value.value !== newValue) value.value = newValue;
             }
         }
-    });
+    }
+
+    // if queried, use universal observer
+    if (typeof (el as any)?.selector == "string" && (el as any)?.observeAttr != null) return (el as any)?.observeAttr?.(prop, cb);
+
+    //
+    const attrName = camelToKebab(prop)!;
+    const observer = new MutationObserver(cb);
     observer.observe((el as any)?.element ?? el, { attributes: true, attributeOldValue: true, attributeFilter: [attrName] });
     return observer; // Можно вернуть observer, если нужно управлять его жизненным циклом
 };
