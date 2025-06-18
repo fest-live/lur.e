@@ -1,12 +1,10 @@
-import { observableArray } from "u2re/object";
 import { reflectBehaviors, reflectStores, reflectMixins, Q } from "u2re/dom";
-import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reformChildren, reflectWithStyleRules, reflectARIA } from '../utils/Reflect';
+import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reflectWithStyleRules, reflectARIA } from '../utils/Reflect';
 
 //
 import { createElement } from "../utils/DOM";
 import { bindEvents, reflectControllers, bindWith, $virtual, elMap } from '../core/Binding';
 import { handleProperty, handleHidden, handleAttribute,  } from "../core/Handler";
-
 
 /**
  * Параметры для создания или конфигурирования элемента.
