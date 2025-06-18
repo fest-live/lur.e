@@ -1,6 +1,6 @@
 import { importCdn } from "u2re/cdnImport";
-import { makeReactive , ref, subscribe, observableArray } from "u2re/object";
-import { loadInlineStyle, Q, addRoot } from "u2re/dom";
+import { subscribe, makeReactive, observableArray, ref } from "u2re/object";
+import { addRoot, Q, loadInlineStyle} from "u2re/dom";
 
 //
 import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "../utils/Refs";
