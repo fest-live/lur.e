@@ -100,7 +100,7 @@ export const observeAttribute = (
             }
         }
     });
-    observer.observe(el, { attributes: true, attributeOldValue: true, attributeFilter: [attrName] });
+    observer.observe((el as any)?.element ?? el, { attributes: true, attributeOldValue: true, attributeFilter: [attrName] });
     return observer; // Можно вернуть observer, если нужно управлять его жизненным циклом
 };
 

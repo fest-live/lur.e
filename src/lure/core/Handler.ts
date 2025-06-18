@@ -71,7 +71,7 @@ export const handleStyleChange = (el?: HTMLElement|null, prop?: string, val?: an
 
     //
     const observer = new MutationObserver(callback);
-    observer.observe(element, config); return element;
+    observer.observe((el as any)?.element ?? el, config); return element;
 */
 
 //

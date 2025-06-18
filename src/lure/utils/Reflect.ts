@@ -37,7 +37,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
 
     //
     const observer = new MutationObserver(callback);
-    observer.observe(element, config); return element;*/
+    observer.observe((el as any)?.element ?? el, config); return element;*/
 }
 
 //

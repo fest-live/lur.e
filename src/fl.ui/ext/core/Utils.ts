@@ -102,7 +102,7 @@ export const doContentObserve = (element, cb: any = ()=>{}) => {
 
         //
         onContentObserve.set(element, observer);
-        observer.observe(element, {box: "content-box"});
+        observer.observe((element as any)?.element ?? element, {box: "content-box"});
     }
 };
 
@@ -127,7 +127,7 @@ export const doBorderObserve = (element, cb: any = ()=>{}) => {
 
         //
         onBorderObserve.set(element, observer);
-        observer.observe(element, {box: "border-box"});
+        observer.observe((element as any)?.element ?? element, {box: "border-box"});
     }
 }
 
