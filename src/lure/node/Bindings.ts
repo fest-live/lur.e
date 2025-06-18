@@ -5,6 +5,7 @@ import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, ref
 import { createElement } from "../utils/DOM";
 import { bindEvents, reflectControllers, bindWith, $virtual, elMap } from '../core/Binding';
 import { handleProperty, handleHidden, handleAttribute,  } from "../core/Handler";
+import { subscribe } from "u2re/object";
 
 /**
  * Параметры для создания или конфигурирования элемента.
@@ -54,6 +55,14 @@ interface Params {
     aria?: any;
     rules?: any[];
 };
+
+// WILL not be released!
+export const Qp = (ref, host = document.documentElement)=>{
+    if (typeof ref == "string" || ref instanceof HTMLElement) { return Q(ref, host); }
+    const actual = Q(ref?.value, host);
+    subscribe(ref, (value, prop)=>actual?._updateSelector(value));
+    return actual;
+}
 
 /**
  * Создаёт экземпляр El на основе CSS-селектора, параметров и детей.
