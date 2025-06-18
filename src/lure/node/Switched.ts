@@ -7,7 +7,7 @@ import { getNode } from "../utils/DOM";
  * @property {any[]} mapped - массив маппированных элементов
  */
 interface SwitchedParams {  // interactive or reactive iterator
-    index: { value: number }; // candidates
+    current: { value: number }; // candidates
     mapped: any[];
 }
 
@@ -23,7 +23,7 @@ const SwM = {
      */
     get element(): Node {
         if (this.current < 0) return document.createDocumentFragment();
-        return getNode(this.params.mapped?.[this.current]);
+        return getNode(this.mapped?.[this.current]);
     },
 
     /**
@@ -32,14 +32,14 @@ const SwM = {
      * @private
      */
     _onUpdate(): void {
-        const idx = this.params.index?.value ?? -1;
+        const idx = this.current?.value ?? -1;
         if (idx !== this.current) {
             const old = this.current; this.current = idx;
 
             // Find parent and new/old nodes
-            const parent  = getNode(this.params.mapped?.[old])?.parentNode;
-            const newNode = idx >= 0 ? getNode(this.params.mapped?.[idx]) : null;
-            const oldNode = old >= 0 ? getNode(this.params.mapped?.[old]) : null;
+            const parent  = getNode(this.mapped?.[old])?.parentNode;
+            const newNode = idx >= 0 ? getNode(this.mapped?.[idx]) : null;
+            const oldNode = old >= 0 ? getNode(this.mapped?.[old]) : null;
 
             // Update DOM nodes accordingly
             if (parent && newNode) {
@@ -57,26 +57,26 @@ const inProx = new WeakMap(), contextify = (pc: any, name: any) =>
 
 //
 export class SwHandler implements ProxyHandler<SwitchedParams> {
-    index: number = -1;
     constructor() {}
 
+    //
+    set(params: SwitchedParams, name, val) { return Reflect.set(params?.mapped?.[params?.current?.value], name, val); }
+    has(params: SwitchedParams, name) { return Reflect.has(params?.mapped?.[params?.current?.value], name); }
     get(params: SwitchedParams, name, ctx) {
         if (name in SwM) { return contextify(params, name); };
-        return contextify(params?.mapped?.[this.index], name);
+        return contextify(params?.mapped?.[params?.current?.value ?? -1], name);
     }
 
     //
-    set(params: SwitchedParams, name, val) { return Reflect.set(params?.mapped?.[this.index], name, val); }
-    has(params: SwitchedParams, name) { return Reflect.has(params?.mapped?.[this.index], name); }
-    deleteProperty(params: SwitchedParams, name) { return Reflect.deleteProperty(params?.mapped?.[this.index], name); }
-    apply(params: SwitchedParams, thisArg, args) { return Reflect.apply(params?.mapped?.[this.index], thisArg, args); }
-    getPrototypeOf(params: SwitchedParams) { return Reflect.getPrototypeOf(params?.mapped?.[this.index]); }
-    getOwnPropertyDescriptor(params: SwitchedParams, name) { return Reflect.getOwnPropertyDescriptor(params?.mapped?.[this.index], name); }
-    defineProperty(params: SwitchedParams, name, desc) { return Reflect.defineProperty(params?.mapped?.[this.index], name, desc); }
-    preventExtensions(params: SwitchedParams) { return Reflect.preventExtensions(params?.mapped?.[this.index]); }
-    isExtensible(params: SwitchedParams) { return Reflect.isExtensible(params?.mapped?.[this.index]); }
-    ownKeys(params: SwitchedParams) { return Reflect.ownKeys(params?.mapped?.[this.index]); }
-    setPrototypeOf(params: SwitchedParams, proto) { return Reflect.setPrototypeOf(params?.mapped?.[this.index], proto); }
+    deleteProperty(params: SwitchedParams, name) { return Reflect.deleteProperty(params?.mapped?.[params?.current?.value], name); }
+    apply(params: SwitchedParams, thisArg, args) { return Reflect.apply(params?.mapped?.[params?.current?.value], thisArg, args); }
+    getPrototypeOf(params: SwitchedParams) { return Reflect.getPrototypeOf(params?.mapped?.[params?.current?.value]); }
+    getOwnPropertyDescriptor(params: SwitchedParams, name) { return Reflect.getOwnPropertyDescriptor(params?.mapped?.[params?.current?.value], name); }
+    defineProperty(params: SwitchedParams, name, desc) { return Reflect.defineProperty(params?.mapped?.[params?.current?.value], name, desc); }
+    preventExtensions(params: SwitchedParams) { return Reflect.preventExtensions(params?.mapped?.[params?.current?.value]); }
+    isExtensible(params: SwitchedParams) { return Reflect.isExtensible(params?.mapped?.[params?.current?.value]); }
+    ownKeys(params: SwitchedParams) { return Reflect.ownKeys(params?.mapped?.[params?.current?.value]); }
+    setPrototypeOf(params: SwitchedParams, proto) { return Reflect.setPrototypeOf(params?.mapped?.[params?.current?.value], proto); }
 }
 
 /**
@@ -87,7 +87,7 @@ export class SwHandler implements ProxyHandler<SwitchedParams> {
 export const S = (params: SwitchedParams) => { // @ts-ignore
     return inProx.getOrInsert(params, ()=>{
         const px = new Proxy(params, new SwHandler());
-        subscribe([params?.index, "value"], () => (px as any)._onUpdate());
+        subscribe([params?.current, "value"], () => (px as any)._onUpdate());
         return px;
     });
 }
