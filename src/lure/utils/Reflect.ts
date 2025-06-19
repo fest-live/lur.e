@@ -11,7 +11,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
         subscribe(attributes, (value, prop: any)=>{
-            handleAttribute(wel?.deref?.(), prop, value, true);
+            handleAttribute(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         })
     } else

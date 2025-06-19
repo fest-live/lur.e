@@ -141,3 +141,12 @@ export const T = (ref) => {
 
 //
 export default getNode;
+
+//
+export const setAttributesIfNull = (element, attrs = {})=>{
+    const entries = attrs instanceof Map ? attrs.entries() : Object.entries(attrs || {})
+    return Array.from(entries).map(([name, value])=>{
+        const old = element.getAttribute(name = camelToKebab(name) || name);
+        if (old != value) { if (value == null) { element.removeAttribute(name); } else { element.setAttribute(name, old == "" ? (value ?? old) : (old ?? value)); } }
+    });
+}

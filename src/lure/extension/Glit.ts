@@ -1,10 +1,20 @@
 import { importCdn } from "u2re/cdnImport";
 import { subscribe, makeReactive, observableArray, ref } from "u2re/object";
-import { addRoot, Q, loadInlineStyle} from "u2re/dom";
+import { Q, addRoot, loadInlineStyle} from "u2re/dom";
+import { E } from "../node/Bindings";
 
 //
-import { matchMediaRef, sizeRef, attrRef, localStorageRef, valueAsNumberRef, valueRef, checkedRef, scrollRef } from "../utils/Refs";
-import E from "../node/Bindings";
+import { setAttributesIfNull } from "../utils/DOM";
+import {
+    valueAsNumberRef,
+    localStorageRef,
+    matchMediaRef,
+    checkedRef,
+    scrollRef,
+    valueRef,
+    sizeRef,
+    attrRef
+} from "../utils/Refs";
 
 //
 const styleCache    = new Map(), styleElementCache = new WeakMap();
@@ -148,13 +158,6 @@ export function property({attribute, source, name, from}: { attribute?: string|b
 //
 export const customElement = defineElement;
 export const useVars = (holder, vars)=>{ vars?.entries?.()?.forEach?.(([key, vr])=>subscribe([vr,'value'], (val)=>(holder?.style ?? holder)?.setProperty?.(`--${key}`, val, ""))); return holder; }
-export const setAttributesIfNull = (element, attrs = {})=>{
-    const entries = attrs instanceof Map ? attrs.entries() : Object.entries(attrs || {})
-    return Array.from(entries).map(([name, value])=>{
-        const old = element.getAttribute(name = camelToKebab(name) || name);
-        if (old != value) { if (value == null) { element.removeAttribute(name); } else { element.setAttribute(name, old == "" ? (value ?? old) : (old ?? value)); } }
-    });
-}
 
 //
 export const css = (strings, ...values)=>{
@@ -208,14 +211,14 @@ export const GLitElement = (derrivate = HTMLElement)=>{
 
         // @ts-ignore
         constructor(...args) {
-            super(); const shadowRoot = this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" });
+            super(); const shadowRoot = addRoot(this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }));
             shadowRoot.append(this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
         }
 
         //
+        protected $init() { return this; };
         protected onInitialize(weak?: WeakRef<any>) { return this; }
         protected onRender(weak?: WeakRef<any>) { return this; }
-        protected $init() { return this; };
         protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
 
         // @ts-ignore
@@ -224,12 +227,10 @@ export const GLitElement = (derrivate = HTMLElement)=>{
         public connectedCallback() {
             const weak = new WeakRef(this);
             if (!this.#initialized) { this.#initialized = true;
-                const shadowRoot = this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" });
-                this.$init?.(); this[inRenderKey] = true;
+                const shadowRoot = this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }); this.$init?.(); this[inRenderKey] = true;
                 setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.call(this, weak);
-                this.#framework = E(shadowRoot, {}, observableArray([this.themeStyle, this.#defaultStyle, this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)]))
-                this.onRender?.call?.(this, weak);
-                delete this[inRenderKey];
+                this.#framework = E(shadowRoot, {}, [this.themeStyle, this.#defaultStyle, this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)])
+                this.onRender?.call?.(this, weak); delete this[inRenderKey];
             }
             return this;
         }
