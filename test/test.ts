@@ -6,6 +6,13 @@ import { E } from "../src/lure/node/Bindings";
 import { H } from "../src/lure/node/Syntax";
 
 //
+import ScrollBoxed from "../src/fl.ui/wcomp/ScrollFrame";
+import WithOverlay from "../src/fl.ui/wcomp/OverlayExt";
+console.log(ScrollBoxed);
+console.log(WithOverlay);
+
+
+//
 @defineElement("x-block")
 export class XBlock extends GLitElement() {
     constructor(...args) { super(...args); }
@@ -52,6 +59,19 @@ const style = makeReactive({
 const dom = H`<${"x-block#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}><span>${children}</span></div>`;
 
 //
+/*const scb = H`
+<div anchor-host="test" style="overflow: scroll; anchor-name: --test; display: block; inline-size: 800px; block-size: 600px;">
+<div style="inline-size: 100px; block-size: 1200px; background-color: black;">Black Dolphin</div>
+</div>
+<ui-scrollframe anchor="test">
+</ui-scrollframe>`*/
+
+const scb = H`
+<div is="overlay-scrollbar" style="overflow: scroll; display: block; inline-size: 800px; block-size: 600px;">
+<div style="inline-size: 100px; block-size: 1200px; background-color: black;">Black Dolphin</div>
+</div>`
+
+//
 setTimeout(()=>{
     children.value = "Разруха!";
     style.backgroundColor = "darkblue";
@@ -59,3 +79,4 @@ setTimeout(()=>{
 
 //
 document.body.append(dom);
+document.body.append(scb);

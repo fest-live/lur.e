@@ -1,7 +1,7 @@
 
 import { computed, subscribe } from "u2re/object";
 import { makeRAFCycle, setProperty, zoomOf } from "u2re/dom";
-import { scrollRef, sizeRef } from "u2re/lure";
+import { E, scrollRef, sizeRef } from "u2re/lure";
 
 //
 export interface ScrollBarStatus {
@@ -42,11 +42,12 @@ const scrollbarCoef  = (source: HTMLElement, axis: number)=>{ // @ts-ignore
     const target  = asWeak(source);
     const scroll  = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
     const content = sizeRef  (source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
-    const percent = computed (content, (vl)=> (vl / target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]]));
+    const percent = computed (content, (vl)=> (vl / (target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] || 1)));
     subscribe(scroll, ()=>percent.value = (content?.value / (target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] || 1))); return percent;
 }
 
 //
+//const sheduler = makeRAFCycle();
 const controlVisible = async (source: HTMLElement, timeline: any = null)=>{
     if (!source) return; const target = asWeak(source), wk = asWeak(timeline);
     const renderCb = ()=>{
@@ -56,7 +57,7 @@ const controlVisible = async (source: HTMLElement, timeline: any = null)=>{
             setProperty(tg?.querySelector?.("*"), "pointer-events", hidden ? "none" : "auto");
         }
     };
-    return subscribe(timeline, (val: any)=>sheduler.add(renderCb))
+    return subscribe(timeline, (val: any)=>sheduler.shedule(renderCb))
 }
 
 //
@@ -69,7 +70,7 @@ const animateByTimeline = async (source: HTMLElement, properties = {}, timeline:
             setProperty(tg, name, (values[0] * (1 - val) + values[1] * val))
         }
     }
-    return subscribe(timeline, (val: any)=>sheduler.add(everyCb))
+    return subscribe(timeline, (val: any)=>sheduler.shedule(everyCb))
 }
 
 //
@@ -149,19 +150,26 @@ export class ScrollBar {
 
         //
         const currAxis   = axisConfig[axis]; // @ts-ignore
-        const bar        = this.scrollbar; bar?.style?.setProperty(...currAxis.cssScrollProperty, ""), source = this.content; // @ts-ignore
-        const native     = typeof ScrollTimeline != "undefined", timeline: any = native ? new ScrollTimeline({ source, axis: currAxis.tName }) : makeTimeline(source, axis);
+        const bar        = this.scrollbar, source = this.content; bar?.style?.setProperty(...currAxis.cssScrollProperty, "") // @ts-ignore
+        const native     = typeof ScrollTimeline != "undefined", timeline: any = native ? new ScrollTimeline({ source: (source as any)?.element ?? source, axis: currAxis.tName }) : makeTimeline(source, axis);
         const properties = { [currAxis.cssPercentProperty]: native ? stepped(100) : [0,1] };
 
         //
         if (native) // @ts-ignore
-            { bar?.animate(properties, { ...effectProperty, timeline }); } else
+            { bar?.animate?.(properties, { ...effectProperty, timeline }); } else
             { animateByTimeline(bar, properties, timeline); }
 
         //
+        const sce = scrollbarCoef(this.content, axis);
         setProperty    (this.scrollbar, "visibility", "collapse");
         setProperty    (this.scrollbar?.querySelector?.("*"), "pointer-events", "none");
-        controlVisible (this.scrollbar, scrollbarCoef(this.content, axis));
+        controlVisible (this.scrollbar, sce);
         makeInteractive(this.holder, this.content, this.scrollbar, axis, this.status);
+
+        //
+        E(this.scrollbar, { style: {
+            "--scroll-coef": sce,
+
+        } })
     }
 }

@@ -1,0 +1,32 @@
+@use "../ext/scrollbar/Scrollbar.scss" as sb;
+
+//
+@property --max-size { syntax: "<length-percentage>"; initial-value: 0px; inherits: true; };
+
+//
+@layer ui-scrollbox {
+
+    //
+    :host {
+        & { --scrollbar-color: light-dark(#101010a0, #fdfdfda0); };
+        & { display: block; }
+
+        //
+        //:where(.ui-scrollbar),
+        .ui-scrollbar[axis="x"] .ui-thumb { @include sb.with-timeline("ux-scrollbox-x"); };
+        .ui-scrollbar[axis="y"] .ui-thumb { @include sb.with-timeline("ux-scrollbox-y"); };
+
+        //
+        .ui-scrollbar {
+            .ui-thumb {
+                border-radius: 0.25rem;
+            }
+        }
+
+        //
+        @include sb.axis-scrollbar(".ui-scrollbar", "inline", ".ui-thumb", "ux-scrollbox");
+        @include sb.axis-scrollbar(".ui-scrollbar", "block" , ".ui-thumb", "ux-scrollbox");
+        @include sb.scroll-tm-2-axis();
+        @include sb.scrollbox();
+    }
+}
