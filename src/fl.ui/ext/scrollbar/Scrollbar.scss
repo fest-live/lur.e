@@ -98,11 +98,11 @@ $counter: 0;
 
         //
         & :where(#{$thumb})
-        {   --max-size: min(100%, calc(#{$cqf} - 1rem)); //
+        {   --clamped-size: calc(#{$cqf} - 1rem); --max-size: min(100%, var(--clamped-size, #{$cqf})); //
             #{$inv}-size: 100%; #{$fit}-size: min(calc(var(--max-size, 100%) * var(--scroll-coef, 1)), var(--max-size, 100%));
             @if $fit == block
-                { translate: 0px calc(100cqb * var(--percent-y, 0) * var(--scroll-coef, 0)) 0px; } @else
-                { translate: calc(100cqi * var(--percent-x, 0) * var(--scroll-coef, 0)) 0px 0px; }
+                { translate: 0px calc(var(--clamped-size, 100cqb) * var(--percent-y, 0) * (1 - var(--scroll-coef, 0))) 0px; } @else
+                { translate: calc(var(--clamped-size, 100cqi) * var(--percent-x, 0) * (1 - var(--scroll-coef, 0))) 0px 0px; }
         }
     }
 }
