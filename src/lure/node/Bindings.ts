@@ -78,7 +78,7 @@ export const E = (selector: string | HTMLElement, params: Params = {}, children?
     const element = typeof selector == "string" ? Qp(createElement(selector)) : selector;
 
     //
-    if (element instanceof HTMLElement && params) {
+    if (element && params) {
         reflectAttributes(element, params.attributes);
         reflectStyles(element, params.style);
         reflectClassList(element, params.classList);

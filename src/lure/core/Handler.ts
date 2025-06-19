@@ -43,9 +43,9 @@ export const handleDataset = (el?: HTMLElement|null, prop?: string, val?: Datase
 //
 export const handleStyleChange = (el?: HTMLElement|null, prop?: string, val?: any) => {
     if (!prop || typeof prop != "string" || !el) return;
-    if (typeof val == "object" && val && "value" in val) val = val.value;
+    if (typeof val == "object" && val && "value" in val && !(typeof CSSStyleValue !== "undefined" && val instanceof CSSStyleValue)) val = val.value;
     if (val == null) deleteStyleProperty(el, prop);
-    else if (isVal(val) || (typeof CSSStyleValue !== "undefined" && val instanceof CSSStyleValue)) setStyleProperty(el, prop, val);
+    else if (isVal(val) || (typeof CSSStyleValue !== "undefined" && val instanceof CSSStyleValue)) { setStyleProperty(el, prop, val); }
     else { deleteStyleProperty(el, prop);
         if (val !== false) console.warn(`Invalid value for style property "${prop}":`, val);
     }

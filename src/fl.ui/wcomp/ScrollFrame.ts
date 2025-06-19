@@ -26,16 +26,18 @@ export class ScrollBoxed extends GLitElement() {
     onInitialize() { //@ts-ignore
         super.onInitialize?.(); //@ts-ignore
         const content = this;//Q(`*[anchor-host=\"${this.getAttribute("anchor")}\"]`, this.parentNode || document.documentElement);
-        this.#x = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"x\"]", this.shadowRoot), content}, 0); // @ts-ignore
-        this.#y = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"y\"]", this.shadowRoot), content}, 1); // @ts-ignore
+        //this.#x = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"x\"]", this.shadowRoot), content}, 0); // @ts-ignore
+        //this.#y = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"y\"]", this.shadowRoot), content}, 1); // @ts-ignore
         //E(this, {style: { positionAnchor: computed(this.getProperty("anchor"), (n)=>"--"+n) }});
     }
 
     //
     bindWith(content: any) {
+        requestAnimationFrame(()=>{
+            this.#x = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"x\"]", this.shadowRoot), content}, 0); // @ts-ignore
+            this.#y = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"y\"]", this.shadowRoot), content}, 1); // @ts-ignore
+        });
         const name = "--rand-" + Math.random().toString(36).slice(2); // @ts-ignore
-        this.#x = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"x\"]", this.shadowRoot), content}, 0); // @ts-ignore
-        this.#y = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"y\"]", this.shadowRoot), content}, 1); // @ts-ignore
         this.style.positionAnchor = name, content.style.anchorName = name;
     }
 

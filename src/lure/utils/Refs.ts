@@ -100,8 +100,8 @@ export const attrRef = (element, attribute: string, initial?) => {
  * @returns {ReturnType<typeof numberRef>}
  */
 export const sizeRef = (element, axis: "inline" | "block", box: ResizeObserverBoxOptions = "border-box") => {
-    const val = numberRef(0), obs = new ResizeObserver((entries) => {
-        if (box == "border-box") { val.value = axis == "inline" ? entries[0].borderBoxSize[0].inlineSize : entries[0].borderBoxSize[0].blockSize };
+    const val = numberRef(element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"]), obs = new ResizeObserver((entries) => {
+        if (box == "border-box")  { val.value = axis == "inline" ? entries[0].borderBoxSize[0].inlineSize  : entries[0].borderBoxSize[0].blockSize };
         if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
         if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
     });
@@ -118,7 +118,7 @@ export const sizeRef = (element, axis: "inline" | "block", box: ResizeObserverBo
 export const scrollRef = (element, axis: "inline" | "block", initial?) => {
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (initial?.value ?? initial) }); };
     const val = numberRef((axis == "inline" ? element?.scrollLeft : element?.scrollTop) || 0);
-    subscribe([val, "value"], () => element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (val?.value ?? val) }));
+    subscribe([val, "value"], (v) => { if (Math.abs((axis == "inline" ? element?.scrollLeft : element?.scrollTop) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (val?.value ?? val) })});
     element?.addEventListener?.("scroll", (ev) => { val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true });
     return val;
 }

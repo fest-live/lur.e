@@ -78,9 +78,9 @@ $counter: 0;
 
 // anchor-size(#{$fit}, 100%)
 @mixin axis-scrollbar($selector, $fit: "inline", $thumb: ".thumb", $timeline-name: "ux-scrollbox") {
-    $cqf: 100cqi; @if $fit == block { $cqb: 100cqb; };
-    $inv: block ; @if $fit == block { $inv: inline; };
-    $axe: x;    ; @if $fit == block { $axe: y; };
+    $cqf: 100cqi; @if $fit == 'block' { $cqf: 100cqb; };
+    $inv: block ; @if $fit == 'block' { $inv: inline; };
+    $axe: x;    ; @if $fit == 'block' { $axe: y; };
 
     //
     & :is(#{$selector}[axis="#{$axe}"]) {
@@ -135,7 +135,7 @@ $counter: 0;
 
     //
     & :where(#{$thumb}) {
-        background-color: oklch(from var(--scrollbar-color, #101010A0) l c h / 0.8) !important;
+        background-color: oklch(from var(--scrollbar-color, #101010F0) l c h / 0.8) !important;
         position-anchor: --#{$anchor};
         pointer-events: auto;
         border-radius: 0.25rem;
@@ -166,6 +166,7 @@ $counter: 0;
         scrollbar-gutter: auto !important;
         position: static;
         pointer-events: none !important;
+        z-index: 1;
         //position: relative;
         //position: fixed !important;
     }

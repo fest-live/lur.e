@@ -1,4 +1,5 @@
 import { ref, makeReactive, assign } from "u2re/object";
+import { registerMixin } from "u2re/dom";
 import { css, defineElement, GLitElement, property } from "../src/lure/extension/Glit";
 
 //
@@ -67,8 +68,8 @@ const dom = H`<${"x-block#test.test"} on:click=${()=>alert("Тетрис!")} sty
 </ui-scrollframe>`*/
 
 const scb = H`
-<div is="overlay-scrollbar" style="overflow: scroll; display: block; inline-size: 800px; block-size: 600px;">
-<div style="inline-size: 100px; block-size: 1200px; background-color: black;">Black Dolphin</div>
+<div data-mixin="ov-scrollbar" style="overflow: scroll; display: block; inline-size: 800px; block-size: 600px;">
+<div style="inline-size: 100px; block-size: 1200px; background-color: black; color: white; display: flex; place-content: center; place-items: center;">Black Dolphin</div>
 </div>`
 
 //
