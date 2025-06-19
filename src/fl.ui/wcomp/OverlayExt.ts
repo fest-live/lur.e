@@ -7,9 +7,8 @@ export class OverlayScrollbarMixin extends DOMMixin {
     }
 
     // @ts-ignore
-    connect(self) {
-        const frame = document.createElement("ui-scrollframe");
-        frame?.bindWith?.(self);
+    connect(self) { // @ts-ignore
+        const frame = document.createElement("ui-scrollframe"); frame?.bindWith?.(self);
 
         //
         self.style.scrollbarGutter = "auto";
@@ -22,11 +21,6 @@ export class OverlayScrollbarMixin extends DOMMixin {
     }
 }
 
+//
 new OverlayScrollbarMixin("ov-scrollbar");
 export default OverlayScrollbarMixin;
-
-//
-//customElements.define('overlay-scrollbar', WithOverlayScrollbar, {extends: 'div'});
-
-//
-//export default WithOverlayScrollbar;

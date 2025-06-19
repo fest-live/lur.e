@@ -4,8 +4,6 @@ import { defineElement, E, GLitElement, H, property } from "u2re/lure"
 import styles from "./ScrollFrame.scss?inline"
 import { ScrollBar } from "../ext/scrollbar/Scrollbar";
 import { loadInlineStyle, Q } from "u2re/dom";
-import { appendChild } from '../../../../shared/u2re/lure/lure/utils/DOM';
-import { computed } from "u2re-src/object.ts/src";
 
 //
 const preInit = URL.createObjectURL(new Blob([styles], {type: "text/css"}));
@@ -25,10 +23,6 @@ export class ScrollBoxed extends GLitElement() {
     constructor() { super(); }
     onInitialize() { //@ts-ignore
         super.onInitialize?.(); //@ts-ignore
-        const content = this;//Q(`*[anchor-host=\"${this.getAttribute("anchor")}\"]`, this.parentNode || document.documentElement);
-        //this.#x = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"x\"]", this.shadowRoot), content}, 0); // @ts-ignore
-        //this.#y = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"y\"]", this.shadowRoot), content}, 1); // @ts-ignore
-        //E(this, {style: { positionAnchor: computed(this.getProperty("anchor"), (n)=>"--"+n) }});
     }
 
     //
