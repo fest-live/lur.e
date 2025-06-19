@@ -27,7 +27,7 @@ export class ScrollBoxed extends GLitElement() {
 
     //
     bindWith(content: any) {
-        requestAnimationFrame(()=>{
+        requestAnimationFrame(()=>{ // @ts-ignore
             this.#x = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"x\"]", this.shadowRoot), content}, 0); // @ts-ignore
             this.#y = new ScrollBar({holder: this, scrollbar: Q(".ui-scrollbar[axis=\"y\"]", this.shadowRoot), content}, 1); // @ts-ignore
         });
