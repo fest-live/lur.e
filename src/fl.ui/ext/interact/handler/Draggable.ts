@@ -60,6 +60,9 @@ export class DragHandler {
         const self_w = new WeakRef(this);
         const upd_w  = new WeakRef(this.#updateSize);
 
+
+
+
         //
         handler.addEventListener("pointerdown", agWrapEvent((evc) => {
             const ev = evc?.detail || evc;
