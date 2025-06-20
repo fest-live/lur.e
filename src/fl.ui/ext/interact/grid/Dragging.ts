@@ -1,4 +1,5 @@
 import LongPressHandler from "../handler/LongPress";
+import { makeShiftTrigger } from "./Trigger";
 
 //
 export const makeDragEvents = (newItem, {layout, dragging, currentCell}, {item, list, items})=>{ // @ts-ignore
@@ -63,11 +64,14 @@ export const makeDragEvents = (newItem, {layout, dragging, currentCell}, {item, 
     };
 
     //
-    return bindDraggable((init)=>new LongPressHandler(newItem, {
+    const customTrigger = (doGrab)=>new LongPressHandler(newItem, {
         handler: "*",
         anyPointer: true,
         mouseImmediate: true,
         minHoldTime: 60 * 3600,
         maxHoldTime: 100
-    }, (ev)=>{correctOffset(dragging); init?.()}), resolveDragging, dragging);
+    }, makeShiftTrigger((ev)=>{correctOffset(dragging); doGrab?.(ev)}));
+
+    //
+    return bindDraggable(customTrigger, resolveDragging, dragging);
 };

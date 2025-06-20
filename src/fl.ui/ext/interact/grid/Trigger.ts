@@ -1,8 +1,10 @@
+import { agWrapEvent } from "u2re/dom";
 import { ROOT } from "../../core/Utils";
 
 //
-export const makeDragTrigger = (newItem, {dragging}, {grabForDrag, agWrapEvent})=> agWrapEvent((evc)=>{
+export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
     const ev = evc?.detail || evc;
+    newItem ??= ev?.target ?? newItem;
     if (!newItem.dataset.dragging) {
         const n_coord: [number, number] = (ev.orient ? [...ev.orient] : [ev?.clientX || 0, ev?.clientY || 0]) as [number, number];
         if (ev?.pointerId >= 0) {
@@ -18,14 +20,7 @@ export const makeDragTrigger = (newItem, {dragging}, {grabForDrag, agWrapEvent})
             if (ev_l?.pointerId == ev?.pointerId) {
                 const coord: [number, number] = (ev_l.orient ? [...ev_l.orient] : [ev_l?.clientX || 0, ev_l?.clientY || 0]) as [number, number];
                 const shift: [number, number] = [coord[0] - n_coord[0], coord[1] - n_coord[1]];
-                if (Math.hypot(...shift) > 10) {
-                    dragging[0].value = 0, dragging[1].value = 0;
-                    ROOT.removeEventListener("pointermove", shifting);
-                    grabForDrag(newItem, ev_l, {
-                        result: dragging,
-                        shifting: [0, 0]
-                    });
-                }
+                if (Math.hypot(...shift) > 10) { callable?.(ev); }
             }
         });
 

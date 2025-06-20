@@ -1,8 +1,6 @@
 
 import {  importCdn  }     from "u2re/cdnImport";
 import { makeDragEvents }  from "./Dragging";
-import { makeDragTrigger } from "./Trigger";
-import   LongPressHandler  from "../handler/LongPress";
 
 //
 export const reflectCell = async (newItem: any, pArgs: any, withAnimate = false)=>{ // @ts-ignore
@@ -38,16 +36,6 @@ export const bindInteraction = async (newItem: any, pArgs: any)=>{ // @ts-ignore
     E(newItem, { style: { "--cell-x": currentCell[0], "--cell-y": currentCell[1], "--drag-x": dragging[0], "--drag-y": dragging[1] } });
     subscribe([currentCell[0], "value"], (val)=> item.cell[0] = val);
     subscribe([currentCell[1], "value"], (val)=> item.cell[1] = val);
-
-    //
-    const longPressEv = makeDragTrigger(newItem, {dragging}, {grabForDrag, agWrapEvent});
-    new LongPressHandler(newItem, {
-        handler: "*",
-        anyPointer: true,
-        mouseImmediate: true,
-        minHoldTime: 60 * 3600,
-        maxHoldTime: 100
-    }, longPressEv);
     makeDragEvents(newItem, {layout, currentCell, dragging}, {item, list, items});
     return currentCell;
 }
