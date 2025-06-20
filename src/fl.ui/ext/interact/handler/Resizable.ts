@@ -1,9 +1,10 @@
 import { bbh, bbw, borderBoxHeight, borderBoxWidth, cbh, cbw, clamp, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT, setProperty, type InteractStatus } from "../../core/Utils";
-import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "u2re/dom";
+import { fixedClientZoom, getBoundingOrientRect, bindDraggable } from "u2re/dom";
 
 //
 import { ref } from "u2re/object";
 import {  E  } from "u2re/lure";
+import { makeShiftTrigger } from "../grid/Trigger";
 
 //
 export class ResizeHandler {
@@ -15,9 +16,7 @@ export class ResizeHandler {
 
     //
     constructor(holder) {
-        if (!holder) {
-            throw Error("Element is null...");
-        }
+        if (!holder) { throw Error("Element is null..."); }
 
         //
         this.#holder = holder;
@@ -72,42 +71,16 @@ export class ResizeHandler {
         const resizing = this.#resizing;
 
         //
-        handler.addEventListener("pointerdown", agWrapEvent((evc) => {
-            const self = self_w?.deref();
-            const ev = evc?.detail || evc;
+        const dragResolve = (dragging) => weak?.deref?.()?.style.removeProperty("will-change");
+        const binding  = (grabAction)=>handler.addEventListener("pointerdown", (ev)=>makeShiftTrigger(grabAction, this.#holder)?.(ev));
 
-            //
-            status.pointerId = ev.pointerId; try { upd_w?.deref?.call?.(self); } catch(e) {};
+        //
+        bindDraggable(binding, dragResolve, resizing, ()=>{
             const starting = [resizing[0].value || 0, resizing[1].value || 0];
             const holder = weak?.deref?.() as any;
             const parent = holder?.offsetParent ?? holder?.host ?? ROOT;
-
-            //
-            if (holder) {
-                holder.style.setProperty("will-change", "contents, inline-size, block-size, width, height, transform", "important");
-                grabForDrag(holder, ev, { result: resizing, shifting: self?.limitResize?.(starting, starting, holder, parent) });
-            }
-
-            //
-            ev?.capture?.(self);
-            // @ts-ignore
-            //ev.target?.setPointerCapture?.(ev.pointerId);
-        }));
-
-        //
-        this.#holder.addEventListener(
-            "m-dragend",
-            (evc) => {
-                const self   = self_w?.deref?.();
-                const holder = weak?.deref?.() as any;
-                const dt = evc?.detail ?? evc; evc?.target?.style.removeProperty("will-change");
-                if (dt.holding.propertyName == "resize") {
-                    status.pointerId = -1;
-                    //this.#resizeMute = false;
-                }
-            },
-            {capture: true, passive: false}
-        );
+            self_w?.deref?.()?.limitResize?.(starting, starting, holder, parent)
+        });
     }
 }
 

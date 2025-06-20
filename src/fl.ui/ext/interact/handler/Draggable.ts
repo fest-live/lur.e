@@ -1,17 +1,18 @@
 import { borderBoxHeight, borderBoxWidth, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT, setProperty, type InteractStatus } from "../../core/Utils";
-import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag } from "u2re/dom";
+import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag, bindDraggable } from "u2re/dom";
 
 //
 import { ref } from "u2re/object";
 import {  E  } from "u2re/lure";
+import { makeShiftTrigger } from "../grid/Trigger";
 
 //
 export class DragHandler {
     #holder: HTMLElement;
     #dragging = [{value: 0}, {value: 0}];
 
-    // TODO: I'm too rigid for recover...
-    get #parent() { return this.#holder?.parentNode; };
+    // @ts-ignore
+    get #parent() { return this.#holder.offsetParent ?? this.#holder?.host ?? ROOT; }
 
     //
     constructor(holder) {
@@ -52,90 +53,27 @@ export class DragHandler {
     //
     draggable(options) {
         const handler = options.handler ?? this.#holder;
-        const status: InteractStatus = { pointerId: -1, };
         const dragging = this.#dragging;
 
         //
         const weak   = new WeakRef(this.#holder);
-        const self_w = new WeakRef(this);
-        const upd_w  = new WeakRef(this.#updateSize);
-
-
-
-
-        //
-        handler.addEventListener("pointerdown", agWrapEvent((evc) => {
-            const ev = evc?.detail || evc;
-            status.pointerId = ev.pointerId;
-
-            //
-            let trigger = false;
+        const binding = (grabAction)=>handler.addEventListener("pointerdown", makeShiftTrigger(grabAction, this.#holder));
+        const dragResolve = (dragging) => {
             const holder = weak?.deref?.() as any;
-            if (holder) {
-                holder.style.setProperty("will-change", "transform", "important");
-            }
-
-            //
-            const shiftEv: [any, any] = [(evp) => {
-                if ((evp?.detail || evp).pointerId == ev.pointerId && !trigger) {
-                    trigger = true;
-                    unListenShift();
-
-                    //
-                    const holder = weak?.deref?.() as any;
-                    if (holder) {
-                        const self = self_w?.deref?.();
-                        try { upd_w?.deref?.call?.(self); } catch(e) {};
-                        const starting = [0, 0]
-                        grabForDrag(holder, (evp?.detail || evp), {
-                            result: dragging,
-                            shifting: starting
-                        });
-                    }
-                }
-            }, {once: true}];
-
-            //
-            const unListenShift = (evp?) => {
-                if (!evp || (evp?.detail || evp)?.pointerId == ev.pointerId) {
-                    //const holder = weak?.deref?.() as any;
-                    ROOT.removeEventListener("pointermove"  , ...shiftEv);
-                    ROOT.removeEventListener("pointerup"    , unListenShift);
-                    ROOT.removeEventListener("pointercancel", unListenShift);
-                }
-            };
-
-            //
-            ROOT.addEventListener("pointermove"  , ...shiftEv);
-            ROOT.addEventListener("pointerup"    , unListenShift);
-            ROOT.addEventListener("pointercancel", unListenShift);
-        }));
-
-        //
-        const cancelShift = agWrapEvent((evc)=>{
-            const ev = evc?.detail || evc;
-            if ((ev.type?.includes?.("pointercancel") || ev.type?.includes?.("pointerup")) && status.pointerId == ev?.pointerId) {
-                status.pointerId = -1;
-                const holder = weak?.deref?.() as any; holder?.style?.removeProperty?.("will-change");
-            }
-        });
-
-        //
-        ROOT.addEventListener("pointerup"    , cancelShift);
-        ROOT.addEventListener("pointercancel", cancelShift);
-
-        //
-        this.#holder.addEventListener("m-dragend", (evc) => {
-            const holder = weak?.deref?.() as any, box = getBoundingOrientRect(holder) || holder?.getBoundingClientRect?.();
-
-            //
-            setProperty(holder, "--shift-x", (box?.left || 0) - (this.#parent?.[contentBoxWidth ] - this.#holder[borderBoxWidth ]) * 0.5);
-            setProperty(holder, "--shift-y", (box?.top  || 0) - (this.#parent?.[contentBoxHeight] - this.#holder[borderBoxHeight]) * 0.5);
+            holder?.style?.removeProperty?.("will-change");
 
             //
             setProperty(holder, "--drag-x", dragging[0].value = 0);
             setProperty(holder, "--drag-y", dragging[1].value = 0);
-        });
+
+            //
+            const box = getBoundingOrientRect(holder) || holder?.getBoundingClientRect?.();
+            setProperty(holder, "--shift-x", (box?.left || 0) - (this.#parent?.[contentBoxWidth ] - this.#holder[borderBoxWidth ]) * 0.5);
+            setProperty(holder, "--shift-y", (box?.top  || 0) - (this.#parent?.[contentBoxHeight] - this.#holder[borderBoxHeight]) * 0.5);
+        }
+
+        //
+        bindDraggable(binding, dragResolve, dragging);
     }
 }
 

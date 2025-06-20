@@ -2,6 +2,11 @@ import { agWrapEvent } from "u2re/dom";
 import { ROOT } from "../../core/Utils";
 
 //
+function handleListeners(root, fn, handlers) {
+    handlers.forEach(({ name, cb }) => fn.call(root, name, cb));
+}
+
+//
 export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
     const ev = evc?.detail || evc;
     newItem ??= ev?.target ?? newItem;
@@ -20,7 +25,7 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
             if (ev_l?.pointerId == ev?.pointerId) {
                 const coord: [number, number] = (ev_l.orient ? [...ev_l.orient] : [ev_l?.clientX || 0, ev_l?.clientY || 0]) as [number, number];
                 const shift: [number, number] = [coord[0] - n_coord[0], coord[1] - n_coord[1]];
-                if (Math.hypot(...shift) > 10) { callable?.(ev); }
+                if (Math.hypot(...shift) > 10) { newItem?.style?.setProperty?.("will-change", "transform", "important"); callable?.(ev); }
             }
         });
 
@@ -34,18 +39,21 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
         });
 
         //
+        const handler = {
+            "pointermove": shifting,
+            "pointercancel": releasePointer,
+            "pointerup": releasePointer
+        }
+
+        //
         const unbind = agWrapEvent((evc_l)=>{
             const ev_l = evc_l?.detail || evc_l;
             if (ev_l?.pointerId == ev?.pointerId) {
-                ROOT.removeEventListener("pointermove", shifting);
-                ROOT.removeEventListener("pointercancel", releasePointer);
-                ROOT.removeEventListener("pointerup", releasePointer);
+                handleListeners(ROOT, "removeEventListener", handler);
             }
         });
 
         //
-        ROOT.addEventListener("pointermove", shifting);
-        ROOT.addEventListener("pointercancel", releasePointer);
-        ROOT.addEventListener("pointerup", releasePointer);
+        handleListeners(ROOT, "addEventListener", handler);
     }
 });
