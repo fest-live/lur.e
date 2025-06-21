@@ -69,12 +69,11 @@ export const bindCtrl = (element, ctrlCb) => {
  */
 export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
 
-//
-export const addToBank = (el, value, prop, handler) => { // @ts-ignore
-    const bank = elMap.getOrInsert(el, new WeakMap());
-    const handlerMap = bank.getOrInsert(handler, {});
-    if (handlerMap[prop] != null) return false;
-    handlerMap[prop] = value; return true;
+// Stable Universal Key Assignation - eg. [S.U.K.A.]
+export const addToBank = (el, unsub, prop, handler) => { // @ts-ignore
+    const bank = elMap?.getOrInsert?.(el, new WeakMap());
+    const handlerMap = bank?.getOrInsert?.(handler, {}) ?? {};
+    handlerMap?.[prop]?.(); handlerMap[prop] = unsub; return true;
 }
 
 /**
@@ -111,7 +110,6 @@ export const observeAttribute = (el: HTMLElement, prop: string, value: any) => {
  */
 export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean) => {
     if (value?.value == null || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
-    if (!addToBank(el = el?.element ?? el, value, prop, handler)) return; // prevent data disruption
 
     //
     let controller: AbortController | null = null; // @ts-ignore
@@ -119,7 +117,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
 
     //
     const wv = new WeakRef(value);
-    subscribe([value, "value"], (curr, _, old) => {
+    const un = subscribe?.([value, "value"], (curr, _, old) => {
         if (set?.deref?.()?.style?.[prop] === wv?.deref?.() || !(set?.deref?.())) {
             if (typeof wv?.deref?.()?.[$behavior] == "function") {
                 wv?.deref?.()?.[$behavior]?.((val = curr) => handler(el?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, el]);
@@ -130,13 +128,14 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     });
 
     //
-    if (withObserver) { observeAttribute(el, prop, value); }
+    let obs: any = null; if (withObserver) { obs = observeAttribute(el, prop, value); };
+    const unsub = ()=> { obs?.disconnect?.(); un?.(); controller?.abort?.(); }; // @ts-ignore
+    if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
 }
 
 //
 export const bindWith = (el, prop, value, handler, set?, withObserver?: boolean)=>{
-    handler(el, prop, value);
-    bindHandler(el, value, prop, handler, set, withObserver);
+    handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver);
 }
 
 //
