@@ -1,10 +1,10 @@
-import { borderBoxHeight, borderBoxWidth, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT, setProperty, type InteractStatus } from "../../core/Utils";
-import { fixedClientZoom, agWrapEvent, getBoundingOrientRect, grabForDrag, bindDraggable } from "u2re/dom";
+import { borderBoxHeight, borderBoxWidth, contentBoxHeight, contentBoxWidth, setProperty, ROOT } from "../../core/Utils";
+import { bindDraggable, getBoundingOrientRect } from "u2re/dom";
 
 //
-import { ref } from "u2re/object";
 import {  E  } from "u2re/lure";
-import { makeShiftTrigger } from "../grid/Trigger";
+import { ref } from "u2re/object";
+import { doObserve, makeShiftTrigger } from "../grid/Trigger";
 
 //
 export class DragHandler {
@@ -16,38 +16,10 @@ export class DragHandler {
 
     //
     constructor(holder) {
-        if (!holder) {
-            throw Error("Element is null...");
-        }
-
-        //
-        this.#holder = holder;
-        this.#holder["@control"] = this;
-
-        //
-        const weak = new WeakRef(this), updSize_w = new WeakRef(this.#updateSize);
-        doBorderObserve(this.#holder); if (this.#parent) { doContentObserve(this.#parent); }
-
-        //
-        ROOT.addEventListener("scaling", ()=>{
-            const self = weak?.deref?.();
-            try { updSize_w?.deref?.call?.(self); } catch(e) {};
-        });
-
-        //
+        if (!holder) { throw Error("Element is null..."); }
+        doObserve(this.#holder = holder, this.#parent);
         this.#dragging = [ref(0), ref(0)];
-        E(this.#holder, { style: { "--drag-x": this.#dragging[0], "--drag-y": this.#dragging[1] } });
-    }
-
-    //
-    #updateSize() {
-        this.#holder[borderBoxWidth]  = this.#holder.offsetWidth  * fixedClientZoom(this.#holder);
-        this.#holder[borderBoxHeight] = this.#holder.offsetHeight * fixedClientZoom(this.#holder);
-        if (this.#parent) {
-            const parent = this.#parent as HTMLElement;
-            parent[contentBoxWidth]  = (parent.clientWidth ) * fixedClientZoom(parent);
-            parent[contentBoxHeight] = (parent.clientHeight) * fixedClientZoom(parent);
-        }
+        E(holder, { style: { "--drag-x": this.#dragging[0], "--drag-y": this.#dragging[1] } });
     }
 
     //

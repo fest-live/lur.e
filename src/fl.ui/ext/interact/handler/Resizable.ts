@@ -1,51 +1,25 @@
-import { bbh, bbw, borderBoxHeight, borderBoxWidth, cbh, cbw, clamp, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT, setProperty, type InteractStatus } from "../../core/Utils";
+import { clamp, bbh, bbw, cbh, cbw, ROOT,  type InteractStatus } from "../../core/Utils";
 import { fixedClientZoom, getBoundingOrientRect, bindDraggable } from "u2re/dom";
 
 //
-import { ref } from "u2re/object";
 import {  E  } from "u2re/lure";
-import { makeShiftTrigger } from "../grid/Trigger";
+import { ref } from "u2re/object";
+import { doObserve, makeShiftTrigger } from "../grid/Trigger";
 
 //
 export class ResizeHandler {
     #holder: HTMLElement;
     #resizing = [{value: 0}, {value: 0}];
 
-    // TODO: I'm too rigid for recover...
-    get #parent() { return this.#holder?.parentNode; };
+    // @ts-ignore
+    get #parent() { return this.#holder.offsetParent ?? this.#holder?.host ?? ROOT; }
 
     //
     constructor(holder) {
         if (!holder) { throw Error("Element is null..."); }
-
-        //
-        this.#holder = holder;
-        this.#holder["@control"] = this;
-
-        //
-        const weak = new WeakRef(this), updSize_w = new WeakRef(this.#updateSize);
-        doBorderObserve(this.#holder); if (this.#parent) { doContentObserve(this.#parent); }
-
-        //
-        ROOT.addEventListener("scaling", ()=>{
-            const self = weak?.deref?.();
-            try { updSize_w?.deref?.call?.(self); } catch(e) {};
-        });
-
-        //
+        doObserve(this.#holder = holder, this.#parent);
         this.#resizing = [ref(0), ref(0)];
-        E(this.#holder, { style: { "--resize-x": this.#resizing[0], "--resize-y": this.#resizing[1] } });
-    }
-
-    //
-    #updateSize() {
-        this.#holder[borderBoxWidth]  = this.#holder.offsetWidth  * fixedClientZoom(this.#holder);
-        this.#holder[borderBoxHeight] = this.#holder.offsetHeight * fixedClientZoom(this.#holder);
-        if (this.#parent) {
-            const parent = this.#parent as HTMLElement;
-            parent[contentBoxWidth]  = (parent.clientWidth ) * fixedClientZoom(parent);
-            parent[contentBoxHeight] = (parent.clientHeight) * fixedClientZoom(parent);
-        }
+        E(holder, { style: { "--resize-x": this.#resizing[0], "--resize-y": this.#resizing[1] } });
     }
 
     //
@@ -67,7 +41,7 @@ export class ResizeHandler {
     //
     resizable(options) {
         const handler  = options.handler ?? this.#holder, status: InteractStatus = { pointerId: -1 };
-        const weak     = new WeakRef(this.#holder), self_w = new WeakRef(this), upd_w = new WeakRef(this.#updateSize);
+        const weak     = new WeakRef(this.#holder), self_w = new WeakRef(this);
         const resizing = this.#resizing;
 
         //

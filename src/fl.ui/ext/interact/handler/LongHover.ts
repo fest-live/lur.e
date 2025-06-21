@@ -1,5 +1,5 @@
-import { agWrapEvent } from "u2re/dom";
 import { blockClickTrigger, ROOT } from "../../core/Utils";
+import { agWrapEvent } from "u2re/dom";
 
 //
 export class LongHoverHandler {
@@ -7,10 +7,9 @@ export class LongHoverHandler {
 
     //
     constructor(holder, options?, fx = (ev) => {ev.target.dispatchEvent(new CustomEvent("u2-longhover", {detail: ev?.detail || ev, bubbles: true}));}) {
-        this.#holder = holder;
+        this.#holder = holder; holder["@control"] = this;
         if (!holder) { throw Error("Element is null..."); };
-        if (options) { this.longHover(options, fx); }
-        this.#holder["@control"] = this;
+        if (options) { this.longHover(options, fx); };
     }
 
     //
@@ -20,7 +19,6 @@ export class LongHoverHandler {
 
     //
     longHover(options, fx = (ev) => {ev.target.dispatchEvent(new CustomEvent("long-hover", {detail: ev?.detail || ev, bubbles: true}));}) {
-        //const handler = options.handler || this.#holder;
         const action: any = { pointerId: -1, timer: null };
         const initiate = agWrapEvent((evc)=>{
             const ev = evc?.detail || evc;

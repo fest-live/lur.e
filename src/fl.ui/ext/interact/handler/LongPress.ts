@@ -155,6 +155,7 @@ export class LongPressHandler {
         actionState.cancelCallback();
     }
 
+    //
     private hasParent(current, parent) {
         while (current) {
             if (current === parent) return true;
@@ -162,16 +163,16 @@ export class LongPressHandler {
         }
     }
 
+    //
     private isValidTarget(self: any, target: HTMLElement, weakRef: WeakRef<HTMLElement>): boolean|null|undefined {
-        const weakElement = weakRef?.deref?.();//new WeakRef(this.#holder).deref();
-
-        // Check for valid target based on options and hierarchy
+        const weakElement = weakRef?.deref?.();
         return (
             weakElement && (this.hasParent(target, weakElement) || target === weakElement) &&
             (!self.options.handler || target.matches(self.options.handler))
         );
     }
 
+    //
     private isInPlace(self: any): boolean {
         const {actionState}    = self;
         const [startX, startY] = actionState.startCoord;
