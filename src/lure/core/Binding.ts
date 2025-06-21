@@ -70,6 +70,7 @@ export const bindCtrl = (element, ctrlCb) => {
 export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
 
 // Stable Universal Key Assignation - eg. [S.U.K.A.]
+export const removeFromBank = (el, handler, prop) => { const bank = elMap?.get(el)?.get?.(handler); if (bank) { /*bank[prop]?.();*/ delete bank[prop]; } }
 export const addToBank = (el, unsub, prop, handler) => { // @ts-ignore
     const bank = elMap?.getOrInsert?.(el, new WeakMap());
     const handlerMap = bank?.getOrInsert?.(handler, {}) ?? {};
@@ -129,7 +130,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
 
     //
     let obs: any = null; if (withObserver) { obs = observeAttribute(el, prop, value); };
-    const unsub = ()=> { obs?.disconnect?.(); un?.(); controller?.abort?.(); }; // @ts-ignore
+    const unsub = ()=> { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
     if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
 }
 
