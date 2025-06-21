@@ -23,9 +23,10 @@ const axisConfig = [{
 }];
 
 //
-const fx      = new Set<any>([]);
-const asWeak  = (source)=>{ return ((source instanceof WeakRef || typeof source?.deref == "function") ? source : new WeakRef(source)) as any; }
-const stepped = (count = 100)=>{ return Array.from({ length: count }, (_, i) => i / count).concat([1]); }
+const CAXIS    = ["layerX", "layerY"];
+const asWeak   = (source)=>{ return ((source instanceof WeakRef || typeof source?.deref == "function") ? source : new WeakRef(source)) as any; }
+const stepped  = (count = 100)=>{ return Array.from({ length: count }, (_, i) => i / count).concat([1]); }
+const sheduler = makeRAFCycle();
 
 //
 const makeTimeline = (source, axis: number)=>{
@@ -78,7 +79,6 @@ CSS.registerProperty({ name: "--percent-x", syntax: "<number>", inherits: true, 
 CSS.registerProperty({ name: "--percent-y", syntax: "<number>", inherits: true, initialValue: "0" });
 
 //
-const CAXIS = ["layerX", "layerY"];
 const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {})=>{
     const status_w  = asWeak(status);
     const content_w = asWeak(content);
@@ -143,9 +143,6 @@ const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {})
         }
     });
 }
-
-//
-const sheduler = makeRAFCycle();
 
 //
 export class ScrollBar {
