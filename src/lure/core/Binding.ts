@@ -42,6 +42,9 @@ export const bindBeh = (element, store, behavior) => {
     }; return element;
 }
 
+// short-handed
+function handleListeners(root, fn, handlers) { handlers.forEach(({ name, cb }) => fn.call(root, name, cb)); }
+
 /**
  * Bind event controller (checkboxCtrl, valueCtrl etc) to element and set initial value.
  * Returns a cancel function.
@@ -51,14 +54,9 @@ export const bindBeh = (element, store, behavior) => {
  */
 export const bindCtrl = (element, ctrlCb) => {
     ctrlCb?.({ target: element });
-    element?.addEventListener?.("click", ctrlCb);
-    element?.addEventListener?.("input", ctrlCb);
-    element?.addEventListener?.("change", ctrlCb);
-    return () => {
-        element?.removeEventListener?.("click", ctrlCb);
-        element?.removeEventListener?.("input", ctrlCb);
-        element?.removeEventListener?.("change", ctrlCb);
-    };
+    const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb };
+    handleListeners?.(element, "addEventListener", hdl);
+    return () => handleListeners?.(element, "removeEventListener", hdl);
 }
 
 /**
