@@ -51,29 +51,6 @@ export const handleStyleChange = (el?: HTMLElement|null, prop?: string, val?: an
     }
 };
 
-
-/*  // DEPRECATED: needs rewrite and embed into `handleAttribute`
-    const config = { attributeOldValue: true, attributes: true, childList: false, subtree: false };
-    const callback = (mutationList, _) => {
-        for (const mutation of mutationList) {
-            if (mutation.type == "attributes") {
-                const key = mutation.attributeName;
-                const value = mutation.target.getAttribute(key);
-                if (value !== mutation.oldValue) { // one-shot update (only valid when attribute is really changes)
-                    if (attributes[key] != null && (attributes[key]?.value != null || (typeof attributes[key] == "object" || typeof attributes[key] == "function"))) {
-                        if (attributes[key]?.value !== value) { attributes[key].value = value; }
-                    } else
-                    if (attributes[key] !== value) { attributes[key] = value; }
-                }
-            }
-        }
-    };
-
-    //
-    const observer = new MutationObserver(callback);
-    observer.observe((el as any)?.element ?? el, config); return element;
-*/
-
 //
 export const handleAttribute = (el?: HTMLElement|null, prop?: string, val?: any) => {
     if (!prop || !el) return; prop = camelToKebab(prop)!;
@@ -82,8 +59,7 @@ export const handleAttribute = (el?: HTMLElement|null, prop?: string, val?: any)
     if (val == null || val === false) el.removeAttribute(prop);
     else if (typeof val != "object" && typeof val != "function") el.setAttribute(prop, String(val));
     else { el.removeAttribute(prop);
-        if (val !== false) console.warn(`Invalid type of attribute value "${prop}":`, val);
-    }
+    if (val !== false) console.warn(`Invalid type of attribute value "${prop}":`, val); }
 };
 
 /**
