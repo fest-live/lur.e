@@ -1,6 +1,6 @@
 
-import { computed, subscribe } from "u2re/object";
-import { E, scrollRef, sizeRef } from "u2re/lure";
+import {    subscribe, computed } from "u2re/object";
+import { E, scrollRef, sizeRef  } from "u2re/lure";
 import { Q, makeRAFCycle, setProperty } from "u2re/dom";
 
 //
