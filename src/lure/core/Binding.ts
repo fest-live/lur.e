@@ -5,7 +5,8 @@ import { camelToKebab, namedStoreMaps } from "u2re/dom";
  * @type {WeakMap<any, (HTMLElement|DocumentFragment|Text)>}
  * @description Сопоставляет объектам соответствующие DOM-узлы.
  */
-export const elMap = new WeakMap<any, HTMLElement | DocumentFragment | Text>();
+export const elMap  = new WeakMap<any, HTMLElement | DocumentFragment | Text>();
+export const alives = new FinalizationRegistry((unsub: any) => unsub?.());
 
 /**
  * Symbol for mapped state
@@ -129,7 +130,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     //
     let obs: any = null; if (withObserver) { obs = observeAttribute(el, prop, value); };
     const unsub = ()=> { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
-    if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
+    alives.register(el, unsub); if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
 }
 
 //
