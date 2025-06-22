@@ -208,13 +208,29 @@ export const bindForms = (fields = document.documentElement, wrapper = ".u2-inpu
     //
     fields.addEventListener("input", onChange);
     fields.addEventListener("change", onChange);
-    fields.addEventListener("u2-appear", ()=>requestIdleCallback(()=>fields.querySelectorAll(wrapper).forEach((target)=>updateInput(target, state)), {timeout: 100}));
 
-    // cross-window or frame syncretism
-    observeBySelector(fields, wrapper, (mutations)=>mutations.addedNodes.forEach((target)=>requestIdleCallback(()=>updateInput(state, target), {timeout: 100})));
-    requestIdleCallback(()=>fields.querySelectorAll(wrapper).forEach((target)=>updateInput(target, state)), {timeout: 100});
-    subscribe?.(state, (value, property)=>fields.querySelectorAll(wrapper).forEach((target)=>updateInput(target, state)));
+    // Сохраняем ссылки на обработчики для отписки
+    const appearHandler = () => requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
+    fields.addEventListener("u2-appear", appearHandler);
 
-    //
-    return state;
+    // MutationObserver
+    const observer = observeBySelector(fields, wrapper, (mutations) => mutations.addedNodes.forEach((target) => requestIdleCallback(() => updateInput(state, target), { timeout: 100 })));
+
+    // subscribe
+    const unsubscribe = subscribe?.(state, (value, property) => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)));
+
+    // Инициализация
+    requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
+
+    // Возвращаем state и функцию для отписки
+    return {
+        state,
+        unsubscribe: () => {
+            fields.removeEventListener("input", onChange);
+            fields.removeEventListener("change", onChange);
+            fields.removeEventListener("u2-appear", appearHandler);
+            observer?.disconnect?.();
+            unsubscribe?.();
+        }
+    };
 }
