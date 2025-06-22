@@ -1,5 +1,5 @@
-import { subscribe } from "u2re/object";
-import { camelToKebab, namedStoreMaps } from "u2re/dom";
+import { makeReactive, subscribe } from "u2re/object";
+import { camelToKebab, namedStoreMaps, observeBySelector } from "u2re/dom";
 
 /**
  * @type {WeakMap<any, (HTMLElement|DocumentFragment|Text)>}
@@ -141,4 +141,80 @@ export const bindWith = (el, prop, value, handler, set?, withObserver?: boolean)
 //
 export const bindEvents = (element, events)=>{
     if (events) { Object.entries(events)?.forEach?.(([name, list]) => (list as any)?.values()?.forEach?.((fn) => element.addEventListener(name, (typeof fn == "function") ? fn : fn?.[0], fn?.[1] || {}))); }
+}
+
+
+
+//
+export const includeSelf = (target, selector)=>{ return (target.querySelector(selector) ?? (target.matches(selector) ? target : null)); }
+export const updateInput = (target, state)=>{
+    const selector = "input:where([type=\"text\"], [type=\"number\"], [type=\"range\"])";
+    const input    = includeSelf(target, "input");
+    const name     = input?.name || target?.dataset?.name || "";
+
+    //
+    if (state?.[name] != null || name in state) { // not exists not preferred...
+        if (state && input?.matches?.(selector)) {
+            if (input.value != state[name]) {
+                input.value = state[name];
+                input.dispatchEvent(new Event("change", { bubbles: true, cancelable: true, }));
+            }
+        }
+
+        // setup radio boxes (requires wrapper)
+        if (state) {
+            const radio = includeSelf(target, `input:where([type=\"radio\"][name=\"${name}\"][value=\"${state?.[name]}\"])`);
+            if (state && radio && state[name] == radio.value && !radio?.checked) { radio?.click?.(); };
+        }
+
+        // setup check boxes
+        const checkbox = includeSelf(target, "input:where([type=\"checkbox\"])");
+        if (state && checkbox) {
+            if (state[name] != checkbox.checked) {
+                checkbox.checked = !!state[name];
+                checkbox.dispatchEvent(new Event("change", { bubbles: true, cancelable: true, }))
+            }
+        }
+    }
+}
+
+//
+export const bindForms = (fields = document.documentElement, wrapper = ".u2-input", state = {})=>{
+    state ??= makeReactive({});
+
+    //
+    const onChange = (ev)=>{
+        const input  = (ev?.target?.matches("input") ? ev?.target : ev?.target?.querySelector?.("input"));
+        const target = (ev?.target?.matches(wrapper) ? ev?.target : input?.closest?.(wrapper)) ?? input;
+        const name   = input?.name || target?.name || target?.dataset?.name;
+
+        //
+        if (state?.[name] != null || name in state) { // not exists not preferred...
+            if (input?.matches?.("input:where([type=\"text\"], [type=\"number\"], [type=\"range\"])")) {
+                const value = (input.valueAsNumber != null && !isNaN(input.valueAsNumber)) ? input.valueAsNumber : input.value;
+                if (state[name] != value) { state[name] = value; };
+            }
+
+            // any radio-box
+            if (input?.matches?.("input[type=\"radio\"]") && state[name] != input?.value && input?.checked)
+                {state[name] = input.value; }
+
+            // any check-box
+            if (input?.matches?.("input[type=\"checkbox\"]") && state[name] != input?.checked)
+                {state[name] = input.checked; }
+        }
+    };
+
+    //
+    fields.addEventListener("input", onChange);
+    fields.addEventListener("change", onChange);
+    fields.addEventListener("u2-appear", ()=>requestIdleCallback(()=>fields.querySelectorAll(wrapper).forEach((target)=>updateInput(target, state)), {timeout: 100}));
+
+    // cross-window or frame syncretism
+    observeBySelector(fields, wrapper, (mutations)=>mutations.addedNodes.forEach((target)=>requestIdleCallback(()=>updateInput(state, target), {timeout: 100})));
+    requestIdleCallback(()=>fields.querySelectorAll(wrapper).forEach((target)=>updateInput(target, state)), {timeout: 100});
+    subscribe?.(state, (value, property)=>fields.querySelectorAll(wrapper).forEach((target)=>updateInput(target, state)));
+
+    //
+    return state;
 }
