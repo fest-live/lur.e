@@ -3,7 +3,7 @@ import { agWrapEvent, fixedClientZoom } from "u2re/dom";
 
 //
 function handleListeners(root, fn, handlers) {
-    handlers.forEach(({ name, cb }) => fn.call(root, name, cb));
+    Object.entries(handlers).forEach(([name, cb]) => root?.[fn]?.call?.(root, name, cb));
 }
 
 //
@@ -76,9 +76,8 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
         //
         const unbind = agWrapEvent((evc_l)=>{
             const ev_l = evc_l?.detail || evc_l;
-            if (ev_l?.pointerId == ev?.pointerId) {
-                handleListeners(ROOT, "removeEventListener", handler);
-            }
+            if (ev_l?.pointerId == ev?.pointerId)
+                { handleListeners(ROOT, "removeEventListener", handler); }
         });
 
         //

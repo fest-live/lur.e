@@ -43,8 +43,10 @@ export const bindBeh = (element, store, behavior) => {
     }; return element;
 }
 
-// short-handed
-function handleListeners(root, fn, handlers) { handlers.forEach(({ name, cb }) => fn.call(root, name, cb)); }
+// short-handed//
+function handleListeners(root, fn, handlers) {
+    Object.entries(handlers).forEach(([name, cb]) => root?.[fn]?.call?.(root, name, cb));
+}
 
 /**
  * Bind event controller (checkboxCtrl, valueCtrl etc) to element and set initial value.
@@ -209,20 +211,16 @@ export const bindForms = (fields = document.documentElement, wrapper = ".u2-inpu
     fields.addEventListener("input", onChange);
     fields.addEventListener("change", onChange);
 
-    // Сохраняем ссылки на обработчики для отписки
+    //
     const appearHandler = () => requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
     fields.addEventListener("u2-appear", appearHandler);
 
-    // MutationObserver
+    //
     const observer = observeBySelector(fields, wrapper, (mutations) => mutations.addedNodes.forEach((target) => requestIdleCallback(() => updateInput(state, target), { timeout: 100 })));
-
-    // subscribe
     const unsubscribe = subscribe?.(state, (value, property) => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)));
-
-    // Инициализация
     requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
 
-    // Возвращаем state и функцию для отписки
+    //
     return {
         state,
         unsubscribe: () => {

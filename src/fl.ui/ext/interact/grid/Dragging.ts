@@ -1,11 +1,9 @@
+import { bindDraggable, convertOrientPxToCX, doAnimate, getBoundingOrientRect, orientOf, redirectCell, setProperty } from "u2re/dom";
 import LongPressHandler from "../handler/LongPress";
 import { makeShiftTrigger } from "./Trigger";
 
 //
-export const makeDragEvents = (newItem, {layout, dragging, currentCell}, {item, list, items})=>{ // @ts-ignore
-    const { bindDraggable, setProperty, redirectCell, getBoundingOrientRect, orientOf, convertOrientPxToCX, doAnimate } = await Promise.try(importCdn, ["u2re/dom"]);
-
-    //
+export const makeDragEvents = async (newItem, {layout, dragging, currentCell}, {item, list, items})=>{ // @ts-ignore
     const $updateLayout = (newItem)=>{
         const gridSystem = newItem?.parentElement;
         layout[0] = parseInt(gridSystem.style.getPropertyValue("--layout-c")) || layout[0];
@@ -16,7 +14,7 @@ export const makeDragEvents = (newItem, {layout, dragging, currentCell}, {item, 
     //
     const setCellAxis = (cell, axis = 0)=> { if (currentCell?.[axis]?.value != cell?.[axis]) { try { currentCell[axis].value = cell[axis]; } catch(e){}; }; };
     const setCell = (cell)=>{ setCellAxis(cell, 0); setCellAxis(cell, 1); }
-    const clamped = (CXa, layout)=>[
+    const clamped = (CXa, layout): [number, number]=>[
         Math.max(Math.min(Math.floor(CXa[0]), layout[0]-1), 0),
         Math.max(Math.min(Math.floor(CXa[1]), layout[1]-1), 0)
     ];

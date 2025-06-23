@@ -1,10 +1,10 @@
-import {  importCdn  }    from "u2re/cdnImport";
 import { makeDragEvents } from "./Dragging";
+import { makeObjectAssignable, makeReactive, ref, subscribe } from "u2re/object";
+import { E } from "u2re/lure";
+import { redirectCell } from "u2re/dom";
 
 //
 export const reflectCell = async (newItem: any, pArgs: any, withAnimate = false)=>{ // @ts-ignore
-    const { redirectCell } = await Promise.try(importCdn, ["u2re/dom"]); // @ts-ignore
-    const {subscribe, makeObjectAssignable, makeReactive } = await Promise.try(importCdn, ["u2re/object"]);
     const layout = [pArgs?.layout?.columns || pArgs?.layout?.[0] || 4, pArgs?.layout?.rows || pArgs?.layout?.[1] || 8];
     const {item, list, items} = pArgs;
     await new Promise((r)=>requestAnimationFrame(r));
@@ -22,8 +22,8 @@ export const reflectCell = async (newItem: any, pArgs: any, withAnimate = false)
 // shifting - reactive basis
 export const ROOT = document.documentElement;
 export const bindInteraction = async (newItem: any, pArgs: any)=>{ // @ts-ignore
-    const { ref, subscribe } = await Promise.try(importCdn, ["u2re/object"]); // @ts-ignore
-    const { E } = await Promise.try(importCdn, ["u2re/lure"]);
+    //const { ref, subscribe } = await Promise.try(importCdn, ["u2re/object"]); // @ts-ignore
+    //const { E } = await Promise.try(importCdn, ["u2re/lure"]);
     await new Promise((r)=>requestAnimationFrame(r));
     reflectCell(newItem, pArgs, true);
 

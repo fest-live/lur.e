@@ -1,5 +1,5 @@
-import { ref, makeReactive, assign } from "u2re/object";
-import { registerMixin } from "u2re/dom";
+// @ts-ignore
+import { ref, makeReactive, assign } from "u2re/object"; import { Q } from "u2re/dom";
 import { css, defineElement, GLitElement, property } from "../src/lure/extension/Glit";
 
 //
@@ -9,9 +9,11 @@ import { H } from "../src/lure/node/Syntax";
 //
 import ScrollBoxed from "../src/fl.ui/wcomp/ScrollFrame";
 import WithOverlay from "../src/fl.ui/wcomp/OverlayExt";
+import { bindInteraction } from "../src/fl.ui/ext/interact/grid/Binding";
+
+//
 console.log(ScrollBoxed);
 console.log(WithOverlay);
-
 
 //
 @defineElement("x-block")
@@ -81,3 +83,22 @@ setTimeout(()=>{
 //
 document.body.append(dom);
 document.body.append(scb);
+
+//
+const item = { cell: makeReactive([0, 0]) };
+const layout = makeReactive([4, 8]);
+const items = [item];
+
+//
+const withItem = Q((el)=>{
+    if (el) {
+        const args = { layout, items, item };
+        bindInteraction(el, args);
+    }
+});
+
+//
+const SVO = H`<ux-grid style="inline-size:800px; block-size:600px; display: block;">
+    <div ref=${withItem} style="user-select: none; background-color: black; inline-size: 6rem; block-size: 6rem;"></div>
+</ux-grid>`;
+document.body.append(SVO);
