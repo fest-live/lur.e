@@ -43,7 +43,7 @@ export const bindBeh = (element, store, behavior) => {
     }; return element;
 }
 
-// short-handed//
+// short-handed
 function handleListeners(root, fn, handlers) {
     Object.entries(handlers).forEach(([name, cb]) => root?.[fn]?.call?.(root, name, cb));
 }
@@ -70,14 +70,6 @@ export const bindCtrl = (element, ctrlCb) => {
  */
 export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
 
-// Stable Universal Key Assignation - eg. [S.U.K.A.]
-export const removeFromBank = (el, handler, prop) => { const bank = elMap?.get(el)?.get?.(handler); if (bank) { /*bank[prop]?.();*/ delete bank[prop]; } }
-export const addToBank = (el, unsub, prop, handler) => { // @ts-ignore
-    const bank = elMap?.getOrInsert?.(el, new WeakMap());
-    const handlerMap = bank?.getOrInsert?.(handler, {}) ?? {};
-    handlerMap?.[prop]?.(); handlerMap[prop] = unsub; return true;
-}
-
 /**
  * Универсальная функция для установки значения, подписки на изменения и обработки через handler.
  * Если передан set=true, то создаётся MutationObserver для отслеживания изменений атрибута.
@@ -96,11 +88,18 @@ export const observeAttribute = (el: HTMLElement, prop: string, value: any) => {
     if (typeof (el as any)?.selector == "string" && (el as any)?.observeAttr != null) return (el as any)?.observeAttr?.(prop, cb);
 
     //
-    const attrName = camelToKebab(prop)!;
-    const observer = new MutationObserver(cb);
+    const attrName = camelToKebab(prop)!, observer = new MutationObserver(cb);
     observer.observe((el as any)?.element ?? el, { attributes: true, attributeOldValue: true, attributeFilter: [attrName] });
-    return observer; // Можно вернуть observer, если нужно управлять его жизненным циклом
+    return observer;
 };
+
+// @ts-ignore // Stable Universal Key Assignation - eg. [S.U.K.A.]
+export const removeFromBank = (el, handler, prop) => { const bank = elMap?.get(el)?.get?.(handler); if (bank) { /*bank[prop]?.();*/ delete bank[prop]; } }
+export const      addToBank = (el, unsub, prop, handler) => { // @ts-ignore
+    const bank = elMap?.getOrInsert?.(el, new WeakMap());
+    const handlerMap = bank?.getOrInsert?.(handler, {}) ?? {};
+    handlerMap?.[prop]?.(); handlerMap[prop] = unsub; return true;
+}
 
 /**
  * Bind reactive style/prop handler for a ref to an element property, using an optional set WeakRef
@@ -136,18 +135,6 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
 }
 
 //
-export const bindWith = (el, prop, value, handler, set?, withObserver?: boolean)=>{
-    handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver);
-}
-
-//
-export const bindEvents = (element, events)=>{
-    if (events) { Object.entries(events)?.forEach?.(([name, list]) => (list as any)?.values()?.forEach?.((fn) => element.addEventListener(name, (typeof fn == "function") ? fn : fn?.[0], fn?.[1] || {}))); }
-}
-
-
-
-//
 export const includeSelf = (target, selector)=>{ return (target.querySelector(selector) ?? (target.matches(selector) ? target : null)); }
 export const updateInput = (target, state)=>{
     const selector = "input:where([type=\"text\"], [type=\"number\"], [type=\"range\"])";
@@ -181,7 +168,9 @@ export const updateInput = (target, state)=>{
 }
 
 //
-export const bindForms = (fields = document.documentElement, wrapper = ".u2-input", state = {})=>{
+export const bindEvents = (el, events)=>{ if (events) { Object.entries(events)?.forEach?.(([name, list]) => (list as any)?.values()?.forEach?.((fn) => el.addEventListener(name, (typeof fn == "function") ? fn : fn?.[0], fn?.[1] || {}))); } }
+export const bindWith   = (el, prop, value, handler, set?, withObserver?: boolean)=>{ handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver); }
+export const bindForms  = (fields = document.documentElement, wrapper = ".u2-input", state = {})=>{
     state ??= makeReactive({});
 
     //

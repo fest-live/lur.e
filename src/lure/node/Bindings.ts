@@ -3,8 +3,8 @@ import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, ref
 
 //
 import { createElement } from "../utils/DOM";
-import { bindEvents, reflectControllers, bindWith, $virtual, elMap } from '../core/Binding';
-import { handleProperty, handleHidden, handleAttribute,  } from "../core/Handler";
+import { handleHidden, handleProperty, handleAttribute } from "../core/Handler";
+import { bindEvents, bindWith, reflectControllers } from '../core/Binding';
 import { subscribe } from "u2re/object";
 
 /**
@@ -106,11 +106,8 @@ export const E = (selector: string | HTMLElement, params: Params = {}, children?
         params?.rules?.forEach?.((rule) => reflectWithStyleRules(element, rule));
     }
 
-    // Отражение детей
-    if (children) reflectChildren(element, children);
-    //elMap.set(this, element);
-    return element;
-
+    //
+    if (children) reflectChildren(element, children); return element;
 }
 
 //

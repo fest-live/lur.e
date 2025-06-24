@@ -1,13 +1,13 @@
 import { setStyleProperty, makeRAFCycle } from "u2re/dom";
 
 //
+type DatasetValue = string | number | boolean | null | undefined | { value?: string | number | boolean | null | undefined };
+const isVal = (v: any) => v != null && v !== false && (typeof v != "object" && typeof v != "function");
+
+//
 export const camelToKebab = (str: string) => str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 export const kebabToCamel = (str: string) => str?.replace?.(/-([a-z])/g, (_, c) => c.toUpperCase());
 export const deleteStyleProperty = (el: HTMLElement, name: string) => el.style.removeProperty(camelToKebab(name));
-
-//
-type DatasetValue = string | number | boolean | null | undefined | { value?: string | number | boolean | null | undefined };
-const isVal = (v: any) => v != null && v !== false && (typeof v != "object" && typeof v != "function");
 
 //
 export const handleHidden = (element, hidden) => {

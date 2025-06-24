@@ -28,10 +28,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
             if (attr.name.startsWith("@")) { on[attr.name.trim().replace("@", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
             if (attr.name.startsWith("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
             if (attr.name.startsWith("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
-            if (attr.name.startsWith("ctrl:")) { ctrls.set(attr.name.trim().replace("ctrl:", "").trim(), value); } else
-            { attributes[attr.name.trim()] = value; }
-
-            //
+            if (attr.name.startsWith("ctrl:")) { ctrls.set(attr.name.trim().replace("ctrl:", "").trim(), value); } else { attributes[attr.name.trim()] = value; }
             if (isCustom) { el.removeAttribute(attr.name); };
         }
 

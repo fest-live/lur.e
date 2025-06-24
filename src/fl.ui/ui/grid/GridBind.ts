@@ -1,7 +1,7 @@
-import { makeDragEvents } from "../elements/grid/Dragging";
 import { ref, subscribe } from "u2re/object";
 import { reflectCell } from "./Reflect";
 import { E } from "u2re/lure";
+import { makeDragEvents } from "./Dragging";
 
 // shifting - reactive basis
 export const ROOT = document.documentElement;
@@ -21,6 +21,8 @@ export const bindInteraction = async (newItem: any, pArgs: any)=>{
         "--drag-x": dragging[0],
         "--drag-y": dragging[1]
     } });
+
+    //
     subscribe([currentCell[0], "value"], (val)=> item.cell[0] = val);
     subscribe([currentCell[1], "value"], (val)=> item.cell[1] = val);
     makeDragEvents(newItem, {layout, currentCell, dragging}, {item, list, items});

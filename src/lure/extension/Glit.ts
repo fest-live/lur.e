@@ -1,6 +1,6 @@
 import { importCdn } from "u2re/cdnImport";
-import { subscribe, makeReactive, observableArray, ref } from "u2re/object";
-import { Q, addRoot, loadInlineStyle} from "u2re/dom";
+import { subscribe, makeReactive, ref } from "u2re/object";
+import { Q, addRoot, loadInlineStyle } from "u2re/dom";
 import { E } from "../node/Bindings";
 
 //
@@ -25,8 +25,7 @@ const whenBoxValid  = (name) => { const cb = camelToKebab(name); if (["border-bo
 const whenAxisValid = (name) => { const cb = camelToKebab(name); if (cb?.startsWith?.("inline")) { return "inline"; }; if (cb?.startsWith?.("block")) { return "block"; }; return null; }
 const characters    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const inRenderKey   = Symbol.for("@render@"), defKeys = Symbol.for("@defKeys@");
-
-//
+const defaultStyle  = document.createElement("style");
 const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "attr")  { return attrRef.bind(null, holder, name || ""); }
     if (source == "media") { return matchMediaRef; }
@@ -65,7 +64,6 @@ const getDef = (source?: string|any|null): any =>{
 }
 
 //
-const defaultStyle = document.createElement("style");
 defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
 @layer ux-preload {
     :where(ui-select-row, ui-button-row),
@@ -156,10 +154,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
 }
 
 //
-export const customElement = defineElement;
 export const useVars = (holder, vars)=>{ vars?.entries?.()?.forEach?.(([key, vr])=>subscribe([vr,'value'], (val)=>(holder?.style ?? holder)?.setProperty?.(`--${key}`, val, ""))); return holder; }
-
-//
 export const css = (strings, ...values)=>{
     let props: string[] = [];
     let parts: string[] = [], vars: Map<string, any> = new Map();
@@ -179,6 +174,7 @@ export const css = (strings, ...values)=>{
 }
 
 //
+export const customElement = defineElement;
 export const loadCachedStyles = (bTo, src, withVars = true)=>{
     const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
     const cached = source.get(src);

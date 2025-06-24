@@ -1,5 +1,9 @@
 import { subscribe } from "u2re/object";
-import { getNode } from "../utils/DOM";
+import { getNode  } from "../utils/DOM";
+
+//
+const inProx = new WeakMap(), contextify = (pc: any, name: any) =>
+    { return (typeof pc?.[name] == "function" ? pc?.[name]?.bind?.(pc) : pc?.[name]); }
 
 /**
  * @typedef {Object} SwitchedParams
@@ -52,10 +56,6 @@ const SwM = {
 }
 
 //
-const inProx = new WeakMap(), contextify = (pc: any, name: any) =>
-    { return (typeof pc?.[name] == "function" ? pc?.[name]?.bind?.(pc) : pc?.[name]); }
-
-//
 export class SwHandler implements ProxyHandler<SwitchedParams> {
     constructor() {}
 
@@ -68,15 +68,15 @@ export class SwHandler implements ProxyHandler<SwitchedParams> {
     }
 
     //
-    deleteProperty(params: SwitchedParams, name) { return Reflect.deleteProperty(params?.mapped?.[params?.current?.value], name); }
+    ownKeys(params: SwitchedParams) { return Reflect.ownKeys(params?.mapped?.[params?.current?.value]); }
     apply(params: SwitchedParams, thisArg, args) { return Reflect.apply(params?.mapped?.[params?.current?.value], thisArg, args); }
+    deleteProperty(params: SwitchedParams, name) { return Reflect.deleteProperty(params?.mapped?.[params?.current?.value], name); }
+    setPrototypeOf(params: SwitchedParams, proto) { return Reflect.setPrototypeOf(params?.mapped?.[params?.current?.value], proto); }
     getPrototypeOf(params: SwitchedParams) { return Reflect.getPrototypeOf(params?.mapped?.[params?.current?.value]); }
-    getOwnPropertyDescriptor(params: SwitchedParams, name) { return Reflect.getOwnPropertyDescriptor(params?.mapped?.[params?.current?.value], name); }
     defineProperty(params: SwitchedParams, name, desc) { return Reflect.defineProperty(params?.mapped?.[params?.current?.value], name, desc); }
+    getOwnPropertyDescriptor(params: SwitchedParams, name) { return Reflect.getOwnPropertyDescriptor(params?.mapped?.[params?.current?.value], name); }
     preventExtensions(params: SwitchedParams) { return Reflect.preventExtensions(params?.mapped?.[params?.current?.value]); }
     isExtensible(params: SwitchedParams) { return Reflect.isExtensible(params?.mapped?.[params?.current?.value]); }
-    ownKeys(params: SwitchedParams) { return Reflect.ownKeys(params?.mapped?.[params?.current?.value]); }
-    setPrototypeOf(params: SwitchedParams, proto) { return Reflect.setPrototypeOf(params?.mapped?.[params?.current?.value], proto); }
 }
 
 /**

@@ -1,4 +1,4 @@
-@use "../ext/scrollbar/Scrollbar.scss" as sb;
+@use "../ui/scrollbar/Scrollbar.scss" as sb;
 
 //
 @property --max-size { syntax: "<length-percentage>"; initial-value: 0px; inherits: true; };

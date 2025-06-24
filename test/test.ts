@@ -5,11 +5,9 @@ import { css, defineElement, GLitElement, property } from "../src/lure/extension
 //
 import { E } from "../src/lure/node/Bindings";
 import { H } from "../src/lure/node/Syntax";
-
-//
-import ScrollBoxed from "../src/fl.ui/wcomp/ScrollFrame";
-import WithOverlay from "../src/fl.ui/wcomp/OverlayExt";
-import { bindInteraction } from "../src/fl.ui/ext/interact/grid/Binding";
+import ScrollBoxed from "../src/fl.ui/components/ScrollFrame";
+import { bindInteraction } from "../src/fl.ui/ui/grid/GridBind";
+import WithOverlay from "../src/fl.ui/components/OverlayExt";
 
 //
 console.log(ScrollBoxed);
