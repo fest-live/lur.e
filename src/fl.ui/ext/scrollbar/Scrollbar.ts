@@ -1,7 +1,6 @@
-
 import {    subscribe, computed } from "u2re/object";
 import { E, scrollRef, sizeRef  } from "u2re/lure";
-import { Q, makeRAFCycle, setProperty } from "u2re/dom";
+import { Q, setProperty, makeRAFCycle } from "u2re/dom";
 
 //
 export interface ScrollBarStatus {
@@ -177,9 +176,6 @@ export class ScrollBar {
         makeInteractive(this.holder, this.content, this.scrollbar, axis, this.status);
 
         //
-        E(Q("*", this.scrollbar), { style: {
-            "--scroll-coef": sce,
-
-        } })
+        E(Q("*", this.scrollbar), { style: { "--scroll-coef": sce } });
     }
 }

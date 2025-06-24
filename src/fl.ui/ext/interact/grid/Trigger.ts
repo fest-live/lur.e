@@ -21,17 +21,12 @@ export const doObserve = (holder, parent)=>{
     }
 
     //
-    holder["@control"] = this;
-    doBorderObserve(holder);
-
-    //
+    holder["@control"] = this; doBorderObserve(holder);
     if (parent) { doContentObserve(parent); }
     const updSize_w = new WeakRef(updateSize);
 
     //
-    ROOT.addEventListener("scaling", ()=>{
-        try { updSize_w?.deref?.call?.(self); } catch(e) {};
-    });
+    ROOT.addEventListener("scaling", ()=>{try { updSize_w?.deref?.call?.(self); } catch(e) {}});
 }
 
 //

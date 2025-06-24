@@ -1,10 +1,10 @@
 import { borderBoxHeight, borderBoxWidth, contentBoxHeight, contentBoxWidth, setProperty, ROOT } from "../../core/Utils";
 import { bindDraggable, getBoundingOrientRect } from "u2re/dom";
+import { makeShiftTrigger, doObserve } from "../grid/Trigger";
 
 //
 import {  E  } from "u2re/lure";
 import { ref } from "u2re/object";
-import { doObserve, makeShiftTrigger } from "../grid/Trigger";
 
 //
 export class DragHandler {
@@ -29,7 +29,7 @@ export class DragHandler {
 
         //
         const weak   = new WeakRef(this.#holder);
-        const binding = (grabAction)=>handler.addEventListener("pointerdown", makeShiftTrigger(grabAction, this.#holder));
+        const binding = (grabAction) => handler.addEventListener("pointerdown", makeShiftTrigger(grabAction, this.#holder));
         const dragResolve = (dragging) => {
             const holder = weak?.deref?.() as any;
             holder?.style?.removeProperty?.("will-change");

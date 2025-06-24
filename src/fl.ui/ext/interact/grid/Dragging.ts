@@ -1,6 +1,6 @@
-import { bindDraggable, convertOrientPxToCX, doAnimate, getBoundingOrientRect, orientOf, redirectCell, setProperty } from "u2re/dom";
-import LongPressHandler from "../handler/LongPress";
+import { convertOrientPxToCX, bindDraggable, doAnimate, getBoundingOrientRect, orientOf, redirectCell, setProperty } from "u2re/dom";
 import { makeShiftTrigger } from "./Trigger";
+import { LongPressHandler } from "../handler/LongPress";
 
 //
 export const makeDragEvents = async (newItem, {layout, dragging, currentCell}, {item, list, items})=>{ // @ts-ignore
@@ -27,7 +27,7 @@ export const makeDragEvents = async (newItem, {layout, dragging, currentCell}, {
         const rel: [number, number] = [(cbox.left + cbox.right)/2 - pbox.left, (cbox.top + cbox.bottom)/2 - pbox.top];
 
         // compute correct cell
-        const args = {layout: $updateLayout(newItem), size: [gridSystem?.clientWidth, gridSystem?.clientHeight]};
+        const args = {layout: $updateLayout(newItem), size: [gridSystem?.clientWidth, gridSystem?.clientHeight]}; // @ts-ignore
         setCell(redirectCell(clamped(convertOrientPxToCX(rel, args, orientOf(gridSystem)), layout), args));
 
         //
@@ -42,14 +42,13 @@ export const makeDragEvents = async (newItem, {layout, dragging, currentCell}, {
 
     //
     const resolveDragging = (dragging) => {
-        // TOOD: detect another grid system
         const gridSystem = newItem?.parentElement;
         const cbox = getBoundingOrientRect(newItem) || newItem?.getBoundingClientRect?.();
         const pbox = getBoundingOrientRect?.(gridSystem) || gridSystem?.getBoundingClientRect?.();
         const rel : [number, number] = [(cbox.left + cbox.right)/2 - pbox.left, (cbox.top + cbox.bottom)/2 - pbox.top];
 
         // compute correct cell
-        const args = {item, list, items, layout: $updateLayout(newItem), size: [gridSystem?.clientWidth, gridSystem?.clientHeight]};
+        const args = {item, list, items, layout: $updateLayout(newItem), size: [gridSystem?.clientWidth, gridSystem?.clientHeight]}; // @ts-ignore
         const cell = redirectCell(clamped(convertOrientPxToCX(rel, args, orientOf(gridSystem)), layout), args);
 
         // set cell position and animate

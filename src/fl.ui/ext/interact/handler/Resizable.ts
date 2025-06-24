@@ -1,10 +1,10 @@
 import { clamp, bbh, bbw, cbh, cbw, ROOT,  type InteractStatus } from "../../core/Utils";
 import { fixedClientZoom, getBoundingOrientRect, bindDraggable } from "u2re/dom";
+import { makeShiftTrigger, doObserve } from "../grid/Trigger";
 
 //
 import {  E  } from "u2re/lure";
 import { ref } from "u2re/object";
-import { doObserve, makeShiftTrigger } from "../grid/Trigger";
 
 //
 export class ResizeHandler {
