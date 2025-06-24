@@ -1,0 +1,65 @@
+@use "sass:meta";
+@use "sass:color";
+@use "./functions" as fn;
+
+//
+@mixin hover($selector: "&") {
+    @media screen and ((hover: hover) or (pointer: fine))   { #{$selector}:hover { @content; } }
+    @media screen and ((hover: none) and (pointer: coarse)) { #{$selector}:action { @content; } }
+}
+
+// Депенденси-тема (светлая/тёмная)
+@mixin tm-dep($property, $light, $dark, $fb: var(--tm-scheme)) {
+    & {#{$property}: color-mix(in oklch, #{$light} calc(100% * #{$fb}), #{$dark}); }
+    @supports(color: light-dark(white, black)) {
+        #{$property}: light-dark(#{$light}, #{$dark});
+    }
+}
+
+// Инверсия цвета на основе --tm-origin
+@mixin inverse {
+    // сохраняем цвет в кастомную переменную
+    @include tm-dep("--tm-cr", var(--tm-cr-dark), var(--tm-cr-light));
+    & { --tm-ac: #{fn.tm-lo(var(--tm-origin, currentColor), 80%) };}
+}
+
+// сброс кастом-свойств
+// пример вызова: @include reset-vars("--tm-bg-alpha", "--hl-co-state");
+@mixin reset-vars($vars...) { @each $v in $vars { #{$v}: 0; } }
+
+// общие паддинги + box-модель
+// @include box($radius, $overflow);
+@mixin box($r, $ov: visible) {
+    border-radius: $r;
+    overflow: $ov;
+}
+
+// общий flex-контейнер
+// @include flex($dir,row, $justify,start, $align,center);
+@mixin flex($dir, $justify: start, $align: center) {
+    display: flex;
+    flex-direction: $dir;
+    justify-content: $justify;
+    align-items: $align;
+}
+
+//
+@mixin grid($cols, $rows, $gap: 0) {
+    display: grid;
+    grid-template-columns: $cols;
+    grid-template-rows: $rows;
+    gap: $gap;
+}
+
+//
+@mixin tm-dep($property, $light, $dark, $fb: var(--tm-scheme)) {
+    & { #{$property}: color-mix(in oklch, #{$light} calc(100% * #{var(--tm-scheme)}), #{$dark}); }
+    @supports(color: light-dark(white, black)) { #{$property}: light-dark(#{$light}, #{$dark}); }
+};
+
+//
+$def-ff: 'Open Sans', 'Source Sans 3','Gill Sans Nova', Ubuntu, 'DejaVu Sans', Candara, Segoe, "Segoe UI", Optima, source-sans-pro, sans-serif;
+@mixin typography($fs, $ff: $def-ff) {
+    font-size: $fs;
+    font-family: $ff;
+}

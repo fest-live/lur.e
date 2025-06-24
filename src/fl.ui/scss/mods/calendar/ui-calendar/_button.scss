@@ -1,0 +1,19 @@
+@use "../abstracts/mixins" as m;
+@layer ui-calendar.ui-general {
+    button {
+        @include m.flex(row, center, center);
+        & {
+            border-radius: 0.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            inline-size: 100%;
+            max-block-size: min(100%,4rem);
+        }
+        & {
+            --tm-bg-alpha: 0;
+            --tm-chroma: 0.05;
+            --tm-adapt: color-mix(in oklch, var(--tm-cr) calc(100% * var(--tm-chroma)), var(--tm-ac));
+            --tm-bg-color: oklch(from var(--tm-adapt) l c h / var(--tm-bg-alpha));
+        }
+    }
+}

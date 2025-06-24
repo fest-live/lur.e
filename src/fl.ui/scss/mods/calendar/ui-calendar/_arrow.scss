@@ -1,0 +1,45 @@
+@layer ui-calendar.ui-arrow {
+    .vc-arrow
+    {
+        @include inverse();
+        & { min-block-size: 2rem;
+            min-inline-size: max-content;
+            inline-size: max-content;
+            aspect-ratio: 1 / 1;
+            block-size: 100%;
+            box-sizing: border-box;
+            border-radius: 0rem;
+            background-color: var(--rv-bg-color, currentColor);
+            padding: 0.25rem;
+            display: flex;
+        };
+
+        //
+        & {
+            --tm-chroma: 0.2;
+            --tm-bg-alpha: 1;
+            --hl-co-state: 0;
+        };
+
+        //
+        &[data-vc-arrow="prev"] { &::before { rotate:  90deg; } }
+        &[data-vc-arrow="next"] { &::before { rotate: -90deg; } }
+        &:hover { --hl-co-state: 4; };
+        &::before
+        {
+            display: flex;
+            content: "";
+            padding: 0rem;
+            aspect-ratio: 1 / 1;
+            inline-size: max-content;
+            block-size: 100%;
+            box-sizing: border-box;
+            mask-clip: content-box;
+            mask-size: contain;
+            mask-repeat: no-repeat;
+            mask-origin: content-box;
+            mask-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJsdWNpZGUgbHVjaWRlLWNoZXZyb24tZG93biI+PHBhdGggZD0ibTYgOSA2IDYgNi02Ii8+PC9zdmc+");
+            background-color: var(--rv-color, currentColor);
+        }
+    }
+}

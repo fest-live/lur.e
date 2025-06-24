@@ -1,6 +1,6 @@
-import { borderBoxHeight, borderBoxWidth, contentBoxHeight, contentBoxWidth, setProperty, ROOT } from "../../core/Utils";
+import { borderBoxHeight, borderBoxWidth, contentBoxHeight, contentBoxWidth, setProperty, ROOT } from "../core/Utils";
 import { bindDraggable, getBoundingOrientRect } from "u2re/dom";
-import { makeShiftTrigger, doObserve } from "../grid/Trigger";
+import { makeShiftTrigger, doObserve } from "./Trigger";
 
 //
 import {  E  } from "u2re/lure";

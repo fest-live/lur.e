@@ -1,4 +1,4 @@
-import { blockClickTrigger, ROOT } from "../../core/Utils";
+import { blockClickTrigger, ROOT } from "../core/Utils";
 import { agWrapEvent } from "u2re/dom";
 
 //

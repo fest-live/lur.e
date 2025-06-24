@@ -1,0 +1,46 @@
+@mixin xy-props($prefix, $x-suffix, $y-suffix, $x-value, $y-value, $syntax, $inherits: true) {
+    @property --#{$prefix}#{$x-suffix} { initial-value: #{$x-value}; syntax: "#{$syntax}"; inherits: #{$inherits}; }
+    @property --#{$prefix}#{$y-suffix} { initial-value: #{$y-value}; syntax: "#{$syntax}"; inherits: #{$inherits}; }
+}
+
+//
+@mixin pair-props($prefix, $first-suffix, $second-suffix, $first-value, $second-value, $syntax, $inherits: true) {
+    @property --#{$prefix}#{$first-suffix} { initial-value: #{$first-value}; syntax: "#{$syntax}"; inherits: #{$inherits}; }
+    @property --#{$prefix}#{$second-suffix} { initial-value: #{$second-value}; syntax: "#{$syntax}"; inherits: #{$inherits}; }
+}
+
+//
+@mixin page-coords { @include xy-props('page', '-x', '-y', 0, 0, '<number>'); }
+@mixin drag-coords { @include xy-props('drag', '-x', '-y', 0, 0, '<number>'); }
+@mixin sp-coords   { @include xy-props('sp'  , '-x', '-y', 0px, 0px, '<length-percentage>'); }
+@mixin ds-coords   { @include xy-props('ds'  , '-x', '-y', 0px, 0px, '<length-percentage>'); }
+@mixin r-coords    { @include xy-props('r'   ,  'x',  'y', 0px, 0px, '<length-percentage>'); }
+@mixin rs-coords   { @include xy-props('rs'  , '-x', '-y', 0px, 0px, '<length-percentage>'); }
+
+//
+@mixin pointer-coords { @include xy-props('client', '-x', '-y', 0, 0, '<number>'); }
+@mixin resize-coords  { @include xy-props('resize', '-x', '-y', 0, 0, '<number>'); }
+@mixin limit-shift-coords { @include xy-props('limit-shift', '-x', '-y', '100%', '100%', '<length-percentage>'); }
+@mixin limit-drag-coords  { @include xy-props('limit-drag' , '-x', '-y', '100%', '100%', '<length-percentage>'); }
+
+//
+@mixin   bound-size { @include pair-props('bound', '-inline-size', '-block-size', 100cqi, 100cqb, '<length-percentage>'); }
+@mixin initial-size { @include pair-props('initial-', 'inline-size', 'block-size', '100%', '100%', '<length-percentage>'); }
+@mixin         size { @include pair-props('', 'inline-size', 'block-size', '100%', '100%', '<length-percentage>'); }
+
+//
+@scope(:host, :root, :scope) {
+    @include pointer-coords;
+    @include page-coords;
+    @include drag-coords;
+    @include sp-coords;
+    @include ds-coords;
+    @include r-coords;
+    @include limit-shift-coords;
+    @include limit-drag-coords;
+    @include resize-coords;
+    @include rs-coords;
+    @include bound-size;
+    @include size;
+    @include initial-size;
+}

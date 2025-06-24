@@ -1,5 +1,5 @@
 import { agWrapEvent } from "u2re/dom";
-import { ROOT } from "../../core/Utils";
+import { ROOT } from "../core/Utils";
 
 //
 export class SwipeHandler {

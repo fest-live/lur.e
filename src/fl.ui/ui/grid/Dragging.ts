@@ -1,6 +1,6 @@
 import { convertOrientPxToCX, bindDraggable, doAnimate, getBoundingOrientRect, orientOf, redirectCell, setProperty } from "u2re/dom";
-import { makeShiftTrigger } from "./Trigger";
-import { LongPressHandler } from "../handler/LongPress";
+import { makeShiftTrigger } from "../../interface/Trigger";
+import { LongPressHandler } from "../../interface/LongPress";
 
 //
 export const makeDragEvents = async (newItem, {layout, dragging, currentCell}, {item, list, items})=>{ // @ts-ignore

@@ -1,13 +1,3 @@
-@scope(:host, :root, :scope) {
-    @property --client-x { initial-value: 0; syntax: "<number>"; inherits: true; };
-    @property --client-y { initial-value: 0; syntax: "<number>"; inherits: true; };
-
-    //
-    @property --page-x { initial-value: 0; syntax: "<number>"; inherits: true; };
-    @property --page-y { initial-value: 0; syntax: "<number>"; inherits: true; };
-};
-
-//
 @mixin ps-anchor {
     // fallback
     & {

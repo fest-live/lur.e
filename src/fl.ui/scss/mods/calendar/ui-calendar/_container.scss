@@ -1,0 +1,21 @@
+
+@use "../abstracts/mixins" as m;
+@layer ui-container.ui-general {
+
+    .vc {
+        padding: 1rem;
+        min-block-size: 25rem;
+        padding-block: 1.25rem;
+        place-content: stretch;
+        min-inline-size: 20rem;
+        max-inline-size: 20rem;
+        inline-size: 20rem;
+        place-items: stretch;
+        place-self: center;
+        display: grid;
+        grid-template-rows: minmax(1rem, max-content) minmax(0px, 1fr);
+        background-color: transparent;
+        gap: 0.25rem;
+    }
+
+}

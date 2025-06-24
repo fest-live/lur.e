@@ -1,0 +1,62 @@
+@use "../abstracts/mixins" as m;
+@layer ui-calendar.ui-general {
+    .vc-header {
+        @include m.flex(row, start, center);
+
+        & {
+            gap: 0.5rem;
+            font-weight: bold;
+            background: transparent;
+        }
+
+        &__content { inline-size: 100%; }
+        &__button {
+            @include m.flex(row, stretch, stretch);
+            & {
+                min-inline-size: 4rem;
+                border-radius: 0.5rem;
+                overflow: hidden;
+                padding: 0;
+            }
+        }
+
+        // общая зона навигации
+        .vc-header__content,
+        .vc-arrow {
+            @include m.flex(row, center, center);
+
+            //
+            & {
+                padding: 0;
+                border-radius: 0.5rem;
+                min-block-size: 2rem;
+            }
+
+            button,
+            &.button {
+                @include m.inverse;
+                @include m.hover("&") { --hl-co-state: 4; }
+
+                //
+                & {
+                    flex: 1;
+                    background-color: var(--rv-bg-color);
+                    padding: 0.5rem 1rem;
+                    font-weight: bold;
+                }
+
+                //
+                & {
+                    --tm-chroma: 0.2;
+                    --tm-bg-alpha: 1;
+                    --hl-co-state: 0;
+                }
+            }
+
+            .vc-year {
+                flex-grow: 0;
+                flex-basis: max-content;
+            }
+        }
+    }
+}

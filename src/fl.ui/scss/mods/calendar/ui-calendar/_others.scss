@@ -1,0 +1,19 @@
+@layer ui-other-date {
+    :is([data-vc-date-month="prev"], [data-vc-date-month="next"])
+        { & { opacity: 0.6; --opacity: 0.6; }; &:hover { opacity: 0.8; --opacity: 0.8; }; }
+}
+
+//
+@layer ui-weekend { [data-vc-date-weekend], [data-vc-date-holiday], [data-vc-week-day-off] { &, .vc-date__btn { --tm-chroma: 0.4; }} }
+@layer ui-hover { :where(.vc-arrow, .vc-date__btn, button) { &:hover { --hl-co-state: 4; }}; }
+@layer ui-specific { //
+    [data-vc-months-month-selected], [data-vc-years-year-selected], [data-vc-date-selected] button { & { --hl-co-state: 16; }; }
+    [data-vc-date-today] { button { @include inverse();
+            & {
+                --tm-chroma: 0.2;
+                --tm-bg-alpha: 1;
+                --hl-co-state: 0;
+            };
+        }
+    }
+}

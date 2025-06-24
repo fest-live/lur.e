@@ -1,4 +1,4 @@
-import { makeDragEvents } from "./Dragging";
+import { makeDragEvents } from "../elements/grid/Dragging";
 import { ref, subscribe } from "u2re/object";
 import { reflectCell } from "./Reflect";
 import { E } from "u2re/lure";

@@ -1,5 +1,3 @@
-import { AxGesture } from "../../ext/interact/Gesture";
-
 //
 export const $control$ = Symbol("@control");
 export const makeControl = async (frameElement: HTMLElement)=>{

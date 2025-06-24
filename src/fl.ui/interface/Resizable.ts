@@ -1,6 +1,6 @@
-import { clamp, bbh, bbw, cbh, cbw, ROOT,  type InteractStatus } from "../../core/Utils";
+import { clamp, bbh, bbw, cbh, cbw, ROOT,  type InteractStatus } from "../core/Utils";
 import { fixedClientZoom, getBoundingOrientRect, bindDraggable } from "u2re/dom";
-import { makeShiftTrigger, doObserve } from "../grid/Trigger";
+import { makeShiftTrigger, doObserve } from "./Trigger";
 
 //
 import {  E  } from "u2re/lure";

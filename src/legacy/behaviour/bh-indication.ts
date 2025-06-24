@@ -1,4 +1,4 @@
-import { setAttributes } from "../../fl.ui/ext/core/Utils";
+import { setAttributes } from "../../fl.ui/core/Utils";
 
 //
 export const doIndication = (ev?: any, self?: HTMLElement, input?: HTMLInputElement)=>{

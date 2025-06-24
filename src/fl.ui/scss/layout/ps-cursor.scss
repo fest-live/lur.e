@@ -1,12 +1,3 @@
-@scope(:host, :root, :scope)
-{
-    @property --page-x   { initial-value: 0; syntax: "<number>"; inherits: true; };
-    @property --page-y   { initial-value: 0; syntax: "<number>"; inherits: true; };
-    @property --client-x { initial-value: 0; syntax: "<number>"; inherits: true; };
-    @property --client-y { initial-value: 0; syntax: "<number>"; inherits: true; };
-};
-
-//
 @mixin ps-cursor {
     & {
         inset-inline-start: max(calc(var(--client-x, 0) * 1px), 0px);

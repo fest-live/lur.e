@@ -1,4 +1,4 @@
-import { borderBoxHeight, borderBoxWidth, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT } from "../../core/Utils";
+import { borderBoxHeight, borderBoxWidth, contentBoxHeight, contentBoxWidth, doBorderObserve, doContentObserve, ROOT } from "../core/Utils";
 import { agWrapEvent, fixedClientZoom } from "u2re/dom";
 
 //

@@ -1,0 +1,44 @@
+@use "../abstracts/mixins" as m;
+@layer ui-calendar.ui-general {
+    :host {
+        @include m.box(0.25rem, hidden);
+        @include m.reset-vars("--tm-bg-alpha", "--hl-co-state");
+
+        //
+        & { background-color: transparent !important; }
+        &::slotted(*) { @include m.reset-vars("--tm-bg-alpha","--hl-co-state"); }
+        :where(*)     { @include m.reset-vars("--tm-bg-alpha","--hl-co-state"); }
+    }
+
+    // общий шрифт / touch-action
+    :host, :where(*), ::slotted(*) {
+        @include m.typography(0.8rem);
+        & { touch-action: none; };
+    }
+
+    // span/слот полная площадь
+    :host {
+        inline-size: 100%;
+        block-size: 100%;
+        min-inline-size: max-content;
+        min-block-size: max-content;
+        display: grid;
+    }
+
+    // reset-стили для всех внутренних элементов
+    :where(*) {
+        & {
+            background-color: var(--rv-bg-color, currentColor);
+            color: oklch(from var(--rv-color) l min(max(c,0.01),0.6) h / 1);
+            border: solid 0 transparent;
+            outline: solid 0 transparent;
+            box-sizing: border-box;
+            gap: 0;
+        }
+        & {
+            --hl-co-state: 0;
+            --tm-bg-alpha: 0;
+            --tm-chroma: 0.05;
+        }
+    }
+}

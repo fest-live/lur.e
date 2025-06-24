@@ -2,7 +2,7 @@ import { defineElement, E, GLitElement, H, property } from "u2re/lure"
 
 // @ts-ignore
 import styles from "./ScrollFrame.scss?inline"
-import { ScrollBar } from "../ext/scrollbar/Scrollbar";
+import { ScrollBar } from "../ui/scrollbar/Scrollbar";
 import { loadInlineStyle, Q } from "u2re/dom";
 
 //
