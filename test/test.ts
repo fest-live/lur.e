@@ -39,7 +39,6 @@ export class XBlock extends GLitElement() {
     //
     protected onInitialize(): any {
         super.onInitialize?.();
-        console.log(this.tetris);
         return this;
     }
 }
@@ -93,12 +92,13 @@ const items = [item];
 const withItem = Q((el)=>{
     if (el) {
         const args = { layout, items, item };
+        el.addEventListener("dragstart", (ev)=>{ev.preventDefault();});
         bindInteraction(el, args);
     }
 });
 
 //
-const SVO = H`<ux-grid style="inline-size:800px; block-size:600px; display: block;">
-    <div ref=${withItem} style="user-select: none; background-color: black; inline-size: 6rem; block-size: 6rem;"></div>
+const SVO = H`<ux-grid style="inline-size:800px; block-size:600px; display: block; --layout-c: 4; --layout-r: 8;">
+    <div ref=${withItem} style="user-select: none; background-color: black; inline-size: 6rem; block-size: 6rem; translate: calc(var(--drag-x, 0) * 1px) calc(var(--drag-y, 0) * 1px);"></div>
 </ux-grid>`;
 document.body.append(SVO);

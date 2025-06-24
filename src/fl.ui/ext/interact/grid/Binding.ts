@@ -33,7 +33,12 @@ export const bindInteraction = async (newItem: any, pArgs: any)=>{ // @ts-ignore
     const currentCell = [ ref(item?.cell?.[0] || 0), ref(item?.cell?.[1] || 0) ];
 
     //
-    E(newItem, { style: { "--cell-x": currentCell[0], "--cell-y": currentCell[1], "--drag-x": dragging[0], "--drag-y": dragging[1] } });
+    E(newItem, { style: {
+        "--cell-x": currentCell[0],
+        "--cell-y": currentCell[1],
+        "--drag-x": dragging[0],
+        "--drag-y": dragging[1]
+    } });
     subscribe([currentCell[0], "value"], (val)=> item.cell[0] = val);
     subscribe([currentCell[1], "value"], (val)=> item.cell[1] = val);
     makeDragEvents(newItem, {layout, currentCell, dragging}, {item, list, items});

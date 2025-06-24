@@ -38,7 +38,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
         //
         if (!EMap.has(el)) { cmdBuffer.push(()=>{
             const ex = E(el, {aria, attributes, dataset, style, properties, on, ctrls}, mapped.has(el) ? M(iterate, mapped.get(el)) : observableArray(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
-            console.log(el); doAction?.call?.(el, el); EMap.set(el, ex); return ex;
+            doAction?.(el); EMap.set(el, ex); return ex;
         }); };
     }; return el;
 }

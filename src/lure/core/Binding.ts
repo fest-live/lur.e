@@ -120,7 +120,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     //
     const wv = new WeakRef(value);
     const un = subscribe?.([value, "value"], (curr, _, old) => {
-        if (set?.deref?.()?.style?.[prop] === wv?.deref?.() || !(set?.deref?.())) {
+        if (set?.deref?.()?.[prop] === wv?.deref?.() || !set?.deref?.()) {
             if (typeof wv?.deref?.()?.[$behavior] == "function") {
                 wv?.deref?.()?.[$behavior]?.((val = curr) => handler(el?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, el]);
             } else {
