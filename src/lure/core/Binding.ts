@@ -1,5 +1,5 @@
 import { makeReactive, subscribe } from "u2re/object";
-import { camelToKebab, namedStoreMaps, observeBySelector } from "u2re/dom";
+import { camelToKebab, handleListeners, namedStoreMaps, observeBySelector } from "u2re/dom";
 
 /**
  * @type {WeakMap<any, (HTMLElement|DocumentFragment|Text)>}
@@ -41,11 +41,6 @@ export const bindBeh = (element, store, behavior) => {
             behavior?.([value, prop, old], [weak, store, valMap?.get(weak.deref?.())]);
         });
     }; return element;
-}
-
-// short-handed
-function handleListeners(root, fn, handlers) {
-    Object.entries(handlers).forEach(([name, cb]) => root?.[fn]?.call?.(root, name, cb));
 }
 
 /**
