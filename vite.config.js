@@ -26,7 +26,7 @@ const objectAssign = (target, ...sources) => {
 }
 
 //
-export const NAME = "blue"; // TODO! rename to lure
+export const NAME = "lure"; // TODO! rename to lure
 export const __dirname = resolve(import.meta.dirname, "./");
 export default objectAssign(
     await importConfig(resolve(__dirname, "../shared/vite.config.js"),

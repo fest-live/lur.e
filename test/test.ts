@@ -5,13 +5,6 @@ import { css, defineElement, GLitElement, property } from "../src/lure/extension
 //
 import { E } from "../src/lure/node/Bindings";
 import { H } from "../src/lure/node/Syntax";
-import ScrollBoxed from "../src/fl.ui/components/ScrollFrame";
-import { bindInteraction } from "../src/fl.ui/ui/grid/GridBind";
-import WithOverlay from "../src/fl.ui/components/OverlayExt";
-
-//
-console.log(ScrollBoxed);
-console.log(WithOverlay);
 
 //
 @defineElement("x-block")
@@ -57,15 +50,6 @@ const style = makeReactive({
 
 // create document fragment
 const dom = H`<${"x-block#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}><span>${children}</span></div>`;
-
-//
-/*const scb = H`
-<div anchor-host="test" style="overflow: scroll; anchor-name: --test; display: block; inline-size: 800px; block-size: 600px;">
-<div style="inline-size: 100px; block-size: 1200px; background-color: black;">Black Dolphin</div>
-</div>
-<ui-scrollframe anchor="test">
-</ui-scrollframe>`*/
-
 const scb = H`
 <div data-mixin="ov-scrollbar" style="overflow: scroll; display: block; inline-size: 800px; block-size: 600px;">
 <div style="inline-size: 100px; block-size: 1800px; background-color: black; color: white; display: flex; place-content: center; place-items: center;">Black Dolphin</div>
@@ -80,23 +64,3 @@ setTimeout(()=>{
 //
 document.body.append(dom);
 document.body.append(scb);
-
-//
-const item = { cell: makeReactive([0, 0]) };
-const layout = makeReactive([4, 8]);
-const items = [item];
-
-//
-const withItem = Q((el)=>{
-    if (el) {
-        const args = { layout, items, item };
-        el.addEventListener("dragstart", (ev)=>{ev.preventDefault();});
-        bindInteraction(el, args);
-    }
-});
-
-//
-const SVO = H`<ux-grid style="inline-size:800px; block-size:600px; display: block; --layout-c: 4; --layout-r: 8;">
-    <div ref=${withItem} style="user-select: none; background-color: black; inline-size: 6rem; block-size: 6rem; translate: calc(var(--drag-x, 0) * 1px) calc(var(--drag-y, 0) * 1px);"></div>
-</ux-grid>`;
-document.body.append(SVO);
