@@ -174,7 +174,6 @@ export const css = (strings, ...values)=>{
 }
 
 //
-export const customElement = defineElement;
 export const loadCachedStyles = (bTo, src, withVars = true)=>{
     const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
     const cached = source.get(src);
@@ -190,9 +189,9 @@ export const loadCachedStyles = (bTo, src, withVars = true)=>{
 }
 
 //
+export const customElement = defineElement;
 export const GLitElement = (derrivate = HTMLElement)=>{
-    // !experimental `getOrInsert` feature!
-    // @ts-ignore
+    // @ts-ignore // !experimental `getOrInsert` feature!
     return CSM.getOrInsert(derrivate, withProperties(class EX extends derrivate {
         #framework: any;
         #initialized: boolean = false;
