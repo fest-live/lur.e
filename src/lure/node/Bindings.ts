@@ -1,11 +1,11 @@
 import { reflectBehaviors, reflectStores, reflectMixins, Q } from "u2re/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reflectWithStyleRules, reflectARIA } from '../utils/Reflect';
+import { reflectControllers, bindEvents, bindWith } from '../core/Binding';
 
 //
-import { createElement } from "../utils/DOM";
-import { handleHidden, handleProperty, handleAttribute } from "../core/Handler";
-import { bindEvents, bindWith, reflectControllers } from '../core/Binding';
 import { subscribe } from "u2re/object";
+import { createElement } from "../utils/DOM";
+import { handleProperty, handleAttribute, handleHidden } from "../core/Handler";
 
 /**
  * Параметры для создания или конфигурирования элемента.
@@ -79,16 +79,17 @@ export const E = (selector: string | HTMLElement, params: Params = {}, children?
 
     //
     if (element && params) {
+        reflectControllers(element, params.ctrls);
         reflectAttributes(element, params.attributes);
-        reflectStyles(element, params.style);
-        reflectClassList(element, params.classList);
         reflectProperties(element, params.properties);
-        reflectDataset(element, params.dataset);
-        reflectARIA(element, params.aria);
+        reflectClassList(element, params.classList);
         reflectBehaviors(element, params.behaviors);
+        reflectDataset(element, params.dataset);
         reflectStores(element, params.stores);
         reflectMixins(element, params.mixins);
-        reflectControllers(element, params.ctrls);
+        reflectStyles(element, params.style);
+        reflectARIA(element, params.aria);
+
 
         //
         bindWith(element, "role", params.role, handleProperty, params);
