@@ -1,4 +1,5 @@
 export * from "./lure/core/Binding"
+export * from "./lure/core/Handler"
 export * from "./lure/extension/Glit"
 export * from "./lure/node/Bindings"
 export * from "./lure/node/Syntax"
