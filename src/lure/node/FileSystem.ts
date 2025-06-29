@@ -82,8 +82,14 @@ export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: bo
         getOwnPropertyDescriptor(target, prop) { return { enumerable: true, configurable: true }; }
     };
 
+    // @ts-ignore
+    const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(updateCache) : null;
+
     // Возвращаем Proxy-обёртку
     let dirHandle: any = getDirectoryHandle(rootHandle, relPath, options, logger)?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
+    dirHandle.then((handle)=>obs?.observe?.(handle));
+
+    //
     updateCache(); const fx: any = function(){}; return new Proxy(fx, handler);
 }
 
