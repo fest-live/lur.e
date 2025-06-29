@@ -3,7 +3,7 @@ import { boundBehaviors, observeAttributeBySelector } from "u2re/dom";
 
 //
 import { checkboxCtrl, numberCtrl, valueCtrl } from "../core/Control";
-import { handleHidden } from "../core/Handler";
+import { handleHidden, triggerWithDelay } from "../core/Handler";
 import { bindCtrl } from "../core/Binding";
 
 /**
@@ -211,4 +211,13 @@ export const refCtl = (value) => {
 //
 export const conditionalIndex = (condList: any[]) => {
     return computed(condList, () => condList.findIndex(cb => cb?.()));
+}
+
+//
+export const delayedSubscribe = (ref, cb, delay = 100)=>{
+    let tm: any; //= triggerWithDelay(ref, cb, delay);
+    return subscribe([ref, "value"], (v)=>{
+        if (!v && tm) { clearTimeout(tm); tm = null; } else
+        if (v && !tm) { tm = triggerWithDelay(ref, cb, delay) ?? tm; };
+    });
 }

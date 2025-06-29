@@ -71,3 +71,14 @@ export const handleAttribute = (el?: HTMLElement|null, prop?: string, val?: any)
 export const RAFBehavior = (cb, shed = makeRAFCycle()) => {
     return (...args) => { return shed.shedule(() => cb?.(...args)); }
 }
+
+// usable for delayed trigger when come true, but NOT when come false
+export const triggerWithDelay = (ref, cb, delay = 100)=>{ if (ref?.value ?? ref) { return setTimeout(()=>{ if (ref.value) cb?.(); }, delay); } }
+export const delayedBehavior  = (delay = 100) => {
+    return (cb, [val], [sig]) => { let tm = triggerWithDelay(val, cb, delay); sig?.addEventListener?.("abort", ()=>{ if (tm) clearTimeout(tm); }, { once: true }); };
+}
+
+// usable for delayed visible but instant hiding
+export const delayedOrInstantBehavior = (delay = 100) => {
+    return (cb, [val], [sig]) => { let tm = triggerWithDelay(val, cb, delay); sig?.addEventListener?.("abort", ()=>{ if (tm) clearTimeout(tm); }, { once: true }); if (!tm) { cb?.(); }; };
+}

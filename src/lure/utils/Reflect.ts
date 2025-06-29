@@ -118,7 +118,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
         if (op && op != "@get" && ["@add", "@set", "@remove"].indexOf(op) >= 0 || !op) { // @ts-ignore
             if (typeof children?.[$behavior] == "function") { // @ts-ignore
-                children?.[$behavior]?.(merge, [toBeRemoved, toBeAppend, toBeReplace], [controller.signal, op, ref, args]);
+                children?.[$behavior]?.(merge, [toBeAppend, toBeReplace, toBeRemoved], [controller.signal, op, ref, args]);
             } else
             { merge(); }
         }
