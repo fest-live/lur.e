@@ -15,13 +15,14 @@ import { bindCtrl } from "../core/Binding";
  */
 export const localStorageRef = (key, initial) => {
     const ref = stringRef(localStorage.getItem(key) ?? (initial?.value ?? initial));
-    subscribe([ref, "value"], (val) => localStorage.setItem(key, val));
-    addEventListener("storage", (ev) => {
+    const unsb = subscribe([ref, "value"], (val) => localStorage.setItem(key, val));
+    const list = (ev) => {
         if (ev.storageArea == localStorage && ev.key == key) {
             if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
         }
-    });
-    return ref;
+    };
+    ref[Symbol.dispose] = () => { unsb?.(); removeEventListener("storage", list); };
+    addEventListener("storage", list); return ref;
 }
 
 /**
@@ -31,7 +32,9 @@ export const localStorageRef = (key, initial) => {
  */
 export const matchMediaRef = (condition: string) => {
     const med = matchMedia(condition), ref = booleanRef(med.matches);
-    med?.addEventListener?.("change", (ev) => ref.value = ev.matches); return ref;
+    const evf = (ev) => ref.value = ev.matches;
+    ref[Symbol.dispose] = () => { med?.removeEventListener?.("change", evf); };
+    med?.addEventListener?.("change", evf); return ref;
 }
 
 /**
@@ -41,11 +44,16 @@ export const matchMediaRef = (condition: string) => {
  * @returns {ReturnType<typeof booleanRef>}
  */
 export const visibleRef = (element, initial?) => {
-    const val = booleanRef((initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null));
-    handleHidden(element, computed([val, "value"], (val)=>!val));
-    element?.addEventListener?.("u2-hidden", () => { val.value = false; }, { passive: true });
-    element?.addEventListener?.("u2-visible", () => { val.value = true; }, { passive: true });
-    subscribe([val, "value"], (v, p) => { if (v) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } })
+    const val = booleanRef((initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null)); handleHidden(element, computed([val, "value"], (val)=>!val));
+    const evf = [(ev) => { val.value = ev?.name == "u2-hidden" ? false : true; }, { passive: true }];
+    element?.addEventListener?.("u2-hidden" , ...evf);
+    element?.addEventListener?.("u2-visible", ...evf);
+    const usb = subscribe([val, "value"], (v, p) => { if (v) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } });
+    val[Symbol.dispose] = () => {
+        element?.removeEventListener?.("u2-hidden" , ...evf);
+        element?.removeEventListener?.("u2-visible", ...evf);
+        usb?.();
+    }
     return val;
 }
 
@@ -58,9 +66,10 @@ export const visibleRef = (element, initial?) => {
  * @returns {ReturnType<typeof stringRef>}
  */
 export const attrRef = (element, attribute: string, initial?) => {
-    if (!element) return;
-    const val = stringRef(element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial)));
-    if (initial != null && element?.getAttribute?.(attribute) == null && (typeof val.value != "object" && typeof val.value != "function") && (val.value != null && val.value !== false)) { element?.setAttribute?.(attribute, val.value); };
+    if (!element) return; const val = stringRef(element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial)));
+    if ( initial != null && element?.getAttribute?.(attribute) == null && (typeof val.value != "object" && typeof val.value != "function") && (val.value != null && val.value !== false)) { element?.setAttribute?.(attribute, val.value); };
+
+    //
     const config = {
         attributeFilter: [attribute],
         attributeOldValue: true,
@@ -69,27 +78,29 @@ export const attrRef = (element, attribute: string, initial?) => {
         subtree: false,
     };
 
+    //
     const onMutation = (mutation: any) => {
         if (mutation.type == "attributes") {
             const value = mutation?.target?.getAttribute?.(mutation.attributeName);
-            if (mutation.oldValue != value && (val != null && (val?.value != null || (typeof val == "object" || typeof val == "function")))) {
-                if (val?.value !== value) { val.value = value; }
-            }
+            if (mutation.oldValue != value && (val != null && (val?.value != null || (typeof val == "object" || typeof val == "function"))))
+                { if (val?.value !== value) { val.value = value; } }
         }
     }
 
-    if (element?.self) { observeAttributeBySelector(element.self, element.selector, attribute, onMutation); } else {
+    let obs: any = null;
+    if (element?.self) { obs = observeAttributeBySelector(element.self, element.selector, attribute, onMutation); } else {
         const callback = (mutationList, _) => { for (const mutation of mutationList) { onMutation(mutation); } };
         const observer = new MutationObserver(callback); observer.observe(element?.element ?? element?.self ?? element, config);
+        obs = observer;
     }
 
-    subscribe([val, "value"], (v) => {
+    const usb = subscribe([val, "value"], (v) => {
         if (v !== element?.getAttribute?.(attribute)) {
             if (v == null || v === false || typeof v == "object" || typeof v == "function") { element?.removeAttribute?.(attribute); } else { element?.setAttribute?.(attribute, v); }
         }
     });
 
-    return val;
+    val[Symbol.dispose] = ()=>{ obs?.disconnect?.(); usb?.(); }; return val;
 }
 
 /**
@@ -105,6 +116,7 @@ export const sizeRef = (element, axis: "inline" | "block", box: ResizeObserverBo
         if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
         if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
     });
+    val[Symbol.dispose] = ()=>obs?.disconnect?.();
     if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.element ?? element?.self ?? element, { box }); }; return val;
 }
 
@@ -118,8 +130,9 @@ export const sizeRef = (element, axis: "inline" | "block", box: ResizeObserverBo
 export const scrollRef = (element, axis: "inline" | "block", initial?) => {
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (initial?.value ?? initial) }); };
     const val = numberRef((axis == "inline" ? element?.scrollLeft : element?.scrollTop) || 0);
-    subscribe([val, "value"], (v) => { if (Math.abs((axis == "inline" ? element?.scrollLeft : element?.scrollTop) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (val?.value ?? val) })});
-    element?.addEventListener?.("scroll", (ev) => { val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true });
+    const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "inline" ? element?.scrollLeft : element?.scrollTop) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (val?.value ?? val) })});
+    const scb = [(ev) => { val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true }];
+    element?.addEventListener?.("scroll", ...scb); val[Symbol.dispose] = ()=>{ element?.removeEventListener?.("scroll", ...scb); usb?.(); };
     return val;
 }
 
@@ -130,13 +143,14 @@ export const scrollRef = (element, axis: "inline" | "block", initial?) => {
  */
 export const checkedRef = (element) => {
     const val = booleanRef((!!element?.checked) || false);
-    bindCtrl(element?.self ?? element, checkboxCtrl(val));
-    subscribe([val, "value"], (v) => {
+    const dbf = bindCtrl(element?.self ?? element, checkboxCtrl(val));
+    const usb = subscribe([val, "value"], (v) => {
         if (element && element?.checked != v) {
             element.checked = !!v;
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
-    }); return val;
+    });
+    val[Symbol.dispose] = ()=>{ usb?.(); dbf?.(); }; return val;
 }
 
 /**
@@ -146,13 +160,14 @@ export const checkedRef = (element) => {
  */
 export const valueRef = (element) => {
     const val = stringRef(element?.value || "");
-    bindCtrl(element?.self ?? element, valueCtrl(val));
-    subscribe([val, "value"], (v) => {
+    const dbf = bindCtrl(element?.self ?? element, valueCtrl(val));
+    const usb = subscribe([val, "value"], (v) => {
         if (element && element?.value != v) {
             element.value = v;
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
-    }); return val;
+    });
+    val[Symbol.dispose] = ()=>{ usb?.(); dbf?.(); }; return val;
 }
 
 /**
@@ -162,13 +177,14 @@ export const valueRef = (element) => {
  */
 export const valueAsNumberRef = (element) => {
     const val = numberRef(Number(element?.valueAsNumber) || 0);
-    bindCtrl(element?.self ?? element, numberCtrl(val));
-    subscribe([val, "value"], (v) => {
+    const dbf = bindCtrl(element?.self ?? element, numberCtrl(val));
+    const usb = subscribe([val, "value"], (v) => {
         if (element && element?.valueAsNumber != v && typeof element?.valueAsNumber == "number") {
             element.valueAsNumber = Number(v);
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
-    }); return val;
+    });
+    val[Symbol.dispose] = ()=>{ usb?.(); dbf?.(); }; return val;
 }
 
 /**
@@ -180,7 +196,8 @@ export const valueAsNumberRef = (element) => {
  */
 export const observeSize = (element, box, styles?) => {
     if (!styles) styles = makeReactive({});
-    new ResizeObserver((mut) => {
+    let obs: any = null;
+    (obs = new ResizeObserver((mut) => {
         if (box == "border-box") {
             styles.inlineSize = `${mut[0].borderBoxSize[0].inlineSize}px`;
             styles.blockSize = `${mut[0].borderBoxSize[0].blockSize}px`;
@@ -193,7 +210,8 @@ export const observeSize = (element, box, styles?) => {
             styles.inlineSize = `${mut[0].devicePixelContentBoxSize[0].inlineSize}px`;
             styles.blockSize = `${mut[0].devicePixelContentBoxSize[0].blockSize}px`;
         }
-    }).observe(element?.element ?? element?.self ?? element, { box });
+    })).observe(element?.element ?? element?.self ?? element, { box });
+    styles[Symbol.dispose] = () => { obs?.disconnect?.(); };
     return styles;
 }
 

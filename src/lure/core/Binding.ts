@@ -203,16 +203,14 @@ export const bindForms  = (fields = document.documentElement, wrapper = ".u2-inp
     const observer = observeBySelector(fields, wrapper, (mutations) => mutations.addedNodes.forEach((target) => requestIdleCallback(() => updateInput(state, target), { timeout: 100 })));
     const unsubscribe = subscribe?.(state, (value, property) => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)));
     requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
+    state[Symbol.dispose] = () => {
+        fields.removeEventListener("input", onChange);
+        fields.removeEventListener("change", onChange);
+        fields.removeEventListener("u2-appear", appearHandler);
+        observer?.disconnect?.();
+        unsubscribe?.();
+    }
 
     //
-    return {
-        state,
-        unsubscribe: () => {
-            fields.removeEventListener("input", onChange);
-            fields.removeEventListener("change", onChange);
-            fields.removeEventListener("u2-appear", appearHandler);
-            observer?.disconnect?.();
-            unsubscribe?.();
-        }
-    };
+    return state;
 }
