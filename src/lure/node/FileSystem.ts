@@ -15,9 +15,13 @@ export async function getDirectoryHandle(rootHandle, relPath, { makeIfNotExists 
 
 
 //
+const $fxy = Symbol.for("@fix"), fixFx = (obj) => { const fx = function(){}; fx[$fxy] = obj; return fx; }
+
+//
 export function WrapPromise(promise) {
     return new Proxy<any>(promise, {
         get(target, prop, receiver) {
+            target = target?.[$fxy] ?? target;
             if (prop === 'then' || prop === 'catch' || prop === 'finally')
                 { return target[prop].bind(target); }
 
@@ -29,7 +33,12 @@ export function WrapPromise(promise) {
             });
         }, // @ts-ignore
         set(target, prop, value) {
+            target = target?.[$fxy] ?? target;
             return Promise.try(async () => Reflect.set(await target, prop, value));
+        },
+        apply(target, thisArg, args) {
+            target = target?.[$fxy] ?? target;
+            return Promise.try(async () => Reflect.apply(await target, thisArg, args));
         }
     });
 }
@@ -61,11 +70,11 @@ export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: bo
                 { return mapCache[prop].bind(mapCache); }
 
             // Прокидываем стандартные методы Map (если кэша нет)
-            return WrapPromise(Promise.try(async ()=>{
+            return WrapPromise(fixFx(Promise.try(async ()=>{
                 const handle = await dirHandle;
                 if (handle?.[prop] != null) { return (typeof handle?.[prop] == "function" ? handle?.[prop]?.bind(handle) : handle?.[prop]); }
                 if (!mapCache) await updateCache(); return mapCache[prop];
-            }));
+            })));
         },
 
         // @ts-ignore // Позволяет использовать for...of, spread и т.д.
