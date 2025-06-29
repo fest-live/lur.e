@@ -232,11 +232,9 @@ export async function getHandler(rootHandle, relPath, options = {}, logger = def
 
 export async function createHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
     const type = detectTypeByRelPath(relPath);
-    if (type === 'directory') {
-        return getDirectoryHandle(rootHandle, relPath.replace(/\/$/, ''), options, logger);
-    } else {
-        return getFileHandle(rootHandle, relPath, options, logger);
-    }
+    if (type === 'directory')
+        { return getDirectoryHandle(rootHandle, relPath.replace(/\/$/, ''), options, logger); } else
+        { return getFileHandle(rootHandle, relPath, options, logger); }
 }
 
 // Универсальный remove (файл или директория)
