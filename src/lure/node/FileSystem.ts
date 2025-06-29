@@ -16,27 +16,25 @@ export async function getDirectoryHandle(rootHandle, relPath, { makeIfNotExists 
 
 //
 export function WrapPromise(promise) {
-    return new Proxy(promise, {
+    return new Proxy<any>(promise, {
         get(target, prop, receiver) {
-            if (prop === 'then' || prop === 'catch' || prop === 'finally') {
-                // Позволяет использовать как обычный Promise
-                return target[prop].bind(target);
-            }
-            // Возвращаем функцию, которая при вызове выполнит асинхронно нужный метод/получит свойство
-            return async (...args) => {
-                const value = await target;
-                const property = value[prop];
-                if (typeof property === 'function') {
-                    return property.apply(value, args);
-                }
-                if (args.length === 0) {
-                    return property;
-                }
-                throw new Error(`Property ${String(prop)} is not a function`);
-            };
+            if (prop === 'then' || prop === 'catch' || prop === 'finally')
+                { return target[prop].bind(target); }
+
+            //
+            return Promise.try(async () => {
+                const obj = await target, value = obj?.[prop];
+                if (typeof value == 'function') { return value.bind(obj); }
+                return value;
+            });
+        }, // @ts-ignore
+        set(target, prop, value) {
+            return Promise.try(async () => Reflect.set(await target, prop, value));
         }
     });
 }
+
+
 
 //
 export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: boolean} = {makeIfNotExists: false}, logger = defaultLogger) {
