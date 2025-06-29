@@ -12,6 +12,32 @@ export async function getDirectoryHandle(rootHandle, relPath, { makeIfNotExists 
     } catch (e) { return handleError(logger, 'error', `getDirectoryHandle: ${e.message}`); }
 }
 
+
+
+//
+export function WrapPromise(promise) {
+    return new Proxy(promise, {
+        get(target, prop, receiver) {
+            if (prop === 'then' || prop === 'catch' || prop === 'finally') {
+                // Позволяет использовать как обычный Promise
+                return target[prop].bind(target);
+            }
+            // Возвращаем функцию, которая при вызове выполнит асинхронно нужный метод/получит свойство
+            return async (...args) => {
+                const value = await target;
+                const property = value[prop];
+                if (typeof property === 'function') {
+                    return property.apply(value, args);
+                }
+                if (args.length === 0) {
+                    return property;
+                }
+                throw new Error(`Property ${String(prop)} is not a function`);
+            };
+        }
+    });
+}
+
 //
 export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: boolean} = {makeIfNotExists: false}, logger = defaultLogger) {
     // Кэш для содержимого директории // Асинхронно обновить кэш
@@ -37,11 +63,11 @@ export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: bo
                 { return mapCache[prop].bind(mapCache); }
 
             // Прокидываем стандартные методы Map (если кэша нет)
-            return Promise.try(async ()=>{
+            return WrapPromise(Promise.try(async ()=>{
                 const handle = await dirHandle;
                 if (handle?.[prop] != null) { return (typeof handle?.[prop] == "function" ? handle?.[prop]?.bind(handle) : handle?.[prop]); }
                 if (!mapCache) await updateCache(); return mapCache[prop];
-            });
+            }));
         },
 
         // @ts-ignore // Позволяет использовать for...of, spread и т.д.
