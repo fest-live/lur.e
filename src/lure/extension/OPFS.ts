@@ -253,12 +253,12 @@ export const downloadFile = async (file) => {
         await writableFileStream?.write?.(file)?.catch?.(console.warn.bind(console));
         await writableFileStream?.close?.()?.catch?.(console.warn.bind(console));
     } else {
-        let url = "";  const a = document.createElement("a");
-        try { a.href = url = URL.createObjectURL(file); } catch(e) { console.warn(e); };
+        const a = document.createElement("a");
+        try { a.href = URL.createObjectURL(file); } catch(e) { console.warn(e); };
         a.download = filename; document.body.appendChild(a); a.click();
         setTimeout(function () {
             document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(a.href);
         }, 0);
     }
 }
