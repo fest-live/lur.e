@@ -1,23 +1,18 @@
 import { makeReactive } from 'u2re/object';
 
 //
-export function defaultLogger(status, message) { console.log(`[${status}] ${message}`); };
-export function handleError(logger, status, message) { logger?.(status, message); return null; }
-
-//
 export const getDir = (dest)=>{
-    if (typeof dest != "string") return dest;
-
-    //
-    dest = dest?.trim?.() || dest;
+    if (typeof dest != "string") return dest; dest = dest?.trim?.() || dest;
     if (!dest?.endsWith?.("/")) { dest = dest?.trim?.()?.split?.("/")?.slice(0, -1)?.join?.("/")?.trim?.() || dest; };
-    const p1 = !dest?.trim()?.endsWith("/") ? (dest+"/") : dest;
-    return (!p1?.startsWith("/") ? ("/"+p1) : p1);
+    const p1 = !dest?.trim()?.endsWith("/") ? (dest+"/") : dest; return (!p1?.startsWith("/") ? ("/"+p1) : p1);
 }
 
 //
-export function detectTypeByRelPath(relPath) { if (relPath?.trim()?.endsWith?.('/')) return 'directory'; return 'file'; }
+const  $fxy   = Symbol.for("@fix"), fixFx = (obj) => { const fx = function(){}; fx[$fxy] = obj; return fx; }
+export function handleError(logger, status, message) { logger?.(status, message); return null; }
+export function defaultLogger(status, message) { console.log(`[${status}] ${message}`); };
 export function getFileExtension(path) { return path?.trim?.()?.split?.(".")?.[1]; }
+export function detectTypeByRelPath(relPath) { if (relPath?.trim()?.endsWith?.('/')) return 'directory'; return 'file'; }
 export function getMimeTypeByFilename(filename) {
     const ext = filename?.split?.('.')?.pop?.()?.toLowerCase?.();
     const mimeTypes = {
@@ -50,12 +45,6 @@ export function getMimeTypeByFilename(filename) {
     return mimeTypes[ext] || 'application/octet-stream';
 }
 
-
-
-
-//
-const $fxy = Symbol.for("@fix"), fixFx = (obj) => { const fx = function(){}; fx[$fxy] = obj; return fx; }
-
 //
 export function WrapPromise(promise) {
     return new Proxy<any>(promise, {
@@ -81,8 +70,6 @@ export function WrapPromise(promise) {
         }
     });
 }
-
-
 
 //
 export async function getDirectoryHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
@@ -138,8 +125,7 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
 
 //
 export async function readFile(rootHandle, relPath, options = {}, logger = defaultLogger) {
-    try
-        { return (await getFileHandle(rootHandle, relPath, options, logger))?.getFile?.(); } catch (e: any)
+    try { return (await getFileHandle(rootHandle, relPath, options, logger))?.getFile?.(); } catch (e: any)
         { return handleError(logger, 'error', `readFile: ${e.message}`); }
 }
 
@@ -178,8 +164,7 @@ export async function writeFile(rootHandle, relPath, { data }, logger = defaultL
 
 //
 export async function getFileWriter(rootHandle, relPath, options = { create: true }, logger = defaultLogger) {
-    try
-        { return (await getFileHandle(rootHandle, relPath, options, logger))?.createWritable?.(); } catch (e: any)
+    try { return (await getFileHandle(rootHandle, relPath, options, logger))?.createWritable?.(); } catch (e: any)
         { return handleError(logger, 'error', `getFileWriter: ${e.message}`); }
 }
 
@@ -190,21 +175,16 @@ export async function getFileHandle(rootHandle, relPath, { create = false } = {}
     try {
         const parts = relPath.split('/').filter(Boolean), fileName = parts.pop();
         const dir = await openDirectory(rootHandle, parts.join('/'), { create }, logger);
-        return await dir?.getFileHandle?.(fileName, { create: create || create });
-    } catch (e: any)
-        { return handleError(logger, 'error', `getFileHandle: ${e.message}`); }
+        return await dir?.getFileHandle?.(fileName, { create });
+    } catch (e: any) { return handleError(logger, 'error', `getFileHandle: ${e.message}`); }
 }
 
 //
 export async function getHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
     const type = detectTypeByRelPath(relPath);
-    if (type === 'directory') {
-        const dir = await getDirectoryHandle(rootHandle, relPath.replace(/\/$/, ''), options, logger);
-        if (dir) return { type: 'directory', handle: dir };
-    } else {
-        const file = await getFileHandle(rootHandle, relPath, options, logger);
-        if (file) return { type: 'file', handle: file };
-    }
+    if (type === 'directory')
+        { const dir  = await getDirectoryHandle(rootHandle, relPath.replace(/\/$/, ''), options, logger); if (dir) return { type: 'directory', handle: dir }; } else
+        { const file = await getFileHandle(rootHandle, relPath, options, logger); if (file) return { type: 'file', handle: file }; }
     return null;
 }
 
@@ -218,15 +198,12 @@ export async function createHandler(rootHandle, relPath, options = {}, logger = 
 
 
 
-
-
 //
 export async function removeFile(rootHandle, relPath, options: any = {}, logger = defaultLogger) {
     try {
         const parts = relPath.split('/').filter(Boolean), fileName = parts.pop();
         return (await openDirectory(rootHandle, parts.join('/'), options, logger))?.removeEntry?.(fileName, { recursive: false });
-    } catch (e: any)
-        { return handleError(logger, 'error', `removeFile: ${e.message}`); }
+    } catch (e: any) { return handleError(logger, 'error', `removeFile: ${e.message}`); }
 }
 
 //
@@ -234,8 +211,7 @@ export async function removeDirectory(rootHandle, relPath, options: any = {}, lo
     try {
         const parts = relPath.split('/').filter(Boolean), dirName = parts.pop();
         return (await openDirectory(rootHandle, parts.join('/'), options, logger))?.removeEntry?.(dirName, { recursive: true });
-    } catch (e: any)
-        { return handleError(logger, 'error', `removeDirectory: ${e.message}`); }
+    } catch (e: any) { return handleError(logger, 'error', `removeDirectory: ${e.message}`); }
 }
 
 //
@@ -245,60 +221,40 @@ export async function remove(rootHandle, relPath, options = {}, logger = default
 
 
 
-
 //
 export const imageImportDesc = {
-    types: [
-        {
-            description: "wallpaper",
-            accept: {
-                "image/*": [
-                    ".png",
-                    ".gif",
-                    ".jpg",
-                    ".jpeg",
-                    ".webp",
-                    ".jxl",
-                ],
-            },
-        },
-    ],
-    startIn: "pictures",
-    multiple: false,
-};
+    startIn: "pictures", multiple: false,
+    types: [{
+        description: "wallpaper",
+        accept: { "image/*": [".png", ".gif", ".jpg", ".jpeg", ".webp", ".jxl",] },
+    }]
+}
 
 //
 export const openImageFilePicker = async ()=>{
     const $e = "showOpenFilePicker"; // @ts-ignore
-    const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("/externals/polyfill/showOpenFilePicker.mjs"))?.[$e];
+    const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("u2re/polyfill/showOpenFilePicker.mjs"))?.[$e];
     return showOpenFilePicker(imageImportDesc);
 }
 
 //
 export const downloadFile = async (file) => {
-    if (typeof file == "string") { file = await provide(file); };
-    const filename = file.name;  if (!filename) return;
-
-    //
-    if ("msSaveOrOpenBlob" in self.navigator) { // @ts-ignore // IE10+
-        window.navigator.msSaveOrOpenBlob(file, filename);
-    }
+    if (typeof file == "string") { file = await provide(file); }; const filename = file.name; if (!filename) return; // @ts-ignore // IE10+
+    if ("msSaveOrOpenBlob" in self.navigator) { self.navigator.msSaveOrOpenBlob(file, filename); };
 
     // @ts-ignore
-    const fx = await (self?.showOpenFilePicker
-        ? new Promise((r) => r({ // @ts-ignore
-            showOpenFilePicker: self?.showOpenFilePicker?.bind?.(window), // @ts-ignore
-            showSaveFilePicker: self?.showSaveFilePicker?.bind?.(window), // @ts-ignore
-        }))
-        // @ts-ignore
-        : import(/* @vite-ignore */ "/externals/polyfill/showOpenFilePicker.mjs"));
+    const fx = await (self?.showOpenFilePicker ? new Promise((r) => r({ // @ts-ignore
+        showOpenFilePicker: self?.showOpenFilePicker?.bind?.(window), // @ts-ignore
+        showSaveFilePicker: self?.showSaveFilePicker?.bind?.(window), // @ts-ignore
+    })) // @ts-ignore
+    : import(/* @vite-ignore */ "/externals/polyfill/showOpenFilePicker.mjs"));
 
     // @ts-ignore
     if (window?.showSaveFilePicker) { // @ts-ignore
         const fileHandle = await fx?.showSaveFilePicker?.({ suggestedName: filename })?.catch?.(console.warn.bind(console));
         const writableFileStream = await fileHandle?.createWritable?.({ keepExistingData: true })?.catch?.(console.warn.bind(console));
         await writableFileStream?.write?.(file)?.catch?.(console.warn.bind(console));
-        await writableFileStream?.close()?.catch?.(console.warn.bind(console));
+        await writableFileStream?.close?.()?.catch?.(console.warn.bind(console));
     } else {
         let url = "";  const a = document.createElement("a");
         try { a.href = url = URL.createObjectURL(file); } catch(e) { console.warn(e); };
@@ -308,7 +264,7 @@ export const downloadFile = async (file) => {
             window.URL.revokeObjectURL(url);
         }, 0);
     }
-};
+}
 
 //
 export const provide = async (req: string | Request = "", rw = false) => {
@@ -335,4 +291,4 @@ export const provide = async (req: string | Request = "", rw = false) => {
         });
     }
     return null;
-};
+}

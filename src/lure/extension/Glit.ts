@@ -156,8 +156,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
 //
 export const useVars = (holder, vars)=>{ vars?.entries?.()?.forEach?.(([key, vr])=>subscribe([vr,'value'], (val)=>(holder?.style ?? holder)?.setProperty?.(`--${key}`, val, ""))); return holder; }
 export const css = (strings, ...values)=>{
-    let props: string[] = [];
-    let parts: string[] = [], vars: Map<string, any> = new Map();
+    let props: string[] = [], parts: string[] = [], vars: Map<string, any> = new Map();
     for (let i = 0; i < strings.length; i++) {
         parts.push(strings?.[i] || "");
         if (i < values.length) {
@@ -176,11 +175,9 @@ export const css = (strings, ...values)=>{
 //
 export const loadCachedStyles = (bTo, src, withVars = true)=>{
     const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
-    const cached = source.get(src);
-    let styleElement = cached?.styleElement, vars = cached?.vars;
+    const cached = source.get(src); let styleElement = cached?.styleElement, vars = cached?.vars;
     if (!cached) {
-        const weak = new WeakRef(bTo);
-        let styles = ``, props = [];
+        const weak = new WeakRef(bTo); let styles = ``, props = [];
         if (typeof src == "string") { styles = src || "" } else
         if (typeof src == "function") { const cs = src?.call?.(bTo, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
         source.set(src, { css: styles, props, vars, styleElement: (styleElement = (styles as any) instanceof HTMLStyleElement ? styles : loadInlineStyle(styles, bTo, "ux-layer")) });
@@ -190,9 +187,9 @@ export const loadCachedStyles = (bTo, src, withVars = true)=>{
 
 //
 export const customElement = defineElement;
-export const GLitElement = (derrivate = HTMLElement)=>{
+export const GLitElement = (derrivate = HTMLElement) => {
     // @ts-ignore // !experimental `getOrInsert` feature!
-    return CSM.getOrInsert(derrivate, withProperties(class EX extends derrivate {
+    return CSM.getOrInsertComputed(derrivate, ()=>withProperties(class EX extends derrivate {
         #framework: any;
         #initialized: boolean = false;
         #styleElement?: HTMLStyleElement;
