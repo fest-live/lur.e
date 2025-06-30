@@ -57,7 +57,8 @@ export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: bo
         entries.forEach(mapping); return mapCache;
     }
 
-    // Основной handler для Proxy
+    // @ts-ignore // Основной handler для Proxy
+    const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(updateCache) : null;
     const handler: ProxyHandler<any> = {
         get(target, prop, receiver) {
             if (prop === 'getHandler') { return async (name) => { updateCache(); return mapCache.get(name) || null; }; }
@@ -81,9 +82,6 @@ export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: bo
         async ownKeys(target) { if (!mapCache) await updateCache(); return Array.from(mapCache.keys()); },
         getOwnPropertyDescriptor(target, prop) { return { enumerable: true, configurable: true }; }
     };
-
-    // @ts-ignore
-    const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(updateCache) : null;
 
     // Возвращаем Proxy-обёртку
     let dirHandle: any = getDirectoryHandle(rootHandle, relPath, options, logger)?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
