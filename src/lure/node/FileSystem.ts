@@ -1,15 +1,13 @@
-import { makeReactive } from '../../../../object.ts/src/$core$/Mainline';
+import { makeReactive } from 'u2re/object';
 
-// Универсальный обработчик ошибок
-export function handleError(logger, status, message) { if (logger) logger(status, message); return null; }
-
-// Пример простого логгера
-export const defaultLogger = (status, message) => { console.log(`[${status}] ${message}`); };
-export async function getDirectoryHandle(rootHandle, relPath, { makeIfNotExists = false } = {}, logger = defaultLogger) {
+//
+export          const defaultLogger = (status, message) => { console.log(`[${status}] ${message}`); };
+export       function handleError(logger, status, message) { logger?.(status, message); return null; }
+export async function getDirectoryHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
     try {
         const parts = relPath.split('/').filter(Boolean); let dir = rootHandle;
-        for (const part of parts) { dir = await dir.getDirectoryHandle(part, { create: makeIfNotExists }); if (!dir) return null; }; return dir;
-    } catch (e) { return handleError(logger, 'error', `getDirectoryHandle: ${e.message}`); }
+        for (const part of parts) { dir = await dir.getDirectoryHandle(part, { create: create }); if (!dir) return null; }; return dir;
+    } catch (e: any) { return handleError(logger, 'error', `getDirectoryHandle: ${e.message}`); }
 }
 
 
@@ -46,8 +44,7 @@ export function WrapPromise(promise) {
 
 
 //
-export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: boolean} = {makeIfNotExists: false}, logger = defaultLogger) {
-    // Кэш для содержимого директории // Асинхронно обновить кэш
+export function openDirectory(rootHandle, relPath, options: {create: boolean} = {create: false}, logger = defaultLogger) {
     let mapCache = makeReactive(new Map<any, any>());
     async function updateCache() {
         const entries = await Array.fromAsync((await dirHandle).entries());
@@ -57,13 +54,13 @@ export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: bo
         entries.forEach(mapping); return mapCache;
     }
 
-    // @ts-ignore // Основной handler для Proxy
+    // @ts-ignore
     const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(updateCache) : null;
     const handler: ProxyHandler<any> = {
         get(target, prop, receiver) {
-            if (prop === 'getHandler') { return async (name) => { updateCache(); return mapCache.get(name) || null; }; }
-            if (prop === 'getMap')     { return async () => { updateCache(); return mapCache; }; }
-            if (prop === 'refresh')    { return async () => { updateCache(); return mapCache; }; }
+            if (prop === 'getHandler') { return (name) => { updateCache(); return mapCache.get(name) || null; }; }
+            if (prop === 'getMap')     { return () => { updateCache(); return mapCache; }; }
+            if (prop === 'refresh')    { return () => { updateCache(); return pxy; }; }
             if (prop === 'dirHandle')  { return dirHandle; }
 
             // Прокидываем стандартные методы Map (если кэш уже есть)
@@ -78,118 +75,90 @@ export function openDirectory(rootHandle, relPath, options: {makeIfNotExists: bo
             })));
         },
 
-        // @ts-ignore // Позволяет использовать for...of, spread и т.д.
+        // @ts-ignore
         async ownKeys(target) { if (!mapCache) await updateCache(); return Array.from(mapCache.keys()); },
         getOwnPropertyDescriptor(target, prop) { return { enumerable: true, configurable: true }; }
     };
 
-    // Возвращаем Proxy-обёртку
-    let dirHandle: any = getDirectoryHandle(rootHandle, relPath, options, logger)?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
-    dirHandle.then((handle)=>obs?.observe?.(handle));
-
     //
-    updateCache(); const fx: any = function(){}; return new Proxy(fx, handler);
+    let dirHandle: any = getDirectoryHandle(rootHandle, relPath, options, logger)?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
+    dirHandle.then((handle)=>obs?.observe?.(handle)); updateCache(); const fx: any = function(){}, pxy = new Proxy(fx, handler); return pxy;
 }
 
 
 
-// Получить FileSystemFileHandle по относительному пути
-export async function getFileHandle(rootHandle, relPath, { makeIfNotExists = false } = {}, logger = defaultLogger) {
+//
+export async function getFileHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
     try {
         const parts = relPath.split('/').filter(Boolean);
         const fileName = parts.pop();
-        const dir = await openDirectory(rootHandle, parts.join('/'), { makeIfNotExists }, logger);
-        return await dir?.getFileHandle?.(fileName, { create: makeIfNotExists });
-    } catch (e) {
-        return handleError(logger, 'error', `getFileHandle: ${e.message}`);
-    }
+        const dir = await openDirectory(rootHandle, parts.join('/'), { create }, logger);
+        return await dir?.getFileHandle?.(fileName, { create: create || create });
+    } catch (e: any)
+        { return handleError(logger, 'error', `getFileHandle: ${e.message}`); }
 }
 
-// Прочитать файл как текст
+//
 export async function readFile(rootHandle, relPath, options = {}, logger = defaultLogger) {
-    try {
-        const fileHandle = await getFileHandle(rootHandle, relPath, options, logger);
-        return fileHandle?.getFile?.();
-        //const file = await fileHandle.getFile();
-        //return await file.text();
-    } catch (e) {
-        return handleError(logger, 'error', `readFile: ${e.message}`);
-    }
+    try
+        { return (await getFileHandle(rootHandle, relPath, options, logger))?.getFile?.(); } catch (e: any)
+        { return handleError(logger, 'error', `readFile: ${e.message}`); }
 }
 
-// Записать текст в файл
+//
 export async function writeFile(rootHandle, relPath, { data }, logger = defaultLogger) {
     try {
-        const fileHandle = await getFileHandle(rootHandle, relPath, { makeIfNotExists: true }, logger);
+        const fileHandle = await getFileHandle(rootHandle, relPath, { create: true }, logger);
         const writable = await fileHandle?.createWritable?.();
         await writable?.write?.(data);
         await writable?.close?.();
         return true;
-    } catch (e) {
-        return handleError(logger, 'error', `writeFile: ${e.message}`);
-    }
+    } catch (e: any)
+        { return handleError(logger, 'error', `writeFile: ${e.message}`); }
 }
 
-// Удалить файл
-export async function removeFile(rootHandle, relPath, options = {}, logger = defaultLogger) {
+//
+export async function removeFile(rootHandle, relPath, options: any = {}, logger = defaultLogger) {
     try {
         const parts = relPath.split('/').filter(Boolean), fileName = parts.pop();
-        const dir = await openDirectory(rootHandle, parts.join('/'), options, logger);
-        return dir?.removeEntry?.(fileName, { recursive: false });
-    } catch (e) {
-        return handleError(logger, 'error', `removeFile: ${e.message}`);
-    }
+        return (await openDirectory(rootHandle, parts.join('/'), options, logger))?.removeEntry?.(fileName, { recursive: false });
+    } catch (e: any)
+        { return handleError(logger, 'error', `removeFile: ${e.message}`); }
 }
 
-// Удалить директорию
-export async function removeDirectory(rootHandle, relPath, options = {}, logger = defaultLogger) {
+//
+export async function removeDirectory(rootHandle, relPath, options: any = {}, logger = defaultLogger) {
     try {
         const parts = relPath.split('/').filter(Boolean), dirName = parts.pop();
-        const parentDir = await openDirectory(rootHandle, parts.join('/'), options, logger);
-        return parentDir?.removeEntry?.(dirName, { recursive: true });
-    } catch (e) {
-        return handleError(logger, 'error', `removeDirectory: ${e.message}`);
-    }
+        return (await openDirectory(rootHandle, parts.join('/'), options, logger))?.removeEntry?.(dirName, { recursive: true });
+    } catch (e: any)
+        { return handleError(logger, 'error', `removeDirectory: ${e.message}`); }
 }
 
-// Получить FileWriter (writable stream)
-export async function getFileWriter(rootHandle, relPath, options = {}, logger = defaultLogger) {
-    try {
-        const fileHandle = await getFileHandle(rootHandle, relPath, { makeIfNotExists: true }, logger);
-        return fileHandle?.createWritable?.();
-    } catch (e) {
-        return handleError(logger, 'error', `getFileWriter: ${e.message}`);
-    }
+//
+export async function getFileWriter(rootHandle, relPath, options = { create: true }, logger = defaultLogger) {
+    try
+        { return (await getFileHandle(rootHandle, relPath, options, logger))?.createWritable?.(); } catch (e: any)
+        { return handleError(logger, 'error', `getFileWriter: ${e.message}`); }
 }
 
-// Получить FileHandle
+//
 export async function getFileHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
     return getFileHandle(rootHandle, relPath, options, logger);
 }
 
-// Прочитать файл как ObjectURL
+//
 export async function readAsObjectURL(rootHandle, relPath, options = {}, logger = defaultLogger) {
     try {
         const fileHandle = await getFileHandle(rootHandle, relPath, {}, logger);
         const file = await fileHandle?.getFile?.();
         return file ? URL.createObjectURL(file) : null;
-    } catch (e) {
-        return handleError(logger, 'error', `readAsObjectURL: ${e.message}`);
-    }
+    } catch (e: any)
+        { return handleError(logger, 'error', `readAsObjectURL: ${e.message}`); }
 }
 
 //
-export function detectTypeByRelPath(relPath) {
-    // Если путь заканчивается на / — это директория
-    if (relPath?.trim()?.endsWith?.('/')) return 'directory';
-    // Если есть расширение — скорее всего файл
-    return 'file';
-    //if (/\.[^\/]+$/.test(relPath)) return 'file';
-    // Если нет расширения и не заканчивается на / — можно считать директорией
-    //return 'directory';
-}
-
-//
+export function detectTypeByRelPath(relPath) { if (relPath?.trim()?.endsWith?.('/')) return 'directory'; return 'file'; }
 export function getMimeTypeByFilename(filename) {
     const ext = filename.split('.').pop().toLowerCase();
     const mimeTypes = {
@@ -222,6 +191,7 @@ export function getMimeTypeByFilename(filename) {
     return mimeTypes[ext] || 'application/octet-stream';
 }
 
+//
 export async function getHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
     const type = detectTypeByRelPath(relPath);
     if (type === 'directory') {
@@ -234,6 +204,7 @@ export async function getHandler(rootHandle, relPath, options = {}, logger = def
     return null;
 }
 
+//
 export async function createHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
     const type = detectTypeByRelPath(relPath);
     if (type === 'directory')
@@ -241,7 +212,7 @@ export async function createHandler(rootHandle, relPath, options = {}, logger = 
         { return getFileHandle(rootHandle, relPath, options, logger); }
 }
 
-// Универсальный remove (файл или директория)
+//
 export async function remove(rootHandle, relPath, options = {}, logger = defaultLogger) {
     return Promise.any([removeFile(rootHandle, relPath, options, logger), removeDirectory(rootHandle, relPath, options, logger)]);
 }
