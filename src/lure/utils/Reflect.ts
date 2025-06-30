@@ -82,8 +82,7 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 
 // TODO! use handlerMap registry
 export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    if (!children) return element;
-    if (!addToBank(element, children, "childNodes", reflectChildren)) { return element; }
+    if (!children) return element; if (!addToBank(element, children, "childNodes", reflectChildren)) { return element; }
 
     //
     const ref = new WeakRef(element);
