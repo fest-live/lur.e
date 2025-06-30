@@ -224,10 +224,7 @@ export async function remove(rootHandle, relPath, options = {}, logger = default
 //
 export const imageImportDesc = {
     startIn: "pictures", multiple: false,
-    types: [{
-        description: "wallpaper",
-        accept: { "image/*": [".png", ".gif", ".jpg", ".jpeg", ".webp", ".jxl",] },
-    }]
+    types: [{ description: "wallpaper", accept: { "image/*": [".png", ".gif", ".jpg", ".jpeg", ".webp", ".jxl",] }, }]
 }
 
 //
