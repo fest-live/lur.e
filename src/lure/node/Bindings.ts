@@ -90,15 +90,14 @@ export const E = (selector: string | HTMLElement, params: Params = {}, children?
         reflectStyles(element, params.style);
         reflectARIA(element, params.aria);
 
-
         //
+        bindWith(element, "is", params.is, handleAttribute, params, true);
         bindWith(element, "role", params.role, handleProperty, params);
         bindWith(element, "slot", params.slot, handleProperty, params);
         bindWith(element, "part", params.part, handleAttribute, params, true);
         bindWith(element, "name", params.name, handleAttribute, params, true);
         bindWith(element, "type", params.type, handleAttribute, params, true);
         bindWith(element, "icon", params.icon, handleAttribute, params, true);
-        bindWith(element, "is", params.is, handleAttribute, params, true);
         bindWith(element, "inert", params.inert, handleAttribute, params, true);
         bindWith(element, "hidden", params.hidden, handleHidden, params);
         bindEvents(element, params.on);
