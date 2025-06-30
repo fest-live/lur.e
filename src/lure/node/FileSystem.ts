@@ -63,11 +63,11 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
             if (prop === 'refresh')    { return () => { updateCache(); return pxy; }; }
             if (prop === 'dirHandle')  { return dirHandle; }
 
-            // Прокидываем стандартные методы Map (если кэш уже есть)
-            if (mapCache && typeof mapCache[prop] === 'function')
-                { return mapCache[prop].bind(mapCache); }
+            //
+            if (typeof mapCache?.[prop] === 'function')
+                { return mapCache?.[prop]?.bind?.(mapCache); }
 
-            // Прокидываем стандартные методы Map (если кэша нет)
+            //
             return WrapPromise(fixFx(Promise.try(async ()=>{
                 const handle = await dirHandle;
                 if (handle?.[prop] != null) { return (typeof handle?.[prop] == "function" ? handle?.[prop]?.bind(handle) : handle?.[prop]); }
