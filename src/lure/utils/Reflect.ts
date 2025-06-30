@@ -5,6 +5,10 @@ import { appendChild, removeNotExists } from "./DOM";
 import { bindHandler, $mapped, $behavior, addToBank } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../core/Handler";
 
+// !
+// TODO! - add support for un-subscribe for everyone...
+// !
+
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return element;
@@ -117,10 +121,8 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         //
         if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
         if (op && op != "@get" && ["@add", "@set", "@remove"].indexOf(op) >= 0 || !op) { // @ts-ignore
-            if (typeof children?.[$behavior] == "function") { // @ts-ignore
-                children?.[$behavior]?.(merge, [toBeAppend, toBeReplace, toBeRemoved], [controller.signal, op, ref, args]);
-            } else
-            { merge(); }
+            if (typeof children?.[$behavior] == "function")
+                { children?.[$behavior]?.(merge, [toBeAppend, toBeReplace, toBeRemoved], [controller.signal, op, ref, args]); } else { merge(); }
         }
     }); return element;
 }
@@ -131,10 +133,9 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
     subscribe(classList, (value: string)=>{
         const el = wel?.deref?.();
         if (el) {
-            if (typeof value == "undefined" || value == null) {
-                if (el.classList.contains(value)) { el.classList.remove(value); }
-            } else {
-                if (!el.classList.contains(value)) { el.classList.add(value); }
+            if (typeof value == "undefined" || value == null)
+                { if ( el.classList.contains(value)) { el.classList.remove(value); } } else
+                { if (!el.classList.contains(value)) { el.classList.add(value); }
             }
         }
     }); return element;
