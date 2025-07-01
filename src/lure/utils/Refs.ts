@@ -21,7 +21,7 @@ export const localStorageRef = (key, initial) => {
             if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
         }
     };
-    ref[Symbol.dispose] = () => { unsb?.(); removeEventListener("storage", list); };
+    ref[Symbol.dispose] ??= () => { unsb?.(); removeEventListener("storage", list); };
     addEventListener("storage", list); return ref;
 }
 
@@ -33,7 +33,7 @@ export const localStorageRef = (key, initial) => {
 export const matchMediaRef = (condition: string) => {
     const med = matchMedia(condition), ref = booleanRef(med.matches);
     const evf = (ev) => ref.value = ev.matches;
-    ref[Symbol.dispose] = () => { med?.removeEventListener?.("change", evf); };
+    ref[Symbol.dispose] ??= () => { med?.removeEventListener?.("change", evf); };
     med?.addEventListener?.("change", evf); return ref;
 }
 
@@ -49,7 +49,7 @@ export const visibleRef = (element, initial?) => {
     const evf = [(ev) => { val.value = ev?.name == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
     element?.addEventListener?.("u2-hidden" , ...evf);
     element?.addEventListener?.("u2-visible", ...evf);
-    val[Symbol.dispose] = () => {
+    val[Symbol.dispose] ??= () => {
         const element = wel?.deref?.();
         element?.removeEventListener?.("u2-hidden" , ...evf);
         element?.removeEventListener?.("u2-visible", ...evf);
@@ -57,6 +57,9 @@ export const visibleRef = (element, initial?) => {
     }
     return val;
 }
+
+//
+const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
 
 /**
  * Attribute two-way binding
@@ -80,11 +83,13 @@ export const attrRef = (element, attribute: string, initial?) => {
     };
 
     //
+    const wv = new WeakRef(val);
     const onMutation = (mutation: any) => {
         if (mutation.type == "attributes") {
             const value = mutation?.target?.getAttribute?.(mutation.attributeName);
-            if (mutation.oldValue != value && (val != null && (val?.value != null || (typeof val == "object" || typeof val == "function"))))
-                { if (val?.value !== value) { val.value = value; } }
+            const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
+            if (mutation.oldValue != value && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
+                { if (reVal !== value) { $set(wv, "value", value); } }
         }
     }
 
@@ -104,7 +109,7 @@ export const attrRef = (element, attribute: string, initial?) => {
     });
 
     //
-    val[Symbol.dispose] = ()=>{ obs?.disconnect?.(); usb?.(); }; return val;
+    val[Symbol.dispose] ??= ()=>{ obs?.disconnect?.(); usb?.(); }; return val;
 }
 
 /**
@@ -120,7 +125,7 @@ export const sizeRef = (element, axis: "inline" | "block", box: ResizeObserverBo
         if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
         if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
     });
-    val[Symbol.dispose] = ()=>obs?.disconnect?.();
+    val[Symbol.dispose] ??= ()=>obs?.disconnect?.();
     if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.element ?? element?.self ?? element, { box }); }; return val;
 }
 
@@ -136,7 +141,7 @@ export const scrollRef = (element, axis: "inline" | "block", initial?) => {
     const val = numberRef((axis == "inline" ? element?.scrollLeft : element?.scrollTop) || 0);
     const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "inline" ? element?.scrollLeft : element?.scrollTop) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (val?.value ?? val) })});
     const scb = [(ev) => { val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true }], wel = new WeakRef(element);
-    element?.addEventListener?.("scroll", ...scb); val[Symbol.dispose] = ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); }; return val;
+    element?.addEventListener?.("scroll", ...scb); val[Symbol.dispose] ??= ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); }; return val;
 }
 
 /**
@@ -153,7 +158,7 @@ export const checkedRef = (element) => {
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
     });
-    val[Symbol.dispose] = ()=>{ usb?.(); dbf?.(); }; return val;
+    val[Symbol.dispose] ??= ()=>{ usb?.(); dbf?.(); }; return val;
 }
 
 /**
@@ -170,7 +175,7 @@ export const valueRef = (element) => {
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
     });
-    val[Symbol.dispose] = ()=>{ usb?.(); dbf?.(); }; return val;
+    val[Symbol.dispose] ??= ()=>{ usb?.(); dbf?.(); }; return val;
 }
 
 /**
@@ -187,7 +192,7 @@ export const valueAsNumberRef = (element) => {
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
     });
-    val[Symbol.dispose] = ()=>{ usb?.(); dbf?.(); }; return val;
+    val[Symbol.dispose] ??= ()=>{ usb?.(); dbf?.(); }; return val;
 }
 
 /**
@@ -214,7 +219,7 @@ export const observeSize = (element, box, styles?) => {
             styles.blockSize = `${mut[0].devicePixelContentBoxSize[0].blockSize}px`;
         }
     })).observe(element?.element ?? element?.self ?? element, { box });
-    styles[Symbol.dispose] = () => { obs?.disconnect?.(); };
+    styles[Symbol.dispose] ??= () => { obs?.disconnect?.(); };
     return styles;
 }
 

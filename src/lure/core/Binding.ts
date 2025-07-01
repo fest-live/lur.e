@@ -36,7 +36,7 @@ export const $behavior = Symbol.for("@behavior");
 export const bindBeh = (element, store, behavior) => {
     const weak = element instanceof WeakRef ? element : new WeakRef(element), [name, obj] = store;
     if (behavior) {
-        store[Symbol.dispose] = subscribe?.(store, (value, prop, old) => {
+        store[Symbol.dispose] ??= subscribe?.(store, (value, prop, old) => {
             const valMap = namedStoreMaps.get(name);
             behavior?.([value, prop, old], [weak, store, valMap?.get(weak.deref?.())]);
         });
@@ -64,16 +64,20 @@ export const bindCtrl = (element, ctrlCb) => {
  */
 export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
 
+//
+const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
+
 /**
  * Универсальная функция для установки значения, подписки на изменения и обработки через handler.
  * Если передан set=true, то создаётся MutationObserver для отслеживания изменений атрибута.
  */
 export const observeAttribute = (el: HTMLElement, prop: string, value: any) => {
+    const wv = new WeakRef(value);
     const cb = (mutationList)=>{
         for (const mutation of mutationList) {
             if (mutation.type === "attributes" && mutation.attributeName === attrName) {
                 const newValue = el.getAttribute(attrName);
-                if (value.value !== newValue) value.value = newValue;
+                if (wv?.deref?.()?.value !== newValue) $set(wv, "value", newValue);
             }
         }
     }
@@ -123,7 +127,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     //
     let obs: any = null; if (withObserver) { obs = observeAttribute(el, prop, value); };
     const unsub = ()=> { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
-    value[Symbol.dispose] = unsub; alives.register(el, unsub); if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
+    value[Symbol.dispose] ??= unsub; alives.register(el, unsub); if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
 }
 
 //
@@ -201,7 +205,7 @@ export const bindForms  = (fields = document.documentElement, wrapper = ".u2-inp
 
     //
     const wf = new WeakRef(fields);
-    state[Symbol.dispose] = () => {
+    state[Symbol.dispose] ??= () => {
         const fields = wf?.deref?.();
         fields?.removeEventListener?.("input", onChange);
         fields?.removeEventListener?.("change", onChange);

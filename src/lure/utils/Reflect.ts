@@ -14,7 +14,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return element;
     const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
-        attributes[Symbol.dispose] = subscribe(attributes, (value, prop: any)=>{
+        attributes[Symbol.dispose] ??= subscribe(attributes, (value, prop: any)=>{
             handleAttribute(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         })
@@ -27,7 +27,7 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
     if (!aria) return element;
     const weak = new WeakRef(aria), wel = new WeakRef(element);
     if (typeof aria == "object" || typeof aria == "function") {
-        aria[Symbol.dispose] = subscribe(aria, (value, prop)=>{ // @ts-ignore
+        aria[Symbol.dispose] ??= subscribe(aria, (value, prop)=>{ // @ts-ignore
             handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         })
@@ -40,7 +40,7 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
     if (!dataset) return element;
     const weak = new WeakRef(dataset), wel = new WeakRef(element);
     if (typeof dataset == "object" || typeof dataset == "function") {
-        dataset[Symbol.dispose] = subscribe(dataset, (value, prop: any)=>{
+        dataset[Symbol.dispose] ??= subscribe(dataset, (value, prop: any)=>{
             handleDataset(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleDataset, weak);
         })
@@ -55,7 +55,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (typeof styles?.value == "string") { subscribe([styles, "value"], (val) => { element.style.cssText = val; }); } else
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
-        styles[Symbol.dispose] = subscribe(styles, (value, prop: any)=>{
+        styles[Symbol.dispose] ??= subscribe(styles, (value, prop: any)=>{
             handleStyleChange(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleStyleChange, weak);
         });
@@ -74,7 +74,7 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     };
 
     //
-    properties[Symbol.dispose] = ()=> { wel?.deref?.()?.removeEventListener?.("change", onChange); subscribe(properties, (value, prop: any)=>{
+    properties[Symbol.dispose] ??= ()=> { wel?.deref?.()?.removeEventListener?.("change", onChange); subscribe(properties, (value, prop: any)=>{
         handleProperty(wel?.deref?.(), prop, value);
         bindHandler(wel, value, prop, handleProperty, weak);
     }); };
@@ -103,15 +103,14 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     //
     let controller: AbortController|null = null;
     const isArray = Array.isArray(children);
-    children[Symbol.dispose] = observe(children, (...args)=>{
+    children[Symbol.dispose] ??= observe(children, (...args)=>{
         controller?.abort?.(); controller = new AbortController();
 
         //
         const element = ref.deref(); if (!element) return;
         const op  = isArray ? (args?.[args.length-1] || "") : null;
         const old = isArray ? (args?.[args.length-2] ?? null) : args?.[2];
-        const idx = args?.[1] ?? -1;
-        const obj = args?.[0] ?? children?.[idx];
+        const idx = args?.[1] ?? -1, obj = args?.[0] ?? children?.[idx];
 
         //
         if (element && (isArray && ["@add", "@set", "@remove"].indexOf(op) >= 0) || (!isArray)) {
@@ -132,7 +131,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 //
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return element; const wel = new WeakRef(element);
-    classList[Symbol.dispose] = subscribe(classList, (value: string)=>{
+    classList[Symbol.dispose] ??= subscribe(classList, (value: string)=>{
         const el = wel?.deref?.();
         if (el) {
             if (typeof value == "undefined" || value == null)
