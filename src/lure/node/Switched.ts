@@ -87,8 +87,8 @@ export class SwHandler implements ProxyHandler<SwitchedParams> {
 export const S = (params: SwitchedParams) => { // @ts-ignore
     return inProx.getOrInsert(params, ()=>{
         const px = new Proxy(params, new SwHandler());
-        subscribe([params?.current, "value"], () => (px as any)._onUpdate());
-        return px;
+        const us = subscribe([params?.current, "value"], () => (px as any)._onUpdate());
+        if (us) px[Symbol.dispose] ??= us; return px;
     });
 }
 
