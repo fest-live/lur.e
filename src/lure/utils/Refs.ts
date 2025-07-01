@@ -45,11 +45,10 @@ export const matchMediaRef = (condition: string) => {
  */
 export const visibleRef = (element, initial?) => {
     const val = booleanRef((initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null)); handleHidden(element, computed([val, "value"], (val)=>!val));
-    const evf = [(ev) => { val.value = ev?.name == "u2-hidden" ? false : true; }, { passive: true }];
+    const usb = subscribe([val, "value"], (v, p) => { if (v) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } });
+    const evf = [(ev) => { val.value = ev?.name == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
     element?.addEventListener?.("u2-hidden" , ...evf);
     element?.addEventListener?.("u2-visible", ...evf);
-    const usb = subscribe([val, "value"], (v, p) => { if (v) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } });
-    const wel = new WeakRef(element);
     val[Symbol.dispose] = () => {
         const element = wel?.deref?.();
         element?.removeEventListener?.("u2-hidden" , ...evf);
@@ -89,6 +88,7 @@ export const attrRef = (element, attribute: string, initial?) => {
         }
     }
 
+    //
     let obs: any = null;
     if (element?.self) { obs = observeAttributeBySelector(element.self, element.selector, attribute, onMutation); } else {
         const callback = (mutationList, _) => { for (const mutation of mutationList) { onMutation(mutation); } };
@@ -96,12 +96,14 @@ export const attrRef = (element, attribute: string, initial?) => {
         obs = observer;
     }
 
+    //
     const usb = subscribe([val, "value"], (v) => {
         if (v !== element?.getAttribute?.(attribute)) {
             if (v == null || v === false || typeof v == "object" || typeof v == "function") { element?.removeAttribute?.(attribute); } else { element?.setAttribute?.(attribute, v); }
         }
     });
 
+    //
     val[Symbol.dispose] = ()=>{ obs?.disconnect?.(); usb?.(); }; return val;
 }
 
@@ -228,12 +230,8 @@ export const refCtl = (value) => {
 }
 
 //
-export const conditionalIndex = (condList: any[]) => {
-    return computed(condList, () => condList.findIndex(cb => cb?.()));
-}
-
-//
-export const delayedSubscribe = (ref, cb, delay = 100)=>{
+export const conditionalIndex = (condList: any[] = []) => { return computed(condList, () => condList.findIndex(cb => cb?.())); }
+export const delayedSubscribe = (ref, cb, delay = 100) => {
     let tm: any; //= triggerWithDelay(ref, cb, delay);
     return subscribe([ref, "value"], (v)=>{
         if (!v && tm) { clearTimeout(tm); tm = null; } else
