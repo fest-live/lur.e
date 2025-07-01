@@ -53,7 +53,7 @@ export const bindBeh = (element, store, behavior) => {
 export const bindCtrl = (element, ctrlCb) => {
     const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb };
     ctrlCb?.({ target: element }); handleListeners?.(element, "addEventListener", hdl);
-    return () => handleListeners?.(element, "removeEventListener", hdl);
+    return () => handleListeners?.(new WeakRef(element), "removeEventListener", hdl);
 }
 
 /**
@@ -170,9 +170,11 @@ export const bindForms  = (fields = document.documentElement, wrapper = ".u2-inp
     state ??= makeReactive({});
 
     //
+    const wst = new WeakRef(state);
     const onChange = (ev)=>{
-        const input  = (ev?.target?.matches("input") ? ev?.target : ev?.target?.querySelector?.("input"));
-        const target = (ev?.target?.matches(wrapper) ? ev?.target : input?.closest?.(wrapper)) ?? input;
+        const state  = wst?.deref?.(); if (!state) return;
+        const input  = (ev?.target?.matches?.("input") ? ev?.target : ev?.target?.querySelector?.("input"));
+        const target = (ev?.target?.matches?.(wrapper) ? ev?.target : input?.closest?.(wrapper)) ?? input;
         const name   = input?.name || target?.name || target?.dataset?.name;
 
         //
