@@ -14,7 +14,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return element;
     const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
-        subscribe(attributes, (value, prop: any)=>{
+        attributes[Symbol.dispose] = subscribe(attributes, (value, prop: any)=>{
             handleAttribute(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         })
@@ -27,7 +27,7 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
     if (!aria) return element;
     const weak = new WeakRef(aria), wel = new WeakRef(element);
     if (typeof aria == "object" || typeof aria == "function") {
-        subscribe(aria, (value, prop)=>{ // @ts-ignore
+        aria[Symbol.dispose] = subscribe(aria, (value, prop)=>{ // @ts-ignore
             handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         })
@@ -40,7 +40,7 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
     if (!dataset) return element;
     const weak = new WeakRef(dataset), wel = new WeakRef(element);
     if (typeof dataset == "object" || typeof dataset == "function") {
-        subscribe(dataset, (value, prop: any)=>{
+        dataset[Symbol.dispose] = subscribe(dataset, (value, prop: any)=>{
             handleDataset(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleDataset, weak);
         })
@@ -55,7 +55,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (typeof styles?.value == "string") { subscribe([styles, "value"], (val) => { element.style.cssText = val; }); } else
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
-        subscribe(styles, (value, prop: any)=>{
+        styles[Symbol.dispose] = subscribe(styles, (value, prop: any)=>{
             handleStyleChange(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleStyleChange, weak);
         });
@@ -67,17 +67,20 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
 export const reflectWithStyleRules = async (element: HTMLElement, rule: any)=>{ const styles = await rule?.(element); return reflectStyles(element, styles); }
 export const reflectProperties = (element: HTMLElement, properties: any)=>{
     if (!properties) return element; const weak = new WeakRef(properties), wel = new WeakRef(element);
-    subscribe(properties, (value, prop: any)=>{
-        handleProperty(wel?.deref?.(), prop, value);
-        bindHandler(wel, value, prop, handleProperty, weak);
-    });
-
-    // if any input
-    element.addEventListener("change", (ev: any)=>{
+    const onChange = (ev: any)=>{
         if (ev?.target?.value != null && ev?.target?.value !== properties.value) properties.value = ev?.target?.value;
         if (ev?.target?.valueAsNumber != null && ev?.target?.valueAsNumber !== properties.valueAsNumber) properties.valueAsNumber = ev?.target?.valueAsNumber;
         if (ev?.target?.checked != null && ev?.target?.checked !== properties.checked) properties.checked = ev?.target?.checked;
-    }); return element;
+    };
+
+    //
+    properties[Symbol.dispose] = ()=> { wel?.deref?.()?.removeEventListener?.("change", onChange); subscribe(properties, (value, prop: any)=>{
+        handleProperty(wel?.deref?.(), prop, value);
+        bindHandler(wel, value, prop, handleProperty, weak);
+    }); };
+
+    // if any input
+    element.addEventListener("change", onChange); return element;
 }
 
 // TODO! use handlerMap registry
@@ -100,7 +103,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     //
     let controller: AbortController|null = null;
     const isArray = Array.isArray(children);
-    observe(children, (...args)=>{
+    children[Symbol.dispose] = observe(children, (...args)=>{
         controller?.abort?.(); controller = new AbortController();
 
         //
@@ -129,7 +132,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 //
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return element; const wel = new WeakRef(element);
-    subscribe(classList, (value: string)=>{
+    classList[Symbol.dispose] = subscribe(classList, (value: string)=>{
         const el = wel?.deref?.();
         if (el) {
             if (typeof value == "undefined" || value == null)

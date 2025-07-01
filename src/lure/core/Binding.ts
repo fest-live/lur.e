@@ -51,9 +51,8 @@ export const bindBeh = (element, store, behavior) => {
  * @returns {()=>void} cancel function
  */
 export const bindCtrl = (element, ctrlCb) => {
-    ctrlCb?.({ target: element });
     const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb };
-    handleListeners?.(element, "addEventListener", hdl);
+    ctrlCb?.({ target: element }); handleListeners?.(element, "addEventListener", hdl);
     return () => handleListeners?.(element, "removeEventListener", hdl);
 }
 
@@ -203,10 +202,13 @@ export const bindForms  = (fields = document.documentElement, wrapper = ".u2-inp
     const observer = observeBySelector(fields, wrapper, (mutations) => mutations.addedNodes.forEach((target) => requestIdleCallback(() => updateInput(state, target), { timeout: 100 })));
     const unsubscribe = subscribe?.(state, (value, property) => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)));
     requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
+
+    const wf = new WeakRef(fields);
     state[Symbol.dispose] = () => {
-        fields.removeEventListener("input", onChange);
-        fields.removeEventListener("change", onChange);
-        fields.removeEventListener("u2-appear", appearHandler);
+        const fields = wf?.deref?.();
+        fields?.removeEventListener?.("input", onChange);
+        fields?.removeEventListener?.("change", onChange);
+        fields?.removeEventListener?.("u2-appear", appearHandler);
         observer?.disconnect?.();
         unsubscribe?.();
     }

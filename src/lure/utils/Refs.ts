@@ -49,7 +49,9 @@ export const visibleRef = (element, initial?) => {
     element?.addEventListener?.("u2-hidden" , ...evf);
     element?.addEventListener?.("u2-visible", ...evf);
     const usb = subscribe([val, "value"], (v, p) => { if (v) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } });
+    const wel = new WeakRef(element);
     val[Symbol.dispose] = () => {
+        const element = wel?.deref?.();
         element?.removeEventListener?.("u2-hidden" , ...evf);
         element?.removeEventListener?.("u2-visible", ...evf);
         usb?.();
@@ -131,9 +133,8 @@ export const scrollRef = (element, axis: "inline" | "block", initial?) => {
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (initial?.value ?? initial) }); };
     const val = numberRef((axis == "inline" ? element?.scrollLeft : element?.scrollTop) || 0);
     const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "inline" ? element?.scrollLeft : element?.scrollTop) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (val?.value ?? val) })});
-    const scb = [(ev) => { val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true }];
-    element?.addEventListener?.("scroll", ...scb); val[Symbol.dispose] = ()=>{ element?.removeEventListener?.("scroll", ...scb); usb?.(); };
-    return val;
+    const scb = [(ev) => { val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true }], wel = new WeakRef(element);
+    element?.addEventListener?.("scroll", ...scb); val[Symbol.dispose] = ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); }; return val;
 }
 
 /**
