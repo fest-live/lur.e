@@ -8,7 +8,10 @@ export const getDir = (dest)=>{
 }
 
 //
-const  $fxy   = Symbol.for("@fix"), fixFx = (obj) => { const fx = function(){}; fx[$fxy] = obj; return fx; }
+const $fxy = Symbol.for("@fix"), fixFx = (obj) => { const fx = function(){}; fx[$fxy] = obj; return fx; }
+const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
+
+//
 export function handleError(logger, status, message) { logger?.(status, message); return null; }
 export function defaultLogger(status, message) { console.log(`[${status}] ${message}`); };
 export function getFileExtension(path) { return path?.trim?.()?.split?.(".")?.[1]; }
