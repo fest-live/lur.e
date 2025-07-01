@@ -72,12 +72,8 @@ export const Qp = (ref, host = document.documentElement)=>{
  * @returns {El} Экземпляр El.
  */
 export const E = (selector: string | HTMLElement, params: Params = {}, children?: any[]|null) => {
-    //if (elMap.has(this)) { const el = elMap.get(this); if (el) { return el; } }
-
     /** @type {HTMLElement | DocumentFragment | Text} */
     const element = typeof selector == "string" ? Qp(createElement(selector)) : selector;
-
-    //
     if (element && params) {
         reflectControllers(element, params.ctrls);
         reflectAttributes(element, params.attributes);
@@ -104,9 +100,7 @@ export const E = (selector: string | HTMLElement, params: Params = {}, children?
 
         //
         params?.rules?.forEach?.((rule) => reflectWithStyleRules(element, rule));
-    }
-
-    //
+    };
     if (children) reflectChildren(element, children); return element;
 }
 
