@@ -50,10 +50,6 @@ const style = makeReactive({
 
 // create document fragment
 const dom = H`<${"x-block#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}><span>${children}</span></div>`;
-const scb = H`
-<div data-mixin="ov-scrollbar" style="overflow: scroll; display: block; inline-size: 800px; block-size: 600px;">
-<div style="inline-size: 100px; block-size: 1800px; background-color: black; color: white; display: flex; place-content: center; place-items: center;">Black Dolphin</div>
-</div>`
 
 //
 setTimeout(()=>{
@@ -63,4 +59,3 @@ setTimeout(()=>{
 
 //
 document.body.append(dom);
-document.body.append(scb);
