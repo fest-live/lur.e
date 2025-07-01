@@ -14,10 +14,11 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return element;
     const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
-        attributes[Symbol.dispose] ??= subscribe(attributes, (value, prop: any)=>{
+        const usub = subscribe(attributes, (value, prop: any)=>{
             handleAttribute(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
-        })
+        });
+        if (usub) attributes[Symbol.dispose] ??= usub;
     } else
     { console.warn("Invalid attributes object:", attributes); }
 }
@@ -27,10 +28,11 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
     if (!aria) return element;
     const weak = new WeakRef(aria), wel = new WeakRef(element);
     if (typeof aria == "object" || typeof aria == "function") {
-        aria[Symbol.dispose] ??= subscribe(aria, (value, prop)=>{ // @ts-ignore
+        const usub = subscribe(aria, (value, prop)=>{ // @ts-ignore
             handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
-        })
+        });
+        if (usub) aria[Symbol.dispose] ??= usub;
     } else
     { console.warn("Invalid ARIA object:", aria);}; return element;
 }
@@ -40,10 +42,11 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
     if (!dataset) return element;
     const weak = new WeakRef(dataset), wel = new WeakRef(element);
     if (typeof dataset == "object" || typeof dataset == "function") {
-        dataset[Symbol.dispose] ??= subscribe(dataset, (value, prop: any)=>{
+        const usub = subscribe(dataset, (value, prop: any)=>{
             handleDataset(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleDataset, weak);
-        })
+        });
+        if (usub) dataset[Symbol.dispose] ??= usub;
     } else
     { console.warn("Invalid dataset object:", dataset); }; return element;
 }
@@ -55,10 +58,11 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (typeof styles?.value == "string") { subscribe([styles, "value"], (val) => { element.style.cssText = val; }); } else
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
-        styles[Symbol.dispose] ??= subscribe(styles, (value, prop: any)=>{
+        const usub = subscribe(styles, (value, prop: any)=>{
             handleStyleChange(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleStyleChange, weak);
-        });
+        });;
+        if (usub) styles[Symbol.dispose] ??= usub;
     } else
     { console.warn("Invalid styles object:", styles); } return element;
 }
@@ -103,7 +107,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     //
     let controller: AbortController|null = null;
     const isArray = Array.isArray(children);
-    children[Symbol.dispose] ??= observe(children, (...args)=>{
+    const unsub = observe(children, (...args)=>{
         controller?.abort?.(); controller = new AbortController();
 
         //
@@ -125,13 +129,14 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
             if (typeof children?.[$behavior] == "function")
                 { children?.[$behavior]?.(merge, [toBeAppend, toBeReplace, toBeRemoved], [controller.signal, op, ref, args]); } else { merge(); }
         }
-    }); return element;
+    });
+    if (unsub) children[Symbol.dispose] ??= unsub; return element;
 }
 
 //
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return element; const wel = new WeakRef(element);
-    classList[Symbol.dispose] ??= subscribe(classList, (value: string)=>{
+    const usub = subscribe(classList, (value: string)=>{
         const el = wel?.deref?.();
         if (el) {
             if (typeof value == "undefined" || value == null)
@@ -139,7 +144,8 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
                 { if (!el.classList.contains(value)) { el.classList.add(value); }
             }
         }
-    }); return element;
+    });;
+    if (usub) classList[Symbol.dispose] ??= usub; return element;
 }
 
 // forcely update child nodes (and erase current content)

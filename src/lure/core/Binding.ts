@@ -36,10 +36,11 @@ export const $behavior = Symbol.for("@behavior");
 export const bindBeh = (element, store, behavior) => {
     const weak = element instanceof WeakRef ? element : new WeakRef(element), [name, obj] = store;
     if (behavior) {
-        store[Symbol.dispose] ??= subscribe?.(store, (value, prop, old) => {
+        const usub = subscribe?.(store, (value, prop, old) => {
             const valMap = namedStoreMaps.get(name);
             behavior?.([value, prop, old], [weak, store, valMap?.get(weak.deref?.())]);
-        });
+        });;
+        if (usub) store[Symbol.dispose] ??= usub;
     }; return element;
 }
 
@@ -126,8 +127,8 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
 
     //
     let obs: any = null; if (withObserver) { obs = observeAttribute(el, prop, value); };
-    const unsub = ()=> { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
-    value[Symbol.dispose] ??= unsub; alives.register(el, unsub); if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
+    const unsub = () => { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
+    if (unsub) value[Symbol.dispose] ??= unsub; alives.register(el, unsub); if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
 }
 
 //
