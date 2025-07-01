@@ -191,18 +191,17 @@ export const bindForms  = (fields = document.documentElement, wrapper = ".u2-inp
     };
 
     //
-    fields.addEventListener("input", onChange);
-    fields.addEventListener("change", onChange);
+    const appearHandler = () => requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
+    const observer      = observeBySelector(fields, wrapper, (mutations) => mutations.addedNodes.forEach((target) => requestIdleCallback(() => updateInput(state, target), { timeout: 100 })));
+    const unsubscribe   = subscribe?.(state, (value, property) => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)));
+    requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
 
     //
-    const appearHandler = () => requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
+    fields.addEventListener("input" , onChange);
+    fields.addEventListener("change", onChange);
     fields.addEventListener("u2-appear", appearHandler);
 
     //
-    const observer = observeBySelector(fields, wrapper, (mutations) => mutations.addedNodes.forEach((target) => requestIdleCallback(() => updateInput(state, target), { timeout: 100 })));
-    const unsubscribe = subscribe?.(state, (value, property) => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)));
-    requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
-
     const wf = new WeakRef(fields);
     state[Symbol.dispose] = () => {
         const fields = wf?.deref?.();
