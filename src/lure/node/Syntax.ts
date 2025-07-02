@@ -1,7 +1,7 @@
 import { observableArray } from "u2re/object";
 
 //
-import { getNode } from "../utils/DOM";
+import { getNode } from "../context/Utils";
 import E from "../node/Bindings";
 import M from "./Mapped";
 

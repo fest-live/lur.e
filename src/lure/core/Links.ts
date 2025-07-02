@@ -1,10 +1,8 @@
-import { subscribe, numberRef, stringRef, booleanRef, computed, makeReactive, ref } from "u2re/object";
 import { boundBehaviors } from "u2re/dom";
-
-//
-import { checkboxCtrl, numberCtrl, valueCtrl } from "../core/Control";
-import { handleHidden, triggerWithDelay } from "../core/Handler";
-import { bindCtrl,    $observeAttribute } from "../core/Binding";
+import { makeReactive, booleanRef, numberRef, subscribe, stringRef, computed, ref } from "u2re/object";
+import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
+import { handleHidden, handleAttribute, triggerWithDelay } from "./Handler";
+import { bindCtrl, bindWith } from "./Binding";
 
 /**
  * Make a two-way <-> ref to a localStorage string value, auto-update on change and storage events
@@ -17,11 +15,9 @@ export const localStorageLink = (exists: any|null, key, initial) => {
     const def  = localStorage.getItem(key) ?? (initial?.value ?? initial);
     const ref  = exists ?? stringRef(def); ref.value ??= def;
     const unsb = subscribe([ref, "value"], (val) => localStorage.setItem(key, val));
-    const list = (ev) => {
-        if (ev.storageArea == localStorage && ev.key == key) {
-            if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
-        }
-    };
+    const list = (ev) => { if (ev.storageArea == localStorage && ev.key == key) {
+        if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
+    } };
     addEventListener("storage", list);
     return () => { unsb?.(); removeEventListener("storage", list); };;
 }
@@ -34,8 +30,7 @@ export const localStorageLink = (exists: any|null, key, initial) => {
 export const matchMediaLink = (exists: any|null, condition: string) => {
     const med = matchMedia(condition), def = med?.matches || false;
     const ref = exists ?? booleanRef(def); ref.value ??= def;
-    const evf = (ev) => ref.value = ev.matches;
-    med?.addEventListener?.("change", evf);
+    const evf = (ev) => (ref.value = ev.matches); med?.addEventListener?.("change", evf);
     return () => { med?.removeEventListener?.("change", evf); };
 }
 
@@ -47,11 +42,10 @@ export const matchMediaLink = (exists: any|null, condition: string) => {
  */
 export const visibleLink = (exists: any|null, element, initial?) => {
     const def = (initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null);
-    const val = exists ?? booleanRef(def); val.value ??= def; handleHidden(element, computed([val, "value"], (val)=>!val));
-    const usb = subscribe([val, "value"], (v, p) => { if (v) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } });
+    const val = exists ?? booleanRef(def), inv = computed([val, "value"], (val)=>!val);
+    const usb = bindWith(element, "data-hidden", inv, handleHidden);
     const evf = [(ev) => { val.value = ev?.name == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
-    element?.addEventListener?.("u2-hidden" , ...evf);
-    element?.addEventListener?.("u2-visible", ...evf);
+    element?.addEventListener?.("u2-hidden" , ...evf); element?.addEventListener?.("u2-visible", ...evf);
     return () => {
         const element = wel?.deref?.(); usb?.();
         element?.removeEventListener?.("u2-hidden" , ...evf);
@@ -69,21 +63,7 @@ export const visibleLink = (exists: any|null, element, initial?) => {
  */
 export const attrLink = (exists: any|null, element, attribute: string, initial?) => {
     const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
-    if (!element) return; const val = exists ?? stringRef(def); val.value ??= def;
-    if (
-        (initial != null && element?.getAttribute?.(attribute) == null) &&
-        (typeof val.value != "object" && typeof val.value != "function") &&
-        (val.value != null && val.value !== false)
-    ) { element?.setAttribute?.(attribute, val.value); };
-
-    //
-    const obs = $observeAttribute(element, attribute, val), usb = subscribe([val, "value"], (v) => {
-        if (v !== element?.getAttribute?.(attribute)) {
-            if (v == null || v === false || typeof v == "object" || typeof v == "function") { element?.removeAttribute?.(attribute); } else { element?.setAttribute?.(attribute, v); }
-        } });
-
-    //
-    return ()=>{ obs?.disconnect?.(); usb?.(); }; return val;
+    if (!element) return; const val = exists ?? stringRef(def); val.value ??= def; return bindWith(element, attribute, val, handleAttribute, null, true);
 }
 
 /**

@@ -1,7 +1,7 @@
 import { subscribe, observe } from "u2re/object";
 
 //
-import { appendChild, removeNotExists } from "./DOM";
+import { appendChild, removeNotExists } from "./Utils";
 import { bindHandler, $mapped, $behavior, addToBank } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../core/Handler";
 

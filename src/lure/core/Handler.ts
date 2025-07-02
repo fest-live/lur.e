@@ -44,6 +44,20 @@ export const handleStyleChange = (el?: HTMLElement|null, prop?: string, val?: an
 };
 
 //
+/*  // needs rework with AI
+    if (
+        (initial != null && element?.getAttribute?.(attribute) == null) &&
+        (typeof val.value != "object" && typeof val.value != "function") &&
+        (val.value != null && val.value !== false)
+    ) { element?.setAttribute?.(attribute, val.value); };
+
+    usb = subscribe([val, "value"], (v) => {
+        if (v !== element?.getAttribute?.(attribute)) {
+            if (v == null || v === false || typeof v == "object" || typeof v == "function") { element?.removeAttribute?.(attribute); } else { element?.setAttribute?.(attribute, v); }
+        } });
+*/
+
+//
 export const handleAttribute = (el?: HTMLElement|null, prop?: string, val?: any) => {
     if (!prop || !el) return; prop = camelToKebab(prop)!;
     if (el.getAttribute?.(prop) === val) return;

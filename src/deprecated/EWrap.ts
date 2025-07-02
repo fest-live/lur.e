@@ -3,7 +3,7 @@ import { reflectBehaviors, reflectStores, reflectMixins } from "u2re/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reformChildren, reflectWithStyleRules, reflectARIA } from '../utils/Reflect';
 
 //
-import { createElement } from "../utils/DOM";
+import { createElement } from "../DOM/Utils";
 import { bindEvents, reflectControllers, bindWith, $virtual, elMap } from '../core/Binding';
 import { handleProperty, handleHidden, handleAttribute,  } from "../core/Handler";
 

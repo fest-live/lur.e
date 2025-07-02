@@ -1,5 +1,5 @@
 import { subscribe } from "u2re/object";
-import { getNode  } from "../utils/DOM";
+import { getNode  } from "../context/Utils";
 
 //
 const inProx = new WeakMap(), contextify = (pc: any, name: any) =>

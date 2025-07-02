@@ -1,10 +1,10 @@
 import { importCdn } from "u2re/cdnImport";
 import { subscribe, makeReactive, ref } from "u2re/object";
 import { Q, addRoot, loadInlineStyle } from "u2re/dom";
-import { E } from "../node/Bindings";
+import { E } from "../lure/node/Bindings";
 
 //
-import { setAttributesIfNull } from "../utils/DOM";
+import { setAttributesIfNull } from "../lure/context/Utils";
 import {
     valueAsNumberRef,
     localStorageRef,
@@ -14,7 +14,7 @@ import {
     valueRef,
     sizeRef,
     attrRef
-} from "../utils/Links";
+} from "../lure/core/Refs";
 
 //
 const styleCache    = new Map(), styleElementCache = new WeakMap();
