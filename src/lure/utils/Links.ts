@@ -1,0 +1,253 @@
+import { subscribe, numberRef, stringRef, booleanRef, computed, makeReactive, ref } from "u2re/object";
+import { boundBehaviors, observeAttributeBySelector } from "u2re/dom";
+
+//
+import { checkboxCtrl, numberCtrl, valueCtrl } from "../core/Control";
+import { handleHidden, triggerWithDelay } from "../core/Handler";
+import { bindCtrl } from "../core/Binding";
+
+/**
+ * Make a two-way <-> ref to a localStorage string value, auto-update on change and storage events
+ * @template T
+ * @param {string} key storage key
+ * @param {T|{value:T}} [initial] initial value (used/converted to string if not there)
+ * @returns {ReturnType<typeof stringRef>}
+ */
+export const localStorageLink = (exists: any|null, key, initial) => {
+    const def  = localStorage.getItem(key) ?? (initial?.value ?? initial);
+    const ref  = exists ?? stringRef(def); ref.value ??= def;
+    const unsb = subscribe([ref, "value"], (val) => localStorage.setItem(key, val));
+    const list = (ev) => {
+        if (ev.storageArea == localStorage && ev.key == key) {
+            if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
+        }
+    };
+    addEventListener("storage", list);
+    return () => { unsb?.(); removeEventListener("storage", list); };;
+}
+
+/**
+ * Create a booleanRef that reflects matchMedia state. You cannot write to it.
+ * @param {string} condition CSS media query string
+ * @returns {ReturnType<typeof booleanRef>}
+ */
+export const matchMediaLink = (exists: any|null, condition: string) => {
+    const med = matchMedia(condition), def = med?.matches || false;
+    const ref = exists ?? booleanRef(def); ref.value ??= def;
+    const evf = (ev) => ref.value = ev.matches;
+    med?.addEventListener?.("change", evf);
+    return () => { med?.removeEventListener?.("change", evf); };
+}
+
+/**
+ * Create a booleanRef for an element's "data-hidden" visible state, one-way
+ * @param {Element} element
+ * @param {*} [initial]
+ * @returns {ReturnType<typeof booleanRef>}
+ */
+export const visibleLink = (exists: any|null, element, initial?) => {
+    const def = (initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null);
+    const val = exists ?? booleanRef(def); val.value ??= def; handleHidden(element, computed([val, "value"], (val)=>!val));
+    const usb = subscribe([val, "value"], (v, p) => { if (v) { element?.removeAttribute?.("data-hidden"); } else { element?.setAttribute?.("data-hidden", val.value); } });
+    const evf = [(ev) => { val.value = ev?.name == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
+    element?.addEventListener?.("u2-hidden" , ...evf);
+    element?.addEventListener?.("u2-visible", ...evf);
+    return () => {
+        const element = wel?.deref?.();
+        element?.removeEventListener?.("u2-hidden" , ...evf);
+        element?.removeEventListener?.("u2-visible", ...evf);
+        usb?.();
+    };
+}
+
+//
+const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
+
+/**
+ * Attribute two-way binding
+ * @template T
+ * @param {Element} element
+ * @param {string} attribute
+ * @param {T|{value:T}} [initial]
+ * @returns {ReturnType<typeof stringRef>}
+ */
+export const attrLink = (exists: any|null, element, attribute: string, initial?) => {
+    const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
+    if (!element) return; const val = exists ?? stringRef(def); val.value ??= def;
+    if (
+        (initial != null && element?.getAttribute?.(attribute) == null) &&
+        (typeof val.value != "object" && typeof val.value != "function") &&
+        (val.value != null && val.value !== false)
+    ) { element?.setAttribute?.(attribute, val.value); };
+
+    //
+    const config = {
+        attributeFilter: [attribute],
+        attributeOldValue: true,
+        attributes: true,
+        childList: false,
+        subtree: false,
+    };
+
+    //
+    const wv = new WeakRef(val);
+    const onMutation = (mutation: any) => {
+        if (mutation.type == "attributes") {
+            const value = mutation?.target?.getAttribute?.(mutation.attributeName);
+            const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
+            if (mutation.oldValue != value && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
+                { if (reVal !== value) { $set(wv, "value", value); } }
+        }
+    }
+
+    //
+    let obs: any = null;
+    if (element?.self) { obs = observeAttributeBySelector(element.self, element.selector, attribute, onMutation); } else {
+        const callback = (mutationList, _) => { for (const mutation of mutationList) { onMutation(mutation); } };
+        const observer = new MutationObserver(callback); observer.observe(element?.element ?? element?.self ?? element, config);
+        obs = observer;
+    }
+
+    //
+    const usb = subscribe([val, "value"], (v) => { if (v !== element?.getAttribute?.(attribute)) {
+        if (v == null || v === false || typeof v == "object" || typeof v == "function") { element?.removeAttribute?.(attribute); } else { element?.setAttribute?.(attribute, v); }
+    } });
+
+    //
+    return ()=>{ obs?.disconnect?.(); usb?.(); }; return val;
+}
+
+/**
+ * Numeric ref of the element size (inline/block, observed with ResizeObserver)
+ * @param {Element} element
+ * @param {"inline"|"block"} axis
+ * @param {ResizeObserverBoxOptions} [box='border-box']
+ * @returns {ReturnType<typeof numberRef>}
+ */
+export const sizeLink = (exists: any|null, element, axis: "inline" | "block", box: ResizeObserverBoxOptions = "border-box") => {
+    const def = element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"];
+    const val = exists ?? numberRef(def); val.value ??= def;
+    const obs = new ResizeObserver((entries) => {
+        if (box == "border-box")  { val.value = axis == "inline" ? entries[0].borderBoxSize[0].inlineSize  : entries[0].borderBoxSize[0].blockSize };
+        if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
+        if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
+    });
+    if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.element ?? element?.self ?? element, { box }); }; return val;
+    return ()=>obs?.disconnect?.();
+}
+
+/**
+ * Numeric ref for scroll offset of an element (auto two-way)
+ * @param {Element} element
+ * @param {"inline"|"block"} axis
+ * @param {*} [initial]
+ * @returns {ReturnType<typeof numberRef>}
+ */
+export const scrollLink = (exists: any|null, element, axis: "inline" | "block", initial?) => {
+    if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (initial?.value ?? initial) }); };
+    const val = exists ?? numberRef((axis == "inline" ? element?.scrollLeft : element?.scrollTop) || 0);
+    const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "inline" ? element?.scrollLeft : element?.scrollTop) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (val?.value ?? val) })});
+    const scb = [(ev) => { val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true }], wel = new WeakRef(element);
+    element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };
+}
+
+/**
+ * Boolean ref for checkbox element (auto two-way)
+ * @param {HTMLInputElement} element
+ * @returns {ReturnType<typeof booleanRef>}
+ */
+export const checkedLink = (exists: any|null, element) => {
+    const def = (!!element?.checked) || false;
+    const val = exists ?? booleanRef(def); val.value ??= def;
+    const dbf = bindCtrl(element?.self ?? element, checkboxCtrl(val));
+    const usb = subscribe([val, "value"], (v) => {
+        if (element && element?.checked != v) {
+            element.checked = !!v;
+            element?.dispatchEvent?.(new Event("change", { bubbles: true }));
+        }
+    });
+    return ()=>{ usb?.(); dbf?.(); };
+}
+
+/**
+ * String ref for text input elements (auto two-way)
+ * @param {HTMLInputElement|HTMLTextAreaElement} element
+ * @returns {ReturnType<typeof stringRef>}
+ */
+export const valueLink = (exists: any|null, element) => {
+    const def = element?.value || "";
+    const val = exists ?? stringRef(def); val.value ??= def;
+    const dbf = bindCtrl(element?.self ?? element, valueCtrl(val));
+    const usb = subscribe([val, "value"], (v) => {
+        if (element && element?.value != v) {
+            element.value = v;
+            element?.dispatchEvent?.(new Event("change", { bubbles: true }));
+        }
+    });
+    return ()=>{ usb?.(); dbf?.(); };
+}
+
+/**
+ * Number ref for number inputs (auto two-way)
+ * @param {HTMLInputElement} element
+ * @returns {ReturnType<typeof numberRef>}
+ */
+export const valueAsNumberLink = (exists: any|null, element) => {
+    const def = Number(element?.valueAsNumber) || 0;
+    const val = exists ?? numberRef(def); val.value ??= def;
+    const dbf = bindCtrl(element?.self ?? element, numberCtrl(val));
+    const usb = subscribe([val, "value"], (v) => {
+        if (element && element?.valueAsNumber != v && typeof element?.valueAsNumber == "number") {
+            element.valueAsNumber = Number(v);
+            element?.dispatchEvent?.(new Event("change", { bubbles: true }));
+        }
+    });
+    return ()=>{ usb?.(); dbf?.(); };
+}
+
+/**
+ * Observe and reactively assign size styles to a reactive object
+ * @param {Element} element
+ * @param {ResizeObserverBoxOptions} box
+ * @param {object} [styles] reactive object (will be created if omitted)
+ * @returns {object} styles
+ */
+export const observeSizeLink = (exists: any|null, element, box, styles?) => {
+    if (!styles) styles = exists ?? makeReactive({}); let obs: any = null;
+    (obs = new ResizeObserver((mut) => {
+        if (box == "border-box") {
+            styles.inlineSize = `${mut[0].borderBoxSize[0].inlineSize}px`;
+            styles.blockSize  = `${mut[0].borderBoxSize[0].blockSize}px`;
+        }
+        if (box == "content-box") {
+            styles.inlineSize = `${mut[0].contentBoxSize[0].inlineSize}px`;
+            styles.blockSize  = `${mut[0].contentBoxSize[0].blockSize}px`;
+        }
+        if (box == "device-pixel-content-box") {
+            styles.inlineSize = `${mut[0].devicePixelContentBoxSize[0].inlineSize}px`;
+            styles.blockSize  = `${mut[0].devicePixelContentBoxSize[0].blockSize}px`;
+        }
+    })).observe(element?.element ?? element?.self ?? element, { box });
+    return () => { obs?.disconnect?.(); };
+}
+
+/**
+ * Create a controller ref which fires all boundBehaviors except self on change
+ * @param {*} value
+ * @returns {any}
+ */
+export const refCtl = (value) => {
+    let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
+        (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
+    })); return ctl;
+}
+
+//
+export const conditionalIndex = (condList: any[] = []) => { return computed(condList, () => condList.findIndex(cb => cb?.())); }
+export const delayedSubscribe = (ref, cb, delay = 100) => {
+    let tm: any; //= triggerWithDelay(ref, cb, delay);
+    return subscribe([ref, "value"], (v)=>{
+        if (!v && tm) { clearTimeout(tm); tm = null; } else
+        if (v && !tm) { tm = triggerWithDelay(ref, cb, delay) ?? tm; };
+    });
+}

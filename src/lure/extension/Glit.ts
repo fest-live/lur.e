@@ -14,7 +14,7 @@ import {
     valueRef,
     sizeRef,
     attrRef
-} from "../utils/Refs";
+} from "../utils/Links";
 
 //
 const styleCache    = new Map(), styleElementCache = new WeakMap();
