@@ -1,5 +1,5 @@
 import { makeReactive, subscribe } from "u2re/object";
-import { camelToKebab, handleListeners, namedStoreMaps, observeBySelector } from "u2re/dom";
+import { camelToKebab, handleListeners, namedStoreMaps, observeAttribute, observeBySelector } from "u2re/dom";
 
 /**
  * @type {WeakMap<any, (HTMLElement|DocumentFragment|Text)>}
@@ -73,24 +73,23 @@ const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[k
  * Универсальная функция для установки значения, подписки на изменения и обработки через handler.
  * Если передан set=true, то создаётся MutationObserver для отслеживания изменений атрибута.
  */
-export const observeAttribute = (el: HTMLElement, prop: string, value: any) => {
+export const $observeAttribute = (el: HTMLElement, prop: string, value: any) => {
     const wv = new WeakRef(value);
     const cb = (mutationList)=>{
         for (const mutation of mutationList) {
-            if (mutation.type === "attributes" && mutation.attributeName === attrName) {
-                const newValue = el.getAttribute(attrName);
-                if (wv?.deref?.()?.value !== newValue) $set(wv, "value", newValue);
+            if (mutation.type == "attributes" && mutation.attributeName === attrName) {
+                const value = mutation?.target?.getAttribute?.(mutation.attributeName);
+                const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
+                if (mutation.oldValue != value && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
+                    { if (reVal !== value) { $set(wv, "value", value); } }
             }
         }
     }
 
     // if queried, use universal observer
-    if (typeof (el as any)?.selector == "string" && (el as any)?.observeAttr != null) return (el as any)?.observeAttr?.(prop, cb);
-
-    //
-    const attrName = camelToKebab(prop)!, observer = new MutationObserver(cb);
-    observer.observe((el as any)?.element ?? el, { attributes: true, attributeOldValue: true, attributeFilter: [attrName] });
-    return observer;
+    //if (typeof (el as any)?.selector == "string" && (el as any)?.observeAttr != null) return (el as any)?.observeAttr?.(prop, cb);
+    const attrName = camelToKebab(prop)!;
+    return observeAttribute(el, attrName, cb);
 };
 
 // @ts-ignore // Stable Universal Key Assignation - eg. [S.U.K.A.]
@@ -127,7 +126,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     });
 
     //
-    let obs: any = null; if (withObserver) { obs = observeAttribute(el, prop, value); };
+    let obs: any = null; if (withObserver) { obs = $observeAttribute(el, prop, value); };
     const unsub = () => { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
     if (unsub) value[Symbol.dispose] ??= unsub; alives.register(el, unsub); if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
 }

@@ -1,10 +1,10 @@
 import { subscribe, numberRef, stringRef, booleanRef, computed, makeReactive, ref } from "u2re/object";
-import { boundBehaviors, observeAttributeBySelector } from "u2re/dom";
+import { boundBehaviors } from "u2re/dom";
 
 //
 import { checkboxCtrl, numberCtrl, valueCtrl } from "../core/Control";
 import { handleHidden, triggerWithDelay } from "../core/Handler";
-import { bindCtrl } from "../core/Binding";
+import { bindCtrl,    $observeAttribute } from "../core/Binding";
 
 /**
  * Make a two-way <-> ref to a localStorage string value, auto-update on change and storage events
@@ -53,15 +53,11 @@ export const visibleLink = (exists: any|null, element, initial?) => {
     element?.addEventListener?.("u2-hidden" , ...evf);
     element?.addEventListener?.("u2-visible", ...evf);
     return () => {
-        const element = wel?.deref?.();
+        const element = wel?.deref?.(); usb?.();
         element?.removeEventListener?.("u2-hidden" , ...evf);
         element?.removeEventListener?.("u2-visible", ...evf);
-        usb?.();
     };
 }
-
-//
-const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
 
 /**
  * Attribute two-way binding
@@ -81,37 +77,10 @@ export const attrLink = (exists: any|null, element, attribute: string, initial?)
     ) { element?.setAttribute?.(attribute, val.value); };
 
     //
-    const config = {
-        attributeFilter: [attribute],
-        attributeOldValue: true,
-        attributes: true,
-        childList: false,
-        subtree: false,
-    };
-
-    //
-    const wv = new WeakRef(val);
-    const onMutation = (mutation: any) => {
-        if (mutation.type == "attributes") {
-            const value = mutation?.target?.getAttribute?.(mutation.attributeName);
-            const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
-            if (mutation.oldValue != value && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
-                { if (reVal !== value) { $set(wv, "value", value); } }
-        }
-    }
-
-    //
-    let obs: any = null;
-    if (element?.self) { obs = observeAttributeBySelector(element.self, element.selector, attribute, onMutation); } else {
-        const callback = (mutationList, _) => { for (const mutation of mutationList) { onMutation(mutation); } };
-        const observer = new MutationObserver(callback); observer.observe(element?.element ?? element?.self ?? element, config);
-        obs = observer;
-    }
-
-    //
-    const usb = subscribe([val, "value"], (v) => { if (v !== element?.getAttribute?.(attribute)) {
-        if (v == null || v === false || typeof v == "object" || typeof v == "function") { element?.removeAttribute?.(attribute); } else { element?.setAttribute?.(attribute, v); }
-    } });
+    const obs = $observeAttribute(element, attribute, val), usb = subscribe([val, "value"], (v) => {
+        if (v !== element?.getAttribute?.(attribute)) {
+            if (v == null || v === false || typeof v == "object" || typeof v == "function") { element?.removeAttribute?.(attribute); } else { element?.setAttribute?.(attribute, v); }
+        } });
 
     //
     return ()=>{ obs?.disconnect?.(); usb?.(); }; return val;
