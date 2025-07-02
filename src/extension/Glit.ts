@@ -1,10 +1,9 @@
 import { importCdn } from "u2re/cdnImport";
 import { subscribe, makeReactive, ref } from "u2re/object";
-import { Q, addRoot, loadInlineStyle } from "u2re/dom";
+import { Q, addRoot, loadInlineStyle, setAttributesIfNull } from "u2re/dom";
 import { E } from "../lure/node/Bindings";
 
 //
-import { setAttributesIfNull } from "../lure/context/Utils";
 import {
     valueAsNumberRef,
     localStorageRef,
