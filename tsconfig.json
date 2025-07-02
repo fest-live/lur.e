@@ -1,9 +1,9 @@
 {
-    "include": ["./src/**/*"],
-    "exclude": ["./test/**/*", "./dist/**/*", "./externals/**/*"],
+    "include": ["./src/**/*", "./test/**/*"],
+    "exclude": ["./dist/**/*", "./externals/**/*"],
     "compilerOptions": {
+        "outDir": "./dist/",
         "paths": {
-            "u2re/*": ["./externals/modules/*"],
             "u2re-src/*": ["../*"],
             "u2re/cdnImport": ["../cdnImport.mjs"],
             "u2re/dom": ["../dom.ts/src/index.ts"],

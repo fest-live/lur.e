@@ -1,4 +1,5 @@
 import { makeReactive } from 'u2re/object';
+import { $fxy, fixFx  } from '../lure/core/Binding';
 
 //
 export const getDir = (dest)=>{
@@ -6,10 +7,6 @@ export const getDir = (dest)=>{
     if (!dest?.endsWith?.("/")) { dest = dest?.trim?.()?.split?.("/")?.slice(0, -1)?.join?.("/")?.trim?.() || dest; };
     const p1 = !dest?.trim()?.endsWith("/") ? (dest+"/") : dest; return (!p1?.startsWith("/") ? ("/"+p1) : p1);
 }
-
-//
-const $fxy = Symbol.for("@fix"), fixFx = (obj) => { const fx = function(){}; fx[$fxy] = obj; return fx; }
-const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
 
 //
 export function handleError(logger, status, message) { logger?.(status, message); return null; }

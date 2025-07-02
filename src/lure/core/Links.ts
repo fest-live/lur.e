@@ -1,7 +1,7 @@
 import { boundBehaviors } from "u2re/dom";
 import { makeReactive, booleanRef, numberRef, subscribe, stringRef, computed, ref } from "u2re/object";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
-import { handleHidden, handleAttribute, triggerWithDelay } from "./Handler";
+import { handleHidden, handleAttribute } from "./Handler";
 import { bindCtrl, bindWith } from "./Binding";
 
 /**
@@ -189,14 +189,4 @@ export const refCtl = (value) => {
     let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
         (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
     })); return ctl;
-}
-
-//
-export const conditionalIndex = (condList: any[] = []) => { return computed(condList, () => condList.findIndex(cb => cb?.())); }
-export const delayedSubscribe = (ref, cb, delay = 100) => {
-    let tm: any; //= triggerWithDelay(ref, cb, delay);
-    return subscribe([ref, "value"], (v)=>{
-        if (!v && tm) { clearTimeout(tm); tm = null; } else
-        if (v && !tm) { tm = triggerWithDelay(ref, cb, delay) ?? tm; };
-    });
 }

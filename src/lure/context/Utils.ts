@@ -1,5 +1,5 @@
 import { unwrap, subscribe } from "u2re/object";
-import { $virtual, $mapped, elMap } from "../core/Binding";
+import { elMap, $virtual, $mapped } from "../core/Binding";
 
 //
 const

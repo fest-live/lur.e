@@ -66,8 +66,8 @@ export const bindCtrl = (element, ctrlCb) => {
 export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
 
 //
-const $fxy = Symbol.for("@fix"), fixFx = (obj) => { const fx = function(){}; fx[$fxy] = obj; return fx; }
-const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
+export const $fxy = Symbol.for("@fix"), fixFx = (obj) => { const fx = function(){}; fx[$fxy] = obj; return fx; }
+export const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
 
 /**
  * Универсальная функция для установки значения, подписки на изменения и обработки через handler.

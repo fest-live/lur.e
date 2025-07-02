@@ -1,4 +1,4 @@
-import { setStyleProperty, makeRAFCycle } from "u2re/dom"; const isVal = (v: any) => v != null && v !== false && (typeof v != "object" && typeof v != "function");
+import { setStyleProperty } from "u2re/dom"; const isVal = (v: any) => v != null && v !== false && (typeof v != "object" && typeof v != "function");
 type DatasetValue = string | number | boolean | null | undefined | { value?: string | number | boolean | null | undefined };
 
 //
@@ -66,24 +66,3 @@ export const handleAttribute = (el?: HTMLElement|null, prop?: string, val?: any)
     if (typeof val != "object" && typeof val != "function") el.setAttribute(prop, String(val)); else { el.removeAttribute(prop);
     if (val !== false) console.warn(`Invalid type of attribute value "${prop}":`, val); }
 };
-
-/**
- * Produces a "rAF behavior" callback, which defers calls via requestAnimationFrame cycle
- * @param {Function} cb function to call
- * @param {ReturnType<typeof makeRAFCycle>} [shed]
- * @returns {Function}
- */
-export const RAFBehavior = (cb, shed = makeRAFCycle()) => {
-    return (...args) => { return shed.shedule(() => cb?.(...args)); }
-}
-
-// usable for delayed trigger when come true, but NOT when come false
-export const triggerWithDelay = (ref, cb, delay = 100)=>{ if (ref?.value ?? ref) { return setTimeout(()=>{ if (ref.value) cb?.(); }, delay); } }
-export const delayedBehavior  = (delay = 100) => {
-    return (cb, [val], [sig]) => { let tm = triggerWithDelay(val, cb, delay); sig?.addEventListener?.("abort", ()=>{ if (tm) clearTimeout(tm); }, { once: true }); };
-}
-
-// usable for delayed visible but instant hiding
-export const delayedOrInstantBehavior = (delay = 100) => {
-    return (cb, [val], [sig]) => { let tm = triggerWithDelay(val, cb, delay); sig?.addEventListener?.("abort", ()=>{ if (tm) clearTimeout(tm); }, { once: true }); if (!tm) { cb?.(); }; };
-}
