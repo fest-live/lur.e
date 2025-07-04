@@ -75,14 +75,12 @@ export const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.de
  */
 export const $observeAttribute = (el: HTMLElement, prop: string, value: any) => {
     const wv = new WeakRef(value);
-    const cb = (mutationList)=>{
-        for (const mutation of mutationList) {
-            if (mutation.type == "attributes" && mutation.attributeName === attrName) {
-                const value = mutation?.target?.getAttribute?.(mutation.attributeName);
-                const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
-                if (mutation.oldValue != value && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
-                    { if (reVal !== value) { $set(wv, "value", value); } }
-            }
+    const cb = (mutation)=>{
+        if (mutation.type == "attributes" && mutation.attributeName === attrName) {
+            const value = mutation?.target?.getAttribute?.(mutation.attributeName);
+            const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
+            if (mutation.oldValue != value && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
+                { if (reVal !== value) { $set(wv, "value", value); } }
         }
     }
 
