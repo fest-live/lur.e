@@ -1,4 +1,4 @@
-import { subscribe, observe } from "u2re/object";
+import { subscribe, observe } from "fest/object";
 
 //
 import { appendChild, removeNotExists } from "./Utils";

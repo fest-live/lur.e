@@ -1,8 +1,8 @@
-import { observableArray } from "u2re/object";
+import { observableArray } from "fest/object";
 
 //
 import { getNode } from "../context/Utils";
-import E from "../node/Bindings";
+import E from "./Bindings";
 import M from "./Mapped";
 
 //

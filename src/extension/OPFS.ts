@@ -1,4 +1,4 @@
-import { makeReactive } from 'u2re/object';
+import { makeReactive } from 'fest/object';
 import { $fxy, fixFx  } from '../lure/core/Binding';
 
 //
@@ -230,7 +230,7 @@ export const imageImportDesc = {
 //
 export const openImageFilePicker = async ()=>{
     const $e = "showOpenFilePicker"; // @ts-ignore
-    const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("u2re/polyfill/showOpenFilePicker.mjs"))?.[$e];
+    const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
     return showOpenFilePicker(imageImportDesc);
 }
 

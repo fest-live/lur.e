@@ -1,5 +1,5 @@
-import { boundBehaviors } from "u2re/dom";
-import { makeReactive, booleanRef, numberRef, subscribe, stringRef, computed, ref } from "u2re/object";
+import { boundBehaviors } from "fest/dom";
+import { makeReactive, booleanRef, numberRef, subscribe, stringRef, computed, ref } from "fest/object";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { handleHidden, handleAttribute } from "./Handler";
 import { bindCtrl, bindWith } from "./Binding";

@@ -1,9 +1,9 @@
-import { reflectBehaviors, reflectStores, reflectMixins, Q } from "u2re/dom";
+import { reflectBehaviors, reflectStores, reflectMixins, Q } from "fest/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reflectWithStyleRules, reflectARIA } from '../context/Reflect';
 import { reflectControllers, bindEvents, bindWith } from '../core/Binding';
 
 //
-import { subscribe } from "u2re/object";
+import { subscribe } from "fest/object";
 import { createElement } from "../context/Utils";
 import { handleProperty, handleAttribute, handleHidden } from "../core/Handler";
 

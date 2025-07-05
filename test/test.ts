@@ -1,5 +1,5 @@
 // @ts-ignore
-import { ref, makeReactive, assign } from "u2re/object"; import { Q } from "u2re/dom";
+import { ref, makeReactive, assign } from "fest/object"; import { Q } from "fest/dom";
 import { css, defineElement, GLitElement, property } from "../src/extension/Glit";
 
 //

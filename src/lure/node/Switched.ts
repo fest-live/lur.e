@@ -1,4 +1,4 @@
-import { subscribe } from "u2re/object";
+import { subscribe } from "fest/object";
 import { getNode  } from "../context/Utils";
 
 //

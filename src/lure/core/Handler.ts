@@ -1,4 +1,4 @@
-import { setStyleProperty } from "u2re/dom"; const isVal = (v: any) => v != null && v !== false && (typeof v != "object" && typeof v != "function");
+import { setStyleProperty } from "fest/dom"; const isVal = (v: any) => v != null && v !== false && (typeof v != "object" && typeof v != "function");
 type DatasetValue = string | number | boolean | null | undefined | { value?: string | number | boolean | null | undefined };
 
 //

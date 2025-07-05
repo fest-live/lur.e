@@ -1,5 +1,5 @@
-import { makeReactive, subscribe } from "u2re/object";
-import { camelToKebab, handleListeners, namedStoreMaps, observeAttribute, observeBySelector } from "u2re/dom";
+import { makeReactive, subscribe } from "fest/object";
+import { camelToKebab, handleListeners, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
 
 /**
  * @type {WeakMap<any, (HTMLElement|DocumentFragment|Text)>}

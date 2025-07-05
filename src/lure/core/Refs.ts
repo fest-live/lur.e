@@ -1,4 +1,4 @@
-import { stringRef, ref, numberRef, booleanRef } from "u2re/object";
+import { stringRef, ref, numberRef, booleanRef } from "fest/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink } from "./Links";
 
 //

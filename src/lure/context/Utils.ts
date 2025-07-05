@@ -1,4 +1,4 @@
-import { unwrap, subscribe } from "u2re/object";
+import { unwrap, subscribe } from "fest/object";
 import { elMap, $virtual, $mapped } from "../core/Binding";
 
 //

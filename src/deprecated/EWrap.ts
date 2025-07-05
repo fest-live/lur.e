@@ -1,5 +1,5 @@
-import { observableArray } from "u2re/object";
-import { reflectBehaviors, reflectStores, reflectMixins } from "u2re/dom";
+import { observableArray } from "fest/object";
+import { reflectBehaviors, reflectStores, reflectMixins } from "fest/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reformChildren, reflectWithStyleRules, reflectARIA } from '../utils/Reflect';
 
 //

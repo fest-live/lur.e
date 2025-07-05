@@ -1,4 +1,4 @@
-import { observe } from "u2re/object";
+import { observe } from "fest/object";
 import { getNode } from "../context/Utils";
 import { $mapped } from "../core/Binding";
 import { reformChildren } from "../context/Reflect";
