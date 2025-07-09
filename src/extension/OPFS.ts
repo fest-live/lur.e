@@ -54,11 +54,11 @@ export function WrapPromise(promise) {
                 { return target[prop].bind(target); }
 
             //
-            return Promise.try(async () => {
+            return WrapPromise(Promise.try(async () => {
                 const obj = await target, value = obj?.[prop];
                 if (typeof value == 'function') { return value.bind(obj); }
                 return value;
-            });
+            }));
         }, // @ts-ignore
         set(target, prop, value) {
             target = target?.[$fxy] ?? target;
@@ -83,7 +83,7 @@ export async function getDirectoryHandle(rootHandle, relPath, { create = false }
 export function openDirectory(rootHandle, relPath, options: {create: boolean} = {create: false}, logger = defaultLogger) {
     let mapCache = makeReactive(new Map<any, any>());
     async function updateCache() {
-        const entries = await Array.fromAsync((await dirHandle).entries());
+        const entries = await Array.fromAsync((await dirHandle)?.entries?.() || []);
         const mapping = (nh: any)=>{ mapCache.set(nh?.[0], nh?.[1]); };
         const removed = Array.from(mapCache.keys()).map((key)=> entries.find((nh)=>nh?.[0] == key));
         removed.forEach((nh)=>{ if (nh) mapCache.delete(nh?.[0]); });
@@ -100,15 +100,18 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
             if (prop === 'dirHandle')  { return dirHandle; }
 
             //
-            if (typeof mapCache?.[prop] === 'function')
+            if (typeof mapCache?.[prop] == 'function')
                 { return mapCache?.[prop]?.bind?.(mapCache); }
 
             //
-            return WrapPromise(fixFx(Promise.try(async ()=>{
+            const complex = WrapPromise(fixFx(Promise.try(async ()=>{
                 const handle = await dirHandle;
-                if (handle?.[prop] != null) { return (typeof handle?.[prop] == "function" ? handle?.[prop]?.bind(handle) : handle?.[prop]); }
-                if (!mapCache) await updateCache(); return mapCache[prop];
+                if (handle?.[prop] != null) { return handle; }
+                if (!mapCache) await updateCache(); return mapCache;
             })));
+
+            //
+            return complex?.[prop];
         },
 
         // @ts-ignore
@@ -118,7 +121,7 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
 
     //
     let dirHandle: any = getDirectoryHandle(rootHandle, relPath, options, logger)?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
-    dirHandle.then((handle)=>obs?.observe?.(handle)); updateCache(); const fx: any = function(){}, pxy = new Proxy(fx, handler); return pxy;
+    dirHandle?.then?.(async (handle)=>obs?.observe?.((await handle?.getHandle?.() ?? handle))); updateCache(); const fx: any = function(){}, pxy = new Proxy(fx, handler); return pxy;
 }
 
 
@@ -274,7 +277,7 @@ export const provide = async (req: string | Request = "", rw = false) => {
         const $path = path?.replace?.("/user/", "")?.trim?.();
         const clean = (($path?.split?.("/") || [$path])?.filter?.((p)=>!!p?.trim?.()) || [""])?.join?.("/") || "";
         const npt = ((clean && clean != "/") ? "/" + clean + "/" : clean) || "/";
-        const handle = getFileHandle(navigator?.storage?.getDirectory?.(), npt + fn, { create: true });
+        const handle = getFileHandle(await navigator?.storage?.getDirectory?.(), npt + fn, { create: true });
         if (rw) { handle?.then?.((h)=>h?.createWritable?.()); }
         return handle?.then?.((h)=>h?.getFile?.());
     } else {
