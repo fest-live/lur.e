@@ -9,7 +9,7 @@ export const deleteStyleProperty = (el: HTMLElement, name: string) => el.style.r
 //
 export const handleHidden = (element, hidden) => {
     const isNotHidden = (!hidden && typeof hidden != "string") ? true : (hidden == "" ? false : true);
-    if (typeof hidden == "object" && hidden && "value" in hidden) { hidden = hidden.value }; // @ts-ignore
+    if (typeof hidden == "object" && hidden != null && ("value" in hidden || hidden?.value != null)) { hidden = hidden.value }; // @ts-ignore
     if (element instanceof HTMLInputElement) { element.hidden = !isNotHidden; } else
         { if (isNotHidden) { delete element.dataset?.hidden; } else { element.dataset.hidden = ""; } }
     return element;
@@ -19,7 +19,7 @@ export const handleHidden = (element, hidden) => {
 export const handleProperty = (el?: HTMLElement|null, prop?: string, val?: any)=>{
     if (!prop || !el) return; prop = kebabToCamel(prop)!; // @ts-ignore
     if (el?.[prop] === val) return; // @ts-ignore
-    if (typeof val == "object" && val && "value" in val) val = val.value; // @ts-ignore
+    if (typeof val == "object" && val != null && ("value" in val || val?.value != null)) val = val.value; // @ts-ignore
     if (el && el?.[prop] !== val)
         { if (typeof val == "undefined") { delete el[prop]; } else { el[prop] = val; } }
 }
@@ -28,7 +28,7 @@ export const handleProperty = (el?: HTMLElement|null, prop?: string, val?: any)=
 export const handleDataset = (el?: HTMLElement|null, prop?: string, val?: DatasetValue) => {
     if (!prop || !el) return; prop = kebabToCamel(prop)!; // @ts-ignore
     if (el.dataset[prop] === val) return; // @ts-ignore
-    if (typeof val == "object" && val && "value" in val) val = val.value; // @ts-ignore
+    if (typeof val == "object" && val != null && ("value" in val || val?.value != null)) val = val.value; // @ts-ignore
     if (val == null || val === false) delete el.dataset[prop]; else // @ts-ignore
     if (typeof val != "object" && typeof val != "function") el.dataset[prop] = String(val); else
         { delete el.dataset[prop]; console.warn(`Invalid type of attribute value "${prop}":`, val); }
@@ -36,8 +36,8 @@ export const handleDataset = (el?: HTMLElement|null, prop?: string, val?: Datase
 
 //
 export const handleStyleChange = (el?: HTMLElement|null, prop?: string, val?: any) => {
-    if (!prop || typeof prop != "string" || !el) return;
-    if (typeof val == "object" && val && "value" in val && !(typeof CSSStyleValue !== "undefined" && val instanceof CSSStyleValue)) val = val.value;
+    if (!prop || typeof prop != "string" || !el || val === undefined || typeof val == "undefined") return;
+    if (typeof val == "object" && val != null && ("value" in val || val?.value != null) && !(typeof CSSStyleValue !== "undefined" && val instanceof CSSStyleValue)) val = val.value;
     if (val == null) deleteStyleProperty(el, prop); else
     if (isVal(val) || (typeof CSSStyleValue !== "undefined" && val instanceof CSSStyleValue)) { setStyleProperty(el, prop, val); } else
         { deleteStyleProperty(el, prop); if (val !== false) console.warn(`Invalid value for style property "${prop}":`, val); }
@@ -60,8 +60,8 @@ export const handleStyleChange = (el?: HTMLElement|null, prop?: string, val?: an
 //
 export const handleAttribute = (el?: HTMLElement|null, prop?: string, val?: any) => {
     if (!prop || !el) return; prop = camelToKebab(prop)!;
-    if (el.getAttribute?.(prop) === val) return;
-    if (typeof val == "object" && val && "value" in val) val = val.value;
+    if (el.getAttribute?.(prop) === val || val === undefined || typeof val == "undefined") return;
+    if (typeof val == "object" && ("value" in val || val?.value != null)) val = val.value;
     if (val == null || val === false) el.removeAttribute(prop); else
     if (typeof val != "object" && typeof val != "function") el.setAttribute(prop, String(val)); else { el.removeAttribute(prop);
     if (val !== false) console.warn(`Invalid type of attribute value "${prop}":`, val); }

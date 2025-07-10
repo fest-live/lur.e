@@ -61,9 +61,9 @@ export const visibleLink = (exists: any|null, element, initial?) => {
  * @param {T|{value:T}} [initial]
  * @returns {ReturnType<typeof stringRef>}
  */
-export const attrLink = (exists: any|null, element, attribute: string, initial?) => {
+export const attrLink = (exists: any|null, element, attribute: string, initial?) => { //http://192.168.0.200:5173/
     const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
-    if (!element) return; const val = exists ?? stringRef(def); val.value ??= def; return bindWith(element, attribute, val, handleAttribute, null, true);
+    if (!element) return; const val = exists ?? stringRef(def); val.value ||= def; return bindWith(element, attribute, val, handleAttribute, null, true);
 }
 
 /**
@@ -75,13 +75,13 @@ export const attrLink = (exists: any|null, element, attribute: string, initial?)
  */
 export const sizeLink = (exists: any|null, element, axis: "inline" | "block", box: ResizeObserverBoxOptions = "border-box") => {
     const def = element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"];
-    const val = exists ?? numberRef(def); val.value ??= def;
+    const val = exists ?? numberRef(def); val.value ||= (def ?? val.value) || 1;
     const obs = new ResizeObserver((entries) => {
         if (box == "border-box")  { val.value = axis == "inline" ? entries[0].borderBoxSize[0].inlineSize  : entries[0].borderBoxSize[0].blockSize };
         if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
         if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
     });
-    if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.element ?? element?.self ?? element, { box }); }; return val;
+    if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.element ?? element?.self ?? element, { box }); };
     return ()=>obs?.disconnect?.();
 }
 
@@ -94,7 +94,7 @@ export const sizeLink = (exists: any|null, element, axis: "inline" | "block", bo
  */
 export const scrollLink = (exists: any|null, element, axis: "inline" | "block", initial?) => {
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (initial?.value ?? initial) }); };
-    const val = exists ?? numberRef((axis == "inline" ? element?.scrollLeft : element?.scrollTop) || 0);
+    const def = element?.[axis == "inline" ? "scrollLeft" : "scrollTop"], val = exists ?? numberRef(def || 0); val.value ||= (def ?? val.value) || 0;
     const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "inline" ? element?.scrollLeft : element?.scrollTop) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (val?.value ?? val) })});
     const scb = [(ev) => { val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true }], wel = new WeakRef(element);
     element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };

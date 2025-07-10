@@ -114,12 +114,13 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     controller?.abort?.(); controller = new AbortController();
 
     //
+    const wel = el instanceof WeakRef ? el : new WeakRef(el); el = wel?.deref?.() ?? el;
     const wv = new WeakRef(value);
     const un = subscribe?.([value, "value"], (curr, _, old) => {
         if (set?.deref?.()?.[prop] === wv?.deref?.() || !set?.deref?.()) {
             if (typeof wv?.deref?.()?.[$behavior] == "function")
-                { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(el?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, el]); } else
-                { handler(el?.deref?.(), prop, curr); }
+                { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]); } else
+                { handler(wel?.deref?.(), prop, curr); }
         }
     });
 
