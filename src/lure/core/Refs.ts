@@ -1,5 +1,5 @@
 import { stringRef, ref, numberRef, booleanRef } from "fest/object";
-import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink } from "./Links";
+import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink } from "./Links";
 
 //
 export const makeRef = (type, link, ...args)=>{
@@ -8,6 +8,7 @@ export const makeRef = (type, link, ...args)=>{
 }
 
 //
+export const orientRef = (...args)=>makeRef(stringRef, orientLink, ...args);
 export const attrRef = (...args)=>makeRef(stringRef, attrLink, ...args);
 export const valueRef = (...args)=>makeRef(stringRef, valueLink, ...args);
 export const valueAsNumberRef = (...args)=>makeRef(numberRef, valueAsNumberLink, ...args);

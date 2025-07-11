@@ -1,4 +1,4 @@
-import { boundBehaviors } from "fest/dom";
+import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges } from "fest/dom";
 import { makeReactive, booleanRef, numberRef, subscribe, stringRef, computed, ref } from "fest/object";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { handleHidden, handleAttribute } from "./Handler";
@@ -189,4 +189,20 @@ export const refCtl = (value) => {
     let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
         (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
     })); return ctl;
+}
+
+//
+export const orientLink = (exists)=>{
+    const orient = orientationNumberMap?.[getCorrectOrientation()] || 0;
+    const def = Number(orient) || 0;
+    const val = exists ?? numberRef(def); val.value ??= def;
+
+    // !Change orientation? You are seious?!
+    //subscribe([exists, "value"], (orient)=>{ // pickup name...
+        //screen?.orientation?.lock?.($NAME$?.(orient));
+    //});
+
+    return whenAnyScreenChanges(()=>{
+        val.value = orientationNumberMap?.[getCorrectOrientation()] || 0;
+    });
 }
