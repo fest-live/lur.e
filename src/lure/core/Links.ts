@@ -111,11 +111,12 @@ export const sizeLink = (exists: any|null, element, axis: "inline" | "block", bo
  * @param {*} [initial]
  * @returns {ReturnType<typeof numberRef>}
  */
-export const scrollLink = (exists: any|null, element, axis: "inline" | "block", initial?) => {
-    if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (initial?.value ?? initial) }); };
-    const def = element?.[axis == "inline" ? "scrollLeft" : "scrollTop"], val = exists ?? numberRef(def || 0); val.value ||= (def ?? val.value) || 0;
-    const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "inline" ? element?.scrollLeft : element?.scrollTop) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "inline" ? "left" : "top"]: (val?.value ?? val) })});
-    const scb = [(ev) => { val.value = (axis == "inline" ? ev?.target?.scrollLeft : ev?.target?.scrollTop) || 0; }, { passive: true }], wel = new WeakRef(element);
+export const scrollLink = (exists: any|null, element, axis: "inline" | "block" = "inline", initial?) => {
+    if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (initial?.value ?? initial) }); };
+    const def = element?.[axis == "block" ? "scrollTop" : "scrollLeft"];
+    const val = exists ?? numberRef(def || 0); val.value ||= (def ?? val.value) || 1; val.value ||= (def ?? val.value) || 0;
+    const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "block" ? element?.scrollTop : element?.scrollLeft) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (val?.value ?? val) })});
+    const scb = [(ev) => { val.value = (axis == "block" ? ev?.target?.scrollTop : ev?.target?.scrollLeft) || 0; }, { passive: true }], wel = new WeakRef(element);
     element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };
 }
 
