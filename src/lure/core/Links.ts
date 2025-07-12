@@ -4,6 +4,25 @@ import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { handleHidden, handleAttribute } from "./Handler";
 import { bindCtrl, bindWith } from "./Binding";
 
+
+
+
+//
+export const getPropertyValue = (src, name)=>{
+    if ("computedStyleMap" in src) {
+        return src?.computedStyleMap?.()?.get(name)?.value || 0;
+    }
+    return parseFloat(getComputedStyle(src)?.getPropertyValue?.(name) || "0") || 0;
+}
+
+//
+export const getPadding = (src, axis)=>{
+    if (axis == "inline") { return (getPropertyValue(src, "padding-inline-start") + getPropertyValue(src, "padding-inline-end")); };
+    return (getPropertyValue(src, "padding-block-start") + getPropertyValue(src, "padding-block-end"));
+}
+
+
+
 /**
  * Make a two-way <-> ref to a localStorage string value, auto-update on change and storage events
  * @template T
@@ -74,7 +93,7 @@ export const attrLink = (exists: any|null, element, attribute: string, initial?)
  * @returns {ReturnType<typeof numberRef>}
  */
 export const sizeLink = (exists: any|null, element, axis: "inline" | "block", box: ResizeObserverBoxOptions = "border-box") => {
-    const def = element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"];
+    const def = box == "border-box" ? element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"] : (element?.[axis == "inline" ? "clientWidth" : "clientHeight"] - getPadding(element, axis));
     const val = exists ?? numberRef(def); val.value ||= (def ?? val.value) || 1;
     const obs = new ResizeObserver((entries) => {
         if (box == "border-box")  { val.value = axis == "inline" ? entries[0].borderBoxSize[0].inlineSize  : entries[0].borderBoxSize[0].blockSize };
