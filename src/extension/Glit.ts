@@ -1,4 +1,3 @@
-import { importCdn } from "fest/cdnImport";
 import { subscribe, makeReactive, ref } from "fest/object";
 import { Q, addRoot, loadInlineStyle, setAttributesIfNull } from "fest/dom";
 import { E } from "../lure/node/Bindings";
@@ -212,8 +211,8 @@ export const GLitElement = (derrivate = HTMLElement) => {
         protected onRender(weak?: WeakRef<any>) { return this; }
         protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
 
-        // @ts-ignore
-        public loadThemeLibrary() { const root = this.shadowRoot; return Promise.try(importCdn, ["fest/theme"])?.then?.((module)=>{ if (root) { return (this.themeStyle ??= module?.default?.(root)); } }).catch(console.warn.bind(console)); }
+        //
+        public loadThemeLibrary(module) { const root = this.shadowRoot; return (this.themeStyle ??= typeof module == "function" ? module?.(root) : module); }
         public createShadowRoot() { return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as any; }
         public connectedCallback() {
             const weak = new WeakRef(this);
