@@ -196,6 +196,8 @@ export const GLitElement = (derrivate = HTMLElement) => {
         //
         styles?: any;
         initialAttributes?: any; // you can set initial attributes
+
+        // TODO: @elementRef()
         themeStyle?: HTMLStyleElement;
         render = (weak?: WeakRef<any>) => { return document.createElement("slot"); }
 
@@ -212,13 +214,15 @@ export const GLitElement = (derrivate = HTMLElement) => {
         protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
 
         //
-        public loadThemeLibrary(module) { const root = this.shadowRoot; return (this.themeStyle ??= typeof module == "function" ? module?.(root) : module); }
+        public loadThemeLibrary(module) { const root = this.shadowRoot; (this.themeStyle ??= typeof module == "function" ? module?.(root) : module); if (this.themeStyle) { root?.append?.(this.themeStyle); }; return this.themeStyle; }
         public createShadowRoot() { return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as any; }
         public connectedCallback() {
             const weak = new WeakRef(this);
             if (!this.#initialized) { this.#initialized = true;
                 const shadowRoot = this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }); this.$init?.(); this[inRenderKey] = true;
                 setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.call(this, weak);
+
+                //! currenrly, `this.themeStyle` will not appear when rendering (not supported)
                 this.#framework = E(shadowRoot, {}, [this.themeStyle, this.#defaultStyle, this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)])
                 this.onRender?.call?.(this, weak); delete this[inRenderKey];
             }
