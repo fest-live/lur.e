@@ -81,7 +81,7 @@ export const appendChild = (element, cp, mapper?) => {
  */
 export const replaceChildren = (element, cp, mapper?, index?) => {
     if (mapper) { cp = mapper?.(cp) ?? cp; }
-    const cn = element?.childNodes?.[index];
+    const cn = index >= 0 ? element?.childNodes?.[index] : null;
     if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else {
         const node = getNode(cp);
         if (cn instanceof Text && node instanceof Text) { if (cn.textContent != node.textContent) { cn.textContent = node.textContent; } } else

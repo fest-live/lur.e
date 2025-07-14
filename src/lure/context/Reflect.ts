@@ -1,8 +1,8 @@
 import { subscribe, observe } from "fest/object";
 
 //
-import { appendChild, removeNotExists } from "./Utils";
-import { bindHandler, $mapped, $behavior, addToBank } from "../core/Binding";
+import { appendChild, removeNotExists, replaceChildren } from "./Utils";
+import { bindHandler, $mapped, $behavior, addToBank, hasInBank } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../core/Handler";
 
 // !
@@ -89,7 +89,7 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 
 // TODO! use handlerMap registry
 export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    if (!children) return element; if (!addToBank(element, children, "childNodes", reflectChildren)) { return element; }
+    if (!children || hasInBank(element, children)) return element;
 
     //
     const ref = new WeakRef(element);
@@ -118,7 +118,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 
         //
         if (element && (isArray && ["@add", "@set", "@remove"].indexOf(op) >= 0) || (!isArray)) {
-            if (obj != null && (old != null || op == "@set"   )) { toBeReplace.push([element, obj ?? old, mapper]); };
+            if (obj != null && (old != null || op == "@set"   )) { toBeReplace.push([element, obj ?? old, mapper, idx]); };
             if (obj != null && (old == null || op == "@add"   )) { toBeAppend .push([element, obj ?? old, mapper]); };
             if (old != null && (obj == null || op == "@remove")) { toBeRemoved.push([element, old ?? obj, mapper]); };
         }
@@ -130,6 +130,9 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
                 { children?.[$behavior]?.(merge, [toBeAppend, toBeReplace, toBeRemoved], [controller.signal, op, ref, args]); } else { merge(); }
         }
     });
+
+    //
+    addToBank(element, unsub, "childNodes", reflectChildren);
     if (unsub) children[Symbol.dispose] ??= unsub; return element;
 }
 

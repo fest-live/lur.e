@@ -35,7 +35,7 @@ export class XBlock extends GLitElement() {
 }
 
 //
-const children = ref("Движуха!");
+const children = makeReactive(["Разруха!"]);//ref("!");
 const style = makeReactive({
     backgroundColor: "darkred",
     color: "white",
@@ -53,7 +53,8 @@ const dom = H`<${"x-block#test.test"} on:click=${()=>alert("Тетрис!")} sty
 
 //
 setTimeout(()=>{
-    children.value = "Разруха!";
+    //children.value = "Разруха!";
+    children[0] = "Движуха!";
     style.backgroundColor = "darkblue";
 }, 1000);
 

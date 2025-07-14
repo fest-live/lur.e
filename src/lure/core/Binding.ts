@@ -93,9 +93,15 @@ export const $observeAttribute = (el: HTMLElement, prop: string, value: any) => 
 // @ts-ignore // Stable Universal Key Assignation - eg. [S.U.K.A.]
 export const removeFromBank = (el, handler, prop) => { const bank = elMap?.get(el)?.get?.(handler); if (bank) { /*bank[prop]?.();*/ delete bank[prop]; } }
 export const      addToBank = (el, unsub, prop, handler) => { // @ts-ignore
-    const bank = elMap?.getOrInsert?.(el, new WeakMap());
+    const bank      = elMap?.getOrInsert?.(el, new WeakMap());
     const handlerMap = bank?.getOrInsert?.(handler, {}) ?? {};
     handlerMap?.[prop]?.(); handlerMap[prop] = unsub; return true;
+}
+
+//
+export const hasInBank = (el, handle)=>{
+    const bank: any = elMap?.get?.(el);
+    return !!bank?.has?.(handle);
 }
 
 /**

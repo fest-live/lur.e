@@ -1,9 +1,10 @@
-import { makeReactive } from "fest/object";
+import { makeReactive, unwrap } from "fest/object";
 
 //
 import { getNode } from "../context/Utils";
 import E from "./Bindings";
 import M from "./Mapped";
+import { reflectChildren } from "../context/Reflect";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
@@ -74,11 +75,15 @@ export function htmlBuilder({ createElement = null } = {}) {
                 // make iteratable array and set
                 if (typeof el == "function") {
                     if (node.parentNode?.getAttribute?.("iterate") || node.parentNode?.childNodes?.length <= 1)
-                        { cmdBuffer.push(()=>{ node.remove(); }); mapped.set(node.parentNode, el); }
+                        { cmdBuffer.push(()=>{ node.remove(); }); mapped.set(node?.parentNode, el); }
                 } else {
                     cmdBuffer.push(()=>{
-                        const n = getNode(Array.isArray(el) ? M(el) : el);
-                        if (el == null || el === false || !n) { node.remove(); } else { node.replaceWith(n); }
+                        if (Array.isArray(unwrap(el)))
+                            { const $parent = node?.parentNode; node?.remove?.(); reflectChildren($parent, el); } else
+                            {
+                                const n = getNode(el);
+                                if (el == null || el === false || n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); }
+                            }
                     });
                 }
             }
