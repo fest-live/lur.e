@@ -1,5 +1,6 @@
-import { stringRef, ref, numberRef, booleanRef } from "fest/object";
+import { stringRef, ref, numberRef, booleanRef, deref, isValidObj, makeReactive } from "fest/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink } from "./Links";
+import { WRef } from "fest/dom";
 
 //
 export const makeRef = (type, link, ...args)=>{
@@ -18,3 +19,15 @@ export const checkedRef = (...args)=>makeRef(booleanRef, checkedLink, ...args);
 export const scrollRef = (...args)=>makeRef(numberRef, scrollLink, ...args);
 export const visibleRef = (...args)=>makeRef(booleanRef, visibleLink, ...args);
 export const matchMediaRef = (...args)=>makeRef(booleanRef, matchMediaLink, ...args);
+
+/**
+ * Создаёт слабую реактивную ссылку на объект.
+ *
+ * @param {any} [initial] - Объект для обёртки или реактив.
+ * @param {any} [behavior] - Дополнительное поведение реактива.
+ * @returns {any} - Реактивная ссылка или WeakRef.
+ */
+export const makeWeakRef = (initial?: any, behavior?: any)=>{
+    const obj = deref(initial);
+    return isValidObj(obj) ? makeReactive(WRef(obj)) : ref(obj, behavior);
+};
