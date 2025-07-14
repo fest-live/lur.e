@@ -1,4 +1,4 @@
-import { observableArray } from "fest/object";
+import { makeReactive } from "fest/object";
 
 //
 import { getNode } from "../context/Utils";
@@ -34,7 +34,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
 
         //
         if (!EMap.has(el)) { cmdBuffer.push(()=>{
-            const ex = E(el, {aria, attributes, dataset, style, properties, on, ctrls}, mapped.has(el) ? M(iterate, mapped.get(el)) : observableArray(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
+            const ex = E(el, {aria, attributes, dataset, style, properties, on, ctrls}, mapped.has(el) ? M(iterate, mapped.get(el)) : makeReactive(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
             doAction?.(el); EMap.set(el, ex); return ex;
         }); };
     }; return el;

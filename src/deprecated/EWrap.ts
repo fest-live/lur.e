@@ -1,4 +1,4 @@
-import { observableArray } from "fest/object";
+import { makeReactive } from "fest/object";
 import { reflectBehaviors, reflectStores, reflectMixins } from "fest/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reformChildren, reflectWithStyleRules, reflectARIA } from '../utils/Reflect';
 
@@ -86,7 +86,7 @@ export class El {
      */
     constructor(selector, params = {}, children?) {
         /** @type {any[]} */
-        this.children = children || observableArray([]);
+        this.children = children || makeReactive([]);
         /** @type {Params} */
         this.params = params;
         /** @type {string} */
