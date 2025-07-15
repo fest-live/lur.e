@@ -10,7 +10,7 @@
             "fest/lure": ["./src/index.ts"],
             "fest/object": ["../object.ts/src/index.ts"],
             "fest/uniform": ["../uniform.ts/src/index.ts"],
-            "fest/theme": ["../theme.core/src/index.ts"],
+            "fest/theme": ["../theme.core/src/index.ts"]
         },
         "target": "ESNext",
         "module": "ESNext",
@@ -32,6 +32,6 @@
         "inlineSourceMap": true,
         "sourceMap": false,
         "typeRoots": ["plugins/global.d.ts"],
-        "experimentalDecorators": true,
-    },
+        "experimentalDecorators": true
+    }
 }
