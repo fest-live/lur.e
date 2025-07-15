@@ -1,4 +1,4 @@
-import { makeReactive, subscribe } from "fest/object";
+import { addToCallChain, makeReactive, subscribe } from "fest/object";
 import { camelToKebab, handleListeners, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
 
 /**
@@ -39,8 +39,8 @@ export const bindBeh = (element, store, behavior) => {
         const usub = subscribe?.(store, (value, prop, old) => {
             const valMap = namedStoreMaps.get(name);
             behavior?.([value, prop, old], [weak, store, valMap?.get(weak.deref?.())]);
-        });;
-        if (usub) store[Symbol.dispose] ??= usub;
+        });
+        addToCallChain(store, Symbol.dispose, usub);
     }; return element;
 }
 
@@ -133,7 +133,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     //
     let obs: any = null; if (withObserver) { obs = $observeAttribute(el, prop, value); };
     const unsub = () => { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
-    if (unsub) value[Symbol.dispose] ??= unsub; alives.register(el, unsub); if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
+    addToCallChain(value, Symbol.dispose, unsub); alives.register(el, unsub); if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
 }
 
 //
@@ -213,14 +213,14 @@ export const bindForms  = (fields = document.documentElement, wrapper = ".u2-inp
 
     //
     const wf = new WeakRef(fields);
-    state[Symbol.dispose] ??= () => {
+    addToCallChain(state, Symbol.dispose, () => {
         const fields = wf?.deref?.();
         fields?.removeEventListener?.("input", onChange);
         fields?.removeEventListener?.("change", onChange);
         fields?.removeEventListener?.("u2-appear", appearHandler);
         observer?.disconnect?.();
         unsubscribe?.();
-    }
+    });
 
     //
     return state;

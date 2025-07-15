@@ -1,4 +1,4 @@
-import { subscribe } from "fest/object";
+import { addToCallChain, subscribe } from "fest/object";
 import { getNode  } from "../context/Utils";
 
 //
@@ -88,7 +88,7 @@ export const S = (params: SwitchedParams) => { // @ts-ignore
     return inProx.getOrInsert(params, ()=>{
         const px = new Proxy(params, new SwHandler());
         const us = subscribe([params?.current, "value"], () => (px as any)._onUpdate());
-        if (us) px[Symbol.dispose] ??= us; return px;
+        if (us) addToCallChain(px, Symbol.dispose, us); return px;
     });
 }
 

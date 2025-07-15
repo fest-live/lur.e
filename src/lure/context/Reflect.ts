@@ -1,4 +1,4 @@
-import { subscribe, observe } from "fest/object";
+import { addToCallChain, subscribe, observe } from "fest/object";
 
 //
 import { appendChild, removeNotExists, replaceChildren } from "./Utils";
@@ -18,8 +18,8 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
             handleAttribute(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         });
-        if (usub) attributes[Symbol.dispose] ??= usub;
-        if (usub) element[Symbol.dispose] ??= usub;
+        addToCallChain(attributes, Symbol.dispose, usub);
+        addToCallChain(element, Symbol.dispose, usub);
     } else
     { console.warn("Invalid attributes object:", attributes); }
 }
@@ -33,8 +33,8 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
             handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         });
-        if (usub) aria[Symbol.dispose] ??= usub;
-        if (usub) element[Symbol.dispose] ??= usub;
+        addToCallChain(aria, Symbol.dispose, usub);
+        addToCallChain(element, Symbol.dispose, usub);
     } else
     { console.warn("Invalid ARIA object:", aria);}; return element;
 }
@@ -48,8 +48,8 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
             handleDataset(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleDataset, weak);
         });
-        if (usub) dataset[Symbol.dispose] ??= usub;
-        if (usub) element[Symbol.dispose] ??= usub;
+        addToCallChain(dataset, Symbol.dispose, usub);
+        addToCallChain(element, Symbol.dispose, usub);
     } else
     { console.warn("Invalid dataset object:", dataset); }; return element;
 }
@@ -67,8 +67,8 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
         });
 
         //
-        if (usub) styles[Symbol.dispose] ??= usub;
-        if (usub) element[Symbol.dispose] ??= usub;
+        addToCallChain(styles, Symbol.dispose, usub);
+        addToCallChain(element, Symbol.dispose, usub);
     } else
     { console.warn("Invalid styles object:", styles); } return element;
 }
@@ -90,8 +90,8 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     }); };
 
     //
-    if (usub) properties[Symbol.dispose] ??= usub;
-    if (usub) element[Symbol.dispose] ??= usub;
+    addToCallChain(properties, Symbol.dispose, usub);
+    addToCallChain(element, Symbol.dispose, usub);
 
     // if any input
     element.addEventListener("change", onChange); return element;
@@ -143,8 +143,8 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 
     //
     addToBank(element, unsub, "childNodes", reflectChildren);
-    if (unsub) children[Symbol.dispose] ??= unsub;
-    if (unsub) element[Symbol.dispose] ??= unsub; return element;
+    addToCallChain(children, Symbol.dispose, unsub);
+    addToCallChain(element, Symbol.dispose, unsub); return element;
 }
 
 //
@@ -161,8 +161,8 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
     });
 
     //
-    if (usub) classList[Symbol.dispose] ??= usub;
-    if (usub) element[Symbol.dispose] ??= usub; return element;
+    addToCallChain(classList, Symbol.dispose, usub);
+    addToCallChain(element, Symbol.dispose, usub); return element;
 }
 
 // forcely update child nodes (and erase current content)

@@ -1,11 +1,11 @@
-import { stringRef, ref, numberRef, booleanRef, deref, isValidObj, makeReactive } from "fest/object";
+import { stringRef, ref, numberRef, booleanRef, deref, isValidObj, makeReactive, addToCallChain } from "fest/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink } from "./Links";
 import { WRef } from "fest/dom";
 
 //
 export const makeRef = (type, link, ...args)=>{
     const rf = (type ?? ref)?.(null), usub = link?.(rf, ...args);
-    if (usub && rf) rf[Symbol.dispose] ??= usub; return rf;
+    if (usub && rf) addToCallChain(rf, Symbol.dispose, usub); return rf;
 }
 
 //
