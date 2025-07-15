@@ -19,6 +19,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         });
         if (usub) attributes[Symbol.dispose] ??= usub;
+        if (usub) element[Symbol.dispose] ??= usub;
     } else
     { console.warn("Invalid attributes object:", attributes); }
 }
@@ -33,6 +34,7 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         });
         if (usub) aria[Symbol.dispose] ??= usub;
+        if (usub) element[Symbol.dispose] ??= usub;
     } else
     { console.warn("Invalid ARIA object:", aria);}; return element;
 }
@@ -47,6 +49,7 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
             bindHandler(wel, value, prop, handleDataset, weak);
         });
         if (usub) dataset[Symbol.dispose] ??= usub;
+        if (usub) element[Symbol.dispose] ??= usub;
     } else
     { console.warn("Invalid dataset object:", dataset); }; return element;
 }
@@ -61,8 +64,11 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
         const usub = subscribe(styles, (value, prop: any)=>{
             handleStyleChange(wel?.deref?.(), prop, value);
             bindHandler(wel, value, prop, handleStyleChange, weak);
-        });;
+        });
+
+        //
         if (usub) styles[Symbol.dispose] ??= usub;
+        if (usub) element[Symbol.dispose] ??= usub;
     } else
     { console.warn("Invalid styles object:", styles); } return element;
 }
@@ -78,10 +84,14 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     };
 
     //
-    properties[Symbol.dispose] ??= ()=> { wel?.deref?.()?.removeEventListener?.("change", onChange); subscribe(properties, (value, prop: any)=>{
+    const usub = ()=> { wel?.deref?.()?.removeEventListener?.("change", onChange); subscribe(properties, (value, prop: any)=>{
         handleProperty(wel?.deref?.(), prop, value);
         bindHandler(wel, value, prop, handleProperty, weak);
     }); };
+
+    //
+    if (usub) properties[Symbol.dispose] ??= usub;
+    if (usub) element[Symbol.dispose] ??= usub;
 
     // if any input
     element.addEventListener("change", onChange); return element;
@@ -133,7 +143,8 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 
     //
     addToBank(element, unsub, "childNodes", reflectChildren);
-    if (unsub) children[Symbol.dispose] ??= unsub; return element;
+    if (unsub) children[Symbol.dispose] ??= unsub;
+    if (unsub) element[Symbol.dispose] ??= unsub; return element;
 }
 
 //
@@ -147,8 +158,11 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
                 { if (!el.classList.contains(value)) { el.classList.add(value); }
             }
         }
-    });;
-    if (usub) classList[Symbol.dispose] ??= usub; return element;
+    });
+
+    //
+    if (usub) classList[Symbol.dispose] ??= usub;
+    if (usub) element[Symbol.dispose] ??= usub; return element;
 }
 
 // forcely update child nodes (and erase current content)
