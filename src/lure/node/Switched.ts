@@ -85,7 +85,7 @@ export class SwHandler implements ProxyHandler<SwitchedParams> {
  * @returns {Sw} Экземпляр Sw.
  */
 export const S = (params: SwitchedParams) => { // @ts-ignore
-    return inProx.getOrInsert(params, ()=>{
+    return inProx?.getOrInsertComputed?.(params, ()=>{
         const px = new Proxy(params, new SwHandler());
         const us = subscribe([params?.current, "value"], () => (px as any)._onUpdate());
         if (us) addToCallChain(px, Symbol.dispose, us); return px;
