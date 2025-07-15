@@ -1,4 +1,4 @@
-import { subscribe, makeReactive, ref } from "fest/object";
+import { subscribe, makeReactive, autoRef } from "fest/object";
 import { Q, addRoot, loadInlineStyle, setAttributesIfNull } from "fest/dom";
 import { E } from "../lure/node/Bindings";
 
@@ -39,7 +39,7 @@ const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "checked") { return checkedRef.bind(null, holder); }
     if (source == "value") { return valueRef.bind(null, holder); }
     if (source == "value-as-number") { return valueAsNumberRef.bind(null, holder); }
-    return ref;
+    return autoRef;
 }
 
 //
