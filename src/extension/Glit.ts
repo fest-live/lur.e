@@ -198,13 +198,14 @@ export const GLitElement = (derrivate = HTMLElement) => {
         initialAttributes?: any; // you can set initial attributes
 
         // TODO: @elementRef()
-        themeStyle?: HTMLStyleElement;
+        styleLibs: HTMLStyleElement[] = [];
         render = (weak?: WeakRef<any>) => { return document.createElement("slot"); }
 
         // @ts-ignore
         constructor(...args) {
             super(); const shadowRoot = addRoot(this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }));
             shadowRoot.append(this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
+            this.styleLibs = [];
         }
 
         //
@@ -214,7 +215,7 @@ export const GLitElement = (derrivate = HTMLElement) => {
         protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
 
         //
-        public loadThemeLibrary(module) { const root = this.shadowRoot; (this.themeStyle ??= typeof module == "function" ? module?.(root) : module); if (this.themeStyle) { root?.append?.(this.themeStyle); }; return this.themeStyle; }
+        public loadStyleLibrary($module) { const root = this.shadowRoot; const module = typeof $module == "function" ? $module?.(root) : $module; this.styleLibs.push(module); if (this.styleLibs) { root?.append?.(module); }; return this; }
         public createShadowRoot() { return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as any; }
         public connectedCallback() {
             const weak = new WeakRef(this);
@@ -222,8 +223,8 @@ export const GLitElement = (derrivate = HTMLElement) => {
                 const shadowRoot = this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }); this.$init?.(); this[inRenderKey] = true;
                 setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.call(this, weak);
 
-                //! currenrly, `this.themeStyle` will not appear when rendering (not supported)
-                this.#framework = E(shadowRoot, {}, [this.themeStyle, this.#defaultStyle, this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)])
+                //! currenrly, `this.styleLibs` will not appear when rendering (not supported)
+                this.#framework = E(shadowRoot, {}, [...(this.styleLibs||[]), this.#defaultStyle, this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)])
                 this.onRender?.call?.(this, weak); delete this[inRenderKey];
             }
             return this;
