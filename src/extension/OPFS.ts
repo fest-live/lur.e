@@ -1,5 +1,4 @@
-import { makeReactive } from 'fest/object';
-import { Promised } from 'fest/dom';
+import { makeReactive, Promised } from 'fest/object';
 
 //
 export const getDir = (dest)=>{
