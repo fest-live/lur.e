@@ -1,5 +1,5 @@
 import { makeReactive } from 'fest/object';
-import { $fxy, fixFx  } from '../lure/core/Binding';
+import { Promised } from 'fest/dom';
 
 //
 export const getDir = (dest)=>{
@@ -46,32 +46,6 @@ export function getMimeTypeByFilename(filename) {
 }
 
 //
-export function WrapPromise(promise) {
-    return new Proxy<any>(promise, {
-        get(target, prop, receiver) {
-            target = target?.[$fxy] ?? target;
-            if (prop === 'then' || prop === 'catch' || prop === 'finally')
-                { return target[prop].bind(target); }
-
-            //
-            return WrapPromise(Promise.try(async () => {
-                const obj = await target, value = obj?.[prop];
-                if (typeof value == 'function') { return value.bind(obj); }
-                return value;
-            }));
-        }, // @ts-ignore
-        set(target, prop, value) {
-            target = target?.[$fxy] ?? target;
-            return Promise.try(async () => Reflect.set(await target, prop, value));
-        },
-        apply(target, thisArg, args) {
-            target = target?.[$fxy] ?? target;
-            return Promise.try(async () => Reflect.apply(await target, thisArg, args));
-        }
-    });
-}
-
-//
 export async function getDirectoryHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
     try {
         const parts = relPath.split('/').filter(Boolean); let dir = rootHandle;
@@ -83,6 +57,7 @@ export async function getDirectoryHandle(rootHandle, relPath, { create = false }
 export function openDirectory(rootHandle, relPath, options: {create: boolean} = {create: false}, logger = defaultLogger) {
     let mapCache = makeReactive(new Map<any, any>());
     async function updateCache() {
+        // @ts-ignore
         const entries = await Array.fromAsync((await dirHandle)?.entries?.() || []);
         const mapping = (nh: any)=>{ mapCache.set(nh?.[0], nh?.[1]); };
         const removed = Array.from(mapCache.keys()).map((key)=> entries.find((nh)=>nh?.[0] == key));
@@ -103,12 +78,12 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
             if (typeof mapCache?.[prop] == 'function')
                 { return mapCache?.[prop]?.bind?.(mapCache); }
 
-            //
-            const complex = WrapPromise(fixFx(Promise.try(async ()=>{
+            // @ts-ignore
+            const complex = Promised(Promise.try?.(async ()=>{
                 const handle = await dirHandle;
                 if (handle?.[prop] != null) { return handle; }
                 if (!mapCache) await updateCache(); return mapCache;
-            })));
+            }));
 
             //
             return complex?.[prop];
