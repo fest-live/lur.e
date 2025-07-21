@@ -28,8 +28,8 @@ const defaultStyle  = document.createElement("style");
 const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "attr")  { return attrRef.bind(null, holder, name || ""); }
     if (source == "media") { return matchMediaRef; }
-    if (source == "query")        { return (val)=>Q?.(val || name || "", holder); }
-    if (source == "query-shadow") { return (val)=>Q?.(val || name || "", holder?.shadowRoot ?? holder); }
+    if (source == "query")        { return (val)=>Q?.(name || val || "", holder); }
+    if (source == "query-shadow") { return (val)=>Q?.(name || val || "", holder?.shadowRoot ?? holder); }
     if (source == "localStorage") { return localStorageRef; }
     if (source == "inline-size") { return sizeRef.bind(null, holder, "inline", whenBoxValid(name) || "border-box"); }
     if (source == "content-box") { return sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "content-box"); }
@@ -117,7 +117,8 @@ export function property({attribute, source, name, from}: { attribute?: string|b
         };
         target[defKeys][key] = {
             get() {
-                const inRender = this[inRenderKey], sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, this) : this);
+                const ROOT = this;//name?.includes?.("shadow") ? (this?.shadowRoot ?? this) : this;
+                const inRender = this[inRenderKey], sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT);
 
                 //
                 let store = propStore.get(this), stored = store?.get?.(key);
@@ -128,7 +129,8 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                 if (stored?.value != null && !inRender) { return stored.value; }; return stored;
             },
             set(newValue: any) {
-                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, this) : this);
+                const ROOT = this;//name?.includes?.("shadow") ? (this?.shadowRoot ?? this) : this;
+                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT);
 
                 //
                 let store = propStore.get(this);
@@ -216,7 +218,7 @@ export const GLitElement = (derrivate = HTMLElement) => {
         protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
 
         //
-        public loadStyleLibrary($module) { const root = this.shadowRoot; const module = typeof $module == "function" ? $module?.(root) : $module; this.styleLibs.push(module); if (this.styleLibs) { root?.append?.(module); }; return this; }
+        public loadStyleLibrary($module) { const root = this.shadowRoot; const module = typeof $module == "function" ? $module?.(root) : $module; this.styleLibs.push(module); if (this.styleLibs) { root?.prepend?.(module); }; return this; }
         public createShadowRoot() { return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as any; }
         public connectedCallback() {
             const weak = new WeakRef(this);
@@ -225,7 +227,7 @@ export const GLitElement = (derrivate = HTMLElement) => {
                 setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.call(this, weak);
 
                 //! currenrly, `this.styleLibs` will not appear when rendering (not supported)
-                this.#framework = E(shadowRoot, {}, [...(this.styleLibs||[]), this.#defaultStyle, this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)])
+                this.#framework = E(shadowRoot, {}, [this.#defaultStyle, ...(this.styleLibs||[]), this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)])
                 this.onRender?.call?.(this, weak); delete this[inRenderKey];
             }
             return this;
