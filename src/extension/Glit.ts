@@ -1,5 +1,6 @@
 import { subscribe, makeReactive, autoRef } from "fest/object";
-import { Q, addRoot, loadInlineStyle, setAttributesIfNull } from "fest/dom";
+import { addRoot, loadInlineStyle, setAttributesIfNull } from "fest/dom";
+import { Q } from "../lure/node/Queried";
 import { E } from "../lure/node/Bindings";
 
 //

@@ -1,7 +1,7 @@
 import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges } from "fest/dom";
 import { makeReactive, booleanRef, numberRef, subscribe, stringRef, computed, ref } from "fest/object";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
-import { handleHidden, handleAttribute } from "./Handler";
+import { handleHidden, handleAttribute } from "../../../../dom.ts/src/$mixin$/Handler";
 import { bindCtrl, bindWith } from "./Binding";
 
 

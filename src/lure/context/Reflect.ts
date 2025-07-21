@@ -3,7 +3,7 @@ import { addToCallChain, subscribe, observe } from "fest/object";
 //
 import { appendChild, removeNotExists, replaceChildren } from "./Utils";
 import { bindHandler, $mapped, $behavior, addToBank, hasInBank } from "../core/Binding";
-import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../core/Handler";
+import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../../../../dom.ts/src/$mixin$/Handler";
 
 // !
 // TODO! - add support for un-subscribe for everyone...
