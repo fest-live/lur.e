@@ -150,7 +150,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 //
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return element; const wel = new WeakRef(element);
-    const usub = subscribe(classList, (value: string)=>{
+    const usub = observe(classList, (value: string)=>{
         const el = wel?.deref?.();
         if (el) {
             if (typeof value == "undefined" || value == null)

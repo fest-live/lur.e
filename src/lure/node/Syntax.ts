@@ -14,12 +14,13 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
     if (el != null) {
         const attributes = {};
         // TODO: advanced attributes support
-        let style = "", dataset = {}, properties = {}, on = {}, aria = {}, iterate = [], doAction: any = null, ctrls = new Map();
+        let style = "", dataset = {}, properties = {}, on = {}, aria = {}, iterate = [], doAction: any = null, ctrls = new Map(), classList: any = [];
         for (const attr of Array.from(el?.attributes || [])) {
             const isCustom = attr.value?.startsWith("#{");
             const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match(/^#\{(.+)\}$/)?.[1] || "0")] : attr.value;
 
             // Symbol '@' for other framework-based compatibility
+            if (attr.name == "classList" || attr.name == "classlist") { classList = value ?? classList; } else
             if (attr.name == "ref") { doAction = value; } else
             if (attr.name == "style") { style = value; } else
             if (attr.name == "iterate") { iterate = value; mapped.set(el, mapped.get(el) ?? findIterator(el, psh)); } else
@@ -35,7 +36,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
 
         //
         if (!EMap.has(el)) { cmdBuffer.push(()=>{
-            const ex = E(el, {aria, attributes, dataset, style, properties, on, ctrls}, mapped.has(el) ? M(iterate, mapped.get(el)) : makeReactive(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
+            const ex = E(el, {aria, attributes, classList, dataset, style, properties, on, ctrls}, mapped.has(el) ? M(iterate, mapped.get(el)) : makeReactive(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
             doAction?.(el); EMap.set(el, ex); return ex;
         }); };
     }; return el;
