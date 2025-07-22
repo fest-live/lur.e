@@ -9,7 +9,7 @@ import { reflectChildren } from "../context/Reflect";
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
 const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType === Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.includes("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
-const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[])=>{
+const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[], fragment?)=>{
     if (!el) return el;
     if (el != null) {
         const attributes = {};
@@ -74,12 +74,12 @@ export function htmlBuilder({ createElement = null } = {}) {
         //
         const mapped = new WeakMap(), cmdBuffer: any[] = [];
         const parser = new DOMParser(), doc = parser.parseFromString(parts.join("").trim(), "text/html"), template = (doc.querySelector("template")?.content ?? doc.body), walker: any = template ? document.createTreeWalker(template, NodeFilter.SHOW_ALL, null) : null;
-        const fragment = document.createDocumentFragment();
+        const fragment = document.createDocumentFragment(); //template instanceof DocumentFragment ? template : document.createDocumentFragment();
         do {
             const node: any = walker.currentNode;
             if (node.nodeType === Node.ELEMENT_NODE) {
-                removeFromRoot(node, fragment);
-                connectElement(node as HTMLElement, atb, psh, mapped, cmdBuffer);
+                cmdBuffer.push(()=>{ removeFromRoot(node, fragment); });
+                connectElement(node as HTMLElement, atb, psh, mapped, cmdBuffer, fragment);
             } else
             if (node.nodeType === Node.COMMENT_NODE && node.nodeValue.includes("o:")) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
@@ -104,11 +104,10 @@ export function htmlBuilder({ createElement = null } = {}) {
         } while (walker?.nextNode?.());
 
         //
-        cmdBuffer.forEach((c)=>c?.());
-        return fragment?.childNodes?.length > 1 ? fragment : fragment?.childNodes?.[0];
-        //if (fragment instanceof DocumentFragment) { return fragment; } else
-        //if (fragment?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag?.append?.(...Array.from(fragment.childNodes).filter((e:any)=>(e!=null)) as any); return frag; }
-        //return fragment?.childNodes?.[0];
+        cmdBuffer.forEach((c)=>c?.()); // @ts-ignore
+        if (fragment instanceof DocumentFragment) { return (Array.from(fragment?.childNodes)?.length > 1 ? fragment : fragment?.childNodes?.[0]); } else // @ts-ignore
+        if (fragment?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag?.append?.(...Array.from(fragment.childNodes).filter((e:any)=>(e!=null)) as any); return frag; } // @ts-ignore
+        return fragment?.childNodes?.[0];
     };
 }
 
