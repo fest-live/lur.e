@@ -8,7 +8,7 @@ import { reflectChildren } from "../context/Reflect";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
-const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType === Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.startsWith("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
+const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType === Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.includes("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
 const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[])=>{
     if (!el) return el;
     if (el != null) {
@@ -42,6 +42,14 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
 }
 
 //
+const removeFromRoot = (node: any, fragment?)=>{
+    if (node?.parentNode?.tagName == "TEMPLATE" || node?.parentNode?.tagName == "BODY" || node?.parentNode?.tagName == "HTML") {
+        node?.remove?.();
+        if (node?.tagName != "TEMPLATE" && node?.tagName != "BODY" && node?.tagName != "HTML") { fragment?.append?.(node); }
+    }
+}
+
+//
 export function html(strings, ...values) { return htmlBuilder({ createElement: null })(strings, ...values); }
 export function htmlBuilder({ createElement = null } = {}) {
     return function(strings, ...values) {
@@ -65,18 +73,24 @@ export function htmlBuilder({ createElement = null } = {}) {
 
         //
         const mapped = new WeakMap(), cmdBuffer: any[] = [];
-        const parser = new DOMParser(), doc = parser.parseFromString(parts.join("").trim(), "text/html"), fragment = (doc.querySelector("template")?.content ?? doc.body), walker: any = fragment ? document.createTreeWalker(fragment, NodeFilter.SHOW_ALL, null) : null;
+        const parser = new DOMParser(), doc = parser.parseFromString(parts.join("").trim(), "text/html"), template = (doc.querySelector("template")?.content ?? doc.body), walker: any = template ? document.createTreeWalker(template, NodeFilter.SHOW_ALL, null) : null;
+        const fragment = document.createDocumentFragment();
         do {
             const node: any = walker.currentNode;
-            if (node.nodeType === Node.ELEMENT_NODE) { connectElement(node as HTMLElement, atb, psh, mapped, cmdBuffer); } else
-            if (node.nodeType === Node.COMMENT_NODE && node.nodeValue.startsWith("o:")) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                removeFromRoot(node, fragment);
+                connectElement(node as HTMLElement, atb, psh, mapped, cmdBuffer);
+            } else
+            if (node.nodeType === Node.COMMENT_NODE && node.nodeValue.includes("o:")) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
 
                 // make iteratable array and set
                 if (typeof el == "function") {
-                    if (node.parentNode?.getAttribute?.("iterate") || node.parentNode?.childNodes?.length <= 1)
-                        { cmdBuffer.push(()=>{ node.remove(); }); mapped.set(node?.parentNode, el); }
+                    removeFromRoot(node, fragment);
+                    if (node?.parentNode?.getAttribute?.("iterate") || node?.parentNode?.childNodes?.length <= 1)
+                        { cmdBuffer.push(()=>{ node?.remove?.(); }); mapped.set(node?.parentNode, el); }
                 } else {
+                    removeFromRoot(node, fragment);
                     cmdBuffer.push(()=>{
                         if (Array.isArray(unwrap(el)))
                             { const $parent = node?.parentNode; node?.remove?.(); reflectChildren($parent, el); } else
@@ -91,9 +105,10 @@ export function htmlBuilder({ createElement = null } = {}) {
 
         //
         cmdBuffer.forEach((c)=>c?.());
-        if (fragment instanceof DocumentFragment) { return fragment; } else
-        if (fragment?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag?.append?.(...Array.from(fragment.childNodes).filter((e:any)=>(e!=null)) as any); return frag; }
-        return fragment?.childNodes?.[0];
+        return fragment?.childNodes?.length > 1 ? fragment : fragment?.childNodes?.[0];
+        //if (fragment instanceof DocumentFragment) { return fragment; } else
+        //if (fragment?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag?.append?.(...Array.from(fragment.childNodes).filter((e:any)=>(e!=null)) as any); return frag; }
+        //return fragment?.childNodes?.[0];
     };
 }
 

@@ -167,10 +167,14 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
 
 // forcely update child nodes (and erase current content)
 export const reformChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    if (!children) return element; const ref = new WeakRef(element); removeNotExists(element, children, mapper);
+    if (!children) return element; const ref = new WeakRef(element);
     mapper = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
-    (children = (children?.[$mapped] ? (children as any)?.children : children) ?? children).map((nd)=>{
-        const element = ref.deref(); if (!element) return nd;
-        appendChild(element, nd, mapper); return nd;
+
+    //
+    const cvt = (children = (children?.[$mapped] ? (children as any)?.children : children) ?? children)?.map?.((nd)=>{ if (mapper != null) { nd = mapper?.(nd); return nd; };});
+    removeNotExists(element, cvt); cvt.forEach((nd)=>{
+        const element = ref.deref();
+        if (!element) return nd;
+        appendChild(element, nd);
     }); return element;
 }

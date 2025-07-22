@@ -52,7 +52,7 @@ export const createElement = (selector): HTMLElement | DocumentFragment => {
  * @returns {Node|HTMLElement|DocumentFragment|Text|*} DOM-узел либо результат отображения.
  */
 export const getNode = (E, mapper?: Function, index?: number) => {
-    if (mapper) { return (E = getNode(mapper?.(E, index))); }
+    if (mapper != null) { return (E = getNode(mapper?.(E, index))); }
     if (E instanceof Node || E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) { return E; } else
     if (typeof E?.value == "string" || typeof E?.value == "number") { return T(E); } else
     if (typeof E == "function") { return getNode(E()); } else  // mapped arrays always empties after
@@ -67,7 +67,7 @@ export const getNode = (E, mapper?: Function, index?: number) => {
  * @param {Function} [mapper] - Дополнительная функция отображения.
  */
 export const appendChild = (element, cp, mapper?) => {
-    if (mapper) { cp = mapper?.(cp) ?? cp; }
+    if (mapper != null) { cp = mapper?.(cp) ?? cp; }
     if (cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.[$virtual] || cp?.[$mapped])) { element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp?.children))); } else
         if (Array.isArray(unwrap(cp))) { element?.append?.(...unwrap(cp?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp))); } else { const node = getNode(cp); if (node != null && (!node?.parentNode || node?.parentNode != element)) { element?.append?.(node); } }
 }
@@ -80,7 +80,7 @@ export const appendChild = (element, cp, mapper?) => {
  * @param {Function} [mapper] - Дополнительная функция отображения.
  */
 export const replaceChildren = (element, cp, mapper?, index?) => {
-    if (mapper) { cp = mapper?.(cp) ?? cp; }
+    if (mapper != null) { cp = mapper?.(cp) ?? cp; }
     const cn = index >= 0 ? element?.childNodes?.[index] : null;
     if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else {
         const node = getNode(cp);
@@ -115,7 +115,7 @@ export const removeChild = (element, cp, mapper?, index = -1) => {
  * @param {Function} mapper - Функция отображения над child.
  * @returns {Element} Родительский элемент.
  */
-export const removeNotExists = (element, children, mapper) => {
+export const removeNotExists = (element, children, mapper?) => {
     const uw = Array.from(unwrap(children))?.map?.((cp) => getNode(mapper?.(cp) ?? cp));
     Array.from(element.childNodes).forEach((nd: any) => { if (uw!?.find?.((cp) => (cp == nd))) nd?.remove?.(); });
     return element;

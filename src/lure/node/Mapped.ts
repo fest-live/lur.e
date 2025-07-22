@@ -25,11 +25,11 @@ export class Mp {
      * @param {(el: any) => any} [mapCb] - Функция отображения (map callback) для элементов.
      */
     constructor(observable, mapCb = (el) => el) {
+        this.#reMap = new WeakMap();
         this.#fragments = document.createDocumentFragment();
         this.#mapCb = mapCb ?? ((el) => el);
-        this.#reMap = new WeakMap();
-        this._onUpdate();
         observe?.(this.#observable = observable, () => this._onUpdate());
+        this._onUpdate();
     }
 
     /**
@@ -73,10 +73,11 @@ export class Mp {
      * @returns {any}
      */
     _onUpdate() {
+        Array.from(this.#fragments?.childNodes)?.forEach?.((nd) => nd?.remove?.());
         return reformChildren(
-            (getNode(this.#observable?.[0], this.mapper)?.parentNode ?? this.#fragments),
+            (getNode(this.#observable?.[0], this.mapper.bind(this))?.parentElement ?? this.#fragments),
             this.#observable,
-            this.mapper
+            this.mapper.bind(this)
         );
     }
 }
