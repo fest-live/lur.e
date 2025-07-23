@@ -124,7 +124,10 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                 let store = propStore.get(this), stored = store?.get?.(key);
                 if (stored == null && source != null) {
                     if (!store) { propStore.set(this, store = new Map()); }
-                    if (!store?.has?.(key)) { store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source))); }
+                    if (!store?.has?.(key)) {
+                        store?.set?.(key, { value: ""});
+                        store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source)));
+                    }
                 }
                 if (stored?.value != null && !inRender) { return stored.value; }; return stored;
             },
@@ -136,6 +139,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                 let store = propStore.get(this);
                 if (!store) { propStore.set(this, store = new Map()); }
                 if (!store?.has?.(key)) {
+                    store?.set?.(key, {});
                     if (newValue?.value != null)
                         { store?.set?.(key, newValue); } else
                         { store?.set?.(key, (typeof newValue === 'object' && newValue !== null) ? makeReactive(newValue) : defineSource(source, sourceTarget, name || key)?.(newValue)); }

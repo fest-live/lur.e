@@ -146,7 +146,7 @@ export const valueLink = (exists: any|null, element) => {
     const dbf = bindCtrl(element?.self ?? element, valueCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
         if (element && element?.value != v) {
-            element.value = v;
+            element.value = v || "";
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
     });

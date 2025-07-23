@@ -91,11 +91,11 @@ export const $observeAttribute = (el: HTMLElement, prop: string, value: any) => 
 };
 
 // @ts-ignore // Stable Universal Key Assignation - eg. [S.U.K.A.]
-export const removeFromBank = (el, handler, prop) => { const bank = elMap?.get(el)?.get?.(handler); if (bank) { /*bank[prop]?.();*/ delete bank[prop]; } }
-export const      addToBank = (el, unsub, prop, handler) => { // @ts-ignore
+export const removeFromBank = (el, handler, prop) => { const bank = elMap?.get(el)?.get?.(handler); if (bank) { const old = bank[prop]?.[1]; delete bank[prop]; old?.(); } }
+export const      addToBank = (el, handler, prop, forLink) => { // @ts-ignore
     const bank      = elMap?.getOrInsert?.(el, new WeakMap());
     const handlerMap = bank?.getOrInsert?.(handler, {}) ?? {};
-    handlerMap?.[prop]?.(); handlerMap[prop] = unsub; return true;
+    handlerMap?.[prop]?.[1]?.(); handlerMap[prop] = forLink; return true;
 }
 
 //
@@ -134,7 +134,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     let obs: any = null; if (withObserver) { obs = $observeAttribute(el, prop, value); };
     const unsub = () => { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
     addToCallChain(value, Symbol.dispose, unsub); alives.register(el, unsub);
-    if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
+    if (!addToBank(el, handler, prop, [value, unsub])) { return unsub; } // prevent data disruption
 }
 
 //

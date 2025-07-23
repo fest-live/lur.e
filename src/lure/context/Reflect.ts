@@ -142,7 +142,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
     });
 
     //
-    addToBank(element, unsub, "childNodes", reflectChildren);
+    addToBank(element, reflectChildren, "childNodes", [children, unsub]);
     addToCallChain(children, Symbol.dispose, unsub);
     addToCallChain(element, Symbol.dispose, unsub); return element;
 }
