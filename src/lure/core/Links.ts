@@ -1,11 +1,7 @@
-import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges } from "fest/dom";
+import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute } from "fest/dom";
 import { makeReactive, booleanRef, numberRef, subscribe, stringRef, computed, ref } from "fest/object";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
-import { handleHidden, handleAttribute } from "../../../../dom.ts/src/$mixin$/Handler";
 import { bindCtrl, bindWith } from "./Binding";
-
-
-
 
 //
 export const getPropertyValue = (src, name)=>{
@@ -60,8 +56,8 @@ export const matchMediaLink = (exists: any|null, condition: string) => {
  * @returns {ReturnType<typeof booleanRef>}
  */
 export const visibleLink = (exists: any|null, element, initial?) => {
-    const def = (initial?.value ?? initial) ?? (element?.getAttribute?.("data-hidden") == null);
-    const val = exists ?? booleanRef(def), inv = computed([val, "value"], (val)=>!val);
+    const def = (initial?.value ?? (typeof initial != "object" ? initial : null)) ?? (element?.getAttribute?.("data-hidden") == null);
+    const val = exists ?? booleanRef(!!def), inv = computed([val, "value"], (val)=>!val);
     const usb = bindWith(element, "data-hidden", inv, handleHidden);
     const evf = [(ev) => { val.value = ev?.name == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
     element?.addEventListener?.("u2-hidden" , ...evf); element?.addEventListener?.("u2-visible", ...evf);

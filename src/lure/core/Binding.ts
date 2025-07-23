@@ -133,7 +133,8 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     //
     let obs: any = null; if (withObserver) { obs = $observeAttribute(el, prop, value); };
     const unsub = () => { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
-    addToCallChain(value, Symbol.dispose, unsub); alives.register(el, unsub); if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
+    addToCallChain(value, Symbol.dispose, unsub); alives.register(el, unsub);
+    if (!addToBank(el, unsub, prop, handler)) { return unsub; } // prevent data disruption
 }
 
 //
