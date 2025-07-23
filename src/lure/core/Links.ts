@@ -57,10 +57,11 @@ export const matchMediaLink = (exists: any|null, condition: string) => {
  */
 export const visibleLink = (exists: any|null, element, initial?) => {
     const def = (initial?.value ?? (typeof initial != "object" ? initial : null)) ?? (element?.getAttribute?.("data-hidden") == null);
-    const val = exists ?? booleanRef(!!def), inv = computed([val, "value"], (val)=>!val);
-    const usb = bindWith(element, "data-hidden", inv, handleHidden);
-    const evf = [(ev) => { val.value = ev?.name == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
-    element?.addEventListener?.("u2-hidden" , ...evf); element?.addEventListener?.("u2-visible", ...evf);
+    const val = exists ?? booleanRef(!!def);
+    const usb = bindWith(element, "data-hidden", val, handleHidden);
+    const evf = [(ev) => { val.value = ev?.type == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
+    element?.addEventListener?.("u2-hidden" , ...evf);
+    element?.addEventListener?.("u2-visible", ...evf);
     return () => {
         const element = wel?.deref?.(); usb?.();
         element?.removeEventListener?.("u2-hidden" , ...evf);
@@ -76,7 +77,7 @@ export const visibleLink = (exists: any|null, element, initial?) => {
  * @param {T|{value:T}} [initial]
  * @returns {ReturnType<typeof stringRef>}
  */
-export const attrLink = (exists: any|null, element, attribute: string, initial?) => { //http://192.168.0.200:5173/
+export const attrLink = (exists: any|null, element, attribute: string, initial?) => {
     const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
     if (!element) return; const val = exists ?? stringRef(def); val.value ||= def; return bindWith(element, attribute, val, handleAttribute, null, true);
 }
