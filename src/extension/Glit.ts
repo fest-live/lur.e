@@ -1,4 +1,4 @@
-import { subscribe, makeReactive, autoRef } from "fest/object";
+import { autoRef, makeReactive } from "fest/object";
 import { addRoot, loadInlineStyle, setAttributesIfNull } from "fest/dom";
 import { Q } from "../lure/node/Queried";
 import { E } from "../lure/node/Bindings";
@@ -155,26 +155,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
 }
 
 //
-export const useVars = (holder, vars)=>{ vars?.entries?.()?.forEach?.(([key, vr])=>subscribe([vr,'value'], (val)=>(holder?.style ?? holder)?.setProperty?.(`--${key}`, val, ""))); return holder; }
-export const css = (strings, ...values)=>{
-    let props: string[] = [], parts: string[] = [], vars: Map<string, any> = new Map();
-    for (let i = 0; i < strings.length; i++) {
-        parts.push(strings?.[i] || "");
-        if (i < values.length) {
-            const val = values?.[i];
-            if (val?.value != null) {
-                const name = generateName();
-                if (typeof val?.value == "number") { props.push(`@property --${name} { syntax: "<number>"; initial-value: ${val?.value}; inherits: true; };`); };
-                parts.push(`var(--${name}, ${val?.value})`); vars.set(name, val);
-            } else
-            if (typeof val != "object" && typeof val != "function") { parts.push(`${val}`); }
-        }
-    }
-    return {props, css: parts.join(""), vars};
-}
-
-//
-export const loadCachedStyles = (bTo, src, withVars = true)=>{
+export const loadCachedStyles = (bTo, src)=>{
     const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
     const cached = source.get(src); let styleElement = cached?.styleElement, vars = cached?.vars;
     if (!cached) {
@@ -183,7 +164,7 @@ export const loadCachedStyles = (bTo, src, withVars = true)=>{
         if (typeof src == "function") { const cs = src?.call?.(bTo, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
         source.set(src, { css: styles, props, vars, styleElement: (styleElement = (styles as any) instanceof HTMLStyleElement ? styles : loadInlineStyle(styles, bTo, "ux-layer")) });
     }
-    if (vars && withVars) { useVars(this, vars); }; return styleElement;
+    return styleElement;
 }
 
 //
