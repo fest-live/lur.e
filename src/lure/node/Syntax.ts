@@ -35,7 +35,8 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
         //
         if (!EMap.has(el)) { cmdBuffer.push(()=>{
             const ex = E(el, {aria, attributes, classList, dataset, style, properties, on, ctrls}, mapped.has(el) ? M(iterate, mapped.get(el)) : makeReactive(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
-            doAction?.(el); EMap.set(el, ex); return ex;
+            if (typeof doAction == "function") { doAction?.(el); } else if (doAction != null && typeof doAction == "object") { doAction.value = el; }
+            if (el != ex) { EMap.set(el, ex); }; return ex;
         }); };
     }; return el;
 }
@@ -65,7 +66,7 @@ export function htmlBuilder({ createElement = null } = {}) {
                 } else {
                     const $betweenQuotes = strings[i]?.trim()?.match(/^['"]/) && (strings[i+1]?.trim()?.match?.(/['"]$/) ?? true);
                     const $stylePattern = strings[i]?.trim()?.startsWith?.(";"); const $pt = strings[i+1]?.search?.(/^[\s\n\r\>]/);
-                    const $attributePattern = strings[i]?.trim()?.endsWith?.("=") && ($pt != null ? $pt : true);
+                    const $attributePattern = strings[i]?.trim()?.endsWith?.("=") && !($pt != null ? $pt : false);
                     const isAttr = ($stylePattern || $attributePattern || $betweenQuotes);
                     const psi = psh.length, ati = atb.length; parts.push(isAttr ? `"#{${ati}}"` : `<!--o:${psi}-->`);
                     if (values?.[i] != null) { (isAttr ? atb : psh).push(values?.[i]); };

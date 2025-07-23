@@ -61,11 +61,11 @@ export const visibleLink = (exists: any|null, element, initial?) => {
     const usb = bindWith(element, "data-hidden", val, handleHidden);
     const evf = [(ev) => { val.value = ev?.type == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
     element?.addEventListener?.("u2-hidden" , ...evf);
-    element?.addEventListener?.("u2-visible", ...evf);
+    element?.addEventListener?.("u2-appear", ...evf);
     return () => {
         const element = wel?.deref?.(); usb?.();
         element?.removeEventListener?.("u2-hidden" , ...evf);
-        element?.removeEventListener?.("u2-visible", ...evf);
+        element?.removeEventListener?.("u2-appear", ...evf);
     };
 }
 
