@@ -84,7 +84,7 @@ export class SwHandler implements ProxyHandler<SwitchedParams> {
  * @param {any} params - Параметры для создания Sw.
  * @returns {Sw} Экземпляр Sw.
  */
-export const S = (params: SwitchedParams) => { // @ts-ignore
+export const I = (params: SwitchedParams) => { // @ts-ignore
     return inProx?.getOrInsertComputed?.(params, ()=>{
         const px = new Proxy(params, new SwHandler());
         const us = subscribe([params?.current, "value"], () => (px as any)._onUpdate());
@@ -93,4 +93,4 @@ export const S = (params: SwitchedParams) => { // @ts-ignore
 }
 
 //
-export default S;
+export default I;

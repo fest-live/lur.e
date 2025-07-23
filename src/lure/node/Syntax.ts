@@ -14,15 +14,13 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
     if (el != null) {
         const attributes = {};
         // TODO: advanced attributes support
-        let style = "", dataset = {}, properties = {}, on = {}, aria = {}, iterate = [], doAction: any = null, ctrls = new Map(), classList: any = [];
+        let style = {}, dataset = {}, properties = {}, on = {}, aria = {}, iterate = [], doAction: any = null, ctrls = new Map(), classList: any = [];
         for (const attr of Array.from(el?.attributes || [])) {
-            const isCustom = attr.value?.startsWith("#{");
-            const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match(/^#\{(.+)\}$/)?.[1] || "0")] : attr.value;
-
-            // Symbol '@' for other framework-based compatibility
+            const isCustom = attr.value?.includes?.("#{");
+            const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match?.(/^#\{(.+)\}$/)?.[1] ?? "0")] : attr.value;
+            if (attr.name == "style" && isCustom) { style = value; } else
             if (attr.name == "classList" || attr.name == "classlist") { classList = value ?? classList; } else
             if (attr.name == "ref") { doAction = value; } else
-            if (attr.name == "style") { style = value; } else
             if (attr.name == "iterate") { iterate = value; mapped.set(el, mapped.get(el) ?? findIterator(el, psh)); } else
             if (attr.name == "dataset") { dataset = value; } else
             if (attr.name == "properties") { properties = value; } else
@@ -65,7 +63,10 @@ export function htmlBuilder({ createElement = null } = {}) {
                     if (dat.id) parts.push(` id="${dat.id}"`);
                     if (dat.className) parts.push(` class="${dat.className}"`);
                 } else {
-                    const isAttr = strings[i]?.trim()?.endsWith?.("=") && (strings[i+1]?.search?.(/^[\s\n\r\>]/) != null);
+                    const $betweenQuotes = strings[i]?.trim()?.match(/^['"]/) && (strings[i+1]?.trim()?.match?.(/['"]$/) ?? true);
+                    const $stylePattern = strings[i]?.trim()?.startsWith?.(";");
+                    const $attributePattern = strings[i]?.trim()?.endsWith?.("=") && ((strings[i+1]?.search?.(/^[\s\n\r\>]/) != null) ?? true);
+                    const isAttr = ($stylePattern || $attributePattern || $betweenQuotes);
                     const psi = psh.length, ati = atb.length; parts.push(isAttr ? `"#{${ati}}"` : `<!--o:${psi}-->`);
                     if (values?.[i] != null) { (isAttr ? atb : psh).push(values?.[i]); };
                 }
