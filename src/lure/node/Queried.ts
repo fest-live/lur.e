@@ -1,10 +1,22 @@
-import { getStyleRule, observeAttribute, observeAttributeBySelector, observeBySelector } from "fest/dom";
+import { getStyleRule, handleAttribute, observeAttribute, observeAttributeBySelector, observeBySelector } from "fest/dom";
+import { bindWith, elMap } from "../core/Binding";
 
 //
 export const queryExtensions = {
     logAll (ctx) { return ()=> console.log("attributes:", [...ctx?.attributes].map(x => ({ name: x.name, value: x.value })) ); },
     append (ctx) { return (...args)=> ctx?.append?.(...([...args||[]]?.map?.((e)=>e?.element??e) || args)) },
     current(ctx) { return ctx; } // direct getter
+}
+
+//
+export const existsQueries = new WeakMap<any, Map<string|HTMLElement, any>>();
+export const alreadyUsed   = new WeakMap();
+
+//
+const containsOrSelf = (a, b)=>{
+    if (a == b) return true;
+    if (a?.contains?.(b) || a?.getRootNode()?.host?.contains?.(b)) return true;
+    return false;
 }
 
 //
@@ -75,7 +87,12 @@ export class UniversalElementHandler {
         const eventName = this._redirectToBubble(name);
         const wrap = (ev) => {
             let tg = (ev?.target ?? ev?.currentTarget) ?? (typeof this.selector != "string" ? this.selector : null) ?? (target);
-            if (target?.matches?.(this.selector) || target?.querySelector?.(this.selector)?.contains?.(tg) || tg?.matches?.(this.selector))
+            tg = tg?.element ?? tg;
+            if (
+                (typeof this.selector == "string" ? target?.matches?.(this.selector) : this.selector == target) ||
+                (typeof this.selector == "string" ? tg?.matches?.(this.selector) : this.selector == tg) ||
+                containsOrSelf(typeof this.selector == "string" ? target?.querySelector?.(this.selector) : this.selector, tg)
+            )
                 { cb?.call?.(tg, ev); }
         };
         target?.addEventListener?.(eventName, wrap, option);
@@ -103,18 +120,14 @@ export class UniversalElementHandler {
 
         // Extensions
         if (name in queryExtensions) { return queryExtensions?.[name]?.(selected); }
-        if (name === "length" && array?.length) { return array?.length; }
+        if (name === "length" && array?.length != null) { return array?.length; }
 
         //
         if (name === "_updateSelector") return (sel)=>(this.selector = sel || this.selector);
         if (["style", "attributeStyleMap"].indexOf(name) >= 0) {
-            const basis = (this.selector ? (typeof this.selector == "string" ? getStyleRule(this.selector, null, "ux-query", target) : (selected?.dataset?.id ? getStyleRule(`[data-id="${selected?.dataset?.id}"]`) : selected)) : (selected ?? target)) ?? selected;
+            const basis = (this.selector ? (typeof this.selector == "string" ? getStyleRule(this.selector, null, "ux-query", target) : (selected?.getAttribute?.("data-id") ? getStyleRule(`[data-id="${selected?.getAttribute?.("data-id")}"]`) : selected)) : (selected ?? target)) ?? selected;
             if (basis?.[name] != null) { return basis?.[name]; }
         }
-
-        //
-        if (selected?.[name] != null) { return typeof selected[name] === "function" ? selected[name].bind(selected) : selected[name]; }
-        if (   array?.[name] != null) { return typeof    array[name] === "function" ?    array[name].bind(array)    :    array[name]; }
 
         //
         if (name === "self") return target;
@@ -123,6 +136,57 @@ export class UniversalElementHandler {
         if (name === "DOMChange") return (cb)=>this._observeDOMChange(target, this.selector, cb);
         if (name === "addEventListener") return (name, cb, opt?)=>this._addEventListener(target, name, cb, opt);
         if (name === "removeEventListener") return (name, cb, opt?)=>this._removeEventListener(target, name, cb, opt);
+
+        // get compatible reactive value, if bound
+        if (name === "getAttribute") {
+            return (key)=>{
+                const array = this._getArray(target);
+                const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
+                const query: any = existsQueries?.get?.(target)?.get?.(this.selector) ?? selected;
+                if (elMap?.get?.(query)?.get?.(handleAttribute)?.has?.(key)) {
+                    return elMap?.get?.(query)?.get?.(handleAttribute)?.get?.(key)?.[0];
+                }
+                return selected?.getAttribute?.(key);
+            }
+        }
+
+        // set attribute
+        if (name === "setAttribute") {
+            return (key, value)=>{
+                const array = this._getArray(target);
+                const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
+                if (typeof value == "object" && (value?.value != null || "value" in value)) {
+                    return bindWith(selected, key, value, handleAttribute, null, true);
+                }
+                return selected?.setAttribute?.(key, value);
+            }
+        }
+
+        //
+        if (name === "removeAttribute") {
+            return (key)=>{
+                const array = this._getArray(target);
+                const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
+                const query: any = existsQueries?.get?.(target)?.get?.(this.selector) ?? selected;
+                if (elMap?.get?.(query)?.get?.(handleAttribute)?.has?.(key)) {
+                    return elMap?.get?.(query)?.get?.(handleAttribute)?.get?.(key)?.[1]?.();
+                }
+                return selected?.removeAttribute?.(key);
+            }
+        }
+
+        //
+        if (name === "hasAttribute") {
+            return (key)=>{
+                const array = this._getArray(target);
+                const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
+                const query: any = existsQueries?.get?.(target)?.get?.(this.selector) ?? selected;
+                if (elMap?.get?.(query)?.get?.(handleAttribute)?.has?.(key)) {
+                    return true;
+                }
+                return selected?.hasAttribute?.(key);
+            }
+        }
 
         // for BLU.E
         if (name === "element") {
@@ -138,9 +202,12 @@ export class UniversalElementHandler {
         }
 
         //
-        if (typeof name === "string" && /^\d+$/.test(name)) { return array[parseInt(name)]; }
+        if (typeof name === "string" && /^\d+$/.test(name)) { return array[parseInt(name)]; };
 
         //
+        const origin = selected; //selected?.element ?? selected;
+        if (origin?.[name] != null) { return typeof origin[name] === "function" ? origin[name].bind(origin) : origin[name]; }
+        if ( array?.[name] != null) { return typeof  array[name] === "function" ?  array[name].bind(array)  :  array[name]; }
         return;
     }
 
@@ -204,20 +271,26 @@ export class UniversalElementHandler {
 }
 
 //
-const alreadyUsed = new WeakMap();
 export const Q = (selector, host = document.documentElement, index = 0, direction: "children" | "parent" = "children") => {
     // is wrapped element or element itself
     if ((selector?.element ?? selector) instanceof HTMLElement) {
         const el = selector?.element ?? selector; // @ts-ignore
         return alreadyUsed.getOrInsert(el, new Proxy(el, new UniversalElementHandler("", index, direction) as ProxyHandler<any>));
     }
+
     // is "ref" hook!
     if (typeof selector == "function") {
         const el = selector; // @ts-ignore
         return alreadyUsed.getOrInsert(el, new Proxy(el, new UniversalElementHandler("", index, direction) as ProxyHandler<any>));
     }
-    // is selector by host
-    return new Proxy(host, new UniversalElementHandler(selector, index, direction) as ProxyHandler<any>);
+
+    //
+    if (existsQueries?.get?.(host)?.has?.(selector)) { return existsQueries?.get?.(host)?.get?.(selector); }
+
+    // @ts-ignore // is selector by host
+    return existsQueries?.getOrInsert?.(host, new Map())?.getOrInsertComputed?.(selector, ()=>{
+        return new Proxy(host, new UniversalElementHandler(selector, index, direction) as ProxyHandler<any>);
+    });
 }
 
 // syntax:

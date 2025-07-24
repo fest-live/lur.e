@@ -1,11 +1,10 @@
-import { reflectBehaviors, reflectStores, reflectMixins } from "fest/dom";
+import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden } from "fest/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reflectWithStyleRules, reflectARIA } from '../context/Reflect';
 import { reflectControllers, bindEvents, bindWith } from '../core/Binding';
 
 //
 import { subscribe } from "fest/object";
 import { createElement } from "../context/Utils";
-import { handleProperty, handleAttribute, handleHidden } from "../../../../dom.ts/src/$mixin$/Handler";
 import { Q } from "./Queried";
 
 /**

@@ -5,7 +5,7 @@ import { camelToKebab, handleListeners, namedStoreMaps, observeAttribute, observ
  * @type {WeakMap<any, (HTMLElement|DocumentFragment|Text)>}
  * @description Сопоставляет объектам соответствующие DOM-узлы.
  */
-export const elMap  = new WeakMap<any, HTMLElement | DocumentFragment | Text>();
+export const elMap  = new WeakMap<any, WeakMap<any, any>>();
 export const alives = new FinalizationRegistry((unsub: any) => unsub?.());
 
 /**
