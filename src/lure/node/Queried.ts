@@ -208,7 +208,9 @@ export class UniversalElementHandler {
         const origin = selected; //selected?.element ?? selected;
         if (origin?.[name] != null) { return typeof origin[name] === "function" ? origin[name].bind(origin) : origin[name]; }
         if ( array?.[name] != null) { return typeof  array[name] === "function" ?  array[name].bind(array)  :  array[name]; }
-        return;
+
+        // remains possible getters
+        return Reflect.get(target, name, ctx);
     }
 
     //
