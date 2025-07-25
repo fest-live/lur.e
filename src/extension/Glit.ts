@@ -203,7 +203,7 @@ export const GLitElement = (derrivate = HTMLElement) => {
         protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
 
         //
-        public loadStyleLibrary($module) { const root = this.shadowRoot; const module = typeof $module == "function" ? $module?.(root) : $module; this.styleLibs.push(module); if (this.styleLibs) { root?.prepend?.(module); }; return this; }
+        public loadStyleLibrary($module) { const root = this.shadowRoot; const module = typeof $module == "function" ? $module?.(root) : $module; this.styleLibs.push(module); if (this.styleLibs) { this.#defaultStyle?.after?.(module); }; return this; }
         public createShadowRoot() { return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as any; }
         public connectedCallback() {
             const weak = new WeakRef(this);
