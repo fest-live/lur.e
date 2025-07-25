@@ -1,3 +1,4 @@
+import { UUIDv4 } from 'fest/dom';
 import { makeReactive, Promised } from 'fest/object';
 
 //
@@ -221,7 +222,7 @@ export const downloadFile = async (file) => {
         showOpenFilePicker: self?.showOpenFilePicker?.bind?.(window), // @ts-ignore
         showSaveFilePicker: self?.showSaveFilePicker?.bind?.(window), // @ts-ignore
     })) // @ts-ignore
-    : import(/* @vite-ignore */ "/externals/polyfill/showOpenFilePicker.mjs"));
+    : import(/* @vite-ignore */ "/polyfill/showOpenFilePicker.mjs"));
 
     // @ts-ignore
     if (window?.showSaveFilePicker) { // @ts-ignore
@@ -265,4 +266,80 @@ export const provide = async (req: string | Request = "", rw = false) => {
         });
     }
     return null;
+}
+
+//
+export const dropFile = async (file, dest = "/user/", current?: any)=>{
+    const fs = await navigator?.storage?.getDirectory?.();
+    const path = getDir(dest);
+
+    //
+    if (!path?.startsWith?.("/user")) return;
+    const user = path?.replace?.("/user","");
+
+    //
+    file = file instanceof File ? file : (new File([file], UUIDv4() + "." + (file?.type?.split?.("/")?.[1] || "tmp")))
+
+    //
+    const fp = user + (file?.name || "wallpaper");
+    await writeFile(fs, fp, file);
+
+    // TODO! needs to fix same directory scope
+    current?.set?.("/user" + fp, file);
+    return "/user" + fp;
+}
+
+//
+export const uploadFile = async (dest = "/user/", current?: any)=>{
+    const $e = "showOpenFilePicker";
+
+    // @ts-ignore
+    const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("/polyfill/showOpenFilePicker.mjs"))?.[$e];
+    return showOpenFilePicker(imageImportDesc)?.then?.(async ([handle] = [])=>{
+        const file = await handle?.getFile?.();
+        return dropFile(file, dest, current);
+    });
+}
+
+//
+export const ghostImage = new Image();
+ghostImage.decoding = "async";
+ghostImage.width  = 24;
+ghostImage.height = 24;
+
+//
+try {
+    ghostImage.src = URL.createObjectURL(new Blob([`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 384 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 288c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128z"/></svg>`], {type: "image/svg+xml"}));
+} catch(e) {}
+
+//
+export const getLeast = (item)=>{
+    if (item?.types?.length > 0) {
+        return item?.getType?.(Array.from(item?.types || [])?.at?.(-1));
+    }
+    return null;
+}
+
+//
+export const attachFile = (transfer, file, path = "") => {
+    try {
+        const url = URL.createObjectURL(file);
+        if (file?.type && file?.type != "text/plain") {
+            transfer?.items?.add?.(file, file?.type || "text/plain");
+        } else {
+            transfer?.add?.(file);
+        }
+        if (path) { transfer?.items?.add?.(path, "text/plain"); };
+        transfer?.setData?.("text/uri-list", url);
+        transfer?.setData?.("DownloadURL", file?.type + ":" + file?.name + ":" + url);
+    } catch(e) {}
+}
+
+//
+export const dropAsTempFile = async (data: any)=>{
+    const items   = (data)?.items;
+    const item    = items?.[0];
+    const isImage = item?.types?.find?.((n)=>n?.startsWith?.("image/"));
+    const blob    = await (data?.files?.[0] ?? ((isImage ? item?.getType?.(isImage) : null) || getLeast(item)));
+    return dropFile(blob, "/user/temp/");
 }
