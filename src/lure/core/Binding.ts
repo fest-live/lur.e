@@ -113,7 +113,7 @@ export const hasInBank = (el, handle)=>{
  * @param {WeakRef<any>} [set]
  */
 export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean) => {
-    if (value?.value == null || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
+    if (!el || value?.value == null || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
 
     //
     let controller: AbortController | null = null; // @ts-ignore
