@@ -8,6 +8,14 @@ export const getDir = (dest)=>{
     const p1 = !dest?.trim()?.endsWith("/") ? (dest+"/") : dest; return (!p1?.startsWith("/") ? ("/"+p1) : p1);
 }
 
+
+
+//
+export const imageImportDesc = {
+    startIn: "pictures", multiple: false,
+    types: [{ description: "wallpaper", accept: { "image/*": [".png", ".gif", ".jpg", ".jpeg", ".webp", ".jxl",] }, }]
+}
+
 //
 export function handleError(logger, status, message) { logger?.(status, message); return null; }
 export function defaultLogger(status, message) { console.log(`[${status}] ${message}`); };
@@ -200,12 +208,6 @@ export async function remove(rootHandle, relPath, options = {}, logger = default
 
 
 //
-export const imageImportDesc = {
-    startIn: "pictures", multiple: false,
-    types: [{ description: "wallpaper", accept: { "image/*": [".png", ".gif", ".jpg", ".jpeg", ".webp", ".jxl",] }, }]
-}
-
-//
 export const openImageFilePicker = async ()=>{
     const $e = "showOpenFilePicker"; // @ts-ignore
     const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
@@ -269,6 +271,31 @@ export const provide = async (req: string | Request = "", rw = false) => {
 }
 
 //
+export const getLeast = (item)=>{
+    if (item?.types?.length > 0) {
+        return item?.getType?.(Array.from(item?.types || [])?.at?.(-1));
+    }
+    return null;
+}
+
+/*  // drop handling example
+    const current = this.getCurrent();
+    const items   = (data)?.items;
+    const item    = items?.[0];
+
+    //
+    const isImage = item?.types?.find?.((n)=>n?.startsWith?.("image/"));
+    const blob    = data?.files?.[0] ?? ((isImage ? item?.getType?.(isImage) : null) || getLeast(item));
+    if (blob) {
+        Promise.try(async()=>{
+            const raw = await blob;
+            if (raw) dropFile(raw, this.currentDir(), current);
+        });
+        return true;
+    }
+*/
+
+//
 export const dropFile = async (file, dest = "/user/", current?: any)=>{
     const fs = await navigator?.storage?.getDirectory?.();
     const path = getDir(dest);
@@ -312,13 +339,13 @@ try {
     ghostImage.src = URL.createObjectURL(new Blob([`<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 384 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.--><path d="M0 64C0 28.7 28.7 0 64 0L224 0l0 128c0 17.7 14.3 32 32 32l128 0 0 288c0 35.3-28.7 64-64 64L64 512c-35.3 0-64-28.7-64-64L0 64zm384 64l-128 0L256 0 384 128z"/></svg>`], {type: "image/svg+xml"}));
 } catch(e) {}
 
-//
-export const getLeast = (item)=>{
-    if (item?.types?.length > 0) {
-        return item?.getType?.(Array.from(item?.types || [])?.at?.(-1));
-    }
-    return null;
-}
+
+
+/*  // in drag-start
+    ev.dataTransfer.effectAllowed = "copyLink";
+    ev?.dataTransfer?.clearData?.();
+    ev?.dataTransfer?.setDragImage?.(ghostImage, 0, 0);
+*/
 
 //
 export const attachFile = (transfer, file, path = "") => {
