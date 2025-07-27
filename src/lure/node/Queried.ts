@@ -113,6 +113,11 @@ export class UniversalElementHandler {
         if (eventMap.size === 0) this._eventMap.delete(target);
     }
 
+    _selector(tg) {
+        if (typeof this.selector == "string" && typeof tg?.selector == "string") { return ((tg?.selector ?? "") + " " + this.selector)?.trim?.(); }
+        return this.selector;
+    }
+
     //
     get(target, name, ctx) {
         const array = this._getArray(target);
@@ -125,13 +130,22 @@ export class UniversalElementHandler {
         //
         if (name === "_updateSelector") return (sel)=>(this.selector = sel || this.selector);
         if (["style", "attributeStyleMap"].indexOf(name) >= 0) {
-            const basis = (this.selector ? (typeof this.selector == "string" ? getStyleRule(this.selector, null, "ux-query", target) : (selected?.getAttribute?.("data-id") ? getStyleRule(`[data-id="${selected?.getAttribute?.("data-id")}"]`) : selected)) : (selected ?? target)) ?? selected;
+            const tg = target?.self ?? target;
+            const selector = this._selector(tg);
+            const basis = (selector ?
+                (typeof selector == "string" ?
+                    getStyleRule(selector, null, "ux-query", tg) :
+                    selected
+                ) :
+                (selected ?? tg)) ?? selected;
             if (basis?.[name] != null) { return basis?.[name]; }
         }
 
         //
-        if (name === "self") return target;
-        if (name === "selector") return this.selector;;
+        if (name === "self") return (target?.self ?? target);
+        if (name === "selector") return this._selector(target);
+
+        //
         if (name === "observeAttr") return (name, cb)=>this._observeAttributes(target, name, cb);
         if (name === "DOMChange") return (cb)=>this._observeDOMChange(target, this.selector, cb);
         if (name === "addEventListener") return (name, cb, opt?)=>this._addEventListener(target, name, cb, opt);
