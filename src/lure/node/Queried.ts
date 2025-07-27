@@ -177,6 +177,9 @@ export class UniversalElementHandler {
         // set attribute
         if (name === "setAttribute") {
             return (key, value)=>{
+                // TODO:
+                // - support for multiple elements
+                // - support for newer elements by DOM Observer
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
                 if (typeof value == "object" && (value?.value != null || "value" in value)) {
