@@ -113,6 +113,7 @@ export class UniversalElementHandler {
         if (eventMap.size === 0) this._eventMap.delete(target);
     }
 
+    //
     _selector(tg) {
         if (typeof this.selector == "string" && typeof tg?.selector == "string") { return ((tg?.selector ?? "") + " " + this.selector)?.trim?.(); }
         return this.selector;
@@ -131,7 +132,7 @@ export class UniversalElementHandler {
         if (name === "_updateSelector") return (sel)=>(this.selector = sel || this.selector);
         if (["style", "attributeStyleMap"].indexOf(name) >= 0) {
             const tg = target?.self ?? target;
-            const selector = this._selector(tg);
+            const selector = this._selector(target);
             const basis = (selector ?
                 (typeof selector == "string" ?
                     getStyleRule(selector, null, "ux-query", tg) :
