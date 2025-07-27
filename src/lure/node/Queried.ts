@@ -1,4 +1,4 @@
-import { getStyleRule, handleAttribute, observeAttribute, observeAttributeBySelector, observeBySelector } from "fest/dom";
+import { MOCElement, getStyleRule, handleAttribute, observeAttribute, observeAttributeBySelector, observeBySelector } from "fest/dom";
 import { bindWith, elMap } from "../core/Binding";
 
 //
@@ -62,12 +62,13 @@ export class UniversalElementHandler {
 
     //
     _getSelected(target) {
-        if (typeof target == "function") { target = this.selector || target?.(this.selector); }; if (!this.selector) return target;
-        if (typeof this.selector == "string") {
-            if (this.direction === "children") { return target?.matches?.(this.selector) ? target : target?.querySelector?.(this.selector); } else
-            if (this.direction === "parent"  ) { return target?.matches?.(this.selector) ? target : target?.closest?.(this.selector);}
+        const tg = target?.self ?? target;
+        const sel = this._selector(target);
+        if (typeof sel == "string") {
+            if (this.direction === "children") { return tg?.matches?.(sel) ? tg : tg?.querySelector?.(sel); }
+            if (this.direction === "parent"  ) { return tg?.matches?.(sel) ? tg : tg?.closest?.(sel); }
         }
-        return this.selector;
+        return sel;
     }
 
     //
@@ -85,20 +86,29 @@ export class UniversalElementHandler {
     //
     _addEventListener(target, name, cb, option?) {
         const eventName = this._redirectToBubble(name);
+        const parent = target?.self ?? target;
         const wrap = (ev) => {
-            let tg = (ev?.target ?? ev?.currentTarget) ?? (typeof this.selector != "string" ? this.selector : null) ?? (target);
+            const sel: any = this._selector(target);
+            const rot = ev?.currentTarget ?? parent;
+            let tg = (ev?.target ?? this._getSelected(target)) ?? (ev?.currentTarget ?? parent);
             tg = tg?.element ?? tg;
-            if (
-                (typeof this.selector == "string" ? target?.matches?.(this.selector) : this.selector == target) ||
-                (typeof this.selector == "string" ? tg?.matches?.(this.selector) : this.selector == tg) ||
-                containsOrSelf(typeof this.selector == "string" ? target?.querySelector?.(this.selector) : this.selector, tg)
-            )
-                { cb?.call?.(tg, ev); }
+            if (typeof sel == "string") {
+                const queryWithSelf = rot?.querySelector?.(sel) ?? (rot?.matches?.(sel) ? rot : null);
+                const parentWithSelf = MOCElement(tg, sel);
+
+                //
+                if (this.direction === "children") { if (tg?.matches?.(sel) || containsOrSelf( queryWithSelf, tg)) { cb?.call?.(tg, ev); } }
+                if (this.direction === "parent"  ) { if (tg?.matches?.(sel) || containsOrSelf(parentWithSelf, tg)) { cb?.call?.(tg, ev); } }
+            } else {
+                const stl: any = sel?.element ?? sel;
+                if (this.direction === "children") { if (containsOrSelf(tg, stl)) { cb?.call?.(tg, ev); } }
+                if (this.direction === "parent"  ) { if (containsOrSelf(stl, tg)) { cb?.call?.(tg, ev); } }
+            }
         };
-        target?.addEventListener?.(eventName, wrap, option);
+        parent?.addEventListener?.(eventName, wrap, option);
 
         // @ts-ignore
-        const eventMap = this._eventMap.getOrInsert(target, new Map())!;
+        const eventMap = this._eventMap.getOrInsert(parent, new Map())!;
         const cbMap = eventMap.getOrInsert(eventName, new WeakMap())!;
         cbMap.set(cb, {wrap, option});
         return wrap;
@@ -106,16 +116,17 @@ export class UniversalElementHandler {
 
     //
     _removeEventListener(target, name, cb, option?) {
-        const eventName = this._redirectToBubble(name), eventMap = this._eventMap.get(target);
+        const parent = target?.self ?? target;
+        const eventName = this._redirectToBubble(name), eventMap = this._eventMap.get(parent);
         if (!eventMap) return; const cbMap = eventMap.get(eventName), entry = cbMap?.get?.(cb);
-        target?.removeEventListener?.(eventName, entry?.wrap ?? cb, option ?? entry?.option ?? {});
+        parent?.removeEventListener?.(eventName, entry?.wrap ?? cb, option ?? entry?.option ?? {});
         cbMap?.delete?.(cb); if (cbMap?.size === 0) eventMap?.delete?.(eventName);
-        if (eventMap.size === 0) this._eventMap.delete(target);
+        if (eventMap.size === 0) this._eventMap.delete(parent);
     }
 
     //
     _selector(tg) {
-        if (typeof this.selector == "string" && typeof tg?.selector == "string") { return ((tg?.selector ?? "") + " " + this.selector)?.trim?.(); }
+        if (typeof this.selector == "string" && typeof tg?.selector == "string") { return ((tg?.selector || "") + " " + this.selector)?.trim?.(); }
         return this.selector;
     }
 
@@ -133,12 +144,10 @@ export class UniversalElementHandler {
         if (["style", "attributeStyleMap"].indexOf(name) >= 0) {
             const tg = target?.self ?? target;
             const selector = this._selector(target);
-            const basis = (selector ?
-                (typeof selector == "string" ?
-                    getStyleRule(selector, null, "ux-query", tg) :
-                    selected
-                ) :
-                (selected ?? tg)) ?? selected;
+            const basis = (typeof selector == "string" ?
+                getStyleRule(selector, null, "ux-query", tg) :
+                selected
+            );
             if (basis?.[name] != null) { return basis?.[name]; }
         }
 
