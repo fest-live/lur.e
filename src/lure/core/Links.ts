@@ -56,6 +56,7 @@ export const matchMediaLink = (exists: any|null, condition: string) => {
  * @returns {ReturnType<typeof booleanRef>}
  */
 export const visibleLink = (exists: any|null, element, initial?) => {
+    if (element == null) return;
     const def = (initial?.value ?? (typeof initial != "object" ? initial : null)) ?? (element?.getAttribute?.("data-hidden") == null);
     const val = exists ?? booleanRef(!!def);
     const usb = bindWith(element, "data-hidden", val, handleHidden);
@@ -125,7 +126,7 @@ export const scrollLink = (exists: any|null, element, axis: "inline" | "block" =
 export const checkedLink = (exists: any|null, element) => {
     const def = (!!element?.checked) || false;
     const val = exists ?? booleanRef(def); val.value ??= def;
-    const dbf = bindCtrl(element?.self ?? element, checkboxCtrl(val));
+    const dbf = bindCtrl(element, checkboxCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
         if (element && element?.checked != v) {
             element.checked = !!v;
@@ -141,11 +142,11 @@ export const checkedLink = (exists: any|null, element) => {
  * @returns {ReturnType<typeof stringRef>}
  */
 export const valueLink = (exists: any|null, element) => {
-    const def = element?.value || "";
-    const val = exists ?? stringRef(def); val.value ??= def;
-    const dbf = bindCtrl(element?.self ?? element, valueCtrl(val));
+    const def = element?.value;
+    const val = exists ?? stringRef(def || ""); val.value ??= def ?? val.value ?? "";
+    const dbf = bindCtrl(element, valueCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
-        if (element && element?.value != v) {
+        if (element && element?.value !== v) {
             element.value = v || "";
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
@@ -161,7 +162,7 @@ export const valueLink = (exists: any|null, element) => {
 export const valueAsNumberLink = (exists: any|null, element) => {
     const def = Number(element?.valueAsNumber) || 0;
     const val = exists ?? numberRef(def); val.value ??= def;
-    const dbf = bindCtrl(element?.self ?? element, numberCtrl(val));
+    const dbf = bindCtrl(element, numberCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
         if (element && element?.valueAsNumber != v && typeof element?.valueAsNumber == "number") {
             element.valueAsNumber = Number(v);

@@ -1,25 +1,40 @@
 import { Q } from "../node/Queried";
 
+//
+const isRef = (ref)=>{
+    return ref instanceof WeakRef || typeof ref?.deref == "function";
+}
+
+//
+const unref = (ref)=>{
+    return isRef(ref) ? ref?.deref?.() : ref;
+}
+
+//
+const wref = (ref)=>{
+    return ref != null ? (isRef(ref) ? ref : ((typeof ref == "function" || typeof ref == "object") ? new WeakRef(ref) : ref)) : ref;
+}
+
 /**
  * DOM checkbox "controller" event handler for use with bindCtrl
  * @param {ReturnType<typeof booleanRef>} ref
  * @returns {(ev: Event) => void}
  */
-export const checkboxCtrl = (ref) => { ref = ref instanceof WeakRef ? ref : new WeakRef(ref); return (ev) => { const $ref = (ref instanceof WeakRef || typeof ref?.deref == "function") ? ref?.deref?.() : ref; if ($ref) { $ref.value = Q("input:checked", ev?.target)?.checked ?? !$ref.value; } } }
+export const checkboxCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref) { $ref.value = Q("input:checked", ev?.target)?.checked ?? !$ref?.value; } } }
 
 /**
  * DOM number input "controller" event handler for use with bindCtrl
  * @param {ReturnType<typeof numberRef>} ref
  * @returns {(ev: Event) => void}
  */
-export const numberCtrl = (ref) => { ref = ref instanceof WeakRef ? ref : new WeakRef(ref); return (ev) => { const $ref = (ref instanceof WeakRef || typeof ref?.deref == "function") ? ref?.deref?.() : ref; if ($ref && $ref.value !== ev?.target?.valueAsNumber) { $ref.value = Number(Q("input", ev?.target)?.valueAsNumber || 0) ?? 0; } } }
+export const numberCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref && $ref?.value !== ev?.target?.valueAsNumber) { $ref.value = Number(Q("input", ev?.target)?.valueAsNumber || 0) ?? 0; } } }
 
 /**
  * DOM value input "controller" event handler for use with bindCtrl
  * @param {ReturnType<typeof stringRef>} ref
  * @returns {(ev: Event) => void}
  */
-export const valueCtrl = (ref) => { ref = ref instanceof WeakRef ? ref : new WeakRef(ref); return (ev) => { const $ref = (ref instanceof WeakRef || typeof ref?.deref == "function") ? ref?.deref?.() : ref; if ($ref && ev?.target?.value != $ref?.value) { $ref.value = (Q("input", ev?.target)?.value ?? $ref?.value) || ""; } } }
+export const valueCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref && ev?.target?.value !== $ref?.value) { $ref.value = (Q("input", ev?.target)?.value ?? $ref?.value) || ""; } } }
 
 /**
  * DOM radio group "controller" handler for use with bindCtrl
@@ -28,9 +43,9 @@ export const valueCtrl = (ref) => { ref = ref instanceof WeakRef ? ref : new Wea
  * @returns {(ev: Event) => void}
  */
 export const radioCtrl = (ref, name) => {
-    ref = ref instanceof WeakRef ? ref : new WeakRef(ref);
+    ref = wref(ref);
     return (ev) => {
-        let $ref = (ref instanceof WeakRef || typeof ref?.deref == "function") ? ref?.deref?.() : ref;
+        let $ref = unref(ref);
         const selector = `input[name="${name}"]:checked`;
         if ($ref) { $ref.value = (ev?.target?.matches?.(selector) ? ev?.target : ev?.target?.querySelector?.(selector))?.value ?? $ref.value; }
     }
@@ -44,10 +59,10 @@ export const radioCtrl = (ref, name) => {
  * @returns {()=>void} cancel function
  */
 export const OOBTrigger = (element, ref, selector?) => {
-    ref = ref instanceof WeakRef ? ref : new WeakRef(ref);
+    ref = wref(ref);
     const ROOT = document.documentElement;
     const checker = (ev) => {
-        let $ref = (ref instanceof WeakRef || typeof ref?.deref == "function") ? ref?.deref?.() : ref;
+        let $ref = unref(ref);
         const target = selector ? (ev?.target?.matches?.(selector) ? ev?.target : (ev?.target ?? ROOT)?.querySelector?.(selector)) : ev?.target;
         if (!target || (element != target)) { $ref.value = false; }
     }
