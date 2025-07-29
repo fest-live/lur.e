@@ -172,6 +172,16 @@ export const loadCachedStyles = (bTo, src)=>{
 }
 
 //
+const isNotExtended = (el: HTMLElement)=>{
+    return (el instanceof HTMLElement && !(
+        (el instanceof HTMLDivElement) ||
+        (el instanceof HTMLImageElement) ||
+        (el instanceof HTMLVideoElement) ||
+        (el instanceof HTMLCanvasElement))
+    );
+}
+
+//
 export const customElement = defineElement;
 export const GLitElement = (derrivate = HTMLElement) => {
     // @ts-ignore // !experimental `getOrInsert` feature!
@@ -191,8 +201,11 @@ export const GLitElement = (derrivate = HTMLElement) => {
 
         // @ts-ignore
         constructor(...args) {
-            super(); const shadowRoot = addRoot(this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }));
-            shadowRoot.append(this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
+            super();
+            if (isNotExtended(this)) {
+                const shadowRoot = addRoot(this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }));
+                shadowRoot.append(this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
+            }
             this.styleLibs = [];
         }
 
@@ -208,11 +221,20 @@ export const GLitElement = (derrivate = HTMLElement) => {
         public connectedCallback() {
             const weak = new WeakRef(this);
             if (!this.#initialized) { this.#initialized = true;
-                const shadowRoot = this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }); this.$init?.(); this[inRenderKey] = true;
-                setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes); this.onInitialize?.call(this, weak);
+                let shadowRoot = this.shadowRoot;
+                if (isNotExtended(this)) {
+                    shadowRoot = shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" });
+                }
+
+                //
+                this.$init?.(); this[inRenderKey] = true;
+                setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes);
+                this.onInitialize?.call(this, weak);
 
                 //! currenrly, `this.styleLibs` will not appear when rendering (not supported)
-                this.#framework = E(shadowRoot, {}, [this.#defaultStyle, ...(this.styleLibs||[]), this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)])
+                if (isNotExtended(this) && shadowRoot) { // @ts-ignore
+                    this.#framework = E(shadowRoot, {}, [this.#defaultStyle, ...(this.styleLibs||[]), this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)])
+                }
                 this.onRender?.call?.(this, weak); delete this[inRenderKey];
             }
             return this;
