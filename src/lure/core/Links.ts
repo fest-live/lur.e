@@ -19,6 +19,9 @@ export const getPadding = (src, axis)=>{
 
 
 
+//
+export const localStorageLinkMap = new Map<string, any>();
+
 /**
  * Make a two-way <-> ref to a localStorage string value, auto-update on change and storage events
  * @template T
@@ -27,14 +30,23 @@ export const getPadding = (src, axis)=>{
  * @returns {ReturnType<typeof stringRef>}
  */
 export const localStorageLink = (exists: any|null, key, initial) => {
-    const def  = localStorage.getItem(key) ?? (initial?.value ?? initial);
-    const ref  = exists ?? stringRef(def); ref.value ??= def;
-    const unsb = subscribe([ref, "value"], (val) => localStorage.setItem(key, val));
-    const list = (ev) => { if (ev.storageArea == localStorage && ev.key == key) {
-        if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
-    } };
-    addEventListener("storage", list);
-    return () => { unsb?.(); removeEventListener("storage", list); };;
+    // de-assign local storage link for key
+    if (localStorageLinkMap.has(key)) {
+        localStorageLinkMap.get(key)?.[0]?.();
+        localStorageLinkMap.delete(key);
+    }
+
+    // @ts-ignore // assign new local storage link for key
+    return localStorageLinkMap.getOrInsertComputed?.(key, ()=>{
+        const def  = localStorage.getItem(key) ?? (initial?.value ?? initial);
+        const ref  = exists ?? stringRef(def); ref.value ??= def;
+        const unsb = subscribe([ref, "value"], (val) => localStorage.setItem(key, val));
+        const list = (ev) => { if (ev.storageArea == localStorage && ev.key == key) {
+            if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
+        } };
+        addEventListener("storage", list);
+        return [() => { unsb?.(); removeEventListener("storage", list); }, ref];
+    });
 }
 
 /**
