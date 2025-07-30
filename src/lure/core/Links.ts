@@ -1,26 +1,7 @@
-import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute } from "fest/dom";
-import { makeReactive, booleanRef, numberRef, subscribe, stringRef, computed, ref } from "fest/object";
+import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding } from "fest/dom";
+import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref } from "fest/object";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
-
-//
-export const getPropertyValue = (src, name)=>{
-    if ("computedStyleMap" in src) {
-        return src?.computedStyleMap?.()?.get(name)?.value || 0;
-    }
-    return parseFloat(getComputedStyle(src)?.getPropertyValue?.(name) || "0") || 0;
-}
-
-//
-export const getPadding = (src, axis)=>{
-    if (axis == "inline") { return (getPropertyValue(src, "padding-inline-start") + getPropertyValue(src, "padding-inline-end")); };
-    return (getPropertyValue(src, "padding-block-start") + getPropertyValue(src, "padding-block-end"));
-}
-
-
-
-//
-export const localStorageLinkMap = new Map<string, any>();
 
 /**
  * Make a two-way <-> ref to a localStorage string value, auto-update on change and storage events
@@ -29,6 +10,7 @@ export const localStorageLinkMap = new Map<string, any>();
  * @param {T|{value:T}} [initial] initial value (used/converted to string if not there)
  * @returns {ReturnType<typeof stringRef>}
  */
+export const localStorageLinkMap = new Map<string, any>();
 export const localStorageLink = (exists: any|null, key, initial) => {
     // de-assign local storage link for key
     if (localStorageLinkMap.has(key)) {
