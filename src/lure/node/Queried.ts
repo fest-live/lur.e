@@ -237,7 +237,8 @@ export class UniversalElementHandler {
         if ( array?.[name] != null) { return typeof  array[name] === "function" ?  array[name].bind(array)  :  array[name]; }
 
         // remains possible getters
-        return Reflect.get(target, name, ctx);
+        //return Reflect.get(target, name, ctx);
+        return typeof target?.[name] === "function" ? target?.[name].bind(origin) : target?.[name];
     }
 
     //
