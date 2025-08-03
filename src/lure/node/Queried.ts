@@ -93,7 +93,7 @@ export class UniversalElementHandler {
             let tg = (ev?.target ?? this._getSelected(target)) ?? (ev?.currentTarget ?? parent);
             tg = tg?.element ?? tg;
             if (typeof sel == "string") {
-                const queryWithSelf = rot?.querySelector?.(sel) ?? (rot?.matches?.(sel) ? rot : null);
+                const queryWithSelf  = (rot?.matches?.(sel) ? rot : null) ?? rot?.querySelector?.(sel);
                 const parentWithSelf = MOCElement(tg, sel);
 
                 //

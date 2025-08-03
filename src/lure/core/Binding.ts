@@ -88,7 +88,7 @@ export const $observeAttribute = (el: HTMLElement, prop: string, value: any) => 
     //if (typeof (el as any)?.selector == "string" && (el as any)?.observeAttr != null) return (el as any)?.observeAttr?.(prop, cb);
     const attrName = camelToKebab(prop)!;
     return observeAttribute(el, attrName, cb);
-};
+}
 
 // @ts-ignore // Stable Universal Key Assignation - eg. [S.U.K.A.]
 export const removeFromBank = (el, handler, prop) => { const bank = elMap?.get(el)?.get?.(handler); if (bank) { const old = bank[prop]?.[1]; delete bank[prop]; old?.(); } }
