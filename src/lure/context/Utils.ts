@@ -70,7 +70,7 @@ export const getNode = (E, mapper?: Function, index?: number)=>{
     if (typeof E == "object" && typeof E == "function") {
         if (elMap.has(E)) { return elMap.get(E); };
         const $node = $getNode(E, mapper, index);
-        if ($node != null && $node != E && (!E?.self || typeof E?.self != "object" && typeof E?.self != "function")) { elMap.set(E, $node); }
+        if ($node != null && $node != E && (!E?.self && !E?.element || typeof E?.self != "object" && typeof E?.self != "function")) { elMap.set(E, $node); }
         return $node;
     }
     return $getNode(E, mapper, index);
