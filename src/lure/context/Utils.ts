@@ -51,13 +51,29 @@ export const createElement = (selector): HTMLElement | DocumentFragment => {
  * @param {number} [index] - Индекс элемента (для массивов).
  * @returns {Node|HTMLElement|DocumentFragment|Text|*} DOM-узел либо результат отображения.
  */
-export const getNode = (E, mapper?: Function, index?: number) => {
+export const $getNode = (E, mapper?: Function, index?: number) => {
     if (mapper != null) { return (E = getNode(mapper?.(E, index))); }
     if (E instanceof Node || E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) { return E; } else
     if (typeof E?.value == "string" || typeof E?.value == "number") { return T(E); } else
     if (typeof E == "function") { return getNode(E()); } else  // mapped arrays always empties after
     if (typeof E == "string" || typeof E == "number") { return document.createTextNode(String(E)); } else
     if (typeof E == "object" && E != null) { return E?.element ?? elMap.get(E); }; return E;
+};
+
+/**
+ * @param {*} E - Исходное значение (element, функция, объект или значение).
+ * @param {Function} [mapper] - Дополнительная функция отображения.
+ * @param {number} [index] - Индекс элемента (для массивов).
+ * @returns {Node|HTMLElement|DocumentFragment|Text|*} DOM-узел либо результат отображения.
+ */
+export const getNode = (E, mapper?: Function, index?: number)=>{
+    if (typeof E == "object" && typeof E == "function") {
+        if (elMap.has(E)) { return elMap.get(E); };
+        const $node = $getNode(E, mapper, index);
+        if ($node != null && $node != E) { elMap.set(E, $node); }
+        return $node;
+    }
+    return $getNode(E, mapper, index);
 }
 
 /**

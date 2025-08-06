@@ -45,3 +45,6 @@ export const S = (strings: string[], ...values: any[])=>{
         }
     }, props, vars];
 };
+
+//
+export const css = (strings: string[], ...values: any[])=>{ return S(strings, ...values); }

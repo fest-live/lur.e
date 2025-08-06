@@ -1,6 +1,7 @@
 // @ts-ignore
-import { ref, makeReactive, assign } from "fest/object"; import { Q } from "fest/dom";
-import { css, defineElement, GLitElement, property } from "../src/extension/Glit";
+import { makeReactive, assign } from "fest/object";
+import { defineElement, GLitElement, property } from "../src/extension/Glit";
+import { css } from "../src/extension/Styles";
 
 //
 import { E } from "../src/lure/node/Bindings";
