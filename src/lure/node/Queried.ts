@@ -148,7 +148,10 @@ export class UniversalElementHandler {
                 getStyleRule(selector, null, "ux-query", tg) :
                 selected
             );
-            if (basis?.[name] != null) { return basis?.[name]; }
+            if (name === "attributeStyleMap") {
+                return basis?.styleMap ?? basis?.attributeStyleMap;
+            }
+            return basis?.[name];
         }
 
         //
