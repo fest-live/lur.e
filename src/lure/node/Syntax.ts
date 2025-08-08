@@ -64,11 +64,12 @@ export function htmlBuilder({ createElement = null } = {}) {
                     if (dat.id) parts.push(` id="${dat.id}"`);
                     if (dat.className) parts.push(` class="${dat.className}"`);
                 } else {
-                    const $betweenQuotes = strings[i]?.trim()?.match(/^['"]/) && (strings[i+1]?.trim()?.match?.(/['"]$/) ?? true);
-                    const $stylePattern = strings[i]?.trim()?.startsWith?.(";"); const $pt = strings[i+1]?.search?.(/^[\s\n\r\>]/);
-                    const $attributePattern = strings[i]?.trim()?.endsWith?.("=") && !($pt != null ? $pt : false);
+                    const $betweenQuotes    = strings[i]?.trim?.()?.match?.(/^['"]/) && (strings[i+1]?.trim?.()?.match?.(/['"]$/) ?? true);
+                    const $stylePattern     = strings[i]?.trim?.()?.endsWith?.(":") || strings[i+1]?.trim?.()?.startsWith?.(";"); const $pt = strings[i+1]?.search?.(/^[\s\n\r>]/);
+                    const $attributePattern = strings[i]?.trim?.()?.endsWith?.("=") && !($pt != null ? $pt : false);
+                    const $needsToQuoteWrap = strings[i]?.trim?.()?.endsWith?.("=") || !$betweenQuotes; const $DQD = "\\\"";
                     const isAttr = ($stylePattern || $attributePattern || $betweenQuotes);
-                    const psi = psh.length, ati = atb.length; parts.push(isAttr ? `"#{${ati}}"` : `<!--o:${psi}-->`);
+                    const psi = psh.length, ati = atb.length; parts.push(isAttr ? ($needsToQuoteWrap ? `"#{${ati}}"` : ($stylePattern ? `${$DQD}#{${ati}}${$DQD}` : `#{${ati}}`)) : `<!--o:${psi}-->`);
                     if (values?.[i] != null) { (isAttr ? atb : psh).push(values?.[i]); };
                 }
             }
