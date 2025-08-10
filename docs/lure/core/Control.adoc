@@ -1,0 +1,7 @@
+= Control.ts
+:source_path: modules/lur.e/src/lure/core/Control.ts
+
+Auto-generated documentation.
+
+== Exports
+- consts: checkboxCtrl, numberCtrl, valueCtrl, radioCtrl, OOBTrigger

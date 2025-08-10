@@ -7,31 +7,6 @@ import { subscribe } from "fest/object";
 import { createElement } from "../context/Utils";
 import { Q } from "./Queried";
 
-/**
- * Параметры для создания или конфигурирования элемента.
- * @typedef {Object} Params
- * @property {Set<string>} [classList]
- * @property {Object} [attributes]
- * @property {Object} [dataset]
- * @property {Object} [properties]
- * @property {Object} [behaviors]
- * @property {Array|Set|Map} [stores]
- * @property {Object|string} [style]
- * @property {string} [slot]
- * @property {string} [name]
- * @property {string} [type]
- * @property {string} [icon]
- * @property {string} [role]
- * @property {boolean|string} [inert]
- * @property {any} [mixins]
- * @property {any} [ctrls]
- * @property {string} [is]
- * @property {string} [part]
- * @property {Object} [on]
- * @property {any} [hidden]
- * @property {any} [aria]
- * @property {any[]} [rules]
- */
 interface Params {
     classList?: Set<string>;
     attributes?: any;
@@ -64,15 +39,7 @@ export const Qp = (ref, host = document.documentElement)=>{
     return actual;
 }
 
-/**
- * Создаёт экземпляр El на основе CSS-селектора, параметров и детей.
- * @param {string} selector - CSS-селектор или имя тега для элемента.
- * @param {Object} [params={}] - Необязательный объект параметров (атрибуты, события и т.д.).
- * @param {any} [children] - Необязательные дочерние элементы или контент.
- * @returns {El} Экземпляр El.
- */
 export const E = (selector: string | HTMLElement, params: Params = {}, children?: any[]|null) => {
-    /** @type {HTMLElement | DocumentFragment | Text} */
     const element = typeof selector == "string" ? Qp(createElement(selector)) : selector;
     if (element && params) {
         reflectControllers(element, params.ctrls);

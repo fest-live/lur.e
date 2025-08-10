@@ -1,0 +1,7 @@
+= Refs.ts
+:source_path: modules/lur.e/src/lure/core/Refs.ts
+
+Auto-generated documentation.
+
+== Exports
+- consts: makeRef, orientRef, attrRef, valueRef, valueAsNumberRef, localStorageRef, sizeRef, checkedRef, scrollRef, visibleRef, matchMediaRef, makeWeakRef

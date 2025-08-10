@@ -1,0 +1,29 @@
+= Switched.ts
+:source_path: modules/lur.e/src/lure/node/Switched.ts
+
+Auto-generated documentation.
+
+== Exports
+- classes: SwHandler
+- consts: I
+
+=== SwHandler
+[mermaid]
+....
+classDiagram
+class SwHandler {
+  +set(params: SwitchedParams, name, val)
+  +has(params: SwitchedParams, name)
+  +get(params: SwitchedParams, name, ctx)
+  +if(name in SwM)
+  +ownKeys(params: SwitchedParams)
+  +apply(params: SwitchedParams, thisArg, args)
+  +deleteProperty(params: SwitchedParams, name)
+  +setPrototypeOf(params: SwitchedParams, proto)
+  +getPrototypeOf(params: SwitchedParams)
+  +defineProperty(params: SwitchedParams, name, desc)
+  +getOwnPropertyDescriptor(params: SwitchedParams, name)
+  +preventExtensions(params: SwitchedParams)
+  +isExtensible(params: SwitchedParams)
+}
+....

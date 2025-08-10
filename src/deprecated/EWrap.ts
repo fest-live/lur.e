@@ -7,31 +7,6 @@ import { createElement } from "../DOM/Utils";
 import { bindEvents, reflectControllers, bindWith, $virtual, elMap } from '../core/Binding';
 import { handleProperty, handleHidden, handleAttribute,  } from "../core/Handler";
 
-/**
- * Параметры для создания или конфигурирования элемента.
- * @typedef {Object} Params
- * @property {Set<string>} [classList]
- * @property {Object} [attributes]
- * @property {Object} [dataset]
- * @property {Object} [properties]
- * @property {Object} [behaviors]
- * @property {Array|Set|Map} [stores]
- * @property {Object|string} [style]
- * @property {string} [slot]
- * @property {string} [name]
- * @property {string} [type]
- * @property {string} [icon]
- * @property {string} [role]
- * @property {boolean|string} [inert]
- * @property {any} [mixins]
- * @property {any} [ctrls]
- * @property {string} [is]
- * @property {string} [part]
- * @property {Object} [on]
- * @property {any} [hidden]
- * @property {any} [aria]
- * @property {any[]} [rules]
- */
 interface Params {
     classList?: Set<string>;
     attributes?: any;
@@ -56,21 +31,11 @@ interface Params {
     rules?: any[];
 };
 
-/**
- * Класс виртуального элемента для управления DOM-элементами и их атрибутами, стилями, событиями и пр.
- */
 export class El {
-    /** Дочерние элементы */
     children: any[];
-    /** Параметры элемента */
     params: Params;
-    /** CSS-селектор или DOM-элемент */
     selector: string;
 
-    /**
-     * Обновляет дочерние элементы в DOM (реформирует структуру детей).
-     * @returns {this} Текущий экземпляр класса.
-     */
     reform() {
         if ((this.element instanceof HTMLElement || this.element instanceof DocumentFragment) && this.children) {
             reformChildren(this.element, this.children);
@@ -78,18 +43,9 @@ export class El {
         return this;
     }
 
-    /**
-     * Конструктор класса El.
-     * @param {string | HTMLElement | DocumentFragment | Text} selector - строка селектора или DOM-узел.
-     * @param {Params} [params={}] - параметры элемента.
-     * @param {any[]} [children] - дочерние элементы или observableArray.
-     */
     constructor(selector, params = {}, children?) {
-        /** @type {any[]} */
         this.children = children || makeReactive([]);
-        /** @type {Params} */
         this.params = params;
-        /** @type {string} */
         this.selector = selector;
 
         // Если selector не строка, то считаем, что это элемент
@@ -98,16 +54,10 @@ export class El {
         }
     }
 
-    /** @ignore */
     get [$virtual]() {
         return true;
     }
 
-    /**
-     * Возвращает или создает DOM-элемент, соответствующий данному виртуальному элементу.
-     * Выполняет рефлексию атрибутов, стилей, событий, и т.д.
-     * @returns {HTMLElement | DocumentFragment | Text} DOM-элемент
-     */
     get element(): HTMLElement | DocumentFragment | Text {
         if (elMap.has(this)) {
             const el = elMap.get(this);
@@ -116,7 +66,6 @@ export class El {
             }
         }
 
-        /** @type {HTMLElement | DocumentFragment | Text} */
         const element =
             typeof this.selector == "string"
                 ? createElement(this.selector)
@@ -158,13 +107,6 @@ export class El {
     }
 }
 
-/**
- * Создаёт экземпляр El на основе CSS-селектора, параметров и детей.
- * @param {string} selector - CSS-селектор или имя тега для элемента.
- * @param {Object} [params={}] - Необязательный объект параметров (атрибуты, события и т.д.).
- * @param {any} [children] - Необязательные дочерние элементы или контент.
- * @returns {El} Экземпляр El.
- */
 export const E = (selector, params = {}, children?) => { return new El(selector, params, children); }
 
 //

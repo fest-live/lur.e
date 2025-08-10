@@ -5,36 +5,17 @@ import { getNode  } from "../context/Utils";
 const inProx = new WeakMap(), contextify = (pc: any, name: any) =>
     { return (typeof pc?.[name] == "function" ? pc?.[name]?.bind?.(pc) : pc?.[name]); }
 
-/**
- * @typedef {Object} SwitchedParams
- * @property {{value: number}} index - индекс активного элемента
- * @property {any[]} mapped - массив маппированных элементов
- */
 interface SwitchedParams {  // interactive or reactive iterator
     current: { value: number }; // candidates
     mapped: any[];
 }
 
-/**
- * @class Sw
- * A class for switching between DOM nodes based on a reactive index.
- */
 const SwM = {
-    /**
-     * Returns the DOM element fragment corresponding to the current index.
-     * If no index is selected, returns an empty document fragment.
-     * @returns {Node} The corresponding DOM Node or DocumentFragment.
-     */
     get element(): Node {
         if (this.current < 0) return document.createDocumentFragment();
         return getNode(this.mapped?.[this.current]);
     },
 
-    /**
-     * Handles updates when the reactive index value changes.
-     * Replaces or inserts DOM nodes as necessary based on index changes.
-     * @private
-     */
     _onUpdate(): void {
         const idx = this.current?.value ?? -1;
         if (idx !== this.current) {
@@ -79,11 +60,6 @@ export class SwHandler implements ProxyHandler<SwitchedParams> {
     isExtensible(params: SwitchedParams) { return Reflect.isExtensible(params?.mapped?.[params?.current?.value]); }
 }
 
-/**
- * Создаёт экземпляр Sw на основе переданных параметров.
- * @param {any} params - Параметры для создания Sw.
- * @returns {Sw} Экземпляр Sw.
- */
 export const I = (params: SwitchedParams) => { // @ts-ignore
     return inProx?.getOrInsertComputed?.(params, ()=>{
         const px = new Proxy(params, new SwHandler());

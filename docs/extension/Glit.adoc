@@ -1,0 +1,8 @@
+= Glit.ts
+:source_path: modules/lur.e/src/extension/Glit.ts
+
+Auto-generated documentation.
+
+== Exports
+- functions: generateName(length = 8), defineElement(name: string, options?: any|null), property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {})
+- consts: loadCachedStyles, customElement, GLitElement

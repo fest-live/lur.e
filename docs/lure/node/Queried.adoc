@@ -1,0 +1,50 @@
+= Queried.ts
+:source_path: modules/lur.e/src/lure/node/Queried.ts
+
+Auto-generated documentation.
+
+== Exports
+- classes: UniversalElementHandler
+- consts: queryExtensions, existsQueries, alreadyUsed, Q, extendQueryPrototype
+
+=== UniversalElementHandler
+[mermaid]
+....
+classDiagram
+class UniversalElementHandler {
+  +_observeDOMChange(target, selector, cb)
+  +_observeAttributes(target, attribute, cb)
+  +_getArray(target)
+  +if(typeof target == "function")
+  +if(typeof this.selector == "string")
+  +if(this.direction === "children")
+  +_getSelected(target)
+  +if(typeof sel == "string")
+  +if(this.direction === "parent")
+  +_redirectToBubble(eventName)
+  +_addEventListener(target, name, cb, option?)
+  +_removeEventListener(target, name, cb, option?)
+  +_selector(tg)
+  +if(typeof this.selector == "string" && typeof tg?.selector == "string")
+  +get(target, name, ctx)
+  +if(name in queryExtensions)
+  +if(name === "length" && array?.length != null)
+  +if(name === "attributeStyleMap")
+  +if(name === "getAttribute")
+  +if(name === "setAttribute")
+  +if(name === "removeAttribute")
+  +if(name === "hasAttribute")
+  +if(name === "element")
+  +if(origin?.[name] != null)
+  +if(array?.[name] != null)
+  +set(target, name, value)
+  +if(array[name] != null)
+  +if(selected)
+  +has(target, name)
+  +deleteProperty(target, name)
+  +if(selected && name in selected)
+  +ownKeys(target)
+  +defineProperty(target, name, desc)
+  +apply(target, self, args)
+}
+....

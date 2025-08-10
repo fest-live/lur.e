@@ -1,0 +1,7 @@
+= Styles.ts
+:source_path: modules/lur.e/src/extension/Styles.ts
+
+Auto-generated documentation.
+
+== Exports
+- consts: S, css

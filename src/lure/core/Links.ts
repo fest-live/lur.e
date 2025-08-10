@@ -3,13 +3,6 @@ import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref } from "
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
 
-/**
- * Make a two-way <-> ref to a localStorage string value, auto-update on change and storage events
- * @template T
- * @param {string} key storage key
- * @param {T|{value:T}} [initial] initial value (used/converted to string if not there)
- * @returns {ReturnType<typeof stringRef>}
- */
 export const localStorageLinkMap = new Map<string, any>();
 export const localStorageLink = (exists: any|null, key, initial) => {
     // de-assign local storage link for key
@@ -31,11 +24,6 @@ export const localStorageLink = (exists: any|null, key, initial) => {
     });
 }
 
-/**
- * Create a booleanRef that reflects matchMedia state. You cannot write to it.
- * @param {string} condition CSS media query string
- * @returns {ReturnType<typeof booleanRef>}
- */
 export const matchMediaLink = (exists: any|null, condition: string) => {
     const med = matchMedia(condition), def = med?.matches || false;
     const ref = exists ?? booleanRef(def); ref.value ??= def;
@@ -43,12 +31,6 @@ export const matchMediaLink = (exists: any|null, condition: string) => {
     return () => { med?.removeEventListener?.("change", evf); };
 }
 
-/**
- * Create a booleanRef for an element's "data-hidden" visible state, one-way
- * @param {Element} element
- * @param {*} [initial]
- * @returns {ReturnType<typeof booleanRef>}
- */
 export const visibleLink = (exists: any|null, element, initial?) => {
     if (element == null) return;
     const def = (initial?.value ?? (typeof initial != "object" ? initial : null)) ?? (element?.getAttribute?.("data-hidden") == null);
@@ -64,26 +46,11 @@ export const visibleLink = (exists: any|null, element, initial?) => {
     };
 }
 
-/**
- * Attribute two-way binding
- * @template T
- * @param {Element} element
- * @param {string} attribute
- * @param {T|{value:T}} [initial]
- * @returns {ReturnType<typeof stringRef>}
- */
 export const attrLink = (exists: any|null, element, attribute: string, initial?) => {
     const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
     if (!element) return; const val = exists ?? stringRef(def); val.value ||= def; return bindWith(element, attribute, val, handleAttribute, null, true);
 }
 
-/**
- * Numeric ref of the element size (inline/block, observed with ResizeObserver)
- * @param {Element} element
- * @param {"inline"|"block"} axis
- * @param {ResizeObserverBoxOptions} [box='border-box']
- * @returns {ReturnType<typeof numberRef>}
- */
 export const sizeLink = (exists: any|null, element, axis: "inline" | "block", box: ResizeObserverBoxOptions = "border-box") => {
     const def = box == "border-box" ? element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"] : (element?.[axis == "inline" ? "clientWidth" : "clientHeight"] - getPadding(element, axis));
     const val = exists ?? numberRef(def); val.value ||= (def ?? val.value) || 1;
@@ -96,13 +63,6 @@ export const sizeLink = (exists: any|null, element, axis: "inline" | "block", bo
     return ()=>obs?.disconnect?.();
 }
 
-/**
- * Numeric ref for scroll offset of an element (auto two-way)
- * @param {Element} element
- * @param {"inline"|"block"} axis
- * @param {*} [initial]
- * @returns {ReturnType<typeof numberRef>}
- */
 export const scrollLink = (exists: any|null, element, axis: "inline" | "block" = "inline", initial?) => {
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (initial?.value ?? initial) }); };
     const def = element?.[axis == "block" ? "scrollTop" : "scrollLeft"];
@@ -112,11 +72,6 @@ export const scrollLink = (exists: any|null, element, axis: "inline" | "block" =
     element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };
 }
 
-/**
- * Boolean ref for checkbox element (auto two-way)
- * @param {HTMLInputElement} element
- * @returns {ReturnType<typeof booleanRef>}
- */
 export const checkedLink = (exists: any|null, element) => {
     const def = (!!element?.checked) || false;
     const val = exists ?? booleanRef(def); val.value ??= def;
@@ -130,11 +85,6 @@ export const checkedLink = (exists: any|null, element) => {
     return ()=>{ usb?.(); dbf?.(); };
 }
 
-/**
- * String ref for text input elements (auto two-way)
- * @param {HTMLInputElement|HTMLTextAreaElement} element
- * @returns {ReturnType<typeof stringRef>}
- */
 export const valueLink = (exists: any|null, element) => {
     const def = element?.value;
     const val = exists ?? stringRef(def || ""); val.value ??= def ?? val.value ?? "";
@@ -148,11 +98,6 @@ export const valueLink = (exists: any|null, element) => {
     return ()=>{ usb?.(); dbf?.(); };
 }
 
-/**
- * Number ref for number inputs (auto two-way)
- * @param {HTMLInputElement} element
- * @returns {ReturnType<typeof numberRef>}
- */
 export const valueAsNumberLink = (exists: any|null, element) => {
     const def = Number(element?.valueAsNumber) || 0;
     const val = exists ?? numberRef(def); val.value ??= def;
@@ -166,13 +111,6 @@ export const valueAsNumberLink = (exists: any|null, element) => {
     return ()=>{ usb?.(); dbf?.(); };
 }
 
-/**
- * Observe and reactively assign size styles to a reactive object
- * @param {Element} element
- * @param {ResizeObserverBoxOptions} box
- * @param {object} [styles] reactive object (will be created if omitted)
- * @returns {object} styles
- */
 export const observeSizeLink = (exists: any|null, element, box, styles?) => {
     if (!styles) styles = exists ?? makeReactive({}); let obs: any = null;
     (obs = new ResizeObserver((mut) => {
@@ -192,11 +130,6 @@ export const observeSizeLink = (exists: any|null, element, box, styles?) => {
     return () => { obs?.disconnect?.(); };
 }
 
-/**
- * Create a controller ref which fires all boundBehaviors except self on change
- * @param {*} value
- * @returns {any}
- */
 export const refCtl = (value) => {
     let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
         (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);

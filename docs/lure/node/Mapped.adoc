@@ -1,0 +1,18 @@
+= Mapped.ts
+:source_path: modules/lur.e/src/lure/node/Mapped.ts
+
+Auto-generated documentation.
+
+== Exports
+- classes: Mp
+- consts: M
+
+=== Mp
+[mermaid]
+....
+classDiagram
+class Mp {
+  +if(typeof args?.[0] == "object" || typeof args?.[0] == "function")
+  +_onUpdate()
+}
+....

@@ -1,38 +1,15 @@
 import { addToCallChain, makeReactive, subscribe } from "fest/object";
 import { camelToKebab, handleListeners, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
 
-/**
- * @type {WeakMap<any, (HTMLElement|DocumentFragment|Text)>}
- * @description Сопоставляет объектам соответствующие DOM-узлы.
- */
 export const elMap  = new WeakMap<any, WeakMap<any, any>>();
 export const alives = new FinalizationRegistry((unsub: any) => unsub?.());
 
-/**
- * Symbol for mapped state
- * @type {unique symbol}
- */
 export const $mapped = Symbol.for("@mapped");
 
-/**
- * Symbol for virtual state
- * @type {unique symbol}
- */
 export const $virtual = Symbol.for("@virtual");
 
-/**
- * Symbol for behavior marker
- * @type {unique symbol}
- */
 export const $behavior = Symbol.for("@behavior");
 
-/**
- * Bind reactive behavior to an element given a store and behavior function
- * @param {Element} element
- * @param {[string, any]} store [name, object]
- * @param {(event: any, context: [WeakRef<Element>, [string,any], any])=>void} behavior
- * @returns {Element}
- */
 export const bindBeh = (element, store, behavior) => {
     const weak = element instanceof WeakRef ? element : new WeakRef(element), [name, obj] = store;
     if (behavior) {
@@ -44,35 +21,18 @@ export const bindBeh = (element, store, behavior) => {
     }; return element;
 }
 
-/**
- * Bind event controller (checkboxCtrl, valueCtrl etc) to element and set initial value.
- * Returns a cancel function.
- * @param {Element} element
- * @param {(ev: Event) => void} ctrl
- * @returns {()=>void} cancel function
- */
 export const bindCtrl = (element, ctrlCb) => {
     const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb };
     ctrlCb?.({ target: element }); handleListeners?.(element, "addEventListener", hdl);
     return () => handleListeners?.(new WeakRef(element), "removeEventListener", hdl);
 }
 
-/**
- * Reflect multiple event ctrls on an element (does not support cancel)
- * @param {Element} element
- * @param {Array<Function>} ctrls
- * @returns {Element}
- */
 export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
 
 //
 export const $fxy = Symbol.for("@fix"), fixFx = (obj) => { if (typeof obj == "function" || obj == null) return obj; const fx = function(){}; fx[$fxy] = obj; return fx; }
 export const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
 
-/**
- * Универсальная функция для установки значения, подписки на изменения и обработки через handler.
- * Если передан set=true, то создаётся MutationObserver для отслеживания изменений атрибута.
- */
 export const $observeAttribute = (el: HTMLElement, prop: string, value: any) => {
     const wv = new WeakRef(value);
     const cb = (mutation)=>{
@@ -104,14 +64,6 @@ export const hasInBank = (el, handle)=>{
     return !!bank?.has?.(handle);
 }
 
-/**
- * Bind reactive style/prop handler for a ref to an element property, using an optional set WeakRef
- * @param {WeakRef<Element>} el
- * @param {any} value ref object
- * @param {string} prop property name
- * @param {Function} handler handler function
- * @param {WeakRef<any>} [set]
- */
 export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean) => {
     if (!el || value?.value == null || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
 
