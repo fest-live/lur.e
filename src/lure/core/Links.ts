@@ -3,6 +3,7 @@ import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref } from "
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
 
+//
 export const localStorageLinkMap = new Map<string, any>();
 export const localStorageLink = (exists: any|null, key, initial) => {
     // de-assign local storage link for key
@@ -24,6 +25,7 @@ export const localStorageLink = (exists: any|null, key, initial) => {
     });
 }
 
+//
 export const matchMediaLink = (exists: any|null, condition: string) => {
     const med = matchMedia(condition), def = med?.matches || false;
     const ref = exists ?? booleanRef(def); ref.value ??= def;
@@ -31,6 +33,7 @@ export const matchMediaLink = (exists: any|null, condition: string) => {
     return () => { med?.removeEventListener?.("change", evf); };
 }
 
+//
 export const visibleLink = (exists: any|null, element, initial?) => {
     if (element == null) return;
     const def = (initial?.value ?? (typeof initial != "object" ? initial : null)) ?? (element?.getAttribute?.("data-hidden") == null);
@@ -46,11 +49,13 @@ export const visibleLink = (exists: any|null, element, initial?) => {
     };
 }
 
+//
 export const attrLink = (exists: any|null, element, attribute: string, initial?) => {
     const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
     if (!element) return; const val = exists ?? stringRef(def); val.value ||= def; return bindWith(element, attribute, val, handleAttribute, null, true);
 }
 
+//
 export const sizeLink = (exists: any|null, element, axis: "inline" | "block", box: ResizeObserverBoxOptions = "border-box") => {
     const def = box == "border-box" ? element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"] : (element?.[axis == "inline" ? "clientWidth" : "clientHeight"] - getPadding(element, axis));
     const val = exists ?? numberRef(def); val.value ||= (def ?? val.value) || 1;
@@ -63,6 +68,7 @@ export const sizeLink = (exists: any|null, element, axis: "inline" | "block", bo
     return ()=>obs?.disconnect?.();
 }
 
+//
 export const scrollLink = (exists: any|null, element, axis: "inline" | "block" = "inline", initial?) => {
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (initial?.value ?? initial) }); };
     const def = element?.[axis == "block" ? "scrollTop" : "scrollLeft"];
@@ -72,6 +78,7 @@ export const scrollLink = (exists: any|null, element, axis: "inline" | "block" =
     element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };
 }
 
+//
 export const checkedLink = (exists: any|null, element) => {
     const def = (!!element?.checked) || false;
     const val = exists ?? booleanRef(def); val.value ??= def;
@@ -85,6 +92,7 @@ export const checkedLink = (exists: any|null, element) => {
     return ()=>{ usb?.(); dbf?.(); };
 }
 
+//
 export const valueLink = (exists: any|null, element) => {
     const def = element?.value;
     const val = exists ?? stringRef(def || ""); val.value ??= def ?? val.value ?? "";
@@ -98,6 +106,7 @@ export const valueLink = (exists: any|null, element) => {
     return ()=>{ usb?.(); dbf?.(); };
 }
 
+//
 export const valueAsNumberLink = (exists: any|null, element) => {
     const def = Number(element?.valueAsNumber) || 0;
     const val = exists ?? numberRef(def); val.value ??= def;
@@ -111,6 +120,7 @@ export const valueAsNumberLink = (exists: any|null, element) => {
     return ()=>{ usb?.(); dbf?.(); };
 }
 
+//
 export const observeSizeLink = (exists: any|null, element, box, styles?) => {
     if (!styles) styles = exists ?? makeReactive({}); let obs: any = null;
     (obs = new ResizeObserver((mut) => {
@@ -130,6 +140,7 @@ export const observeSizeLink = (exists: any|null, element, box, styles?) => {
     return () => { obs?.disconnect?.(); };
 }
 
+//
 export const refCtl = (value) => {
     let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
         (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);

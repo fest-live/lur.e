@@ -8,9 +8,9 @@ const
 
 //
 export const camelToKebab = (str) => { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
-
 export const kebabToCamel = (str) => { return str?.replace?.(/-([a-z])/g, (_, char) => char.toUpperCase()); }
 
+//
 export const createElement = (selector): HTMLElement | DocumentFragment => {
     if (selector == ":fragment:") return document.createDocumentFragment();
     const create = document.createElement.bind(document);
@@ -25,6 +25,7 @@ export const createElement = (selector): HTMLElement | DocumentFragment => {
     return node;
 };
 
+//
 export const $getNode = (E, mapper?: Function, index?: number) => {
     if (mapper != null) { return (E = getNode(mapper?.(E, index))); }
     if (E instanceof Node || E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) { return E; } else
@@ -44,12 +45,14 @@ export const getNode = (E, mapper?: Function, index?: number)=>{
     return $getNode(E, mapper, index);
 }
 
+//
 export const appendChild = (element, cp, mapper?) => {
     if (mapper != null) { cp = mapper?.(cp) ?? cp; }
     if (cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.[$virtual] || cp?.[$mapped])) { element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp?.children))); } else
         if (Array.isArray(unwrap(cp))) { element?.append?.(...unwrap(cp?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp))); } else { const node = getNode(cp); if (node != null && (!node?.parentNode || node?.parentNode != element)) { element?.append?.(node); } }
 }
 
+//
 export const replaceChildren = (element, cp, mapper?, index?) => {
     if (mapper != null) { cp = mapper?.(cp) ?? cp; }
     const cn = index >= 0 ? element?.childNodes?.[index] : null;
@@ -60,6 +63,7 @@ export const replaceChildren = (element, cp, mapper?, index?) => {
     }
 }
 
+//
 export const removeChild = (element, cp, mapper?, index = -1) => {
     if (element?.childNodes?.length < 1) return;
     const node = getNode(cp = mapper?.(cp) ?? cp);
@@ -71,12 +75,14 @@ export const removeChild = (element, cp, mapper?, index = -1) => {
     return element;
 }
 
+//
 export const removeNotExists = (element, children, mapper?) => {
     const uw = Array.from(unwrap(children))?.map?.((cp) => getNode(mapper?.(cp) ?? cp));
     Array.from(element.childNodes).forEach((nd: any) => { if (uw!?.find?.((cp) => (cp == nd))) nd?.remove?.(); });
     return element;
 }
 
+//
 export const T = (ref) => {
     // @ts-ignore // !experimental `getOrInsert` feature!
     return elMap.getOrInsertComputed(ref, () => {

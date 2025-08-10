@@ -8,8 +8,12 @@ import { reflectChildren } from "../context/Reflect";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
+
+//
 const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType === Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.includes("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
-const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[], fragment?)=>{
+
+//
+const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[], fragment?: DocumentFragment)=>{
     if (!el) return el;
     if (el != null) {
         const attributes = {};
@@ -33,7 +37,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
         }
 
         //
-        if (!EMap.has(el)) { cmdBuffer.push(()=>{
+        if (!EMap.has(el)) { cmdBuffer.push(()=>{ // @ts-ignore
             const ex = E(el, {aria, attributes, classList, dataset, style, properties, on, ctrls}, mapped.has(el) ? M(iterate, mapped.get(el)) : makeReactive(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
             if (typeof doAction == "function") { doAction?.(el); } else if (doAction != null && typeof doAction == "object") { doAction.value = el; }
             if (el != ex) { EMap.set(el, ex); }; return ex;
@@ -42,7 +46,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
 }
 
 //
-const removeFromRoot = (node: any, fragment?)=>{
+const removeFromRoot = (node: any, fragment?: DocumentFragment)=>{
     if (node?.parentNode?.tagName == "TEMPLATE" || node?.parentNode?.tagName == "BODY" || node?.parentNode?.tagName == "HTML") {
         node?.remove?.();
         if (node?.tagName != "TEMPLATE" && node?.tagName != "BODY" && node?.tagName != "HTML") { fragment?.append?.(node); }
@@ -50,7 +54,9 @@ const removeFromRoot = (node: any, fragment?)=>{
 }
 
 //
-export function html(strings, ...values) { return htmlBuilder({ createElement: null })(strings, ...values); }
+export function html(strings, ...values) { return htmlBuilder({ createElement: null })(strings, ...values); };
+
+//
 export function htmlBuilder({ createElement = null } = {}) {
     return function(strings, ...values) {
         let parts: string[] = [];
@@ -131,3 +137,6 @@ export const H = (str: any, ...values: any[])=>{
     if (Array.isArray(str) && values) { return html(str, ...values); } else
     if (str instanceof Node) { return str; }; return null;
 }
+
+//
+export default H;

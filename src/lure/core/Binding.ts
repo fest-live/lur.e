@@ -4,12 +4,12 @@ import { camelToKebab, handleListeners, namedStoreMaps, observeAttribute, observ
 export const elMap  = new WeakMap<any, WeakMap<any, any>>();
 export const alives = new FinalizationRegistry((unsub: any) => unsub?.());
 
+//
 export const $mapped = Symbol.for("@mapped");
-
 export const $virtual = Symbol.for("@virtual");
-
 export const $behavior = Symbol.for("@behavior");
 
+//
 export const bindBeh = (element, store, behavior) => {
     const weak = element instanceof WeakRef ? element : new WeakRef(element), [name, obj] = store;
     if (behavior) {
@@ -21,18 +21,21 @@ export const bindBeh = (element, store, behavior) => {
     }; return element;
 }
 
+//
 export const bindCtrl = (element, ctrlCb) => {
     const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb };
     ctrlCb?.({ target: element }); handleListeners?.(element, "addEventListener", hdl);
     return () => handleListeners?.(new WeakRef(element), "removeEventListener", hdl);
 }
 
+//
 export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
 
 //
 export const $fxy = Symbol.for("@fix"), fixFx = (obj) => { if (typeof obj == "function" || obj == null) return obj; const fx = function(){}; fx[$fxy] = obj; return fx; }
 export const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
 
+//
 export const $observeAttribute = (el: HTMLElement, prop: string, value: any) => {
     const wv = new WeakRef(value);
     const cb = (mutation)=>{
@@ -52,6 +55,8 @@ export const $observeAttribute = (el: HTMLElement, prop: string, value: any) => 
 
 // @ts-ignore // Stable Universal Key Assignation - eg. [S.U.K.A.]
 export const removeFromBank = (el, handler, prop) => { const bank = elMap?.get(el)?.get?.(handler); if (bank) { const old = bank[prop]?.[1]; delete bank[prop]; old?.(); } }
+
+//
 export const      addToBank = (el, handler, prop, forLink) => { // @ts-ignore
     const bank      = elMap?.getOrInsert?.(el, new WeakMap());
     const handlerMap = bank?.getOrInsert?.(handler, {}) ?? {};
@@ -64,6 +69,7 @@ export const hasInBank = (el, handle)=>{
     return !!bank?.has?.(handle);
 }
 
+//
 export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean) => {
     if (!el || value?.value == null || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
 
@@ -91,6 +97,8 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
 
 //
 export const includeSelf = (target, selector)=>{ return (target.querySelector(selector) ?? (target.matches(selector) ? target : null)); }
+
+//
 export const updateInput = (target, state)=>{
     const selector = "input:where([type=\"text\"], [type=\"number\"], [type=\"range\"])";
     const input    = includeSelf(target, "input");
@@ -124,7 +132,11 @@ export const updateInput = (target, state)=>{
 
 //
 export const bindEvents = (el, events)=>{ if (events) { Object.entries(events)?.forEach?.(([name, list]) => (list as any)?.values()?.forEach?.((fn) => el.addEventListener(name, (typeof fn == "function") ? fn : fn?.[0], fn?.[1] || {}))); } }
+
+//
 export const bindWith   = (el, prop, value, handler, set?, withObserver?: boolean)=>{ handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver); }
+
+//
 export const bindForms  = (fields = document.documentElement, wrapper = ".u2-input", state = {})=>{
     state ??= makeReactive({});
 

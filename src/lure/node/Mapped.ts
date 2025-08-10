@@ -3,15 +3,14 @@ import { getNode } from "../context/Utils";
 import { $mapped } from "../core/Binding";
 import { reformChildren } from "../context/Reflect";
 
-export class Mp {
+//
+class Mp {
     #observable?: any[];
-
     #fragments: DocumentFragment;
-
     #mapCb: any;
-
     #reMap: WeakMap<any, any>;
 
+    //
     constructor(observable, mapCb = (el) => el) {
         this.#reMap = new WeakMap();
         this.#fragments = document.createDocumentFragment();
@@ -20,12 +19,12 @@ export class Mp {
         this._onUpdate();
     }
 
+    //
     get [$mapped]() { return true; }
-
     get element(): HTMLElement | DocumentFragment | Text | null { return this.#fragments; }
-
     get children() { return this.#observable; }
 
+    //
     get mapper() {
         return (...args) => {
             if (typeof args?.[0] == "object" || typeof args?.[0] == "function") {
@@ -36,6 +35,7 @@ export class Mp {
         }
     }
 
+    //
     _onUpdate() {
         Array.from(this.#fragments?.childNodes)?.forEach?.((nd) => nd?.remove?.());
         return reformChildren(
@@ -46,7 +46,8 @@ export class Mp {
     }
 }
 
-export const M = (observable, mapCb?) => { return new Mp(observable, mapCb); }
+//
+export const M = (observable, mapCb?) => { return new Mp(observable, mapCb); };
 
 //
 export default M;

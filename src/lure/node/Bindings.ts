@@ -7,6 +7,7 @@ import { subscribe } from "fest/object";
 import { createElement } from "../context/Utils";
 import { Q } from "./Queried";
 
+//
 interface Params {
     classList?: Set<string>;
     attributes?: any;
@@ -39,6 +40,7 @@ export const Qp = (ref, host = document.documentElement)=>{
     return actual;
 }
 
+//
 export const E = (selector: string | HTMLElement, params: Params = {}, children?: any[]|null) => {
     const element = typeof selector == "string" ? Qp(createElement(selector)) : selector;
     if (element && params) {

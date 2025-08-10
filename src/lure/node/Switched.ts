@@ -5,17 +5,20 @@ import { getNode  } from "../context/Utils";
 const inProx = new WeakMap(), contextify = (pc: any, name: any) =>
     { return (typeof pc?.[name] == "function" ? pc?.[name]?.bind?.(pc) : pc?.[name]); }
 
+//
 interface SwitchedParams {  // interactive or reactive iterator
     current: { value: number }; // candidates
     mapped: any[];
 }
 
+//
 const SwM = {
     get element(): Node {
         if (this.current < 0) return document.createDocumentFragment();
         return getNode(this.mapped?.[this.current]);
     },
 
+    //
     _onUpdate(): void {
         const idx = this.current?.value ?? -1;
         if (idx !== this.current) {
@@ -37,7 +40,7 @@ const SwM = {
 }
 
 //
-export class SwHandler implements ProxyHandler<SwitchedParams> {
+class SwHandler implements ProxyHandler<SwitchedParams> {
     constructor() {}
 
     //
@@ -60,6 +63,7 @@ export class SwHandler implements ProxyHandler<SwitchedParams> {
     isExtensible(params: SwitchedParams) { return Reflect.isExtensible(params?.mapped?.[params?.current?.value]); }
 }
 
+//
 export const I = (params: SwitchedParams) => { // @ts-ignore
     return inProx?.getOrInsertComputed?.(params, ()=>{
         const px = new Proxy(params, new SwHandler());

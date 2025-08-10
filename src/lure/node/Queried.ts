@@ -2,25 +2,25 @@ import { MOCElement, getStyleRule, handleAttribute, observeAttribute, observeAtt
 import { bindWith, elMap } from "../core/Binding";
 
 //
-export const queryExtensions = {
+const queryExtensions = {
     logAll (ctx) { return ()=> console.log("attributes:", [...ctx?.attributes].map(x => ({ name: x.name, value: x.value })) ); },
     append (ctx) { return (...args)=> ctx?.append?.(...([...args||[]]?.map?.((e)=>e?.element??e) || args)) },
     current(ctx) { return ctx; } // direct getter
 }
 
 //
-export const existsQueries = new WeakMap<any, Map<string|HTMLElement, any>>();
-export const alreadyUsed   = new WeakMap();
+const existsQueries = new WeakMap<any, Map<string|HTMLElement, any>>();
+const alreadyUsed   = new WeakMap();
 
 //
-const containsOrSelf = (a, b)=>{
+const containsOrSelf = (a: any, b: any)=>{
     if (a == b) return true;
     if (a?.contains?.(b) || a?.getRootNode()?.host?.contains?.(b)) return true;
     return false;
 }
 
 //
-export class UniversalElementHandler {
+class UniversalElementHandler {
     direction: "children" | "parent" = "children";
     selector: string | HTMLElement;
     index: number = 0;
@@ -34,17 +34,17 @@ export class UniversalElementHandler {
     }
 
     //
-    _observeDOMChange(target, selector, cb) {
+    _observeDOMChange(target: any, selector: any, cb: any) {
         // no possible to listen to DOM change for non-string selector
         return (typeof selector == "string" ? observeBySelector(target, selector, cb) : null);
     }
 
     //
-    _observeAttributes(target, attribute, cb)
+    _observeAttributes(target: any, attribute: any, cb: any)
         { return (typeof this.selector == "string" ? observeAttributeBySelector(target, this.selector, attribute, cb) : observeAttribute(target ?? this.selector, attribute, cb)); }
 
     //
-    _getArray(target) {
+    _getArray(target: any) {
         if (typeof target == "function") { target = this.selector || target?.(this.selector); }; if (!this.selector) return [target];
         if (typeof this.selector == "string") {
             const inclusion = target?.matches?.(this.selector) ? [target] : [];
@@ -61,7 +61,7 @@ export class UniversalElementHandler {
     }
 
     //
-    _getSelected(target) {
+    _getSelected(target: any) {
         const tg = target?.self ?? target;
         const sel = this._selector(target);
         if (typeof sel == "string") {
@@ -72,7 +72,7 @@ export class UniversalElementHandler {
     }
 
     //
-    _redirectToBubble(eventName) {
+    _redirectToBubble(eventName: any) {
         return {
             ["pointerenter"]: "pointerover",
             ["pointerleave"]: "pointerout",
@@ -84,7 +84,7 @@ export class UniversalElementHandler {
     }
 
     //
-    _addEventListener(target, name, cb, option?) {
+    _addEventListener(target: any, name: any, cb: any, option?: any) {
         const eventName = this._redirectToBubble(name);
         const parent = target?.self ?? target;
         const wrap = (ev) => {
@@ -115,7 +115,7 @@ export class UniversalElementHandler {
     }
 
     //
-    _removeEventListener(target, name, cb, option?) {
+    _removeEventListener(target: any, name: any, cb: any, option?: any) {
         const parent = target?.self ?? target;
         const eventName = this._redirectToBubble(name), eventMap = this._eventMap.get(parent);
         if (!eventMap) return; const cbMap = eventMap.get(eventName), entry = cbMap?.get?.(cb);
@@ -125,13 +125,13 @@ export class UniversalElementHandler {
     }
 
     //
-    _selector(tg) {
+    _selector(tg: any) {
         if (typeof this.selector == "string" && typeof tg?.selector == "string") { return ((tg?.selector || "") + " " + this.selector)?.trim?.(); }
         return this.selector;
     }
 
     //
-    get(target, name, ctx) {
+    get(target: any, name: any, ctx: any) {
         const array = this._getArray(target);
         const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
 
@@ -245,7 +245,7 @@ export class UniversalElementHandler {
     }
 
     //
-    set(target, name, value) {
+    set(target: any, name: any, value: any) {
         const array = this._getArray(target);
         const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
 
@@ -257,7 +257,7 @@ export class UniversalElementHandler {
     }
 
     //
-    has(target, name) {
+    has(target: any, name: any) {
         const array = this._getArray(target);
         const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
         return (
@@ -268,7 +268,7 @@ export class UniversalElementHandler {
     }
 
     //
-    deleteProperty(target, name) {
+    deleteProperty(target: any, name: any) {
         const array = this._getArray(target);
         const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
         if (selected && name in selected) { delete selected[name]; return true; }
@@ -276,7 +276,7 @@ export class UniversalElementHandler {
     }
 
     //
-    ownKeys(target) {
+    ownKeys(target: any) {
         const array = this._getArray(target);
         const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
         const keys = new Set();
@@ -287,7 +287,7 @@ export class UniversalElementHandler {
     }
 
     //
-    defineProperty(target, name, desc) {
+    defineProperty(target: any, name: any, desc: any) {
         const array = this._getArray(target);
         const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
         if (selected) { Object.defineProperty(selected, name, desc); return true; }
@@ -295,7 +295,7 @@ export class UniversalElementHandler {
     }
 
     //
-    apply(target, self, args) {
+    apply(target: any, self: any, args: any) {
         args[0] ||= this.selector;
         const result = target?.apply?.(self, args);
         this.selector = result || this.selector;
@@ -304,7 +304,7 @@ export class UniversalElementHandler {
 }
 
 //
-export const Q = (selector, host = document.documentElement, index = 0, direction: "children" | "parent" = "children") => {
+export const Q = (selector: any, host = document.documentElement, index = 0, direction: "children" | "parent" = "children") => {
     // is wrapped element or element itself
     if ((selector?.element ?? selector) instanceof HTMLElement) {
         const el = selector?.element ?? selector; // @ts-ignore
@@ -328,6 +328,9 @@ export const Q = (selector, host = document.documentElement, index = 0, directio
 
 // syntax:
 // - [name]: (ctx) => function() {}
-export const extendQueryPrototype = (extended: any = {})=>{
+export const extendQueryPrototype = (extended: any = {})=>{ // @ts-ignore
     return Object.assign(queryExtensions, extended);
 }
+
+//
+export default Q;
