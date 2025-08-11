@@ -70,7 +70,7 @@ export function htmlBuilder({ createElement = null } = {}) {
                     if (dat.id) parts.push(` id="${dat.id}"`);
                     if (dat.className) parts.push(` class="${dat.className}"`);
                 } else {
-                    const $betweenQuotes    = strings[i]?.trim?.()?.match?.(/^['"]/) && (strings[i+1]?.trim?.()?.match?.(/['"]$/) ?? true);
+                    const $betweenQuotes    = strings[i]?.trim?.()?.match?.(/['"]$/) && (strings[i+1]?.trim?.()?.match?.(/^['"]/) ?? true);
                     const $stylePattern     = strings[i]?.trim?.()?.endsWith?.(":") || strings[i+1]?.trim?.()?.startsWith?.(";"); const $pt = strings[i+1]?.search?.(/^[\s\n\r>]/);
                     const $attributePattern = strings[i]?.trim?.()?.endsWith?.("=") && !($pt != null ? $pt : false);
                     const $needsToQuoteWrap = strings[i]?.trim?.()?.endsWith?.("=") || !$betweenQuotes; const $DQD = "\\\"";
