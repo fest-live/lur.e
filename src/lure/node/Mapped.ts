@@ -15,7 +15,7 @@ class Mp {
         this.#reMap = new WeakMap();
         this.#fragments = document.createDocumentFragment();
         this.#mapCb = mapCb ?? ((el) => el);
-        observe?.(this.#observable = observable, () => this._onUpdate());
+        observe?.(this.#observable = observable, this._onUpdate.bind(this));
         this._onUpdate();
     }
 
@@ -36,10 +36,11 @@ class Mp {
     }
 
     //
-    _onUpdate() {
-        Array.from(this.#fragments?.childNodes)?.forEach?.((nd) => nd?.remove?.());
+    _onUpdate(newEl, idx, oldEl, op) {
+        const pel = (getNode(newEl ?? oldEl ?? this.#observable?.[0], this.mapper.bind(this))?.parentElement ?? this.#fragments);
+        Array.from(pel?.childNodes)?.forEach?.((nd: any) => nd?.remove?.());
         return reformChildren(
-            (getNode(this.#observable?.[0], this.mapper.bind(this))?.parentElement ?? this.#fragments),
+            pel,
             this.#observable,
             this.mapper.bind(this)
         );
