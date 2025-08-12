@@ -1,5 +1,5 @@
 import { unwrap, subscribe } from "fest/object";
-import { elMap, $virtual, $mapped } from "../core/Binding";
+import { $virtual, $mapped } from "../core/Binding";
 
 //
 const
@@ -26,7 +26,9 @@ export const createElement = (selector): HTMLElement | DocumentFragment => {
 };
 
 //
+const elMap = new WeakMap();
 export const $getNode = (E, mapper?: Function, index?: number) => {
+    if (E instanceof WeakRef) { E = E.deref(); }
     if (mapper != null) { return (E = getNode(mapper?.(E, index))); }
     if (E instanceof Node || E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) { return E; } else
     if (typeof E?.value == "string" || typeof E?.value == "number") { return T(E); } else
@@ -35,11 +37,13 @@ export const $getNode = (E, mapper?: Function, index?: number) => {
     if (typeof E == "object" && E != null) { return E?.element ?? elMap.get(E); }; return E;
 };
 
+//
 export const getNode = (E, mapper?: Function, index?: number)=>{
-    if (typeof E == "object" && typeof E == "function") {
-        if (elMap.has(E)) { return elMap.get(E); };
+    if (E instanceof WeakRef) { E = E.deref(); }
+    if ((typeof E == "object" || typeof E == "function") && !(E instanceof Node || E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment)) {
+        if (elMap.has(E)) { const obj: any = elMap.get(E); return (obj instanceof WeakRef ? obj?.deref?.() : obj) ?? $getNode(E, mapper, index); };
         const $node = $getNode(E, mapper, index);
-        if ($node != null && $node != E && (!E?.self && !E?.element || typeof E?.self != "object" && typeof E?.self != "function")) { elMap.set(E, $node); }
+        if (!mapper && $node != null && $node != E && (!E?.self && !E?.element || !(typeof E?.self == "object" || typeof E?.self == "function"))) { elMap.set(E, $node); }
         return $node;
     }
     return $getNode(E, mapper, index);
@@ -77,8 +81,8 @@ export const removeChild = (element, cp, mapper?, index = -1) => {
 
 //
 export const removeNotExists = (element, children, mapper?) => {
-    const uw = Array.from(unwrap(children))?.map?.((cp) => getNode(mapper?.(cp) ?? cp));
-    Array.from(element.childNodes).forEach((nd: any) => { if (uw!?.find?.((cp) => (cp == nd))) nd?.remove?.(); });
+    const list = Array.from(unwrap(children) || [])?.map?.((cp) => getNode(mapper?.(cp) ?? cp));
+    Array.from(element.childNodes).forEach((nd: any) => { if (!list?.find?.((cp) => (cp === nd))) nd?.remove?.(); });
     return element;
 }
 

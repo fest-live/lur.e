@@ -2,6 +2,7 @@ import { addToCallChain, subscribe, observe } from "fest/object";
 
 //
 import { appendChild, removeNotExists, replaceChildren } from "./Utils";
+import { removeChild } from "./Utils";
 import { bindHandler, $mapped, $behavior, addToBank, hasInBank } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../../../../dom.ts/src/$mixin$/Handler";
 
@@ -127,7 +128,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         const idx = args?.[1] ?? -1, obj = args?.[0] ?? children?.[idx];
 
         //
-        if (element && (isArray && ["@add", "@set", "@remove"].indexOf(op) >= 0) || (!isArray)) {
+        if (element && ((isArray && ["@add", "@set", "@remove"].indexOf(op) >= 0) || (!isArray))) {
             if (obj != null && (old != null || op == "@set"   )) { toBeReplace.push([element, obj ?? old, mapper, idx]); };
             if (obj != null && (old == null || op == "@add"   )) { toBeAppend .push([element, obj ?? old, mapper]); };
             if (old != null && (obj == null || op == "@remove")) { toBeRemoved.push([element, old ?? obj, mapper]); };
@@ -135,7 +136,7 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
 
         //
         if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
-        if (op && op != "@get" && ["@add", "@set", "@remove"].indexOf(op) >= 0 || !op) { // @ts-ignore
+        if ((op && op != "@get" && ["@add", "@set", "@remove"].indexOf(op) >= 0) || !op) { // @ts-ignore
             if (typeof children?.[$behavior] == "function")
                 { children?.[$behavior]?.(merge, [toBeAppend, toBeReplace, toBeRemoved], [controller.signal, op, ref, args]); } else { merge(); }
         }

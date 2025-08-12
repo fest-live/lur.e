@@ -16,15 +16,12 @@
         "cssnano": "^7.0.7",
         "cssnano-preset-advanced": "^7.0.7",
         "postcss-preset-env": "^10.2.1",
-        "sass-embedded": "^1.89.1",
+        "sass": "^1.90.0",
         "terser": "^5.41.0",
         "typedoc": "^0.28.5",
         "typescript": "~5.7.2",
-        "vite": "^6.2.4",
-        "vite-plugin-compression2": "^1.4.0",
+        "vite": "^7.1.2",
         "vite-plugin-external": "^6.2.2",
-        "vite-plugin-externalize-deps": "^0.9.0",
-        "vite-plugin-optimizer": "^1.4.3",
-        "vite-tsconfig-paths": "^5.1.4"
+        "vite-plugin-optimizer": "^1.4.3"
     }
 }
