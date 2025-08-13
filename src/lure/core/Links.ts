@@ -112,7 +112,7 @@ export const valueAsNumberLink = (exists: any|null, element) => {
     const val = exists ?? numberRef(def); val.value ??= def;
     const dbf = bindCtrl(element, numberCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
-        if (element && element?.valueAsNumber != v && typeof element?.valueAsNumber == "number") {
+        if (element && (element.type == "range" || element.type == "number") && element?.valueAsNumber != v && typeof element?.valueAsNumber == "number") {
             element.valueAsNumber = Number(v);
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
