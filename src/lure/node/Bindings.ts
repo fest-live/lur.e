@@ -27,6 +27,7 @@ interface Params {
     is?: any | string;
     part?: any | string;
     on?: any;
+    visible?: any;
     hidden?: any;
     aria?: any;
     rules?: any[];
@@ -64,7 +65,7 @@ export const E = (selector: string | HTMLElement, params: Params = {}, children?
         bindWith(element, "type", params.type, handleAttribute, params, true);
         bindWith(element, "icon", params.icon, handleAttribute, params, true);
         bindWith(element, "inert", params.inert, handleAttribute, params, true);
-        bindWith(element, "hidden", params.hidden, handleHidden, params);
+        bindWith(element, "hidden", params.visible ?? params.hidden, handleHidden, params);
         bindEvents(element, params.on);
 
         //
