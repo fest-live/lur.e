@@ -18,7 +18,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
     if (el != null) {
         const attributes = {};
         // TODO: advanced attributes support
-        let style = {}, dataset = {}, properties = {}, on = {}, aria = {}, iterate = [], doAction: any = null, ctrls = new Map(), classList: any = [], visible: any = null;
+        let style = {}, dataset = {}, properties: any = {}, on = {}, aria = {}, iterate = [], doAction: any = null, ctrls = new Map(), classList: any = [], visible: any = null;
         for (const attr of Array.from(el?.attributes || [])) {
             const isCustom = attr.value?.includes?.("#{");
             const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match?.(/^#\{(.+)\}$/)?.[1] ?? "0")] : attr.value;
@@ -30,6 +30,7 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
             if (attr.name == "properties") { properties = value; } else
             if (attr.name == "aria") { aria = value; } else
             if (attr.name == "visible") { visible = value; } else
+            if (attr.name == "value") { properties.value = value; } else
             if (attr.name.startsWith("@")) { on[attr.name.trim().replace("@", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
             if (attr.name.startsWith("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
             if (attr.name.startsWith("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else

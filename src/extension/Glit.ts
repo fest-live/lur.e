@@ -125,11 +125,13 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                 if (stored == null && source != null) {
                     if (!store) { propStore.set(this, store = new Map()); }
                     if (!store?.has?.(key)) {
-                        store?.set?.(key, { value: ""});
+                        store?.set?.(key, { value: getDef(source) });
                         store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source)));
                     }
                 }
-                if (stored?.value != null && !inRender) { return stored.value; }; return stored;
+                if ((stored?.value != null || "value" in stored) && !inRender) { return stored?.value; };
+                if (inRender) return stored;
+                return (typeof stored == "object" || typeof stored == "function") ? stored?.value : stored;
             },
             set(newValue: any) {
                 const ROOT = this;//name?.includes?.("shadow") ? (this?.shadowRoot ?? this) : this;

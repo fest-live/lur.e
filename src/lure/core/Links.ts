@@ -94,12 +94,12 @@ export const checkedLink = (exists: any|null, element) => {
 
 //
 export const valueLink = (exists: any|null, element) => {
-    const def = element?.value;
-    const val = exists ?? stringRef(def || ""); val.value ??= def ?? val.value ?? "";
+    const def = element?.value ?? "";
+    const val = exists ?? stringRef(def); val.value ??= def;
     const dbf = bindCtrl(element, valueCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
-        if (element && element?.value !== v) {
-            element.value = v || "";
+        if (element && element?.value !== (v?.value ?? v)) {
+            element.value = v?.value ?? v;
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
     });

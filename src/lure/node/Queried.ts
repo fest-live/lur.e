@@ -15,7 +15,7 @@ const alreadyUsed   = new WeakMap();
 //
 const containsOrSelf = (a: any, b: any)=>{
     if (a == b) return true;
-    if (a?.contains?.(b) || a?.getRootNode()?.host?.contains?.(b)) return true;
+    if (a?.contains?.(b) || a?.getRootNode()?.host == b) return true;
     return false;
 }
 
@@ -47,15 +47,16 @@ class UniversalElementHandler {
     _getArray(target: any) {
         if (typeof target == "function") { target = this.selector || target?.(this.selector); }; if (!this.selector) return [target];
         if (typeof this.selector == "string") {
-            const inclusion = target?.matches?.(this.selector) ? [target] : [];
+            const inclusion = ((typeof target?.matches == "function" && target?.element != null) && target?.matches?.(this.selector)) ? [target] : [];
             if (this.direction === "children") {
-                const list = target?.querySelectorAll?.(this.selector);
+                const list = (typeof target?.querySelectorAll == "function" && target?.element != null) ? target?.querySelectorAll?.(this.selector) : [];
                 return list?.length >= 1 ? [...list] : inclusion;
             } else if (this.direction === "parent") {
                 // closest возвращает только первый найденный элемент, обернём в массив для совместимости
                 const closest = target?.closest?.(this.selector);
                 return closest ? [closest] : inclusion;
             }
+            return inclusion;
         }
         return Array.isArray(this.selector) ? this.selector : [this.selector];
     }
@@ -253,7 +254,7 @@ class UniversalElementHandler {
         if (typeof name === "string" && /^\d+$/.test(name)) { return false; }
         if (array[name] != null) { return false; }
         if (selected) { selected[name] = value; return true; }
-        return false;
+        return true;
     }
 
     //

@@ -104,7 +104,7 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
 
     //
     let dirHandle: any = getDirectoryHandle(rootHandle, relPath, options, logger)?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
-    dirHandle?.then?.(async (handle)=>obs?.observe?.((await handle?.getHandle?.() ?? handle))); updateCache(); const fx: any = function(){}, pxy = new Proxy(fx, handler); return pxy;
+    dirHandle?.then?.(async (handle)=>obs?.observe?.(((await handle?.getHandle?.()) ?? (await handle)))); updateCache(); const fx: any = function(){}, pxy = new Proxy(fx, handler); return pxy;
 }
 
 
