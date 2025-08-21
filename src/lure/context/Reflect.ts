@@ -1,10 +1,11 @@
-import { addToCallChain, subscribe, observe } from "fest/object";
+import { addToCallChain, subscribe, observe, propRef } from "fest/object";
 
 //
 import { appendChild, removeNotExists, replaceChildren } from "./Utils";
 import { removeChild } from "./Utils";
-import { bindHandler, $mapped, $behavior, addToBank, hasInBank } from "../core/Binding";
+import { bindHandler, $mapped, $behavior, addToBank, hasInBank, bindWith } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../../../../dom.ts/src/$mixin$/Handler";
+import Q from "../node/Queried";
 
 // !
 // TODO! - add support for un-subscribe for everyone...
@@ -78,17 +79,25 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
 export const reflectWithStyleRules = async (element: HTMLElement, rule: any)=>{ const styles = await rule?.(element); return reflectStyles(element, styles); }
 export const reflectProperties = (element: HTMLElement, properties: any)=>{
     if (!properties) return element; const weak = new WeakRef(properties), wel = new WeakRef(element);
+
+    //
     const onChange = (ev: any)=>{
-        if (ev?.target?.value != null && ev?.target?.value !== properties.value) properties.value = ev?.target?.value;
-        if (ev?.target?.valueAsNumber != null && ev?.target?.valueAsNumber !== properties.valueAsNumber) properties.valueAsNumber = ev?.target?.valueAsNumber;
-        if (ev?.target?.checked != null && ev?.target?.checked !== properties.checked) properties.checked = ev?.target?.checked;
+        const input = Q("input", ev?.target);
+        if (input?.value != null && input?.value !== properties?.value) properties.value = input?.value;
+        if (input?.valueAsNumber != null && input?.valueAsNumber !== properties?.valueAsNumber) properties.valueAsNumber = input?.valueAsNumber;
+        if (input?.checked != null && input?.checked !== properties?.checked) properties.checked = input?.checked;
     };
 
     //
-    const usub = ()=> { wel?.deref?.()?.removeEventListener?.("change", onChange); subscribe(properties, (value, prop: any)=>{
-        handleProperty(wel?.deref?.(), prop, value);
-        bindHandler(wel, value, prop, handleProperty, weak);
-    }); };
+    const usubs = [
+        subscribe(properties, (value, prop: any)=>{
+            const val = propRef(value, prop);
+            bindWith(wel?.deref?.(), prop, val, handleProperty, null, true);
+        })
+    ]
+
+    //
+    const usub = ()=> { usubs?.forEach((usub)=>usub?.()); wel?.deref?.()?.removeEventListener?.("change", onChange);  };
 
     //
     addToCallChain(properties, Symbol.dispose, usub);

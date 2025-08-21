@@ -66,17 +66,18 @@ export const sizeLink = (element?: any|null, exists?: any|null, axis?: "inline" 
         if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
         if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
     });
-    if ((element?.self ?? element) instanceof HTMLElement) { obs.observe(element?.element ?? element?.self ?? element, { box }); };
+    if ((element?.element ?? element?.self ?? element) instanceof HTMLElement) { obs?.observe?.(element?.element ?? element?.self ?? element, { box }); };
     return ()=>obs?.disconnect?.();
 }
 
 //
 export const scrollLink = (element?: any|null, exists?: any|null, axis?: "inline" | "block", initial?: any|null) => {
+    const wel = element instanceof WeakRef ? element : new WeakRef(element);
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (initial?.value ?? initial) }); };
     const def = element?.[axis == "block" ? "scrollTop" : "scrollLeft"];
     const val = exists ?? numberRef(def || 0); val.value ||= (def ?? val.value) || 1; val.value ||= (def ?? val.value) || 0;
     const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "block" ? element?.scrollTop : element?.scrollLeft) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (val?.value ?? val) })});
-    const scb = [(ev) => { val.value = (axis == "block" ? ev?.target?.scrollTop : ev?.target?.scrollLeft) || 0; }, { passive: true }], wel = new WeakRef(element);
+    const scb = [(ev) => { val.value = (axis == "block" ? wel?.deref?.()?.scrollTop : wel?.deref?.()?.scrollLeft) || 0; }, { passive: true }];
     element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };
 }
 

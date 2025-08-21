@@ -2,16 +2,16 @@ import { stringRef, autoRef, numberRef, booleanRef, deref, isValidObj, makeReact
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap } from "./Links";
 
 //
-export const makeRef = (host, type, link, ...args)=>{
+export const makeRef = (host?: any, type?: any, link?: any, ...args)=>{
     const rf = (type ?? autoRef)?.(null), usub = link?.(host, rf, ...args);
     if (usub && rf) addToCallChain(rf, Symbol.dispose, usub); return rf;
 }
 
 //
-export const orientRef = (host, ...args)=>makeRef(host, stringRef, orientLink, ...args);
-export const attrRef = (host, ...args)=>makeRef(host, stringRef, attrLink, ...args);
-export const valueRef = (host, ...args)=>makeRef(host, stringRef, valueLink, ...args);
-export const valueAsNumberRef = (host, ...args)=>makeRef(host, numberRef, valueAsNumberLink, ...args);
+export const orientRef = (host?: any, ...args)=>makeRef(host, stringRef, orientLink, ...args);
+export const attrRef = (host?: any, ...args)=>makeRef(host, stringRef, attrLink, ...args);
+export const valueRef = (host?: any, ...args)=>makeRef(host, stringRef, valueLink, ...args);
+export const valueAsNumberRef = (host?: any, ...args)=>makeRef(host, numberRef, valueAsNumberLink, ...args);
 export const localStorageRef = (...args)=>{
     if (localStorageLinkMap.has(args[0])) return localStorageLinkMap.get(args[0])?.[1];
     const link: any = localStorageLink, type: any = stringRef;
@@ -22,14 +22,14 @@ export const localStorageRef = (...args)=>{
 };
 
 //
-export const sizeRef = (host, ...args)=>makeRef(host, numberRef, sizeLink, ...args);
-export const checkedRef = (host, ...args)=>makeRef(host, booleanRef, checkedLink, ...args);
-export const scrollRef = (host, ...args)=>makeRef(host, numberRef, scrollLink, ...args);
-export const visibleRef = (host, ...args)=>makeRef(host, booleanRef, visibleLink, ...args);
+export const sizeRef = (host?: any, ...args)=>makeRef(host, numberRef, sizeLink, ...args);
+export const checkedRef = (host?: any, ...args)=>makeRef(host, booleanRef, checkedLink, ...args);
+export const scrollRef = (host?: any, ...args)=>makeRef(host, numberRef, scrollLink, ...args);
+export const visibleRef = (host?: any, ...args)=>makeRef(host, booleanRef, visibleLink, ...args);
 export const matchMediaRef = (...args)=>makeRef(null, booleanRef, matchMediaLink, ...args);
 
 //
-export const makeWeakRef = (host, initial?: any, behavior?: any)=>{
+export const makeWeakRef = (/*host?: any,*/ initial?: any, behavior?: any)=>{
     const obj = deref(initial);
     return isValidObj(obj) ? makeReactive(WRef(obj)) : autoRef(obj, behavior);
 };

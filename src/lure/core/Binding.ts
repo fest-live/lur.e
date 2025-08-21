@@ -38,25 +38,30 @@ export const $set = (rv, key, val)=>{ rv = (rv instanceof WeakRef || typeof rv?.
 
 //
 export const $observeInput = (element, ref?: any|null, prop = "value") => {
-    const rf = ref != null ? new WeakRef(ref) : null;
+    const wel = element instanceof WeakRef ? element : new WeakRef(element);
+    const rf = ref != null ? (ref instanceof WeakRef ? ref : new WeakRef(ref)) : null;
     const ctrlCb = (ev)=>{
-        const input = ev?.target?.matches("input") ? ev?.target : ev?.target?.querySelector("input");
-        if (input) { $set(rf, "value", input?.[prop ?? "value"]); }
+        const input = wel?.deref?.();
+        if (input) { $set(rf, "value", input?.[prop ?? "value"] ?? rf?.deref?.()?.value); }
     }
     const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb };
     ctrlCb?.({ target: element }); handleListeners?.(element, "addEventListener", hdl);
+
+    //
+    const inputEl = wel?.deref?.();
+    if (!rf?.deref?.()?.value) { $set(rf, "value", inputEl?.[prop ?? "value"] ?? rf?.deref?.()?.value); }
     return () => handleListeners?.(new WeakRef(element), "removeEventListener", hdl);
 }
 
 //
 export const $observeAttribute = (el: HTMLElement, ref?: any|null, prop: string = "") => {
-    const wv = new WeakRef(ref ?? el?.getAttribute?.(prop));
+    const wv = ref != null ? (ref instanceof WeakRef ? ref : new WeakRef(ref)) : null; //el?.getAttribute?.(prop)
     const cb = (mutation)=>{
         if (mutation.type == "attributes" && mutation.attributeName === attrName) {
             const value = mutation?.target?.getAttribute?.(mutation.attributeName);
             const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
             if (mutation.oldValue != value && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
-                { if (reVal !== value || reVal == null) { $set(wv, "value", value); } }
+                { if (reVal !== value || reVal == null) { $set(wv, "value", value ?? reVal); } }
         }
     }
 
@@ -84,7 +89,7 @@ export const hasInBank = (el, handle)=>{
 
 //
 export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean|Function) => {
-    if (!el || value?.value == null || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
+    if (!el || value == null || !(value?.value != null || ((typeof value == "object" || typeof value == "function") ? ("value" in value) : false)) || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
 
     //
     let controller: AbortController | null = null; // @ts-ignore
@@ -97,7 +102,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
         if (set?.deref?.()?.[prop] === wv?.deref?.() || !set?.deref?.()) {
             if (typeof wv?.deref?.()?.[$behavior] == "function")
                 { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]); } else
-                { handler(wel?.deref?.(), prop, curr); }
+                { handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? curr); }
         }
     });
 

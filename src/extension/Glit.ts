@@ -96,11 +96,13 @@ defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
 
 //
 export function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
-    const $has = (ctr?.prototype ?? ctr)?.$init;
+    const $init = (ctr?.prototype ?? ctr)?.$init;
     (ctr?.prototype ?? ctr).$init = function (...args) {
-        $has?.call(this, ...args); if (this?.[defKeys]) { Object.entries(this[defKeys]).forEach(([key, def])=>{
-            const exists = this[key]; Object.defineProperty(this, key, def as any); if (exists != null) { this[key] = exists; }; return this;
+        $init?.call?.(this, ...args);
+        if (this?.[defKeys] != null) { Object.entries(this[defKeys]).forEach(([key, def])=>{
+            const exists = this[key]; Object.defineProperty(this, key, def as any); if (exists != null) { this[key] = exists; };
         }); };
+        return this;
     }; return ctr;
 }
 
@@ -109,49 +111,51 @@ export function generateName (length = 8) { let r = ''; const l = characters.len
 export function defineElement(name: string, options?: any|null) { return function(target: any, key: string) { customElements.define(name, target, options); return target; }; }
 export function property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {}) {
     return function (target: any, key: string) {
+        attribute ??= name ?? key;
         if (!target[defKeys]) target[defKeys] = {};
         if (attribute != null) {
             if (!target.observedAttributes) { target.observedAttributes = []; };
-            const atn = typeof attribute == "string" ? attribute : key;
+            const atn = typeof attribute == "string" ? attribute : name ?? key;
             if (target.observedAttributes.indexOf(atn) < 0) target.observedAttributes.push(atn);
         };
+
+        //
         target[defKeys][key] = {
             get() {
-                const ROOT = this;//name?.includes?.("shadow") ? (this?.shadowRoot ?? this) : this;
-                const inRender = this[inRenderKey], sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT);
+                const ROOT = this;
+                const inRender = ROOT[inRenderKey], sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT);
 
                 //
-                let store = propStore.get(this), stored = store?.get?.(key);
+                let store = propStore.get(ROOT), stored = store?.get?.(key);
                 if (stored == null && source != null) {
-                    if (!store) { propStore.set(this, store = new Map()); }
+                    if (!store) { propStore.set(ROOT, store = new Map()); }
                     if (!store?.has?.(key)) {
-                        store?.set?.(key, { value: getDef(source) });
+                        if (source == "attr" && !inRender) store?.set?.(key, autoRef(getDef(source)));
                         store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source)));
                     }
                 }
-                if ((stored?.value != null || "value" in stored) && !inRender) { return stored?.value; };
+
+                //
                 if (inRender) return stored;
-                return (typeof stored == "object" || typeof stored == "function") ? stored?.value : stored;
+                if ((typeof stored == "object" || typeof stored == "function") && (stored?.value != null || "value" in stored)) { return stored?.value; };
+                return ((typeof stored == "object" || typeof stored == "function") && (stored?.value != null || "value" in stored)) ? stored?.value : stored;
             },
             set(newValue: any) {
-                const ROOT = this;//name?.includes?.("shadow") ? (this?.shadowRoot ?? this) : this;
+                const ROOT = this;
                 const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT);
 
                 //
-                let store = propStore.get(this);
-                if (!store) { propStore.set(this, store = new Map()); }
-                if (!store?.has?.(key)) {
-                    store?.set?.(key, {});
-                    if (newValue?.value != null)
-                        { store?.set?.(key, newValue); } else
-                        { store?.set?.(key, (typeof newValue === 'object' && newValue !== null) ? makeReactive(newValue) : defineSource(source, sourceTarget, name || key)?.(newValue)); }
-                } else {
-                    const exists = store?.get?.(key);
-                    if (typeof exists == "object" || typeof exists == "function") {
-                        if (typeof newValue === 'object' && newValue !== null && (newValue?.value == null || typeof newValue?.value == "object" || typeof newValue?.value == "function"))
-                            { Object.assign(exists, newValue?.value ?? newValue); } else
-                            { exists.value = newValue?.value ?? newValue; }
+                let store = propStore.get(ROOT), stored = store?.get?.(key);
+                if (stored == null && source != null) {
+                    if (!store) { propStore.set(ROOT, store = new Map()); }
+                    if (!store?.has?.(key)) {
+                        store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.((((typeof newValue === 'object' || typeof newValue === 'function') ? (newValue?.value) : null) ?? newValue) ?? getDef(source)));
                     }
+                } else
+                if (typeof stored == "object" || typeof stored == "function") {
+                    if (typeof newValue === 'object' && newValue !== null && ((newValue?.value == null && !("value" in newValue)) || typeof newValue?.value == "object" || typeof newValue?.value == "function"))
+                        { Object.assign(stored, newValue?.value ?? newValue); } else
+                        { stored.value = ((typeof newValue === 'object' || typeof newValue === 'function') ? (newValue?.value) : null) ?? newValue; }
                 }
             },
             enumerable: true,
@@ -215,7 +219,7 @@ export const GLitElement = (derrivate = HTMLElement) => {
         protected $init() { return this; };
         protected onInitialize(weak?: WeakRef<any>) { return this; }
         protected onRender(weak?: WeakRef<any>) { return this; }
-        protected getProperty(key: string) { this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = false; return cp; }
+        protected getProperty(key: string) { const current = this[inRenderKey]; this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = current; if (!current) { delete this[inRenderKey]; } return cp; }
 
         //
         public loadStyleLibrary($module) { const root = this.shadowRoot; const module = typeof $module == "function" ? $module?.(root) : $module; this.styleLibs?.push?.(module); if (module) { this.#styleElement?.before?.(module); }; return this; }
@@ -229,13 +233,15 @@ export const GLitElement = (derrivate = HTMLElement) => {
                 }
 
                 //
-                this.$init?.(); this[inRenderKey] = true;
+                withProperties<any>(this).$init?.();
                 setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes);
                 this.onInitialize?.call(this, weak);
 
                 //! currenrly, `this.styleLibs` will not appear when rendering (not supported)
-                if (isNotExtended(this) && shadowRoot) { // @ts-ignore
-                    this.#framework = E(shadowRoot, {}, [this.#defaultStyle, ...(this.styleLibs||[]), this.#styleElement ??= loadCachedStyles(this, this.styles), this.render?.call?.(this, weak)])
+                this[inRenderKey] = true;
+                if (isNotExtended(this) && shadowRoot) {
+                    const rendered = this.render?.call?.(this, weak);
+                    this.#framework = E(shadowRoot as any, {}, [this.#defaultStyle, ...(this.styleLibs||[]), this.#styleElement ??= loadCachedStyles(this, this.styles), rendered])
                 }
                 this.onRender?.call?.(this, weak); delete this[inRenderKey];
             }

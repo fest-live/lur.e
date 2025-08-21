@@ -54,9 +54,11 @@ export function getMimeTypeByFilename(filename) {
 //
 export async function getDirectoryHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
     rootHandle ??= navigator?.storage?.getDirectory?.();
+    relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
     try {
-        const parts = relPath.split('/').filter(Boolean); let dir = rootHandle, lastDir = dir;
-        for (const part of parts) { lastDir = dir; dir = await dir.getDirectoryHandle(part, { create }); if (!dir) return lastDir; }; return (lastDir ?? dir);
+        const parts = relPath.split('/').filter((p)=>!!p?.trim?.()); let dir = rootHandle;
+        if (!relPath?.endsWith?.("/")) { parts.pop(); };
+        for (const part of parts) { dir = await dir.getDirectoryHandle(part, { create }); if (!dir) return dir; }; return dir;
     } catch (e: any) { return handleError(logger, 'error', `getDirectoryHandle: ${e.message}`); }
 }
 
