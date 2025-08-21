@@ -1,4 +1,4 @@
-import { MOCElement, getStyleRule, handleAttribute, observeAttribute, observeAttributeBySelector, observeBySelector } from "fest/dom";
+import { containsOrSelf, MOCElement, getStyleRule, handleAttribute, observeAttribute, observeAttributeBySelector, observeBySelector } from "fest/dom";
 import { bindWith, elMap } from "../core/Binding";
 
 //
@@ -11,13 +11,6 @@ const queryExtensions = {
 //
 const existsQueries = new WeakMap<any, Map<string|HTMLElement, any>>();
 const alreadyUsed   = new WeakMap();
-
-//
-const containsOrSelf = (a: any, b: any)=>{
-    if (a == b) return true;
-    if (a?.contains?.(b) || a?.getRootNode()?.host == b) return true;
-    return false;
-}
 
 //
 class UniversalElementHandler {

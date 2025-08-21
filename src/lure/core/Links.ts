@@ -5,7 +5,8 @@ import { bindCtrl, bindWith } from "./Binding";
 
 //
 export const localStorageLinkMap = new Map<string, any>();
-export const localStorageLink = (exists: any|null, key, initial) => {
+export const localStorageLink = (existsStorage?: any|null, exists?: any|null, key?: string, initial?: any|null) => {
+    if (key == null) return;
     // de-assign local storage link for key
     if (localStorageLinkMap.has(key)) {
         localStorageLinkMap.get(key)?.[0]?.();
@@ -14,10 +15,10 @@ export const localStorageLink = (exists: any|null, key, initial) => {
 
     // @ts-ignore // assign new local storage link for key
     return localStorageLinkMap.getOrInsertComputed?.(key, ()=>{
-        const def  = localStorage.getItem(key) ?? (initial?.value ?? initial);
+        const def  = (existsStorage ?? localStorage).getItem(key) ?? (initial?.value ?? initial);
         const ref  = exists ?? stringRef(def); ref.value ??= def;
-        const unsb = subscribe([ref, "value"], (val) => localStorage.setItem(key, val));
-        const list = (ev) => { if (ev.storageArea == localStorage && ev.key == key) {
+        const unsb = subscribe([ref, "value"], (val) => (existsStorage ?? localStorage).setItem(key, val));
+        const list = (ev) => { if (ev.storageArea == (existsStorage ?? localStorage) && ev.key == key) {
             if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
         } };
         addEventListener("storage", list);
@@ -26,15 +27,16 @@ export const localStorageLink = (exists: any|null, key, initial) => {
 }
 
 //
-export const matchMediaLink = (exists: any|null, condition: string) => {
-    const med = matchMedia(condition), def = med?.matches || false;
+export const matchMediaLink = (existsMedia?: any|null, exists?: any|null, condition?: string) => {
+    if (condition == null) return;
+    const med = existsMedia ?? matchMedia(condition), def = med?.matches || false;
     const ref = exists ?? booleanRef(def); ref.value ??= def;
     const evf = (ev) => (ref.value = ev.matches); med?.addEventListener?.("change", evf);
     return () => { med?.removeEventListener?.("change", evf); };
 }
 
 //
-export const visibleLink = (exists: any|null, element, initial?) => {
+export const visibleLink = (element?: any|null, exists?: any|null, initial?: any|null) => {
     if (element == null) return;
     const def = (initial?.value ?? (typeof initial != "object" ? initial : null)) ?? (element?.getAttribute?.("data-hidden") == null);
     const val = exists ?? booleanRef(!!def);
@@ -50,13 +52,13 @@ export const visibleLink = (exists: any|null, element, initial?) => {
 }
 
 //
-export const attrLink = (exists: any|null, element, attribute: string, initial?) => {
+export const attrLink = (element?: any|null, exists?: any|null, attribute?: string, initial?: any|null) => {
     const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
     if (!element) return; const val = exists ?? stringRef(def); val.value ||= def; return bindWith(element, attribute, val, handleAttribute, null, true);
 }
 
 //
-export const sizeLink = (exists: any|null, element, axis: "inline" | "block", box: ResizeObserverBoxOptions = "border-box") => {
+export const sizeLink = (element?: any|null, exists?: any|null, axis?: "inline" | "block", box?: ResizeObserverBoxOptions) => {
     const def = box == "border-box" ? element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"] : (element?.[axis == "inline" ? "clientWidth" : "clientHeight"] - getPadding(element, axis));
     const val = exists ?? numberRef(def); val.value ||= (def ?? val.value) || 1;
     const obs = new ResizeObserver((entries) => {
@@ -69,7 +71,7 @@ export const sizeLink = (exists: any|null, element, axis: "inline" | "block", bo
 }
 
 //
-export const scrollLink = (exists: any|null, element, axis: "inline" | "block" = "inline", initial?) => {
+export const scrollLink = (element?: any|null, exists?: any|null, axis?: "inline" | "block", initial?: any|null) => {
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (initial?.value ?? initial) }); };
     const def = element?.[axis == "block" ? "scrollTop" : "scrollLeft"];
     const val = exists ?? numberRef(def || 0); val.value ||= (def ?? val.value) || 1; val.value ||= (def ?? val.value) || 0;
@@ -79,7 +81,7 @@ export const scrollLink = (exists: any|null, element, axis: "inline" | "block" =
 }
 
 //
-export const checkedLink = (exists: any|null, element) => {
+export const checkedLink = (element?: any|null, exists?: any|null) => {
     const def = (!!element?.checked) || false;
     const val = exists ?? booleanRef(def); val.value ??= def;
     const dbf = bindCtrl(element, checkboxCtrl(val));
@@ -93,7 +95,7 @@ export const checkedLink = (exists: any|null, element) => {
 }
 
 //
-export const valueLink = (exists: any|null, element) => {
+export const valueLink = (element?: any|null, exists?: any|null) => {
     const def = element?.value ?? "";
     const val = exists ?? stringRef(def); val.value ??= def;
     const dbf = bindCtrl(element, valueCtrl(val));
@@ -107,7 +109,7 @@ export const valueLink = (exists: any|null, element) => {
 }
 
 //
-export const valueAsNumberLink = (exists: any|null, element) => {
+export const valueAsNumberLink = (element?: any|null, exists?: any|null) => {
     const def = Number(element?.valueAsNumber) || 0;
     const val = exists ?? numberRef(def); val.value ??= def;
     const dbf = bindCtrl(element, numberCtrl(val));
@@ -121,7 +123,7 @@ export const valueAsNumberLink = (exists: any|null, element) => {
 }
 
 //
-export const observeSizeLink = (exists: any|null, element, box, styles?) => {
+export const observeSizeLink = (element?: any|null, exists?: any|null, box?: any|null, styles?: any|null) => {
     if (!styles) styles = exists ?? makeReactive({}); let obs: any = null;
     (obs = new ResizeObserver((mut) => {
         if (box == "border-box") {
@@ -141,14 +143,14 @@ export const observeSizeLink = (exists: any|null, element, box, styles?) => {
 }
 
 //
-export const refCtl = (value) => {
+export const refCtl = (value?: any|null) => {
     let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
         (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
     })); return ctl;
 }
 
 //
-export const orientLink = (exists)=>{
+export const orientLink = (host?: any|null, exists?: any|null)=>{
     const orient = orientationNumberMap?.[getCorrectOrientation()] || 0;
     const def = Number(orient) || 0;
     const val = exists ?? numberRef(def); val.value ??= def;

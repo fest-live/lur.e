@@ -1,6 +1,7 @@
 import { addToCallChain, makeReactive, subscribe } from "fest/object";
-import { camelToKebab, handleListeners, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
+import { camelToKebab, handleAttribute, handleListeners, handleProperty, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
 
+//
 export const elMap  = new WeakMap<any, WeakMap<any, any>>();
 export const alives = new FinalizationRegistry((unsub: any) => unsub?.());
 
@@ -23,9 +24,9 @@ export const bindBeh = (element, store, behavior) => {
 
 //
 export const bindCtrl = (element, ctrlCb) => {
-    const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb };
-    ctrlCb?.({ target: element }); handleListeners?.(element, "addEventListener", hdl);
-    return () => handleListeners?.(new WeakRef(element), "removeEventListener", hdl);
+    const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb }; ctrlCb?.({ target: element });
+    const unsub = handleListeners?.(element, "addEventListener", hdl);
+    addToCallChain(element, Symbol.dispose, unsub); return unsub;
 }
 
 //
@@ -33,17 +34,29 @@ export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl
 
 //
 export const $fxy = Symbol.for("@fix"), fixFx = (obj) => { if (typeof obj == "function" || obj == null) return obj; const fx = function(){}; fx[$fxy] = obj; return fx; }
-export const $set = (rv, key, val)=>{ if (rv?.deref?.() != null) { return (rv.deref()[key] = val); }; }
+export const $set = (rv, key, val)=>{ rv = (rv instanceof WeakRef || typeof rv?.deref == "function") ? rv?.deref?.() : rv; if (rv != null) { return (rv[key] = val); }; }
 
 //
-export const $observeAttribute = (el: HTMLElement, prop: string, value: any) => {
-    const wv = new WeakRef(value);
+export const $observeInput = (element, ref?: any|null, prop = "value") => {
+    const rf = ref != null ? new WeakRef(ref) : null;
+    const ctrlCb = (ev)=>{
+        const input = ev?.target?.matches("input") ? ev?.target : ev?.target?.querySelector("input");
+        if (input) { $set(rf, "value", input?.[prop ?? "value"]); }
+    }
+    const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb };
+    ctrlCb?.({ target: element }); handleListeners?.(element, "addEventListener", hdl);
+    return () => handleListeners?.(new WeakRef(element), "removeEventListener", hdl);
+}
+
+//
+export const $observeAttribute = (el: HTMLElement, ref?: any|null, prop: string = "") => {
+    const wv = new WeakRef(ref ?? el?.getAttribute?.(prop));
     const cb = (mutation)=>{
         if (mutation.type == "attributes" && mutation.attributeName === attrName) {
             const value = mutation?.target?.getAttribute?.(mutation.attributeName);
             const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
             if (mutation.oldValue != value && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
-                { if (reVal !== value) { $set(wv, "value", value); } }
+                { if (reVal !== value || reVal == null) { $set(wv, "value", value); } }
         }
     }
 
@@ -70,7 +83,7 @@ export const hasInBank = (el, handle)=>{
 }
 
 //
-export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean) => {
+export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean|Function) => {
     if (!el || value?.value == null || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
 
     //
@@ -89,8 +102,13 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     });
 
     //
-    let obs: any = null; if (withObserver) { obs = $observeAttribute(el, prop, value); };
-    const unsub = () => { obs?.disconnect?.(); un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
+    let obs: any = null;
+    if (typeof withObserver == "boolean" && withObserver) {
+        if (handler == handleAttribute) obs = $observeAttribute(el, value, prop);
+        if (handler == handleProperty)  obs = $observeInput(el, value, prop);
+    };
+    if (typeof withObserver == "function") { obs = withObserver(el, prop, value); };
+    const unsub = () => { obs?.disconnect?.(); (obs != null && typeof obs == "function") ? obs?.() : null; un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
     addToCallChain(value, Symbol.dispose, unsub); alives.register(el, unsub);
     if (!addToBank(el, handler, prop, [value, unsub])) { return unsub; } // prevent data disruption
 }
@@ -134,7 +152,7 @@ export const updateInput = (target, state)=>{
 export const bindEvents = (el, events)=>{ if (events) { Object.entries(events)?.forEach?.(([name, list]) => (list as any)?.values()?.forEach?.((fn) => el.addEventListener(name, (typeof fn == "function") ? fn : fn?.[0], fn?.[1] || {}))); } }
 
 //
-export const bindWith   = (el, prop, value, handler, set?, withObserver?: boolean)=>{ handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver); }
+export const bindWith   = (el, prop, value, handler, set?, withObserver?: boolean|Function)=>{ handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver); }
 
 //
 export const bindForms  = (fields = document.documentElement, wrapper = ".u2-input", state = {})=>{
