@@ -130,7 +130,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                 if (stored == null && source != null) {
                     if (!store) { propStore.set(ROOT, store = new Map()); }
                     if (!store?.has?.(key)) {
-                        if (source == "attr" && !inRender) store?.set?.(key, autoRef(getDef(source)));
+                        //if (source == "attr" && !inRender) store?.set?.(key, autoRef(getDef(source)));
                         store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source)));
                     }
                 }
@@ -149,13 +149,13 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                 if (stored == null && source != null) {
                     if (!store) { propStore.set(ROOT, store = new Map()); }
                     if (!store?.has?.(key)) {
-                        store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.((((typeof newValue === 'object' || typeof newValue === 'function') ? (newValue?.value) : null) ?? newValue) ?? getDef(source)));
+                        store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.((((typeof newValue == 'object' || typeof newValue == 'function') ? (newValue?.value) : null) ?? newValue) ?? getDef(source)));
                     }
                 } else
                 if (typeof stored == "object" || typeof stored == "function") {
-                    if (typeof newValue === 'object' && newValue !== null && ((newValue?.value == null && !("value" in newValue)) || typeof newValue?.value == "object" || typeof newValue?.value == "function"))
+                    if (typeof newValue == 'object' && newValue != null && ((newValue?.value == null && !("value" in newValue)) || typeof newValue?.value == "object" || typeof newValue?.value == "function"))
                         { Object.assign(stored, newValue?.value ?? newValue); } else
-                        { stored.value = ((typeof newValue === 'object' || typeof newValue === 'function') ? (newValue?.value) : null) ?? newValue; }
+                        { stored.value = ((typeof newValue == 'object' || typeof newValue == 'function') ? (newValue?.value) : null) ?? newValue; }
                 }
             },
             enumerable: true,

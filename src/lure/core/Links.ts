@@ -1,5 +1,5 @@
 import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding } from "fest/dom";
-import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref } from "fest/object";
+import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref, isNotEqual } from "fest/object";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
 
@@ -19,7 +19,7 @@ export const localStorageLink = (existsStorage?: any|null, exists?: any|null, ke
         const ref  = exists ?? stringRef(def); ref.value ??= def;
         const unsb = subscribe([ref, "value"], (val) => (existsStorage ?? localStorage).setItem(key, val));
         const list = (ev) => { if (ev.storageArea == (existsStorage ?? localStorage) && ev.key == key) {
-            if (ref.value !== ev.newValue) { ref.value = ev.newValue; };
+            if (isNotEqual(ref.value, ev.newValue)) { ref.value = ev.newValue; };
         } };
         addEventListener("storage", list);
         return [() => { unsb?.(); removeEventListener("storage", list); }, ref];
@@ -53,7 +53,7 @@ export const visibleLink = (element?: any|null, exists?: any|null, initial?: any
 
 //
 export const attrLink = (element?: any|null, exists?: any|null, attribute?: string, initial?: any|null) => {
-    const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) === true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
+    const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) == true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
     if (!element) return; const val = exists ?? stringRef(def); val.value ||= def; return bindWith(element, attribute, val, handleAttribute, null, true);
 }
 
@@ -101,7 +101,7 @@ export const valueLink = (element?: any|null, exists?: any|null) => {
     const val = exists ?? stringRef(def); val.value ??= def;
     const dbf = bindCtrl(element, valueCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
-        if (element && element?.value !== (v?.value ?? v)) {
+        if (element && isNotEqual(element?.value, (v?.value ?? v))) {
             element.value = v?.value ?? v;
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }
@@ -115,7 +115,7 @@ export const valueAsNumberLink = (element?: any|null, exists?: any|null) => {
     const val = exists ?? numberRef(def); val.value ??= def;
     const dbf = bindCtrl(element, numberCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
-        if (element && (element.type == "range" || element.type == "number") && element?.valueAsNumber != v && typeof element?.valueAsNumber == "number") {
+        if (element && (element.type == "range" || element.type == "number") && typeof element?.valueAsNumber == "number" && isNotEqual(element?.valueAsNumber, v)) {
             element.valueAsNumber = Number(v);
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
         }

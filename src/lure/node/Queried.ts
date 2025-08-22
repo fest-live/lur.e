@@ -41,10 +41,10 @@ class UniversalElementHandler {
         if (typeof target == "function") { target = this.selector || target?.(this.selector); }; if (!this.selector) return [target];
         if (typeof this.selector == "string") {
             const inclusion = ((typeof target?.matches == "function" && target?.element != null) && target?.matches?.(this.selector)) ? [target] : [];
-            if (this.direction === "children") {
+            if (this.direction == "children") {
                 const list = (typeof target?.querySelectorAll == "function" && target?.element != null) ? target?.querySelectorAll?.(this.selector) : [];
                 return list?.length >= 1 ? [...list] : inclusion;
-            } else if (this.direction === "parent") {
+            } else if (this.direction == "parent") {
                 // closest возвращает только первый найденный элемент, обернём в массив для совместимости
                 const closest = target?.closest?.(this.selector);
                 return closest ? [closest] : inclusion;
@@ -59,8 +59,8 @@ class UniversalElementHandler {
         const tg = target?.self ?? target;
         const sel = this._selector(target);
         if (typeof sel == "string") {
-            if (this.direction === "children") { return tg?.matches?.(sel) ? tg : tg?.querySelector?.(sel); }
-            if (this.direction === "parent"  ) { return tg?.matches?.(sel) ? tg : tg?.closest?.(sel); }
+            if (this.direction == "children") { return tg?.matches?.(sel) ? tg : tg?.querySelector?.(sel); }
+            if (this.direction == "parent"  ) { return tg?.matches?.(sel) ? tg : tg?.closest?.(sel); }
         }
         return sel;
     }
@@ -91,12 +91,12 @@ class UniversalElementHandler {
                 const parentWithSelf = MOCElement(tg, sel);
 
                 //
-                if (this.direction === "children") { if (tg?.matches?.(sel) || containsOrSelf( queryWithSelf, tg)) { cb?.call?.(tg, ev); } }
-                if (this.direction === "parent"  ) { if (tg?.matches?.(sel) || containsOrSelf(parentWithSelf, tg)) { cb?.call?.(tg, ev); } }
+                if (this.direction == "children") { if (tg?.matches?.(sel) || containsOrSelf( queryWithSelf, tg)) { cb?.call?.(tg, ev); } }
+                if (this.direction == "parent"  ) { if (tg?.matches?.(sel) || containsOrSelf(parentWithSelf, tg)) { cb?.call?.(tg, ev); } }
             } else {
                 const stl: any = sel?.element ?? sel;
-                if (this.direction === "children") { if (containsOrSelf(tg, stl)) { cb?.call?.(tg, ev); } }
-                if (this.direction === "parent"  ) { if (containsOrSelf(stl, tg)) { cb?.call?.(tg, ev); } }
+                if (this.direction == "children") { if (containsOrSelf(tg, stl)) { cb?.call?.(tg, ev); } }
+                if (this.direction == "parent"  ) { if (containsOrSelf(stl, tg)) { cb?.call?.(tg, ev); } }
             }
         };
         parent?.addEventListener?.(eventName, wrap, option);
@@ -114,8 +114,8 @@ class UniversalElementHandler {
         const eventName = this._redirectToBubble(name), eventMap = this._eventMap.get(parent);
         if (!eventMap) return; const cbMap = eventMap.get(eventName), entry = cbMap?.get?.(cb);
         parent?.removeEventListener?.(eventName, entry?.wrap ?? cb, option ?? entry?.option ?? {});
-        cbMap?.delete?.(cb); if (cbMap?.size === 0) eventMap?.delete?.(eventName);
-        if (eventMap.size === 0) this._eventMap.delete(parent);
+        cbMap?.delete?.(cb); if (cbMap?.size == 0) eventMap?.delete?.(eventName);
+        if (eventMap.size == 0) this._eventMap.delete(parent);
     }
 
     //
@@ -131,10 +131,10 @@ class UniversalElementHandler {
 
         // Extensions
         if (name in queryExtensions) { return queryExtensions?.[name]?.(selected); }
-        if (name === "length" && array?.length != null) { return array?.length; }
+        if (name == "length" && array?.length != null) { return array?.length; }
 
         //
-        if (name === "_updateSelector") return (sel)=>(this.selector = sel || this.selector);
+        if (name == "_updateSelector") return (sel)=>(this.selector = sel || this.selector);
         if (["style", "attributeStyleMap"].indexOf(name) >= 0) {
             const tg = target?.self ?? target;
             const selector = this._selector(target);
@@ -142,24 +142,24 @@ class UniversalElementHandler {
                 getStyleRule(selector, null, "ux-query", tg) :
                 selected
             );
-            if (name === "attributeStyleMap") {
+            if (name == "attributeStyleMap") {
                 return basis?.styleMap ?? basis?.attributeStyleMap;
             }
             return basis?.[name];
         }
 
         //
-        if (name === "self") return (target?.self ?? target);
-        if (name === "selector") return this._selector(target);
+        if (name == "self") return (target?.self ?? target);
+        if (name == "selector") return this._selector(target);
 
         //
-        if (name === "observeAttr") return (name, cb)=>this._observeAttributes(target, name, cb);
-        if (name === "DOMChange") return (cb)=>this._observeDOMChange(target, this.selector, cb);
-        if (name === "addEventListener") return (name, cb, opt?)=>this._addEventListener(target, name, cb, opt);
-        if (name === "removeEventListener") return (name, cb, opt?)=>this._removeEventListener(target, name, cb, opt);
+        if (name == "observeAttr") return (name, cb)=>this._observeAttributes(target, name, cb);
+        if (name == "DOMChange") return (cb)=>this._observeDOMChange(target, this.selector, cb);
+        if (name == "addEventListener") return (name, cb, opt?)=>this._addEventListener(target, name, cb, opt);
+        if (name == "removeEventListener") return (name, cb, opt?)=>this._removeEventListener(target, name, cb, opt);
 
         // get compatible reactive value, if bound
-        if (name === "getAttribute") {
+        if (name == "getAttribute") {
             return (key)=>{
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
@@ -172,7 +172,7 @@ class UniversalElementHandler {
         }
 
         // set attribute
-        if (name === "setAttribute") {
+        if (name == "setAttribute") {
             return (key, value)=>{
                 // TODO:
                 // - support for multiple elements
@@ -187,7 +187,7 @@ class UniversalElementHandler {
         }
 
         //
-        if (name === "removeAttribute") {
+        if (name == "removeAttribute") {
             return (key)=>{
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
@@ -200,7 +200,7 @@ class UniversalElementHandler {
         }
 
         //
-        if (name === "hasAttribute") {
+        if (name == "hasAttribute") {
             return (key)=>{
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
@@ -213,29 +213,29 @@ class UniversalElementHandler {
         }
 
         // for BLU.E
-        if (name === "element") {
+        if (name == "element") {
             if (array?.length <= 1) return selected?.element ?? selected;
             const fragment = document.createDocumentFragment();
             fragment.append(...array); return fragment;
         }
 
         //
-        if (name === "deref" && (typeof selected == "object" || typeof selected == "function") && selected != null) {
+        if (name == "deref" && (typeof selected == "object" || typeof selected == "function") && selected != null) {
             const wk = new WeakRef(selected);
             return ()=>(wk?.deref?.()?.element ?? wk?.deref?.());
         }
 
         //
-        if (typeof name === "string" && /^\d+$/.test(name)) { return array[parseInt(name)]; };
+        if (typeof name == "string" && /^\d+$/.test(name)) { return array[parseInt(name)]; };
 
         //
         const origin = selected; //selected?.element ?? selected;
-        if (origin?.[name] != null) { return typeof origin[name] === "function" ? origin[name].bind(origin) : origin[name]; }
-        if ( array?.[name] != null) { return typeof  array[name] === "function" ?  array[name].bind(array)  :  array[name]; }
+        if (origin?.[name] != null) { return typeof origin[name] == "function" ? origin[name].bind(origin) : origin[name]; }
+        if ( array?.[name] != null) { return typeof  array[name] == "function" ?  array[name].bind(array)  :  array[name]; }
 
         // remains possible getters
         //return Reflect.get(target, name, ctx);
-        return typeof target?.[name] === "function" ? target?.[name].bind(origin) : target?.[name];
+        return typeof target?.[name] == "function" ? target?.[name].bind(origin) : target?.[name];
     }
 
     //
@@ -244,7 +244,7 @@ class UniversalElementHandler {
         const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
 
         //
-        if (typeof name === "string" && /^\d+$/.test(name)) { return false; }
+        if (typeof name == "string" && /^\d+$/.test(name)) { return false; }
         if (array[name] != null) { return false; }
         if (selected) { selected[name] = value; return true; }
         return true;
@@ -255,7 +255,7 @@ class UniversalElementHandler {
         const array = this._getArray(target);
         const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
         return (
-            (typeof name === "string" && /^\d+$/.test(name) && array[parseInt(name)] != null) ||
+            (typeof name == "string" && /^\d+$/.test(name) && array[parseInt(name)] != null) ||
             (array[name] != null) ||
             (selected && name in selected)
         );

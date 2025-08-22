@@ -10,7 +10,7 @@ import { reflectChildren } from "../context/Reflect";
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
 
 //
-const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType === Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.includes("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
+const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType == Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.includes("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
 
 //
 const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[], fragment?: DocumentFragment)=>{
@@ -89,11 +89,11 @@ export function htmlBuilder({ createElement = null } = {}) {
         const fragment = document.createDocumentFragment(); //template instanceof DocumentFragment ? template : document.createDocumentFragment();
         do {
             const node: any = walker.currentNode;
-            if (node.nodeType === Node.ELEMENT_NODE) {
+            if (node.nodeType == Node.ELEMENT_NODE) {
                 cmdBuffer.push(()=>{ removeFromRoot(node, fragment); });
                 connectElement(node as HTMLElement, atb, psh, mapped, cmdBuffer, fragment);
             } else
-            if (node.nodeType === Node.COMMENT_NODE && node.nodeValue.includes("o:")) {
+            if (node.nodeType == Node.COMMENT_NODE && node.nodeValue.includes("o:")) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
 
                 // make iteratable array and set
@@ -108,7 +108,7 @@ export function htmlBuilder({ createElement = null } = {}) {
                             { const $parent = node?.parentNode; node?.remove?.(); reflectChildren($parent, el); } else
                             {
                                 const n = getNode(el);
-                                if (el == null || el === false || n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); }
+                                if (!el || n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); }
                             }
                     });
                 }

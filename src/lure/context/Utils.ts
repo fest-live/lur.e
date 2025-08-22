@@ -1,4 +1,4 @@
-import { unwrap, subscribe } from "fest/object";
+import { unwrap, subscribe, isNotEqual } from "fest/object";
 import { $virtual, $mapped } from "../core/Binding";
 
 //
@@ -82,7 +82,7 @@ export const removeChild = (element, cp, mapper?, index = -1) => {
 //
 export const removeNotExists = (element, children, mapper?) => {
     const list = Array.from(unwrap(children) || [])?.map?.((cp) => getNode(mapper?.(cp) ?? cp));
-    Array.from(element.childNodes).forEach((nd: any) => { if (!list?.find?.((cp) => (cp === nd))) nd?.remove?.(); });
+    Array.from(element.childNodes).forEach((nd: any) => { if (!list?.find?.((cp) => (!isNotEqual?.(cp, nd)))) nd?.remove?.(); });
     return element;
 }
 

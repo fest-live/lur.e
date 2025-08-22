@@ -1,3 +1,4 @@
+import { isNotEqual } from "fest/object";
 import { Q } from "../node/Queried";
 
 //
@@ -11,10 +12,10 @@ const wref = (ref)=>{ return ref != null ? (isRef(ref) ? ref : ((typeof ref == "
 export const checkboxCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref) { $ref.value = Q("input:checked", ev?.target)?.checked ?? !$ref?.value; } } }
 
 //
-export const numberCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref && $ref?.value !== ev?.target?.valueAsNumber) { $ref.value = Number(Q("input", ev?.target)?.valueAsNumber || 0) ?? 0; } } }
+export const numberCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref && isNotEqual($ref?.value, ev?.target?.valueAsNumber)) { $ref.value = Number(Q("input", ev?.target)?.valueAsNumber || 0) ?? 0; } } }
 
 //
-export const valueCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref && ev?.target?.value !== $ref?.value) { $ref.value = (Q("input", ev?.target)?.value ?? $ref?.value) || ""; } } }
+export const valueCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref && isNotEqual(ev?.target?.value, $ref?.value)) { $ref.value = (Q("input", ev?.target)?.value ?? $ref?.value) || ""; } } }
 
 //
 export const radioCtrl = (ref, name) => {

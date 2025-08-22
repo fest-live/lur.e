@@ -1,4 +1,4 @@
-import { addToCallChain, makeReactive, subscribe } from "fest/object";
+import { addToCallChain, makeReactive, subscribe, isNotEqual } from "fest/object";
 import { camelToKebab, handleAttribute, handleListeners, handleProperty, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
 
 //
@@ -57,11 +57,11 @@ export const $observeInput = (element, ref?: any|null, prop = "value") => {
 export const $observeAttribute = (el: HTMLElement, ref?: any|null, prop: string = "") => {
     const wv = ref != null ? (ref instanceof WeakRef ? ref : new WeakRef(ref)) : null; //el?.getAttribute?.(prop)
     const cb = (mutation)=>{
-        if (mutation.type == "attributes" && mutation.attributeName === attrName) {
+        if (mutation.type == "attributes" && mutation.attributeName == attrName) {
             const value = mutation?.target?.getAttribute?.(mutation.attributeName);
             const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
-            if (mutation.oldValue != value && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
-                { if (reVal !== value || reVal == null) { $set(wv, "value", value ?? reVal); } }
+            if (isNotEqual(mutation.oldValue, value) && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
+                { if (isNotEqual(reVal, value) || reVal == null) { $set(wv, "value", value ?? reVal); } }
         }
     }
 
@@ -99,7 +99,7 @@ export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: 
     const wel = el instanceof WeakRef ? el : new WeakRef(el); el = wel?.deref?.() ?? el;
     const wv = new WeakRef(value);
     const un = subscribe?.([value, "value"], (curr, _, old) => {
-        if (set?.deref?.()?.[prop] === wv?.deref?.() || !set?.deref?.()) {
+        if (set?.deref?.()?.[prop] == wv?.deref?.() || !set?.deref?.()) {
             if (typeof wv?.deref?.()?.[$behavior] == "function")
                 { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]); } else
                 { handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? curr); }

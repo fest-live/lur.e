@@ -80,10 +80,10 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
     const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(updateCache) : null;
     const handler: ProxyHandler<any> = {
         get(target, prop, receiver) { // @ts-ignore
-            if (prop === 'getHandler') { return (name) => { updateCache(); return mapCache.get(name) || null; }; }
-            if (prop === 'getMap')     { return () => { updateCache(); return mapCache; }; }
-            if (prop === 'refresh')    { return () => { updateCache(); return pxy; }; }
-            if (prop === 'dirHandle')  { return dirHandle; }
+            if (prop == 'getHandler') { return (name) => { updateCache(); return mapCache.get(name) || null; }; }
+            if (prop == 'getMap')     { return () => { updateCache(); return mapCache; }; }
+            if (prop == 'refresh')    { return () => { updateCache(); return pxy; }; }
+            if (prop == 'dirHandle')  { return dirHandle; }
 
             //
             if (typeof mapCache?.[prop] == 'function')
@@ -182,7 +182,7 @@ export async function getFileHandle(rootHandle, relPath, { create = false } = {}
 export async function getHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
     rootHandle ??= navigator?.storage?.getDirectory?.();
     const type = detectTypeByRelPath(relPath);
-    if (type === 'directory')
+    if (type == 'directory')
         { const dir  = await getDirectoryHandle(rootHandle, relPath.replace(/\/$/, ''), options, logger); if (dir) return { type: 'directory', handle: dir }; } else
         { const file = await getFileHandle(rootHandle, relPath, options, logger); if (file) return { type: 'file', handle: file }; }
     return null;
@@ -192,7 +192,7 @@ export async function getHandler(rootHandle, relPath, options = {}, logger = def
 export async function createHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
     rootHandle ??= navigator?.storage?.getDirectory?.();
     const type = detectTypeByRelPath(relPath);
-    if (type === 'directory')
+    if (type == 'directory')
         { return getDirectoryHandle(rootHandle, relPath.replace(/\/$/, ''), options, logger); } else
         { return getFileHandle(rootHandle, relPath, options, logger); }
 }

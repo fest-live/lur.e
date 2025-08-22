@@ -1,4 +1,4 @@
-import { addToCallChain, subscribe } from "fest/object";
+import { addToCallChain, subscribe, isNotEqual } from "fest/object";
 import { getNode  } from "../context/Utils";
 
 //
@@ -21,7 +21,7 @@ const SwM = {
     //
     _onUpdate(): void {
         const idx = this.current?.value ?? -1;
-        if (idx !== this.current) {
+        if (isNotEqual(idx, this.current)) {
             const old = this.current; this.current = idx;
 
             // Find parent and new/old nodes

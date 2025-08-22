@@ -1,4 +1,4 @@
-import { addToCallChain, subscribe, observe, propRef } from "fest/object";
+import { addToCallChain, subscribe, observe, propRef, isNotEqual } from "fest/object";
 
 //
 import { appendChild, removeNotExists, replaceChildren } from "./Utils";
@@ -83,9 +83,9 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     //
     const onChange = (ev: any)=>{
         const input = Q("input", ev?.target);
-        if (input?.value != null && input?.value !== properties?.value) properties.value = input?.value;
-        if (input?.valueAsNumber != null && input?.valueAsNumber !== properties?.valueAsNumber) properties.valueAsNumber = input?.valueAsNumber;
-        if (input?.checked != null && input?.checked !== properties?.checked) properties.checked = input?.checked;
+        if (input?.value != null && isNotEqual(input?.value, properties?.value)) properties.value = input?.value;
+        if (input?.valueAsNumber != null && isNotEqual(input?.valueAsNumber, properties?.valueAsNumber)) properties.valueAsNumber = input?.valueAsNumber;
+        if (input?.checked != null && isNotEqual(input?.checked, properties?.checked)) properties.checked = input?.checked;
     };
 
     //
