@@ -87,16 +87,9 @@ class UniversalElementHandler {
             let tg = (ev?.target ?? this._getSelected(target)) ?? (ev?.currentTarget ?? parent);
             tg = tg?.element ?? tg;
             if (typeof sel == "string") {
-                const queryWithSelf  = (rot?.matches?.(sel) ? rot : null) ?? rot?.querySelector?.(sel);
-                const parentWithSelf = MOCElement(tg, sel);
-
-                //
-                if (this.direction == "children") { if (tg?.matches?.(sel) || containsOrSelf( queryWithSelf, tg)) { cb?.call?.(tg, ev); } }
-                if (this.direction == "parent"  ) { if (tg?.matches?.(sel) || containsOrSelf(parentWithSelf, tg)) { cb?.call?.(tg, ev); } }
+                if (containsOrSelf(rot, MOCElement(tg, sel))) { cb?.call?.(tg, ev); }
             } else {
-                const stl: any = sel?.element ?? sel;
-                if (this.direction == "children") { if (containsOrSelf(tg, stl)) { cb?.call?.(tg, ev); } }
-                if (this.direction == "parent"  ) { if (containsOrSelf(stl, tg)) { cb?.call?.(tg, ev); } }
+                if (containsOrSelf(sel, tg)) { cb?.call?.(tg, ev); }
             }
         };
         parent?.addEventListener?.(eventName, wrap, option);
