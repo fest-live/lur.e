@@ -1,7 +1,8 @@
-import { autoRef, makeReactive } from "fest/object";
+import { autoRef } from "fest/object";
 import { addRoot, loadInlineStyle, setAttributesIfNull } from "fest/dom";
 import { Q } from "../lure/node/Queried";
 import { E } from "../lure/node/Bindings";
+import { H } from "../lure/node/Syntax";
 
 //
 import {
@@ -63,8 +64,7 @@ const getDef = (source?: string|any|null): any =>{
 }
 
 //
-defaultStyle.innerHTML = `@layer ux-preload, ux-layer;
-@layer ux-preload {
+defaultStyle.innerHTML = `@layer ux-preload {
     :where(ui-select-row, ui-button-row),
     :host(ui-select-row, ui-button-row),
     ::slotted(ui-select-row, ui-button-row) {
@@ -178,13 +178,13 @@ export const loadCachedStyles = (bTo, src)=>{
 }
 
 //
-const isNotExtended = (el: HTMLElement)=>{
+export const isNotExtended = (el: HTMLElement)=>{
     return (el instanceof HTMLElement && !(
         (el instanceof HTMLDivElement) ||
         (el instanceof HTMLImageElement) ||
         (el instanceof HTMLVideoElement) ||
         (el instanceof HTMLCanvasElement))
-    );
+    ) && !(el?.hasAttribute?.("is") || el?.getAttribute?.("is") != null);
 }
 
 //
@@ -192,10 +192,10 @@ export const customElement = defineElement;
 export const GLitElement = (derrivate = HTMLElement) => {
     // @ts-ignore // !experimental `getOrInsert` feature!
     return CSM.getOrInsertComputed(derrivate, ()=>withProperties(class EX extends derrivate {
-        #framework: any;
-        #initialized: boolean = false;
+        #shadowDOM?: any|null;
         #styleElement?: HTMLStyleElement;
         #defaultStyle?: HTMLStyleElement;
+        #initialized: boolean = false;
 
         //
         styles?: any;
@@ -203,20 +203,26 @@ export const GLitElement = (derrivate = HTMLElement) => {
 
         // TODO: @elementRef()
         styleLibs: HTMLStyleElement[] = [];
+        styleLayers: ()=>string[] = ()=>[];
         render = (weak?: WeakRef<any>) => { return document.createElement("slot"); }
 
         // @ts-ignore
         constructor(...args) {
             super();
             if (isNotExtended(this)) {
-                const shadowRoot = addRoot(this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }));
-                shadowRoot.append(this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
+                const shadowRoot  = addRoot(this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }));
+                const defStyle    = (this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
+                const layersStyle = shadowRoot.querySelector(`style[data-type="ux-layer"]`);
+                if (layersStyle) { layersStyle.after(defStyle); } else { shadowRoot.prepend(defStyle); }
             }
-            this.styleLibs = [];
+            this.styleLibs ??= [];
         }
 
         //
-        protected $init() { return this; };
+        protected $makeLayers() { return `@layer ${["ux-preload", "ux-layer", ...(this.styleLayers?.call?.(this) ?? [])].join?.(",") ?? ""};`; }
+        protected $init() { return this; }
+
+        //
         protected onInitialize(weak?: WeakRef<any>) { return this; }
         protected onRender(weak?: WeakRef<any>) { return this; }
         protected getProperty(key: string) { const current = this[inRenderKey]; this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = current; if (!current) { delete this[inRenderKey]; } return cp; }
@@ -227,10 +233,7 @@ export const GLitElement = (derrivate = HTMLElement) => {
         public connectedCallback() {
             const weak = new WeakRef(this);
             if (!this.#initialized) { this.#initialized = true;
-                let shadowRoot = this.shadowRoot;
-                if (isNotExtended(this)) {
-                    shadowRoot = shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" });
-                }
+                const shadowRoot = isNotExtended(this) ? (this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" })) : this.shadowRoot;
 
                 //
                 withProperties<any>(this).$init?.();
@@ -241,9 +244,10 @@ export const GLitElement = (derrivate = HTMLElement) => {
                 this[inRenderKey] = true;
                 if (isNotExtended(this) && shadowRoot) {
                     const rendered = this.render?.call?.(this, weak);
-                    this.#framework = E(shadowRoot as any, {}, [this.#defaultStyle, ...(this.styleLibs||[]), this.#styleElement ??= loadCachedStyles(this, this.styles), rendered])
+                    this.#shadowDOM = E(shadowRoot as any, {}, [H`<style data-type="ux-layer" prop:innerHTML=${this.$makeLayers()}></style>`, this.#defaultStyle, ...(this.styleLibs.map(x=>x.cloneNode?.(true))||[]), this.#styleElement ??= loadCachedStyles(this, this.styles), rendered]);
                 }
-                this.onRender?.call?.(this, weak); delete this[inRenderKey];
+                this.onRender?.call?.(this, weak);
+                delete this[inRenderKey];
             }
             return this;
         }
