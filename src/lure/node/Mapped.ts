@@ -16,7 +16,6 @@ class Mp {
         this.#fragments = document.createDocumentFragment();
         this.#mapCb = mapCb ?? ((el) => el);
         observe?.(this.#observable = observable, this._onUpdate.bind(this));
-        this._onUpdate();
     }
 
     //
@@ -36,7 +35,7 @@ class Mp {
     }
 
     //
-    _onUpdate(newEl, idx, oldEl, op) {
+    _onUpdate(newEl, idx, oldEl, op: string | null = "@add") {
         const pel = (getNode(newEl ?? oldEl ?? this.#observable?.[0], this.mapper.bind(this))?.parentElement ?? this.#fragments);
         Array.from(pel?.childNodes)?.forEach?.((nd: any) => nd?.remove?.());
         return reformChildren(
