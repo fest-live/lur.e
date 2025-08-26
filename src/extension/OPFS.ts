@@ -58,7 +58,7 @@ export async function getDirectoryHandle(rootHandle, relPath, { create = false }
     try {
         const parts = relPath.split('/').filter((p)=>!!p?.trim?.()); let dir = rootHandle;
         if (!relPath?.endsWith?.("/")) { parts.pop(); };
-        for (const part of parts) { dir = await dir.getDirectoryHandle(part, { create }); if (!dir) return dir; }; return dir;
+        for (const part of parts) { dir = await dir?.getDirectoryHandle?.(part, { create }); if (!dir) return dir; }; return dir;
     } catch (e: any) { return handleError(logger, 'error', `getDirectoryHandle: ${e.message}`); }
 }
 
@@ -80,20 +80,19 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
     const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(updateCache) : null;
     const handler: ProxyHandler<any> = {
         get(target, prop, receiver) { // @ts-ignore
-            if (prop == 'getHandler') { return (name) => { updateCache(); return mapCache.get(name) || null; }; }
-            if (prop == 'getMap')     { return () => { updateCache(); return mapCache; }; }
-            if (prop == 'refresh')    { return () => { updateCache(); return pxy; }; }
-            if (prop == 'dirHandle')  { return dirHandle; }
+            const withUpdate = Promised(dirHandle?.then?.(()=>updateCache())); // @ts-ignore
+            if (prop == 'getHandler') { return (name)=>withUpdate?.then?.(() => (name ? (mapCache as any)?.get?.(name) : dirHandle)); }
+            if (prop == 'getMap')     { return ()=>withUpdate?.then?.(() => dirHandle); }
+            if (prop == 'refresh')    { return ()=>withUpdate?.then?.(() => pxy); }
+            if (prop == 'dirHandle')  { return ()=>withUpdate?.then?.(() => dirHandle); }
 
             //
-            if (typeof mapCache?.[prop] == 'function')
-                { return mapCache?.[prop]?.bind?.(mapCache); }
+            if (["then", "catch", "finally"].includes(prop as string)) { return (typeof withUpdate?.[prop] == "function" ? withUpdate?.[prop]?.bind?.(withUpdate) : withUpdate?.[prop]); }
 
             // @ts-ignore
             const complex = Promised(Promise.try?.(async ()=>{
-                const handle = await dirHandle;
-                if (handle?.[prop] != null) { return handle; }
-                if (!mapCache) await updateCache(); return mapCache;
+                const handle = await Promise.all([dirHandle, updateCache()]);
+                return (handle?.[1]?.[prop] != null ? handle?.[1] : handle?.[0]);
             }));
 
             //
@@ -106,11 +105,12 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
     };
 
     //
-    let dirHandle: any = getDirectoryHandle(rootHandle, relPath, options, logger)?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
-    dirHandle?.then?.(async (handlePromised)=>{
-        const handle = (await handlePromised?.getHandle?.()) ?? (await handlePromised);
+    let dirHandle: any = getDirectoryHandle(rootHandle, relPath, options, logger);
+    dirHandle = dirHandle?.then?.(async (handle)=>{
+        handle = (await handle?.getHandle?.()) ?? (await handle);
         if (handle) { obs?.observe?.(handle); };
-    });
+        return handle;
+    })?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
     updateCache(); const fx: any = function(){}, pxy = new Proxy(fx, handler); return pxy;
 }
 
@@ -148,7 +148,7 @@ export async function readFileUTF8(rootHandle, relPath, options = {}, logger = d
 
 
 //
-export async function writeFile(rootHandle, relPath, { data }, logger = defaultLogger) {
+export async function writeFile(rootHandle, relPath, data, logger = defaultLogger) {
     rootHandle ??= navigator?.storage?.getDirectory?.();
     try {
         const fileHandle = await getFileHandle(rootHandle, relPath, { create: true }, logger);
@@ -173,8 +173,9 @@ export async function getFileHandle(rootHandle, relPath, { create = false } = {}
     rootHandle ??= navigator?.storage?.getDirectory?.();
     try {
         const parts = relPath.split('/').filter(Boolean), fileName = parts.pop();
-        const dir = await openDirectory(rootHandle, parts.join('/'), { create }, logger);
-        return await dir?.getFileHandle?.(fileName, { create });
+        const dir = await openDirectory(rootHandle, relPath, { create }, logger);
+        const handle = await dir?.getFileHandle?.(fileName, { create });
+        return handle;
     } catch (e: any) { return handleError(logger, 'error', `getFileHandle: ${e.message}`); }
 }
 

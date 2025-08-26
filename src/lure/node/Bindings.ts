@@ -42,7 +42,7 @@ export const Qp = (ref, host = document.documentElement)=>{
 }
 
 //
-export const E = (selector: string | HTMLElement, params: Params = {}, children?: any[]|null) => {
+export const E = (selector: string | HTMLElement, params: Params = {}, children?: any[]|any|null) => {
     const element = typeof selector == "string" ? Qp(createElement(selector)) : selector;
     if (element && params) {
         reflectControllers(element, params.ctrls);

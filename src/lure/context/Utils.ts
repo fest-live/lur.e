@@ -50,10 +50,17 @@ export const getNode = (E, mapper?: Function, index?: number)=>{
 }
 
 //
+export const appendFix = (parent, child)=>{
+    if (!child?.parentNode) parent?.append?.(child);
+    if (parent?.parentNode == child?.parentNode) { return; }
+    child?.remove?.(); parent?.append?.(child);
+}
+
+//
 export const appendChild = (element, cp, mapper?) => {
     if (mapper != null) { cp = mapper?.(cp) ?? cp; }
-    if (cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.[$virtual] || cp?.[$mapped])) { element?.append?.(...(unwrap(cp?.children)?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp?.children))); } else
-        if (Array.isArray(unwrap(cp))) { element?.append?.(...unwrap(cp?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp))); } else { const node = getNode(cp); if (node != null && (!node?.parentNode || node?.parentNode != element)) { element?.append?.(node); } }
+    if (cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.[$virtual] || cp?.[$mapped])) { (unwrap(cp?.children)?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp?.children))?.forEach?.((el)=>appendFix(element, el)); } else
+        if (Array.isArray(unwrap(cp))) { (unwrap(cp?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp)))?.forEach?.((el)=>appendFix(element, el)); } else { const node = getNode(cp); appendFix(element, node); }
 }
 
 //
