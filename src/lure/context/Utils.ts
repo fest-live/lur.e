@@ -75,10 +75,11 @@ export const replaceChildren = (element, cp, mapper?, index?) => {
 }
 
 //
-export const removeChild = (element, cp, mapper?, index = -1) => {
+export const removeChild = (element, cp, mapper?, index?: number) => {
+    element = element?.element ?? element;
     if (element?.childNodes?.length < 1) return;
     const node = getNode(cp = mapper?.(cp) ?? cp);
-    const ch = node ?? (index >= 0 ? element?.childNodes?.[index] : null);
+    const ch = node ?? (index != null && index >= 0 ? element?.childNodes?.[index] : null);
     if (ch?.parentNode == element) { ch?.remove?.(); } else
         if (ch?.children && ch?.children?.length >= 1) { // TODO: remove by same string value
             ch?.children?.forEach?.(c => { const R = (elMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });

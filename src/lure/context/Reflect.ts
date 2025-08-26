@@ -1,7 +1,7 @@
 import { addToCallChain, subscribe, observe, propRef, isNotEqual } from "fest/object";
 
 //
-import { appendChild, removeNotExists, replaceChildren } from "./Utils";
+import getNode, { appendChild, removeNotExists, replaceChildren } from "./Utils";
 import { removeChild } from "./Utils";
 import { bindHandler, $mapped, $behavior, addToBank, hasInBank, bindWith } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../../../../dom.ts/src/$mixin$/Handler";
@@ -109,6 +109,7 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 
 // TODO! use handlerMap registry
 export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
+    const $parent = getNode(children?.[0], mapper)?.parentNode; element = (!($parent instanceof DocumentFragment) ? $parent : element) ?? element;
     if (!children || hasInBank(element, children)) return element;
 
     //
@@ -131,16 +132,17 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         controller?.abort?.(); controller = new AbortController();
 
         //
-        const element = ref.deref(); if (!element) return;
         const op  = isArray ? (args?.[args.length-1] || "") : null;
         const old = isArray ? (args?.[args.length-2] ?? null) : args?.[2];
         const idx = args?.[1] ?? -1, obj = args?.[0] ?? children?.[idx];
 
         //
+        const nodeParent = getNode(obj ?? old, mapper)?.parentNode;
+        const element = (!(nodeParent instanceof DocumentFragment) ? nodeParent : ref.deref()) ?? ref.deref(); if (!element) return;
         if (element && ((isArray && ["@add", "@set", "@remove"].indexOf(op) >= 0) || (!isArray))) {
             if (obj != null && (old != null || op == "@set"   )) { toBeReplace.push([element, obj ?? old, mapper, idx]); };
-            if (obj != null && (old == null || op == "@add"   )) { toBeAppend .push([element, obj ?? old, mapper]); };
-            if (old != null && (obj == null || op == "@remove")) { toBeRemoved.push([element, old ?? obj, mapper]); };
+            if (obj != null && (old == null || op == "@add"   )) { toBeAppend .push([element, obj ?? old, mapper, idx]); };
+            if (old != null && (obj == null || op == "@remove")) { toBeRemoved.push([element, old ?? obj, mapper, idx]); };
         }
 
         //

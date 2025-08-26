@@ -1,7 +1,7 @@
 import { observe } from "fest/object";
 import { getNode } from "../context/Utils";
 import { $mapped } from "../core/Binding";
-import { reformChildren } from "../context/Reflect";
+import { reflectChildren, reformChildren } from "../context/Reflect";
 
 //
 class Mp {
@@ -16,11 +16,20 @@ class Mp {
         this.#fragments = document.createDocumentFragment();
         this.#mapCb = mapCb ?? ((el) => el);
         observe?.(this.#observable = observable, this._onUpdate.bind(this));
+
+        //
+        const pel = (getNode(this.#observable?.[0], this.mapper.bind(this))?.parentElement ?? this.#fragments);
+        reflectChildren(pel, this.#observable, this.mapper.bind(this));
     }
 
     //
     get [$mapped]() { return true; }
-    get element(): HTMLElement | DocumentFragment | Text | null { return this.#fragments; }
+    get element(): HTMLElement | DocumentFragment | Text | null {
+        return reformChildren(
+            this.#fragments, this.#observable,
+            this.mapper.bind(this)
+        );
+    }
     get children() { return this.#observable; }
 
     //
@@ -37,10 +46,9 @@ class Mp {
     //
     _onUpdate(newEl, idx, oldEl, op: string | null = "@add") {
         const pel = (getNode(newEl ?? oldEl ?? this.#observable?.[0], this.mapper.bind(this))?.parentElement ?? this.#fragments);
-        Array.from(pel?.childNodes)?.forEach?.((nd: any) => nd?.remove?.());
+        if (pel != this.#fragments) return pel; Array.from(pel?.childNodes)?.forEach?.((nd: any) => nd?.remove?.());
         return reformChildren(
-            pel,
-            this.#observable,
+            pel, this.#observable,
             this.mapper.bind(this)
         );
     }
