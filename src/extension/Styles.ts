@@ -4,7 +4,7 @@ import { handleStyleChange } from "fest/dom";
 //
 // NEWER, INLINE STYLES ONLY!!!
 // string template for CSS values
-export const S = (strings: string[], ...values: any[])=>{
+export const S = (strings, ...values: any[])=>{
     // extract possible reactive values
     let props: string[] = [], vars: Map<string, any> = new Map();
     let index = 0, counter = 0;
@@ -47,4 +47,4 @@ export const S = (strings: string[], ...values: any[])=>{
 };
 
 //
-export const css = (strings: string[], ...values: any[])=>{ return S(strings, ...values); }
+export const css = (strings, ...values: any[])=>{ return S(strings, ...values); }

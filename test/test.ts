@@ -1,11 +1,6 @@
 // @ts-ignore
 import { makeReactive, assign } from "fest/object";
-import { defineElement, GLitElement, property } from "../src/extension/Glit";
-import { css } from "../src/extension/Styles";
-
-//
-import { E } from "../src/lure/node/Bindings";
-import { H } from "../src/lure/node/Syntax";
+import { defineElement, GLitElement, property, S, E, H } from "fest/lure";
 
 //
 @defineElement("x-block")
@@ -18,7 +13,7 @@ export class XBlock extends GLitElement() {
 
     //
     protected styles = function() {
-        return css`:host {opacity: ${this.opacity}; display: block; }`;
+        return S`:host {opacity: ${this.opacity}; display: block; }`;
     }
 
     //

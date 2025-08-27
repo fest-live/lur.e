@@ -189,9 +189,9 @@ export const isNotExtended = (el: HTMLElement)=>{
 
 //
 export const customElement = defineElement;
-export const GLitElement = (derrivate = HTMLElement) => {
+export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(derivate: (any extends T ? any : T) = HTMLElement) => {
     // @ts-ignore // !experimental `getOrInsert` feature!
-    return CSM.getOrInsertComputed(derrivate, ()=>withProperties(class EX extends derrivate {
+    return CSM.getOrInsertComputed(derivate, ()=>withProperties(class EX extends derivate {
         #shadowDOM?: any|null;
         #styleElement?: HTMLStyleElement;
         #defaultStyle?: HTMLStyleElement;
