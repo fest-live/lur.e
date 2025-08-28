@@ -97,7 +97,7 @@ defaultStyle.innerHTML = `@layer ux-preload {
 //
 export function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
     const $init = (ctr?.prototype ?? ctr)?.$init;
-    (ctr?.prototype ?? ctr).$init = function (...args) {
+    (ctr?.prototype ?? ctr).$init ??= function (...args) {
         $init?.call?.(this, ...args);
         if (this?.[defKeys] != null) { Object.entries(this[defKeys]).forEach(([key, def])=>{
             const exists = this[key]; Object.defineProperty(this, key, def as any); if (exists != null) { this[key] = exists; };
@@ -220,7 +220,7 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
 
         //
         protected $makeLayers() { return `@layer ${["ux-preload", "ux-layer", ...(this.styleLayers?.call?.(this) ?? [])].join?.(",") ?? ""};`; }
-        protected $init() { return this; }
+        protected $init?: ()=>void;
 
         //
         protected onInitialize(weak?: WeakRef<any>) { return this; }
@@ -236,7 +236,7 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
                 const shadowRoot = isNotExtended(this) ? (this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" })) : this.shadowRoot;
 
                 //
-                withProperties<any>(this).$init?.();
+                withProperties<any>(this).$init?.call?.(this);
                 setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes);
                 this.onInitialize?.call(this, weak);
 

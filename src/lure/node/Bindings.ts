@@ -45,31 +45,31 @@ export const Qp = (ref, host = document.documentElement)=>{
 export const E = (selector: string | HTMLElement | Node | DocumentFragment | Document | Element, params: Params = {}, children?: any[]|any|null) => {
     const element = typeof selector == "string" ? Qp(createElement(selector)) : selector;
     if (element && params) {
-        reflectControllers(element, params.ctrls);
-        reflectAttributes(element, params.attributes);
-        reflectProperties(element, params.properties);
-        reflectClassList(element, params.classList);
-        reflectBehaviors(element, params.behaviors);
-        reflectDataset(element, params.dataset);
-        reflectStores(element, params.stores);
-        reflectMixins(element, params.mixins);
-        reflectStyles(element, params.style);
-        reflectARIA(element, params.aria);
+        if (params.ctrls != null) reflectControllers(element, params.ctrls);
+        if (params.attributes != null) reflectAttributes(element, params.attributes);
+        if (params.properties != null) reflectProperties(element, params.properties);
+        if (params.classList != null) reflectClassList(element, params.classList);
+        if (params.behaviors != null) reflectBehaviors(element, params.behaviors);
+        if (params.dataset != null) reflectDataset(element, params.dataset);
+        if (params.stores != null) reflectStores(element, params.stores);
+        if (params.mixins != null) reflectMixins(element, params.mixins);
+        if (params.style != null) reflectStyles(element, params.style);
+        if (params.aria != null) reflectARIA(element, params.aria);
 
         //
-        bindWith(element, "is", params.is, handleAttribute, params, true);
-        bindWith(element, "role", params.role, handleProperty, params);
-        bindWith(element, "slot", params.slot, handleProperty, params);
-        bindWith(element, "part", params.part, handleAttribute, params, true);
-        bindWith(element, "name", params.name, handleAttribute, params, true);
-        bindWith(element, "type", params.type, handleAttribute, params, true);
-        bindWith(element, "icon", params.icon, handleAttribute, params, true);
-        bindWith(element, "inert", params.inert, handleAttribute, params, true);
-        bindWith(element, "hidden", params.visible ?? params.hidden, handleHidden, params);
-        bindEvents(element, params.on);
+        if (params.is != null) bindWith(element, "is", params.is, handleAttribute, params, true);
+        if (params.role != null) bindWith(element, "role", params.role, handleProperty, params);
+        if (params.slot != null) bindWith(element, "slot", params.slot, handleProperty, params);
+        if (params.part != null) bindWith(element, "part", params.part, handleAttribute, params, true);
+        if (params.name != null) bindWith(element, "name", params.name, handleAttribute, params, true);
+        if (params.type != null) bindWith(element, "type", params.type, handleAttribute, params, true);
+        if (params.icon != null) bindWith(element, "icon", params.icon, handleAttribute, params, true);
+        if (params.inert != null) bindWith(element, "inert", params.inert, handleAttribute, params, true);
+        if (params.hidden != null) bindWith(element, "hidden", params.visible ?? params.hidden, handleHidden, params);
+        if (params.on != null) bindEvents(element, params.on);
 
         //
-        params?.rules?.forEach?.((rule) => reflectWithStyleRules(element, rule));
+        if (params.rules != null) params.rules.forEach?.((rule) => reflectWithStyleRules(element, rule));
     };
     if (children) reflectChildren(element, children); return element;
 }
