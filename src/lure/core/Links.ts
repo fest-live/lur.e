@@ -2,6 +2,7 @@ import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScr
 import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref, isNotEqual } from "fest/object";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
+import { setChecked } from "fest/dom";
 
 //
 export const localStorageLinkMap = new Map<string, any>();
@@ -88,8 +89,7 @@ export const checkedLink = (element?: any|null, exists?: any|null) => {
     const dbf = bindCtrl(element, checkboxCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
         if (element && element?.checked != v) {
-            element.checked = !!v;
-            element?.dispatchEvent?.(new Event("change", { bubbles: true }));
+            setChecked(element, v);
         }
     });
     return ()=>{ usb?.(); dbf?.(); };

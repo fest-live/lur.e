@@ -1,5 +1,6 @@
 import { addToCallChain, makeReactive, subscribe, isNotEqual } from "fest/object";
 import { camelToKebab, handleAttribute, handleListeners, handleProperty, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
+import { setChecked } from "fest/dom";
 
 //
 export const elMap  = new WeakMap<any, WeakMap<any, any>>();
@@ -139,15 +140,14 @@ export const updateInput = (target, state)=>{
         // setup radio boxes (requires wrapper)
         if (state) {
             const radio = includeSelf(target, `input:where([type=\"radio\"][name=\"${name}\"][value=\"${state?.[name]}\"])`);
-            if (state && radio && state[name] == radio.value && !radio?.checked) { radio?.click?.(); };
+            if (state && radio && state[name] == radio.value && !radio?.checked) { setChecked(radio, state[name]); };
         }
 
         // setup check boxes
         const checkbox = includeSelf(target, "input:where([type=\"checkbox\"])");
         if (state && checkbox) {
             if (state[name] != checkbox.checked) {
-                checkbox.checked = !!state[name];
-                checkbox.dispatchEvent(new Event("change", { bubbles: true, cancelable: true, }))
+                setChecked(checkbox, state[name]);
             }
         }
     }

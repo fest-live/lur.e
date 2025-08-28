@@ -6,6 +6,7 @@ import { removeChild } from "./Utils";
 import { bindHandler, $mapped, $behavior, addToBank, hasInBank, bindWith } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../../../../dom.ts/src/$mixin$/Handler";
 import Q from "../node/Queried";
+import { setChecked } from "fest/dom";
 
 // !
 // TODO! - add support for un-subscribe for everyone...
@@ -94,7 +95,7 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
             const el = wel.deref();
             if (el) {
                 if (typeof value == "object" && (value?.value != null || "value" in value)) { bindWith(el, prop, value, handleProperty, weak?.deref?.(), true); } else
-                    { el[prop] = value; console.log(el[prop]); }
+                    { if (prop == "checked") { setChecked(el as HTMLInputElement, value); } else { el[prop] = value; el?.dispatchEvent?.(new Event("change", { bubbles: true, cancelable: true, })); } }
             }
         })
     ]
