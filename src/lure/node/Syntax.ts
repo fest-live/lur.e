@@ -18,23 +18,40 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
     if (el != null) {
         const attributes = {};
         // TODO: advanced attributes support
-        let style = {}, dataset = {}, properties: any = {}, on = {}, aria = {}, iterate = [], doAction: any = null, ctrls = new Map(), classList: any = [], visible: any = null;
+        const datasetIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "dataset" && attr.value?.includes?.("#{")));
+        const styleIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "style" && attr.value?.includes?.("#{")));
+        const classListIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "classList" && attr.value?.includes?.("#{")));
+        const visibleIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "visible" && attr.value?.includes?.("#{")));
+        const ariaIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "aria" && attr.value?.includes?.("#{")));
+        const onIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "on" && attr.value?.includes?.("#{")));
+        const propIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "properties" && attr.value?.includes?.("#{")));
+        const ctrlsIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "ctrls" && attr.value?.includes?.("#{")));
+
+        //
+        let style = atb[styleIndex], dataset = atb[datasetIndex], properties: any = atb[propIndex] ?? {}, on = atb[onIndex] ?? {}, aria = atb[ariaIndex] ?? {}, iterate = [], doAction: any = null, ctrls = new Map(), classList: any = atb[classListIndex], visible: any = atb[visibleIndex];
+
+        //
+        if (propIndex != -1) { atb.splice(propIndex, 1); };
+        if (datasetIndex != -1) { atb.splice(datasetIndex, 1); };
+        if (styleIndex != -1) { atb.splice(styleIndex, 1); };
+        if (classListIndex != -1) { atb.splice(classListIndex, 1); };
+        if (visibleIndex != -1) { atb.splice(visibleIndex, 1); };
+        if (ariaIndex != -1) { atb.splice(ariaIndex, 1); };
+        if (onIndex != -1) { atb.splice(onIndex, 1); };
+        if (ctrlsIndex != -1) { atb.splice(ctrlsIndex, 1); };
+
+        //
         for (const attr of Array.from(el?.attributes || [])) {
             const isCustom = attr.value?.includes?.("#{");
             const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match?.(/^#\{(.+)\}$/)?.[1] ?? "0")] : attr.value;
-            if (attr.name == "style" && isCustom) { style = value; } else
             if (attr.name == "classList" || attr.name == "classlist") { classList = value ?? classList; } else
             if (attr.name == "ref") { doAction = value; } else
             if (attr.name == "iterate") { iterate = value; mapped.set(el, mapped.get(el) ?? findIterator(el, psh)); } else
-            if (attr.name == "dataset") { dataset = value; } else
-            if (attr.name == "properties") { properties = value; } else
-            if (attr.name == "aria") { aria = value; } else
-            if (attr.name == "visible") { visible = value; } else
             if (attr.name == "value") { properties.value = value; } else
-            if (attr.name.startsWith("@")) { on[attr.name.trim().replace("@", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
-            if (attr.name.startsWith("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
-            if (attr.name.startsWith("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
-            if (attr.name.startsWith("ctrl:")) { ctrls.set(attr.name.trim().replace("ctrl:", "").trim(), value); } else { attributes[attr.name.trim()] = value; }
+            if (attr.name?.trim?.()?.startsWith?.("@")) { on[attr.name.trim().replace("@", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
+            if (attr.name?.trim?.()?.startsWith?.("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
+            if (attr.name?.trim?.()?.startsWith?.("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
+            if (attr.name?.trim?.()?.startsWith?.("ctrl:")) { ctrls.set(attr.name.trim().replace("ctrl:", "").trim(), value); } else { attributes[attr.name.trim()] = value; }
             if (isCustom) { el.removeAttribute(attr.name); };
         }
 

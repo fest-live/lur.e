@@ -1,4 +1,4 @@
-import { addToCallChain, subscribe, observe, propRef, isNotEqual } from "fest/object";
+import { addToCallChain, subscribe, observe, propRef, isNotEqual, autoRef, ref } from "fest/object";
 
 //
 import getNode, { appendChild, removeNotExists, replaceChildren } from "./Utils";
@@ -91,8 +91,11 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     //
     const usubs = [
         subscribe(properties, (value, prop: any)=>{
-            const val = propRef(value, prop);
-            bindWith(wel?.deref?.(), prop, val, handleProperty, null, true);
+            const el = wel.deref();
+            if (el) {
+                if (typeof value == "object" && (value?.value != null || "value" in value)) { bindWith(el, prop, value, handleProperty, weak?.deref?.(), true); } else
+                    { el[prop] = value; console.log(el[prop]); }
+            }
         })
     ]
 
