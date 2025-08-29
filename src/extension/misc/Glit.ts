@@ -1,8 +1,5 @@
 import { autoRef } from "fest/object";
 import { addRoot, loadInlineStyle, setAttributesIfNull } from "fest/dom";
-import { Q } from "../lure/node/Queried";
-import { E } from "../lure/node/Bindings";
-import { H } from "../lure/node/Syntax";
 
 //
 import {
@@ -14,7 +11,12 @@ import {
     valueRef,
     sizeRef,
     attrRef
-} from "../lure/core/Refs";
+} from "../../lure/core/Refs";
+
+//
+import { Q } from "../../lure/node/Queried";
+import { E } from "../../lure/node/Bindings";
+import { H } from "../../lure/node/Syntax";
 
 //
 const styleCache    = new Map(), styleElementCache = new WeakMap();
@@ -108,7 +110,7 @@ export function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
 
 //
 export function generateName (length = 8) { let r = ''; const l = characters.length; for ( let i = 0; i < length; i++ ) { r += characters.charAt(Math.floor(Math.random() * l)); }; return r; }
-export function defineElement(name: string, options?: any|null) { return function(target: any, key: string) { customElements.define(name, target, options); return target; }; }
+export function defineElement(name: string, options: any|null|undefined = null) { return function(target: any, key: string) { customElements.define(name, target, options); return target; }; }
 export function property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {}) {
     return function (target: any, key: string) {
         attribute ??= name ?? key;

@@ -1,4 +1,4 @@
-import { bindWith } from "../lure/core/Binding";
+import { bindWith } from "../../lure/core/Binding";
 import { handleStyleChange } from "fest/dom";
 
 //
