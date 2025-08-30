@@ -1,5 +1,5 @@
 <h1 align="center">🌀 LUR-E 🌀</h1>
-<p align="center"><img src="./logo/logo-0.png" width="128" alt="LUR-E Logo"/></p>
+<p align="center"><img src="./assets/logo/logo-0.png" width="128" alt="LUR-E Logo"/></p>
 
 ---
 
