@@ -29,7 +29,7 @@ const objectAssign = (target, ...sources) => {
 export const NAME = "lure"; // TODO! rename to lure
 export const __dirname = resolve(import.meta.dirname, "./");
 export default objectAssign(
-    await importConfig(resolve(__dirname, "../shared/vite.config.js"),
+    await importConfig(resolve(__dirname, "../../shared/vite.config.js"),
         NAME,
         JSON.parse(await readFile(resolve(__dirname, "./tsconfig.json"), {encoding: "utf8"})),
         __dirname
