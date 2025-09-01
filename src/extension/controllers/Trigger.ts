@@ -1,4 +1,4 @@
-import { ROOT, addEvents, agWrapEvent, doBorderObserve, doContentObserve, removeEvents } from "fest/dom";
+import { ROOT, addEvents, agWrapEvent, doBorderObserve, doContentObserve } from "fest/dom";
 
 //
 export const doObserve = (holder, parent)=>{
@@ -12,7 +12,7 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
     const ev = evc;
     newItem ??= ev?.target ?? newItem;
     if (!newItem.dataset.dragging) {
-        const n_coord: [number, number] = (ev.orient ? [...ev.orient] : [ev?.layerX || 0, ev?.layerY || 0]) as [number, number];
+        const n_coord: [number, number] = [ev.clientX, ev.clientY];
         if (ev?.pointerId >= 0) {
             (newItem as HTMLElement)?.setPointerCapture?.(ev?.pointerId);
         };
@@ -20,12 +20,17 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
         //
         const shifting = agWrapEvent((evc_l: any)=>{
             const ev_l = evc_l;
+            ev_l?.preventDefault?.();
             if (ev_l?.pointerId == ev?.pointerId) {
-                const coord: [number, number] = (ev_l.orient ? [...ev_l.orient] : [ev_l?.layerX || 0, ev_l?.layerY || 0]) as [number, number];
+                const coord: [number, number] = [evc_l.clientX, evc_l.clientY];
                 const shift: [number, number] = [coord[0] - n_coord[0], coord[1] - n_coord[1]];
                 if (Math.hypot(...shift) > 2) {
-                    newItem?.style?.setProperty?.("will-change", "transform", "important");
-                    releasePointer?.(evc_l); callable?.(ev);
+                    newItem.dataset.dragging = "";
+                    newItem?.style?.setProperty?.("will-change", "inset, transform, translate, z-index");
+
+                    //
+                    unbind?.(ev_l);
+                    callable?.(ev);
                 }
             }
         });
@@ -35,7 +40,7 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
             const ev_l = evc_l;
             if (ev_l?.pointerId == ev?.pointerId) {
                 (newItem as HTMLElement)?.releasePointerCapture?.(ev?.pointerId);
-                unbind(ev_l);
+                unbind?.(ev_l);
             }
         });
 
@@ -49,11 +54,12 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
         //
         const unbind = agWrapEvent((evc_l)=>{
             const ev_l = evc_l;
-            if (ev_l?.pointerId == ev?.pointerId)
-                { removeEvents(ROOT, handler); }
+            if (ev_l?.pointerId == ev?.pointerId) {
+                bindings?.forEach(binding => binding?.());
+            }
         });
 
         //
-        addEvents(ROOT, handler);
+        const bindings = addEvents(ROOT, handler);
     }
 });

@@ -30,8 +30,6 @@ export const navigationEnable = (tasks: ITask[], taskEnvAction?: (task?: ITask|n
     }); history?.pushState?.("", "", location.hash = location.hash || "#");
     addEvent(window, "popstate", (ev)=>{
         ev.preventDefault();
-        ev.stopPropagation();
-        ev.stopImmediatePropagation();
 
         //
         // hide taskbar before back

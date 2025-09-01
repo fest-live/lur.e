@@ -45,13 +45,13 @@ export class DragHandler {
             });
 
             //
-            const box = getBoundingOrientRect(holder) || holder?.getBoundingClientRect?.();
-            setStyleProperty(holder, "--shift-x", (box?.left || 0));
-            setStyleProperty(holder, "--shift-y", (box?.top  || 0));
-
-            //
+            const box = /*getBoundingOrientRect(holder) ||*/ holder?.getBoundingClientRect?.();
             setStyleProperty(holder, "--drag-x", dragging[0].value = 0);
             setStyleProperty(holder, "--drag-y", dragging[1].value = 0);
+
+            //
+            setStyleProperty(holder, "--shift-x", (box?.left || 0));
+            setStyleProperty(holder, "--shift-y", (box?.top  || 0));
         }
 
         //
@@ -61,7 +61,7 @@ export class DragHandler {
             holder?.setAttribute?.("data-dragging", "");
             holder?.style?.setProperty("--drag-x", "0");
             holder?.style?.setProperty("--drag-y", "0");
-            holder?.style?.setProperty("will-change", "transform");
+            holder?.style?.setProperty("will-change", "inset, translate, transform, opacity, z-index");
             return [0, 0];
         });
     }

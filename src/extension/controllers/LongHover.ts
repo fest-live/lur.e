@@ -1,4 +1,4 @@
-import { addEvents, agWrapEvent, blockClickTrigger, ROOT } from "fest/dom";
+import { addEvents, agWrapEvent, ROOT } from "fest/dom";
 
 //
 export class LongHoverHandler {
@@ -25,8 +25,6 @@ export class LongHoverHandler {
                 action.pointerId = ev.pointerId;
                 action.timer = setTimeout(()=>{
                     fx?.(ev);
-                    if (matchMedia("(pointer: coarse) and (hover: none)").matches)
-                        { blockClickTrigger(evc); }
                 }, options.holdTime ?? 300);
             }
         });

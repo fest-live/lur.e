@@ -21,7 +21,7 @@ export class SwipeHandler {
             const registerMove = (evc) => {
                 const ev = evc;
                 if (swipes?.has?.(ev.pointerId)) {
-                    ev.stopPropagation();
+                    //ev.preventDefault();
                     const swipe = swipes?.get?.(ev.pointerId);
                     Object.assign(swipe || {}, {
                         current: [...(ev.client || [ev?.clientX, ev?.clientY])],

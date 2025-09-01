@@ -1,13 +1,25 @@
-import { addEvents, blockClickTrigger } from "fest/dom";
+import { addEvents, clickPrevention } from "fest/dom";
+
+//
+const defaultOptions = {
+    anyPointer: true,
+    mouseImmediate: true,
+    minHoldTime: 100,
+    maxHoldTime: 2000,
+    maxOffsetRadius: 10
+};
 
 //
 export class LongPressHandler {
     #holder: HTMLElement;
 
     //
-    constructor(holder,  options: any = {}, fx?: (ev: PointerEvent) => void) {
+    constructor(holder,  options: any = {...defaultOptions}, fx?: (ev: PointerEvent) => void) {
         (this.#holder = holder)["@control"] = this;
         if (!holder) { throw Error("Element is null..."); }
+        if (!options) { options = {...defaultOptions}; }
+        const currentClone = {...options};
+        Object.assign(options, defaultOptions, currentClone);
         if (options) { this.longPress(options, fx); }
     }
 
@@ -17,7 +29,7 @@ export class LongPressHandler {
     }
 
     //
-    longPress(options: any = {}, fx?: (ev: PointerEvent) => void) {
+    longPress(options: any = {...defaultOptions}, fx?: (ev: PointerEvent) => void) {
         const ROOT = document.documentElement;
         const weakRef = new WeakRef(this.#holder);
         const actionState = this.initializeActionState();
@@ -61,11 +73,12 @@ export class LongPressHandler {
     private onPointerDown(self: any, ev: PointerEvent, weakRef: WeakRef<HTMLElement>) {
         if (
             !this.isValidTarget(self, ev.target as HTMLElement, weakRef) ||
-            !(self.options.anyPointer || ev?.pointerType == "touch")
+            !(self.options?.anyPointer || ev?.pointerType == "touch")
         ) return;
 
         //
         ev.preventDefault();
+        this.resetAction(self.actionState);
 
         // Initialize state
         const { actionState }  = self;
@@ -87,7 +100,7 @@ export class LongPressHandler {
         });
 
         // Immediate trigger timer
-        if (self.options.mouseImmediate && ev.pointerType === "mouse") {
+        if (self.options?.mouseImmediate && ev.pointerType === "mouse") {
             self.fx?.(ev);
             return actionState.cancelCallback();
         }
@@ -95,7 +108,7 @@ export class LongPressHandler {
         // Long press timer
         actionState.timerId = setTimeout(() => {
             actionState.isReadyForLongPress = true;
-        }, self.options.minHoldTime ?? 300);
+        }, self.options?.minHoldTime);
 
         // Start timers for long press and immediate actions
         actionState.immediateTimerId = setTimeout(() => {
@@ -103,13 +116,13 @@ export class LongPressHandler {
                 self.fx?.(ev);
                 actionState.cancelCallback();
             }
-        }, self.options.maxHoldTime ?? 600);
+        }, self.options?.maxHoldTime);
 
         // Cancel promise handling
         Promise.race([
             cancelPromise,
             new Promise<void>((_, reject) =>
-                setTimeout(() => reject(new Error("Timeout")), 5000)
+                setTimeout(() => reject(new Error("Timeout")), 3000)
             ),
         ]).catch(console.warn);
     }
@@ -123,6 +136,8 @@ export class LongPressHandler {
         if (!this.isInPlace(self)) {
             actionState.cancelCallback();
         }
+
+        actionState.startCoord = [ev.clientX, ev.clientY];
     }
 
     //
@@ -142,10 +157,10 @@ export class LongPressHandler {
 
         if (actionState.isReadyForLongPress && this.isInPlace(self)) {
             self.fx?.(ev);
-            blockClickTrigger(ev);
         }
 
         actionState.cancelCallback();
+        this.resetAction(actionState);
     }
 
     //
@@ -156,7 +171,7 @@ export class LongPressHandler {
         const [startX, startY] = actionState.startCoord;
         const [lastX, lastY]   = actionState.lastCoord;
         const  distance        = Math.hypot(lastX - startX, lastY - startY);
-        return distance <= (self.options.maxOffsetRadius ?? 10);
+        return distance <= (self.options?.maxOffsetRadius);
     }
 
     //
@@ -164,7 +179,7 @@ export class LongPressHandler {
         const weakElement = weakRef?.deref?.();
         return (
             weakElement && (this.hasParent(target, weakElement) || target === weakElement) &&
-            (!self.options.handler || target.matches(self.options.handler))
+            (!self.options?.handler || target.matches(self.options?.handler))
         );
     }
 }
