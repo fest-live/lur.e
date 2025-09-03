@@ -26,31 +26,38 @@ export const createElement = (selector): HTMLElement | DocumentFragment => {
 };
 
 //
-const elMap = new WeakMap();
-export const $getNode = (E, mapper?: Function, index?: number) => {
-    if (E instanceof WeakRef) { E = E.deref(); }
-    if (mapper != null) { return (E = getNode(mapper?.(E, index))); }
-    if (E instanceof Node || E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment) { return E; } else
-    if (typeof E?.value == "string" || typeof E?.value == "number") { return T(E); } else
-    if (typeof E == "function") { return getNode(E()); } else  // mapped arrays always empties after
-    if (typeof E == "string" || typeof E == "number") { return document.createTextNode(String(E)); } else
-    if (typeof E == "object" && E != null) { return E?.element ?? elMap.get(E); }; return E;
-};
+const isElement = (el: any) => { return el instanceof Node || el instanceof Text || el instanceof Element || el instanceof HTMLElement || el instanceof DocumentFragment; }
+const isElementValue = (el: any) => { return el?.element ?? el?.value; }
 
 //
-export const getNode = (E, mapper?: Function, index?: number)=>{
-    if (E instanceof WeakRef) { E = E.deref(); }
-    if ((typeof E == "object" || typeof E == "function") && !(E instanceof Node || E instanceof Text || E instanceof HTMLElement || E instanceof DocumentFragment)) {
-        if (elMap.has(E)) { const obj: any = elMap.get(E); return (obj instanceof WeakRef ? obj?.deref?.() : obj) ?? $getNode(E, mapper, index); };
-        const $node = $getNode(E, mapper, index);
-        if (!mapper && $node != null && $node != E && (!E?.self && !E?.element || !(typeof E?.self == "object" || typeof E?.self == "function"))) { elMap.set(E, $node); }
+const elMap = new WeakMap();
+export const $getNode = (el, mapper?: Function, index?: number) => {
+    if (el instanceof WeakRef) { el = el.deref() ?? el; }
+    if (mapper != null) { return (el = getNode(mapper?.(el, index) ?? el)); }
+    if (isElement(el)) { return el; } else
+    if (isElement(el?.element ?? el?.value)) { return isElementValue(el); } else
+    if (typeof el?.value == "string" || typeof el?.value == "number") { return T(el); } else
+    if (typeof el == "function") { return getNode(el()); } else  // mapped arrays always empties after
+    if (typeof el == "string" || typeof el == "number") { return document.createTextNode(String(el)); } else
+    if (typeof el == "object" && el != null) { return el?.element ?? elMap.get(el); }; return el;
+};
+
+// (obj instanceof WeakRef ? obj?.deref?.() : obj)
+export const getNode = (el, mapper?: Function, index?: number)=>{
+    if (el instanceof WeakRef) { el = el.deref() ?? el; }
+    if ((typeof el == "object" || typeof el == "function") && !isElement(el)) {
+        if (elMap.has(el)) { const obj: any = elMap.get(el) ?? $getNode(el, mapper, index); return (obj instanceof WeakRef ? obj?.deref?.() : obj); };
+        const $node = $getNode(el, mapper, index);
+        if (!mapper && $node != null && $node != el && (!el?.self && !el?.element)) { elMap.set(el, $node); }
         return $node;
     }
-    return $getNode(E, mapper, index);
+    return $getNode(el, mapper, index);
 }
 
 //
 export const appendFix = (parent, child)=>{
+    if (!isElement(child)) return;
+    child = child?.element ?? child;
     if (!child?.parentNode) parent?.append?.(child);
     if (parent?.parentNode == child?.parentNode) { return; }
     child?.remove?.(); parent?.append?.(child);
