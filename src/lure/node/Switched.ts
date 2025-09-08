@@ -1,5 +1,6 @@
 import { addToCallChain, subscribe, isNotEqual } from "fest/object";
 import getNode, { appendFix } from "../context/Utils";
+import { $mapped } from "../core/Binding";
 
 //
 const inProx = new WeakMap(), contextify = (pc: any, name: any) =>
