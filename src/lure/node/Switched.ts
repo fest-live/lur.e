@@ -24,11 +24,16 @@ const getFromMapped = (mapped: any, value: number|string|null|undefined) => {
 export class SwM implements SwitchedParams {
     current?: { value: string | number; }|null;
     mapped?: any[]|any|Map<any, any>|Set<any>|null;
+    #lastParent?: Node;
 
     //
     constructor(params?: SwitchedParams|null) {
         this.current = params?.current ?? { value: -1 };
         this.mapped = params?.mapped ?? [];
+
+        //
+        const us = subscribe([params?.current, "value"], (newVal, prop, oldVal) => (this as any)._onUpdate(newVal, prop, oldVal));
+        if (us) addToCallChain(this, Symbol.dispose, us);
     }
 
     //
@@ -37,14 +42,14 @@ export class SwM implements SwitchedParams {
     }
 
     //
-    _onUpdate(): void {
-        const idx = this.current?.value;
-        if (isNotEqual(idx, this.current?.value)) {
-            const old = this.current?.value;
+    _onUpdate(newVal, prop, oldVal): void {
+        const idx = newVal ?? this.current?.value;
+        if (oldVal ? isNotEqual(idx, oldVal/*this.current?.value*/) : true) {
+            const old = oldVal ?? this.current?.value;
             if (this.current) this.current.value = idx ?? -1;
 
             // Find parent and new/old nodes
-            const parent  = getFromMapped(this.mapped, old ?? -1)?.parentNode;
+            const parent = getFromMapped(this.mapped, old ?? -1)?.parentNode ?? this.#lastParent; this.#lastParent = parent ?? this.#lastParent;
             const newNode = getFromMapped(this.mapped, idx ?? -1);
             const oldNode = getFromMapped(this.mapped, old ?? -1);
 
@@ -87,8 +92,7 @@ class SwHandler implements ProxyHandler<SwitchedParams> {
 export const I = (params: SwitchedParams) => { // @ts-ignore
     return inProx?.getOrInsertComputed?.(params, ()=>{
         const px = new Proxy(params instanceof SwM ? params : new SwM(params), new SwHandler());
-        const us = subscribe([params?.current, "value"], () => (px as any)._onUpdate());
-        if (us) addToCallChain(px, Symbol.dispose, us); return px;
+        return px;
     });
 }
 
