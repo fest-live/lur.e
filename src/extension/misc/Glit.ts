@@ -110,7 +110,7 @@ export function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
             Object.entries(defs).forEach(([key, def]) => {
                 const exists = self[key];
                 if (def != null) { Object.defineProperty(self, key, def as any); };
-                self[key] ||= exists || self[key];
+                self[key] = exists || self[key];
             });
         };
 
