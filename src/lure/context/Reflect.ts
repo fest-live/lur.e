@@ -4,7 +4,7 @@ import { addToCallChain, subscribe, observe, propRef, isNotEqual, autoRef, ref }
 import getNode, { appendChild, removeNotExists, replaceChildren } from "./Utils";
 import { removeChild } from "./Utils";
 import { bindHandler, $mapped, $behavior, addToBank, hasInBank, bindWith } from "../core/Binding";
-import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "../../../../dom.ts/src/$mixin$/Handler";
+import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "fest/dom";
 import Q from "../node/Queried";
 import { setChecked } from "fest/dom";
 
@@ -111,10 +111,16 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     element.addEventListener("change", onChange); return element;
 }
 
+//
+const isValidParent = (parent: Node)=>{
+    return (parent != null && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
+}
+
 // TODO! use handlerMap registry
 export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    const $parent = getNode(children?.[0], mapper)?.parentNode; element = (!($parent instanceof DocumentFragment) ? $parent : element) ?? element;
-    if (!children || hasInBank(element, children)) return element;
+    const $parent = getNode(children?.[0], mapper)?.parentElement;
+    if (!isValidParent(element)) { element = (isValidParent($parent) ? $parent : element) ?? element; }
+    if (!children || hasInBank(element, children) /*|| !isValidParent(element)*/) return element;
 
     //
     const ref = new WeakRef(element);
@@ -141,8 +147,14 @@ export const reflectChildren = (element: HTMLElement|DocumentFragment, children:
         const idx = args?.[1] ?? -1, obj = args?.[0] ?? children?.[idx];
 
         //
-        const nodeParent = getNode(obj ?? old, mapper)?.parentNode;
-        const element = (!(nodeParent instanceof DocumentFragment) ? nodeParent : ref.deref()) ?? ref.deref(); if (!element) return;
+        const nodeParent = getNode(obj ?? old, mapper)?.parentElement;
+
+        //
+        let element = ref.deref(); // @ts-ignore
+        if (!isValidParent(element)) { element = (isValidParent(nodeParent) ? nodeParent : element) ?? element; }
+        if (!element) return;
+
+        //
         if (element && ((isArray && ["@add", "@set", "@remove"].indexOf(op) >= 0) || (!isArray))) {
             if (obj != null && (old != null || op == "@set"   )) { toBeReplace.push([element, obj ?? old, mapper, idx]); };
             if (obj != null && (old == null || op == "@add"   )) { toBeAppend .push([element, obj ?? old, mapper, idx]); };

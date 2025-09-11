@@ -53,7 +53,7 @@ export function getMimeTypeByFilename(filename) {
 
 //
 export async function getDirectoryHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
     try {
         const parts = relPath.split('/').filter((p)=>!!p?.trim?.()); let dir = rootHandle;
@@ -64,9 +64,6 @@ export async function getDirectoryHandle(rootHandle, relPath, { create = false }
 
 //
 export function openDirectory(rootHandle, relPath, options: {create: boolean} = {create: false}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
-
-    //
     let mapCache = makeReactive(new Map<any, any>());
     async function updateCache() { // @ts-ignore
         const entries = await Array.fromAsync((await dirHandle)?.entries?.() || []); // @ts-ignore
@@ -118,14 +115,14 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
 
 //
 export async function readFile(rootHandle, relPath, options = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try { return (await getFileHandle(rootHandle, relPath, options, logger))?.getFile?.(); } catch (e: any)
         { return handleError(logger, 'error', `readFile: ${e.message}`); }
 }
 
 //
 export async function readAsObjectURL(rootHandle, relPath, options = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
         const fileHandle = await getFileHandle(rootHandle, relPath, {}, logger);
         const file = await fileHandle?.getFile?.();
@@ -136,7 +133,7 @@ export async function readAsObjectURL(rootHandle, relPath, options = {}, logger 
 
 //
 export async function readFileUTF8(rootHandle, relPath, options = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
         const fileHandle = await getFileHandle(rootHandle, relPath, {}, logger);
         const file = await fileHandle?.getFile?.(), u8b = await file?.arrayBuffer?.();
@@ -149,9 +146,10 @@ export async function readFileUTF8(rootHandle, relPath, options = {}, logger = d
 
 //
 export async function writeFile(rootHandle, relPath, data, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
         const fileHandle = await getFileHandle(rootHandle, relPath, { create: true }, logger);
+        console.log(fileHandle);
         const writable = await fileHandle?.createWritable?.();
         await writable?.write?.(data); await writable?.close?.();
         return true;
@@ -161,7 +159,7 @@ export async function writeFile(rootHandle, relPath, data, logger = defaultLogge
 
 //
 export async function getFileWriter(rootHandle, relPath, options = { create: true }, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try { return (await getFileHandle(rootHandle, relPath, options, logger))?.createWritable?.(); } catch (e: any)
         { return handleError(logger, 'error', `getFileWriter: ${e.message}`); }
 }
@@ -170,10 +168,10 @@ export async function getFileWriter(rootHandle, relPath, options = { create: tru
 
 //
 export async function getFileHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
         const parts = relPath.split('/').filter(Boolean), fileName = parts.pop();
-        const dir = await openDirectory(rootHandle, relPath, { create }, logger);
+        const dir = await getDirectoryHandle(rootHandle, relPath, { create }, logger);
         const handle = await dir?.getFileHandle?.(fileName, { create });
         return handle;
     } catch (e: any) { return handleError(logger, 'error', `getFileHandle: ${e.message}`); }
@@ -181,7 +179,7 @@ export async function getFileHandle(rootHandle, relPath, { create = false } = {}
 
 //
 export async function getHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     const type = detectTypeByRelPath(relPath);
     if (type == 'directory')
         { const dir  = await getDirectoryHandle(rootHandle, relPath.replace(/\/$/, ''), options, logger); if (dir) return { type: 'directory', handle: dir }; } else
@@ -191,7 +189,7 @@ export async function getHandler(rootHandle, relPath, options = {}, logger = def
 
 //
 export async function createHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     const type = detectTypeByRelPath(relPath);
     if (type == 'directory')
         { return getDirectoryHandle(rootHandle, relPath.replace(/\/$/, ''), options, logger); } else
@@ -202,7 +200,7 @@ export async function createHandler(rootHandle, relPath, options = {}, logger = 
 
 //
 export async function removeFile(rootHandle, relPath, options: any = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
         const parts = relPath.split('/').filter(Boolean), fileName = parts.pop();
         return (await openDirectory(rootHandle, parts.join('/'), options, logger))?.removeEntry?.(fileName, { recursive: false });
@@ -211,7 +209,7 @@ export async function removeFile(rootHandle, relPath, options: any = {}, logger 
 
 //
 export async function removeDirectory(rootHandle, relPath, options: any = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
         const parts = relPath.split('/').filter(Boolean), dirName = parts.pop();
         return (await openDirectory(rootHandle, parts.join('/'), options, logger))?.removeEntry?.(dirName, { recursive: true });
@@ -220,7 +218,7 @@ export async function removeDirectory(rootHandle, relPath, options: any = {}, lo
 
 //
 export async function remove(rootHandle, relPath, options = {}, logger = defaultLogger) {
-    rootHandle ??= navigator?.storage?.getDirectory?.();
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     return Promise.any([removeFile(rootHandle, relPath, options, logger), removeDirectory(rootHandle, relPath, options, logger)]);
 }
 
