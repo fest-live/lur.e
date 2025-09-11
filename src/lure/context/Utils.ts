@@ -55,28 +55,50 @@ export const getNode = (el, mapper?: Function, index?: number)=>{
 }
 
 //
-export const appendFix = (parent, child)=>{
+export const appendFix = (parent: any, child: any) => {
     if (!isElement(child)) return;
-    child = child?.element ?? child;
-    if (!child?.parentNode) parent?.append?.(child);
+    child = (child as any)?.element ?? child;
+    if (!child?.parentNode) { parent?.append?.(child); return; };
     if (parent?.parentNode == child?.parentNode) { return; }
     child?.remove?.(); parent?.append?.(child);
 }
 
 //
+export const appendArray = (parent: any, children: any[], mapper?: Function) => {
+    if (Array.isArray(unwrap(children))) {
+        children
+            ?.map?.((cl, _: number) => getNode(cl, mapper))
+            ?.filter?.((el) => el != null)
+            ?.forEach?.((el) => appendFix(parent, el));
+    } else {
+        const node = getNode(children, mapper);
+        if (node != null) { appendFix(parent, node); }
+    }
+}
+
+//
 export const appendChild = (element, cp, mapper?) => {
     if (mapper != null) { cp = mapper?.(cp) ?? cp; }
-    if (cp?.children && Array.isArray(unwrap(cp?.children)) && !(cp?.[$virtual] || cp?.[$mapped])) { (unwrap(cp?.children)?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp?.children))?.forEach?.((el)=>appendFix(element, el)); } else
-        if (Array.isArray(unwrap(cp))) { (unwrap(cp?.map?.((cl, _: number) => (getNode(cl) ?? ""))?.filter?.((el) => el != null) ?? unwrap(cp)))?.forEach?.((el)=>appendFix(element, el)); } else { const node = getNode(cp); appendFix(element, node); }
+
+    // has children lists
+    if (cp?.children && Array.isArray(unwrap(cp?.children)) && (cp?.[$virtual] || cp?.[$mapped])) {
+        appendArray(element, cp?.children);
+    } else {
+        appendArray(element, cp);
+    }
 }
 
 //
 export const replaceChildren = (element, cp, mapper?, index?) => {
     if (mapper != null) { cp = mapper?.(cp) ?? cp; }
-    const cn = index >= 0 ? element?.childNodes?.[index] : null;
-    if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else {
+    const cn = index >= 0 ? element?.childNodes?.[index] : cp?.parentNode;
+    if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
+        if (cp != null) {
         const node = getNode(cp);
-        if (cn instanceof Text && node instanceof Text) { if (cn.textContent != node.textContent) { cn.textContent = node.textContent; } } else
+            const cn = index >= 0 ? element?.childNodes?.[index] : cp?.parentNode;
+            if (cn instanceof Text && node instanceof Text) {
+                if (cn.textContent != node.textContent) { cn.textContent = node.textContent; }
+            } else
             if (cn != node && (!node?.parentNode || node?.parentNode != element)) { cn?.replaceWith?.(node); }
     }
 }

@@ -1,11 +1,12 @@
 import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden } from "fest/dom";
-import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectChildren, reflectProperties, reflectWithStyleRules, reflectARIA } from '../context/Reflect';
+import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectProperties, reflectWithStyleRules, reflectARIA } from '../context/Reflect';
 import { reflectControllers, bindEvents, bindWith } from '../core/Binding';
 
 //
 import { subscribe } from "fest/object";
 import { createElement } from "../context/Utils";
 import { Q } from "./Queried";
+import { reflectChildren } from "../context/ReflectChildren";
 
 //
 interface Params {
@@ -44,8 +45,11 @@ export const Qp = (ref, host = document.documentElement)=>{
 //
 export const E = (selector: string | HTMLElement | Node | DocumentFragment | Document | Element, params: Params = {}, children?: any[]|any|null) => {
     const element = typeof selector == "string" ? Qp(createElement(selector)) : selector;
+    if (element && children) { reflectChildren(element, children); }
     if (element && params) {
         if (params.ctrls != null) reflectControllers(element, params.ctrls);
+
+        //
         if (params.attributes != null) reflectAttributes(element, params.attributes);
         if (params.properties != null) reflectProperties(element, params.properties);
         if (params.classList != null) reflectClassList(element, params.classList);
@@ -71,7 +75,7 @@ export const E = (selector: string | HTMLElement | Node | DocumentFragment | Doc
         //
         if (params.rules != null) params.rules.forEach?.((rule) => reflectWithStyleRules(element, rule));
     };
-    if (children) reflectChildren(element, children); return element;
+    return element;
 }
 
 //

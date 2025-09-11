@@ -1,7 +1,7 @@
 import { observe } from "fest/object";
 import { getNode } from "../context/Utils";
 import { $mapped } from "../core/Binding";
-import { reflectChildren, reformChildren } from "../context/Reflect";
+import { reflectChildren, reformChildren } from "../context/ReflectChildren";
 
 //
 class Mp {

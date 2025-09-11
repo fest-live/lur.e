@@ -1,9 +1,7 @@
-import { addToCallChain, subscribe, observe, propRef, isNotEqual, autoRef, ref } from "fest/object";
+import { addToCallChain, subscribe, observe, isNotEqual } from "fest/object";
 
 //
-import getNode, { appendChild, removeNotExists, replaceChildren } from "./Utils";
-import { removeChild } from "./Utils";
-import { bindHandler, $mapped, $behavior, addToBank, hasInBank, bindWith } from "../core/Binding";
+import { bindHandler, bindWith } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "fest/dom";
 import Q from "../node/Queried";
 import { setChecked } from "fest/dom";
@@ -112,70 +110,6 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 }
 
 //
-const isValidParent = (parent: Node)=>{
-    return (parent != null && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
-}
-
-// TODO! use handlerMap registry
-export const reflectChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    const $parent = getNode(children?.[0], mapper)?.parentElement;
-    if (!isValidParent(element)) { element = (isValidParent($parent) ? $parent : element) ?? element; }
-    if (!children || hasInBank(element, children) /*|| !isValidParent(element)*/) return element;
-
-    //
-    const ref = new WeakRef(element);
-    mapper   = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
-    children = (children?.[$mapped] ? (children as any)?.children : children) ?? children;
-
-    //
-    const toBeRemoved: any[] = [], toBeAppend: any[] = [], toBeReplace: any[] = [];
-    const merge = ()=>{ // @ts-ignore
-        toBeReplace.forEach((args)=>replaceChildren(...args)); toBeReplace.splice(0, toBeReplace.length); // @ts-ignore
-        toBeAppend .forEach((args)=>appendChild(...args));     toBeAppend .splice(0, toBeAppend.length); // @ts-ignore
-        toBeRemoved.forEach((args)=>removeChild(...args));     toBeRemoved.splice(0, toBeRemoved.length); // @ts-ignore
-    }
-
-    //
-    let controller: AbortController|null = null;
-    const isArray = Array.isArray(children);
-    const unsub = observe(children, (...args)=>{
-        controller?.abort?.(); controller = new AbortController();
-
-        //
-        const op  = isArray ? (args?.[args.length-1] || "") : null;
-        const old = isArray ? (args?.[args.length-2] ?? null) : args?.[2];
-        const idx = args?.[1] ?? -1, obj = args?.[0] ?? children?.[idx];
-
-        //
-        const nodeParent = getNode(obj ?? old, mapper)?.parentElement;
-
-        //
-        let element = ref.deref(); // @ts-ignore
-        if (!isValidParent(element)) { element = (isValidParent(nodeParent) ? nodeParent : element) ?? element; }
-        if (!element) return;
-
-        //
-        if (element && ((isArray && ["@add", "@set", "@remove"].indexOf(op) >= 0) || (!isArray))) {
-            if (obj != null && (old != null || op == "@set"   )) { toBeReplace.push([element, obj ?? old, mapper, idx]); };
-            if (obj != null && (old == null || op == "@add"   )) { toBeAppend .push([element, obj ?? old, mapper, idx]); };
-            if (old != null && (obj == null || op == "@remove")) { toBeRemoved.push([element, old ?? obj, mapper, idx]); };
-        }
-
-        //
-        if (children?.length == 0 && element instanceof HTMLElement) { /*element.innerHTML = ``;*/ removeNotExists(element, children, mapper); }; // @ts-ignore
-        if ((op && op != "@get" && ["@add", "@set", "@remove"].indexOf(op) >= 0) || !op) { // @ts-ignore
-            if (typeof children?.[$behavior] == "function")
-                { children?.[$behavior]?.(merge, [toBeAppend, toBeReplace, toBeRemoved], [controller.signal, op, ref, args]); } else { merge(); }
-        }
-    });
-
-    //
-    addToBank(element, reflectChildren, "childNodes", [children, unsub]);
-    addToCallChain(children, Symbol.dispose, unsub);
-    addToCallChain(element, Symbol.dispose, unsub); return element;
-}
-
-//
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return element; const wel = new WeakRef(element);
     const usub = observe(classList, (value: string)=>{
@@ -191,18 +125,4 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
     //
     addToCallChain(classList, Symbol.dispose, usub);
     addToCallChain(element, Symbol.dispose, usub); return element;
-}
-
-// forcely update child nodes (and erase current content)
-export const reformChildren = (element: HTMLElement|DocumentFragment, children: any[] = [], mapper?: Function)=>{
-    if (!children) return element; const ref = new WeakRef(element);
-    mapper = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
-
-    //
-    const cvt = (children = (children?.[$mapped] ? (children as any)?.children : children) ?? children)?.map?.((nd)=>{ if (mapper != null) { nd = mapper?.(nd); return nd; };});
-    removeNotExists(element, cvt); cvt.forEach((nd)=>{
-        const element = ref.deref();
-        if (!element) return nd;
-        appendChild(element, nd);
-    }); return element;
 }

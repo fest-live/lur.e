@@ -98,13 +98,24 @@ defaultStyle.innerHTML = `@layer ux-preload {
 
 //
 export function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
-    const $init = (ctr?.prototype ?? ctr)?.$init;
+    const $init = (ctr?.prototype ?? ctr)?.$init ?? (ctr as any)?.$init;
+
+    //
     (ctr?.prototype ?? ctr).$init ??= function (...args) {
-        $init?.call?.(this, ...args);
-        if (this?.[defKeys] != null) { Object.entries(this[defKeys]).forEach(([key, def])=>{
-            const exists = this[key]; Object.defineProperty(this, key, def as any); if (exists != null) { this[key] = exists; };
-        }); };
-        return this;
+        const self = this; $init?.call?.(self, ...args);
+
+        //
+        const defs = self?.[defKeys] ?? ctr?.prototype?.[defKeys] ?? ctr?.[defKeys];
+        if (defs != null) {
+            Object.entries(defs).forEach(([key, def]) => {
+                const exists = self[key];
+                if (def != null) { Object.defineProperty(self, key, def as any); };
+                self[key] ||= exists || self[key];
+            });
+        };
+
+        //
+        return self;
     }; return ctr;
 }
 
@@ -113,15 +124,16 @@ export function generateName (length = 8) { let r = ''; const l = characters.len
 export function defineElement(name: string, options: any|null|undefined = null) { return function(target: any, key: string) { customElements.define(name, target, options); return target; }; }
 export function property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {}) {
     return function (target: any, key: string) {
-        attribute ??= name ?? key;
-        if (!target[defKeys]) target[defKeys] = {};
-        if (attribute != null) {
+
+        //
+        if ((attribute ??= name ?? key) != null) {
             if (!target.observedAttributes) { target.observedAttributes = []; };
-            const atn = typeof attribute == "string" ? attribute : name ?? key;
+            const atn = typeof attribute == "string" ? attribute : (name ?? key);
             if (target.observedAttributes.indexOf(atn) < 0) target.observedAttributes.push(atn);
         };
 
         //
+        if (!target[defKeys]) target[defKeys] = {};
         target[defKeys][key] = {
             get() {
                 const ROOT = this;
