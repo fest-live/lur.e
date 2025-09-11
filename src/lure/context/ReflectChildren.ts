@@ -28,8 +28,9 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
 
     //
     const updateChildList = (newEl, idx, oldEl, op: string | null = "@add") => {
-        const element = getNode(newEl ?? oldEl, mapper)?.parentElement ?? defaultParent; if (!element) return;
-        if (defaultParent != element) { defaultParent = element; }
+        let element = getNode(newEl ?? oldEl, mapper)?.parentElement ?? defaultParent;
+        if (!isValidParent(element)) { element = defaultParent ?? element; }
+        if (!element) return; if (defaultParent != element) { defaultParent = element; }
 
         //
         const oldIdx = indexOf(element, getNode(oldEl ?? newEl, mapper)) ?? idx ?? -1;
