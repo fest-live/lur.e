@@ -387,3 +387,15 @@ export const dropAsTempFile = async (data: any)=>{
     const blob    = await (data?.files?.[0] ?? ((isImage ? item?.getType?.(isImage) : null) || getLeast(item)));
     return dropFile(blob, "/user/temp/");
 }
+
+//
+export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", options = {}, logger = defaultLogger) => {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    const dir = await getDirectoryHandle(rootHandle, relPath, options, logger);
+    if (dir) {
+        const entries = await Array.fromAsync(dir?.entries?.());
+        for (const entry of entries) {
+            dir?.removeEntry?.(entry?.[0], { recursive: true });
+        }
+    }
+}
