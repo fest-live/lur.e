@@ -149,7 +149,6 @@ export async function writeFile(rootHandle, relPath, data, logger = defaultLogge
     rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
         const fileHandle = await getFileHandle(rootHandle, relPath, { create: true }, logger);
-        console.log(fileHandle);
         const writable = await fileHandle?.createWritable?.();
         await writable?.write?.(data); await writable?.close?.();
         return true;
@@ -393,9 +392,7 @@ export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", 
     rootHandle ??= await navigator?.storage?.getDirectory?.();
     const dir = await getDirectoryHandle(rootHandle, relPath, options, logger);
     if (dir) {
-        const entries = await Array.fromAsync(dir?.entries?.());
-        for (const entry of entries) {
-            dir?.removeEntry?.(entry?.[0], { recursive: true });
-        }
+        const entries = await Array.fromAsync(dir?.entries?.() ?? []);
+        return Promise.all(entries.map((entry) => dir?.removeEntry?.(entry?.[0], { recursive: true })));
     }
 }
