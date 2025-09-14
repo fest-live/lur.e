@@ -396,3 +396,54 @@ export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", 
         return Promise.all(entries.map((entry) => dir?.removeEntry?.(entry?.[0], { recursive: true })));
     }
 }
+
+// used for import/export by file pickers (OPFS, FileSystem, etc. )
+export const copyFromOneHandlerToAnother = async (fromHandle: FileSystemDirectoryHandle | FileSystemFileHandle, toHandle: FileSystemDirectoryHandle | FileSystemFileHandle, options = {}, logger = defaultLogger) => {
+    // directory to directory
+    if (fromHandle instanceof FileSystemDirectoryHandle) {
+        if (toHandle instanceof FileSystemDirectoryHandle) {  // @ts-ignore
+            const entries = await Array.fromAsync(fromHandle?.entries?.() ?? []);
+
+            //
+            return Promise.all(entries.map(async (entry) => {
+                if (entry?.[1] instanceof FileSystemDirectoryHandle) {
+                    const toDirHandle = await toHandle?.getDirectoryHandle?.(entry?.[0], { create: true });
+                    return copyFromOneHandlerToAnother(entry?.[1], toDirHandle, options, logger);
+                } else {
+                    const toFileHandle = await toHandle?.getFileHandle?.(entry?.[0], { create: true });
+                    const writable = await toFileHandle?.createWritable?.();
+                    const file = await entry?.[1]?.getFile?.();
+                    await writable?.write?.(file);
+                    await writable?.close?.();
+                    return true;
+                }
+            }));
+        } else {
+            // supported (may seems to be)
+            /*
+            const file = await fromHandle?.getFile?.();
+            const toFileHandle = toHandle?.getFileHandle?.(file?.name, { create: true });
+            return toFileHandle?.writeFile?.(file, { recursive: true });
+            */
+        }
+    } else // file to file/directory
+        if (fromHandle instanceof FileSystemFileHandle) {
+            if (toHandle instanceof FileSystemFileHandle) {
+                const file = await fromHandle?.getFile?.();
+                const toFileHandle = toHandle;
+                const writable = await toFileHandle?.createWritable?.();
+                await writable?.write?.(file);
+                await writable?.close?.();
+                return true;
+            } else //
+                if (toHandle instanceof FileSystemDirectoryHandle) {
+                    const file = await fromHandle?.getFile?.();
+                    const toFileHandle = await toHandle?.getFileHandle?.(file?.name, { create: true });
+                    const writable = await toFileHandle?.createWritable?.();
+                    await writable?.write?.(file);
+                    await writable?.close?.();
+                    return true;
+                }
+        }
+    return null;
+}
