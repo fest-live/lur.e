@@ -419,12 +419,8 @@ export const copyFromOneHandlerToAnother = async (fromHandle: FileSystemDirector
                 }
             }));
         } else {
-            // supported (may seems to be)
-            /*
-            const file = await fromHandle?.getFile?.();
-            const toFileHandle = toHandle?.getFileHandle?.(file?.name, { create: true });
-            return toFileHandle?.writeFile?.(file, { recursive: true });
-            */
+            // not supported (may seems to be ZIP or TAR archive)
+            return false;
         }
     } else // file to file/directory
         if (fromHandle instanceof FileSystemFileHandle) {
