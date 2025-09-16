@@ -23,5 +23,8 @@
         "vite": "^7.1.2",
         "vite-plugin-external": "^6.2.2",
         "vite-plugin-optimizer": "^1.4.3"
+    },
+    "dependencies": {
+        "webdav": "^5.8.0"
     }
 }
