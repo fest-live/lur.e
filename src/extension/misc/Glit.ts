@@ -27,7 +27,7 @@ const whenBoxValid  = (name) => { const cb = camelToKebab(name); if (["border-bo
 const whenAxisValid = (name) => { const cb = camelToKebab(name); if (cb?.startsWith?.("inline")) { return "inline"; }; if (cb?.startsWith?.("block")) { return "block"; }; return null; }
 const characters    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 const inRenderKey   = Symbol.for("@render@"), defKeys = Symbol.for("@defKeys@");
-const defaultStyle  = document.createElement("style");
+const defaultStyle = typeof document != "undefined" ? document?.createElement?.("style") : null;
 const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "attr")  { return attrRef.bind(null, holder, name || ""); }
     if (source == "media") { return matchMediaRef; }
@@ -44,6 +44,11 @@ const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "value") { return valueRef.bind(null, holder); }
     if (source == "value-as-number") { return valueAsNumberRef.bind(null, holder); }
     return autoRef;
+}
+
+//
+if (defaultStyle) {
+    typeof document != "undefined" ? document.querySelector?.("head")?.appendChild?.(defaultStyle) : null;
 }
 
 //
@@ -66,35 +71,37 @@ const getDef = (source?: string|any|null): any =>{
 }
 
 //
-defaultStyle.innerHTML = `@layer ux-preload {
-    :where(ui-select-row, ui-button-row),
-    :host(ui-select-row, ui-button-row),
-    ::slotted(ui-select-row, ui-button-row) {
-        display: none;
-        content-visibility: hidden;
-    }
-    :where(
-        :host(:not(:defined)),
-        :not(:defined),
-        ::slotted(:not(:defined))
-    ) {
-        :where(*:not(ui-icon) {
+if (defaultStyle) {
+    defaultStyle.innerHTML = `@layer ux-preload {
+        :where(ui-select-row, ui-button-row),
+        :host(ui-select-row, ui-button-row),
+        ::slotted(ui-select-row, ui-button-row) {
+            display: none;
             content-visibility: hidden;
         }
-    }
-    :host:not(:has(style[loaded]))::slotted(*) { display: none; }
-    :where(
-        :host(:not(:defined)),
-        ::slotted(:not(:defined))
-    ) { display: none;
-        ::slotted(ui-icon) { display: none; content-visibility: hidden; }
-    }
-    :where(
-        :host(:not(:defined)),
-        ::slotted(:not(:defined))
-    ) { content-visibility: hidden; }
-    style { display: none !important; }
-}`
+        :where(
+            :host(:not(:defined)),
+            :not(:defined),
+            ::slotted(:not(:defined))
+        ) {
+            :where(*:not(ui-icon) {
+                content-visibility: hidden;
+            }
+        }
+        :host:not(:has(style[loaded]))::slotted(*) { display: none; }
+        :where(
+            :host(:not(:defined)),
+            ::slotted(:not(:defined))
+        ) { display: none;
+            ::slotted(ui-icon) { display: none; content-visibility: hidden; }
+        }
+        :where(
+            :host(:not(:defined)),
+            ::slotted(:not(:defined))
+        ) { content-visibility: hidden; }
+        style { display: none !important; }
+    }`
+}
 
 //
 export function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
