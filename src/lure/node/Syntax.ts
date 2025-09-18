@@ -130,8 +130,8 @@ export function htmlBuilder({ createElement = null } = {}) {
                 } else {
                     cmdBuffer.push(() => {
                         if (Array.isArray(unwrap(el)))
-                            { const $parent = node?.parentNode; node?.remove?.(); reflectChildren($parent, el); } else
-                        { const n = getNode(el); if (n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); } }
+                        { const $parent = node?.parentNode; node?.remove?.(); reflectChildren($parent, el); } else
+                        { const n = getNode(el); if (typeof el == "object" && el != null) el.boundParent ??= n?.parentNode ?? node?.parentNode ?? el.boundParent; if (n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); } }
                     });
                 }
             }

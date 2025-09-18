@@ -12,11 +12,14 @@ class Mp {
     #updater: any;
 
     //
-    constructor(observable, mapCb = (el) => el) {
+    boundParent: Node | null = null;
+
+    //
+    constructor(observable, mapCb = (el) => el, boundParent: Node | null = null) {
         this.#reMap = new WeakMap();
         this.#fragments = document.createDocumentFragment();
         this.#mapCb = mapCb ?? ((el) => el);
-        this.#updater = makeUpdater(null, this.mapper.bind(this));
+        this.#updater = makeUpdater((this.boundParent = boundParent ?? this.boundParent) ?? this.#fragments, this.mapper.bind(this));
         observe?.(this.#observable = observable, this._onUpdate.bind(this));
     }
 
@@ -27,6 +30,9 @@ class Mp {
     get children() { return this.#observable; }
     get element(): HTMLElement | DocumentFragment | Text | null {
         const existsNode = getNode(this.#observable?.[0], this.mapper.bind(this));
+        if (existsNode?.parentElement) {
+            this.boundParent ??= existsNode?.parentElement ?? this.boundParent;
+        }
         return (existsNode?.parentElement ?? (reformChildren(
             this.#fragments, this.#observable,
             this.mapper.bind(this)
@@ -46,12 +52,12 @@ class Mp {
 
     //
     _onUpdate(newEl, idx, oldEl, op: string | null = "@add") {
-        return this.#updater?.(newEl, idx, oldEl, op);
+        return this.#updater?.(newEl, idx, oldEl, op, this.boundParent);
     }
 }
 
 //
-export const M = (observable, mapCb?) => { return new Mp(observable, mapCb); };
+export const M = (observable, mapCb?, boundParent: Node | null = null) => { return new Mp(observable, mapCb, boundParent); };
 
 //
 export default M;
