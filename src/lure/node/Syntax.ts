@@ -131,7 +131,9 @@ export function htmlBuilder({ createElement = null } = {}) {
                     cmdBuffer.push(() => {
                         if (Array.isArray(unwrap(el)))
                         { const $parent = node?.parentNode; node?.remove?.(); reflectChildren($parent, el); } else
-                        { const n = getNode(el); if (typeof el == "object" && el != null) el.boundParent ??= n?.parentNode ?? node?.parentNode ?? el.boundParent; if (n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); } }
+                        {
+                            const n = getNode(el); if (typeof el == "object" && el != null) el.boundParent ??= (!(n?.parentParent instanceof DocumentFragment) ? n?.parentParent : null) ?? (!(n?.parentParent instanceof DocumentFragment) ? node?.parentParent : null) ?? el.boundParent; if (n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); }
+                        }
                     });
                 }
             }
