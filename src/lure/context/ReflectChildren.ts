@@ -78,7 +78,7 @@ export const reformChildren = (element: HTMLElement | DocumentFragment, children
 
     //
     const cvt = (children = (children?.[$mapped] ? (children as any)?.children : children) ?? children)?.map?.((nd) => { if (mapper != null) { nd = mapper?.(nd); return nd; }; });
-    removeNotExists(element, cvt); cvt.forEach((nd) => {
+    removeNotExists(element, cvt); cvt?.forEach?.((nd) => {
         const element = ref.deref();
         if (!element) return nd;
         appendChild(element, nd);

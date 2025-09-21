@@ -10,6 +10,23 @@ import { reflectChildren } from "../context/ReflectChildren";
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
 
 //
+const preserveWhitespaceTags = new Set(["PRE", "TEXTAREA", "SCRIPT", "STYLE"]);
+const cleanupInterTagWhitespace = (root: Node) => {
+    if (!root) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const queue: Text[] = [];
+    // Walk and collect whitespace-only text nodes for removal
+    // Preserve whitespace in certain tags like <pre>, <textarea>, <script>, <style>
+    while (walker.nextNode()) {
+        const t = walker.currentNode as Text;
+        const parent: any = t?.parentNode;
+        if (!parent || preserveWhitespaceTags.has(parent?.tagName)) continue;
+        if (/^\s+$/.test(t?.nodeValue?.trim?.() || "") || !t?.textContent?.trim?.()) queue.push(t);
+    }
+    for (const t of queue) t?.remove?.();
+}
+
+//
 const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType == Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.includes("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
 
 //
@@ -174,6 +191,9 @@ export function htmlBuilder({ createElement = null } = {}) {
             template.append(...children);
         }
 
+        // Clean up whitespace-only text nodes between tags before further processing
+        cleanupInterTagWhitespace(template);
+
         //
         const walker: any = template ? document.createTreeWalker(template, NodeFilter.SHOW_ALL, null) : null;
         const fragment = template instanceof DocumentFragment ? template : document.createDocumentFragment();
@@ -216,7 +236,9 @@ export function htmlBuilder({ createElement = null } = {}) {
         } while (walker?.nextNode?.());
 
         //
-        cmdBuffer.forEach((c)=>c?.()); // @ts-ignore
+        cmdBuffer?.forEach?.((c) => c?.());
+        // Final whitespace cleanup to ensure :empty works even after dynamic insertions
+        cleanupInterTagWhitespace(template); // @ts-ignore
         if (fragment instanceof DocumentFragment) {
             return (Array.from(fragment?.childNodes)?.length > 1 ? fragment : fragment?.childNodes?.[0]);
         } else // @ts-ignore
@@ -237,6 +259,15 @@ export const H = (str: any, ...values: any[])=>{
         if (str?.trim?.()?.startsWith?.("<")) {
             const parser = new DOMParser(), doc = parser.parseFromString(str, "text/html");
             const basis  = doc.querySelector("template")?.content ?? doc.body;
+            // Normalize and clean whitespace-only text nodes between tags
+            if (basis instanceof HTMLBodyElement) {
+                const frag = document.createDocumentFragment();
+                frag.append(...Array.from(basis.childNodes));
+                cleanupInterTagWhitespace(frag);
+                return (Array.from(frag.childNodes)?.length > 1 ? frag : frag?.childNodes?.[0]);
+            } else {
+                cleanupInterTagWhitespace(basis);
+            }
             if (basis instanceof DocumentFragment) { return basis; }
             if (basis?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag.append(...Array.from(basis?.childNodes));  return frag; }
             return basis?.childNodes?.[0] ?? new Text(str);
@@ -245,7 +276,7 @@ export const H = (str: any, ...values: any[])=>{
     } else
     if (typeof str == "function") { return H(str?.()); } else
     if (Array.isArray(str) && values) { return html(str, ...values); } else
-    if (str instanceof Node) { return str; }; return null;
+                if (str instanceof Node) { cleanupInterTagWhitespace(str); return str; }; return null;
 }
 
 //
