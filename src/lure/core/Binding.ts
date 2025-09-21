@@ -154,7 +154,21 @@ export const updateInput = (target, state)=>{
 }
 
 //
-export const bindEvents = (el, events)=>{ if (events) { Object.entries(events)?.forEach?.(([name, list]) => (list as any)?.values()?.forEach?.((fn) => el.addEventListener(name, (typeof fn == "function") ? fn : fn?.[0], fn?.[1] || {}))); } }
+const isArrayOrIterable = (obj) => Array.isArray(obj) || (obj != null && typeof obj == "object" && typeof obj[Symbol.iterator] == "function");
+
+//
+export const bindEvents = (el, events) => {
+    if (events) {
+        let entries: any[] = [];
+        if (events instanceof Map) {
+            entries = [...events.entries()];
+        } else {
+            Object.entries(events)
+            entries = Object.entries(events);
+        }
+        entries?.forEach?.(([name, list]) => ((isArrayOrIterable(list) ? [...list as any] : list) || [])?.forEach?.((fn) => el.addEventListener(name, (typeof fn == "function") ? fn : fn?.[0], fn?.[1] || {})));
+    }
+}
 
 //
 export const bindWith   = (el, prop, value, handler, set?, withObserver?: boolean|Function)=>{ handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver); }

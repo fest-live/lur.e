@@ -76,6 +76,48 @@ const removeFromRoot = (node: any, fragment?: DocumentFragment)=>{
 export function html(strings, ...values) { return htmlBuilder({ createElement: null })(strings, ...values); };
 
 //
+const checkInsideTagBlock = (contextParts: string[], ...str: string[]) => {
+    const current = str?.[0] ?? "";
+    const idx = contextParts.indexOf(current);
+    // Fallback simple heuristic if index not found
+    if (idx < 0) {
+        const tail = (str?.join?.("") ?? "");
+        return /<([A-Za-z\/!?])[\w\W]*$/.test(tail) && !/>[\w\W]*$/.test(tail);
+    }
+
+    // Scan all static parts up to and including the current part
+    const prefix = contextParts.slice(0, idx + 1).join("");
+    let inTag = false, inSingle = false, inDouble = false;
+
+    for (let i = 0; i < prefix.length; i++) {
+        const ch = prefix[i];
+        const next = prefix[i + 1] ?? '';
+
+        if (!inTag) {
+            if (ch === '<') {
+                // Treat as a tag only if followed by a likely opener: letter, '/', '!', or '?'
+                if (/[A-Za-z\/!?]/.test(next)) {
+                    inTag = true; inSingle = false; inDouble = false;
+                }
+            }
+            continue;
+        }
+
+        if (!inSingle && !inDouble) {
+            if (ch === '"') { inDouble = true; continue; }
+            if (ch === "'") { inSingle = true; continue; }
+            if (ch === '>') { inTag = false; continue; }
+        } else if (inDouble) {
+            if (ch === '"') { inDouble = false; continue; }
+        } else if (inSingle) {
+            if (ch === "'") { inSingle = false; continue; }
+        }
+    }
+
+    return inTag;
+}
+
+//
 export function htmlBuilder({ createElement = null } = {}) {
     return function(strings, ...values) {
         let parts: string[] = [];
@@ -89,13 +131,33 @@ export function htmlBuilder({ createElement = null } = {}) {
                     if (dat.id) parts.push(` id="${dat.id}"`);
                     if (dat.className) parts.push(` class="${dat.className}"`);
                 } else {
-                    const $betweenQuotes    = strings[i]?.trim?.()?.match?.(/['"]$/) && (strings[i+1]?.trim?.()?.match?.(/^['"]/) ?? true);
-                    const $stylePattern     = strings[i]?.trim?.()?.endsWith?.(":") || strings[i+1]?.trim?.()?.startsWith?.(";"); const $pt = strings[i+1]?.search?.(/^[\s\n\r>]/);
-                    const $attributePattern = strings[i]?.trim?.()?.endsWith?.("=") && !($pt != null ? $pt : false);
-                    const $needsToQuoteWrap = strings[i]?.trim?.()?.endsWith?.("=") || !$betweenQuotes; const $DQD = "\\\"";
-                    const isAttr = ($stylePattern || $attributePattern || $betweenQuotes);
-                    const psi = psh.length, ati = atb.length; parts.push(isAttr ? ($needsToQuoteWrap ? `"#{${ati}}"` : ($stylePattern ? `${$DQD}#{${ati}}${$DQD}` : `#{${ati}}`)) : `<!--o:${psi}-->`);
-                    if (values?.[i] != null) { (isAttr ? atb : psh).push(values?.[i]); };
+                    // sequences such as inside of `<...>`
+                    const $inTagOpen = checkInsideTagBlock(strings, strings?.[i] || "", strings?.[i + 1] || "");
+
+                    //
+                    const $afterEquals = /[\w:\-\.\]]\s*=\s*$/.test(strings[i]?.trim?.() ?? "") || strings[i]?.trim?.()?.endsWith?.("=");
+
+                    //
+                    const $isQuoteBegin = strings[i]?.trim?.()?.match?.(/['"]$/);
+                    const $isQuoteEnd = strings[i + 1]?.trim?.()?.match?.(/^['"]/) ?? $isQuoteBegin;
+
+                    //
+                    const $betweenQuotes = ($isQuoteBegin && $isQuoteEnd);
+                    const $attributePattern = $afterEquals;
+
+                    //
+                    const isAttr = ($attributePattern || $betweenQuotes) && $inTagOpen;
+                    if (isAttr) {
+                        const $needsToQuoteWrap = ($attributePattern && !($betweenQuotes));
+                        const ati = atb.length;
+                        parts.push($needsToQuoteWrap ? `"#{${ati}}"` : `#{${ati}}`);
+                        atb.push(values?.[i]);
+                    } else
+                        if (!$inTagOpen) {
+                            const psi = psh.length;
+                            parts.push(`<!--o:${psi}-->`);
+                            psh.push(values?.[i]);
+                        }
                 }
             }
         }
@@ -126,7 +188,21 @@ export function htmlBuilder({ createElement = null } = {}) {
 
                 // make iteratable array and set
                 if (typeof el == "function") {
-                    if (node?.parentNode?.getAttribute?.("iterate") || node?.parentNode?.childNodes?.length <= 1) { cmdBuffer.push(() => { node?.remove?.(); }); mapped.set(node?.parentNode, el); }
+                    if (node?.parentNode?.getAttribute?.("iterate") || node?.parentNode?.childNodes?.length <= 1) {
+                        cmdBuffer.push(() => { node?.remove?.(); });
+                        mapped.set(node?.parentNode, el);
+                    } else {
+                        // Fallback: render function result inline (supports placeholders within mixed content)
+                        cmdBuffer.push(() => {
+                            const result = el?.();
+                            if (Array.isArray(unwrap(result))) {
+                                const $parent = node?.parentNode; node?.remove?.(); reflectChildren($parent, result);
+                            } else {
+                                const n = getNode(result);
+                                if (n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); }
+                            }
+                        });
+                    }
                 } else {
                     cmdBuffer.push(() => {
                         if (Array.isArray(unwrap(el)))
