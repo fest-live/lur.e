@@ -38,7 +38,7 @@ export class SwM implements SwitchedParams {
 
     //
     get element(): Node {
-        return getFromMapped(this.mapped, this.current?.value ?? -1);;
+        return getFromMapped(this.mapped, this.current?.value ?? -1);
     }
 
     //
@@ -56,9 +56,8 @@ export class SwM implements SwitchedParams {
             // Update DOM nodes accordingly
             if (parent && newNode) {
                 if (oldNode)
-                    { try { oldNode.replaceWith(newNode); } catch (e) { console.warn(e); } } else
-                    { appendFix(parent, getNode(newNode)); }
-            } else if (oldNode && !newNode) { oldNode.remove(); }
+                { try { oldNode?.replaceWith?.(newNode); } catch (e) { console.warn(e); } } else { appendFix(parent, getNode(newNode)); }
+            } else if (oldNode && !newNode) { oldNode?.remove?.(); }
         }
     }
 }
@@ -68,24 +67,24 @@ class SwHandler implements ProxyHandler<SwitchedParams> {
     constructor() {}
 
     //
-    set(params: SwitchedParams, name, val) { return Reflect.set(getFromMapped(params?.mapped, params?.current?.value ?? -1), name, val); }
-    has(params: SwitchedParams, name) { return Reflect.has(getFromMapped(params?.mapped, params?.current?.value ?? -1), name); }
+    set(params: SwitchedParams, name, val) { return Reflect.set(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, name, val); }
+    has(params: SwitchedParams, name) { return Reflect.has(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, name); }
     get(params: SwitchedParams, name, ctx) {
         if (name == "element" && (name in params || params?.[name] != null)) { return (params as SwM)?.element; };
         if (name == "_onUpdate" && (name in params || params?.[name] != null)) { return (params as SwM)?._onUpdate?.bind(params); };
-        return contextify(getFromMapped(params?.mapped, params?.current?.value ?? -1), name);
+        return contextify(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, name);
     }
 
     //
-    ownKeys(params: SwitchedParams) { return Reflect.ownKeys(getFromMapped(params?.mapped, params?.current?.value ?? -1)); }
-    apply(params: SwitchedParams, thisArg, args) { return Reflect.apply(getFromMapped(params?.mapped, params?.current?.value ?? -1), thisArg, args); }
-    deleteProperty(params: SwitchedParams, name) { return Reflect.deleteProperty(getFromMapped(params?.mapped, params?.current?.value ?? -1), name); }
-    setPrototypeOf(params: SwitchedParams, proto) { return Reflect.setPrototypeOf(getFromMapped(params?.mapped, params?.current?.value), proto); }
-    getPrototypeOf(params: SwitchedParams) { return Reflect.getPrototypeOf(getFromMapped(params?.mapped, params?.current?.value ?? -1)); }
-    defineProperty(params: SwitchedParams, name, desc) { return Reflect.defineProperty(getFromMapped(params?.mapped, params?.current?.value), name, desc); }
-    getOwnPropertyDescriptor(params: SwitchedParams, name) { return Reflect.getOwnPropertyDescriptor(getFromMapped(params?.mapped, params?.current?.value), name); }
-    preventExtensions(params: SwitchedParams) { return Reflect.preventExtensions(getFromMapped(params?.mapped, params?.current?.value)); }
-    isExtensible(params: SwitchedParams) { return Reflect.isExtensible(getFromMapped(params?.mapped, params?.current?.value)); }
+    ownKeys(params: SwitchedParams) { return Reflect.ownKeys(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params); }
+    apply(params: SwitchedParams, thisArg, args) { return Reflect.apply(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, thisArg, args); }
+    deleteProperty(params: SwitchedParams, name) { return Reflect.deleteProperty(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, name); }
+    setPrototypeOf(params: SwitchedParams, proto) { return Reflect.setPrototypeOf(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, proto); }
+    getPrototypeOf(params: SwitchedParams) { return Reflect.getPrototypeOf(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params); }
+    defineProperty(params: SwitchedParams, name, desc) { return Reflect.defineProperty(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, name, desc); }
+    getOwnPropertyDescriptor(params: SwitchedParams, name) { return Reflect.getOwnPropertyDescriptor(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, name); }
+    preventExtensions(params: SwitchedParams) { return Reflect.preventExtensions(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params); }
+    isExtensible(params: SwitchedParams) { return Reflect.isExtensible(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params); }
 }
 
 //
