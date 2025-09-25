@@ -52,23 +52,29 @@ export function getMimeTypeByFilename(filename) {
 }
 
 //
+const hasFileExtension = (path: string) => {
+    return path?.trim?.()?.split?.(".")?.[1]?.trim?.()?.length > 0;
+}
+
+//
 export async function getDirectoryHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
     rootHandle ??= await navigator?.storage?.getDirectory?.();
     relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
     try {
         const parts = relPath.split('/').filter((p)=>(!!p?.trim?.()));
-        let dir = rootHandle;
+        if (hasFileExtension(parts?.at?.(-1)?.trim?.())) { parts?.pop?.(); };
 
         //
+        let dir = rootHandle;
         if (parts?.length > 0) {
             for (const part of parts) {
                 dir = await dir?.getDirectoryHandle?.(part, { create });
                 if (!dir) { break; };
             }
         }
+        return dir;
 
         //
-        return dir;
     } catch (e: any) { return handleError(logger, 'error', `getDirectoryHandle: ${e.message}`); }
 }
 
