@@ -57,14 +57,19 @@ export async function getDirectoryHandle(rootHandle, relPath, { create = false }
     relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
     try {
         const parts = relPath.split('/').filter((p)=>(!!p?.trim?.()));
-        let dir = rootHandle; if (parts?.length == 0) return dir;
+        let dir = rootHandle;
 
         //
-        for (const part of parts) {
-            dir = await dir?.getDirectoryHandle?.(part, { create });
-            if (!dir) { break; }; return dir;
+        if (parts?.length > 0) {
+            for (const part of parts) {
+                dir = await dir?.getDirectoryHandle?.(part, { create });
+                if (!dir) { break; };
+            }
         }
-    } catch (e: any) { console.log(e); return handleError(logger, 'error', `getDirectoryHandle: ${e.message}`); }
+
+        //
+        return dir;
+    } catch (e: any) { return handleError(logger, 'error', `getDirectoryHandle: ${e.message}`); }
 }
 
 //
@@ -112,14 +117,14 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
     let mapCache = makeReactive(new Map<any, any>());
     async function updateCache() { // @ts-ignore
         if (!(await dirHandle)) return mapCache;
-
         const entries = await Promise.all(await Array.fromAsync((await dirHandle)?.entries?.() || []) || []); // @ts-ignore
+        if (mapCache?.size == 0) { entries.forEach((nh: any) => { mapCache.set(nh?.[0], nh?.[1]); }); }
 
-        // TODO! rewrite not existing keys
-        //const foundKeys = Array.from(mapCache.keys()).map((key)=> entries.find((nh)=>nh?.[0] == key)); // @ts-ignore
-        //foundKeys.forEach((nh) => { if (nh) mapCache.delete(nh); }); // @ts-ignore
+        // @ts-ignore
+        const notFoundKeys = Array.from(entries?.map?.((pair)=>pair?.[0])).filter((key) => !mapCache.get(key)); // @ts-ignore
+        notFoundKeys.forEach((nk) => { if (nk) mapCache.set(nk, entries?.find?.(e => e?.[0] == nk)?.[1]); });
 
-        entries.forEach((nh: any) => { mapCache.set(nh?.[0], nh?.[1]); });
+        //
         return mapCache;
     }
 
