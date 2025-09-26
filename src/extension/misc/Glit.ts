@@ -144,7 +144,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
         target[defKeys][key] = {
             get() {
                 const ROOT = this;
-                const inRender = ROOT[inRenderKey], sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT);
+                const inRender = ROOT[inRenderKey], sourceTarget = !from ? ROOT :(from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT));
 
                 //
                 let store = propStore.get(ROOT), stored = store?.get?.(key);
@@ -163,7 +163,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
             },
             set(newValue: any) {
                 const ROOT = this;
-                const sourceTarget = from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT);
+                const sourceTarget = !from ? ROOT : (from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT));
 
                 //
                 let store = propStore.get(ROOT), stored = store?.get?.(key);

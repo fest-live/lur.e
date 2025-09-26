@@ -102,14 +102,8 @@ export const bindHandler = (element: any, value: any, prop: any, handler: any, s
 
     //
     const un = subscribe?.([value, "value"], (curr, _, old) => {
-        if (handler == handleProperty) {
-            if (set?.deref?.()?.[prop] == wv?.deref?.() || !set?.deref?.()) {
-                if (typeof wv?.deref?.()?.[$behavior] == "function") { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()), [wv?.deref?.(), prop, old], [controller?.signal, prop, wel]); } else { handler(wel?.deref?.(), prop, wv?.deref?.()); }
-            }
-        } else {
-            if (set?.deref?.()?.[prop] == wv?.deref?.() || !set?.deref?.()) {
-                if (typeof wv?.deref?.()?.[$behavior] == "function") { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]); } else { handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? curr); }
-            }
+        if (set?.deref?.()?.[prop] == wv?.deref?.() || !set?.deref?.()) {
+            if (typeof wv?.deref?.()?.[$behavior] == "function") { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]); } else { handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? curr); }
         }
     });
 
