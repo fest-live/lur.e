@@ -35,7 +35,12 @@ export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl
 
 //
 export const $fxy = Symbol.for("@fix"), fixFx = (obj) => { if (typeof obj == "function" || obj == null) return obj; const fx = function(){}; fx[$fxy] = obj; return fx; }
-export const $set = (rv, key, val) => { rv = (rv instanceof WeakRef || typeof rv?.deref == "function") ? rv?.deref?.() : rv; if (rv != null && typeof rv == "object" || typeof rv == "function") { return (rv[key] = val); }; }
+export const $set = (rv, key, val) => {
+    rv = (rv instanceof WeakRef || typeof rv?.deref == "function") ? rv?.deref?.() : rv;
+    if (rv != null && (typeof rv == "object" || typeof rv == "function")) {
+        return (rv[key] = val?.value ?? val);
+    };
+}
 
 //
 export const $observeInput = (element, ref?: any|null, prop = "value") => {
@@ -61,9 +66,9 @@ export const $observeAttribute = (el: HTMLElement, ref?: any|null, prop: string 
     const cb = (mutation)=>{
         if (mutation.type == "attributes" && mutation.attributeName == attrName) {
             const value = mutation?.target?.getAttribute?.(mutation.attributeName);
-            const val = wv?.deref?.(), reVal = wv?.deref?.()?.value;
+            const val = wv?.deref?.(), reVal = val?.value;
             if (isNotEqual(mutation.oldValue, value) && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
-                { if (isNotEqual(reVal, value) || reVal == null) { $set(wv, "value", value ?? reVal); } }
+            { if (isNotEqual(reVal, value) || reVal == null) { $set(val, "value", value ?? reVal); } }
         }
     }
 
@@ -92,7 +97,7 @@ export const hasInBank = (el, handle)=>{
 //
 export const bindHandler = (element: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean | Function) => {
     if (!element || value == null || ((typeof value == "object" || typeof value == "function") ? !("value" in value || value?.value != null) : false) || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
-    const wv = value instanceof WeakRef ? value : (typeof value == "object" || typeof value == "function" ? new WeakRef(value) : value);
+    const wv = (value instanceof WeakRef) ? value : ((typeof value == "object" || typeof value == "function") ? new WeakRef(value) : value);
     const wel = element != null ? (element instanceof WeakRef ? element : ((typeof element == "object" || typeof element == "function") ? new WeakRef(element) : element)) : null;
     element = wel?.deref?.() ?? element;
 
@@ -103,7 +108,11 @@ export const bindHandler = (element: any, value: any, prop: any, handler: any, s
     //
     const un = subscribe?.([value, "value"], (curr, _, old) => {
         if (set?.deref?.()?.[prop] == wv?.deref?.() || !set?.deref?.()) {
-            if (typeof wv?.deref?.()?.[$behavior] == "function") { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]); } else { handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? curr); }
+            if (typeof wv?.deref?.()?.[$behavior] == "function") {
+                wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]);
+            } else {
+                handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? curr);
+            }
         }
     });
 
