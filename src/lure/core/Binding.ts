@@ -35,12 +35,12 @@ export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl
 
 //
 export const $fxy = Symbol.for("@fix"), fixFx = (obj) => { if (typeof obj == "function" || obj == null) return obj; const fx = function(){}; fx[$fxy] = obj; return fx; }
-export const $set = (rv, key, val)=>{ rv = (rv instanceof WeakRef || typeof rv?.deref == "function") ? rv?.deref?.() : rv; if (rv != null) { return (rv[key] = val); }; }
+export const $set = (rv, key, val) => { rv = (rv instanceof WeakRef || typeof rv?.deref == "function") ? rv?.deref?.() : rv; if (rv != null && typeof rv == "object" || typeof rv == "function") { return (rv[key] = val); }; }
 
 //
 export const $observeInput = (element, ref?: any|null, prop = "value") => {
-    const wel = element instanceof WeakRef ? element : new WeakRef(element);
-    const rf = ref != null ? (ref instanceof WeakRef ? ref : new WeakRef(ref)) : null;
+    const wel = element != null ? (element instanceof WeakRef ? element : ((typeof element == "object" || typeof element == "function") ? new WeakRef(element) : element)) : null;
+    const rf = ref != null ? (ref instanceof WeakRef ? ref : ((typeof ref == "object" || typeof ref == "function") ? new WeakRef(ref) : ref)) : null;
     const ctrlCb = (ev)=>{
         const input = wel?.deref?.();
         if (input) { $set(rf, "value", input?.[prop ?? "value"] ?? rf?.deref?.()?.value); }
@@ -51,12 +51,13 @@ export const $observeInput = (element, ref?: any|null, prop = "value") => {
     //
     const inputEl = wel?.deref?.();
     if (!rf?.deref?.()?.value) { $set(rf, "value", inputEl?.[prop ?? "value"] ?? rf?.deref?.()?.value); }
-    return () => handleListeners?.(new WeakRef(element), "removeEventListener", hdl);
+    return () => handleListeners?.(element, "removeEventListener", hdl);
 }
 
 //
 export const $observeAttribute = (el: HTMLElement, ref?: any|null, prop: string = "") => {
-    const wv = ref != null ? (ref instanceof WeakRef ? ref : new WeakRef(ref)) : null; //el?.getAttribute?.(prop)
+    const wel = el != null ? (el instanceof WeakRef ? el : ((typeof el == "object" || typeof el == "function") ? new WeakRef(el) : el)) : null; //el?.getAttribute?.(prop)
+    const wv = ref != null ? (ref instanceof WeakRef ? ref : ((typeof ref == "object" || typeof ref == "function") ? new WeakRef(ref) : ref)) : null; //el?.getAttribute?.(prop)
     const cb = (mutation)=>{
         if (mutation.type == "attributes" && mutation.attributeName == attrName) {
             const value = mutation?.target?.getAttribute?.(mutation.attributeName);
@@ -89,34 +90,39 @@ export const hasInBank = (el, handle)=>{
 }
 
 //
-export const bindHandler = (el: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean|Function) => {
-    if (!el || value == null || !(value?.value != null || ((typeof value == "object" || typeof value == "function") ? ("value" in value) : false)) || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
+export const bindHandler = (element: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean | Function) => {
+    if (!element || value == null || ((typeof value == "object" || typeof value == "function") ? !("value" in value || value?.value != null) : false) || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
+    const wv = value instanceof WeakRef ? value : (typeof value == "object" || typeof value == "function" ? new WeakRef(value) : value);
+    const wel = element != null ? (element instanceof WeakRef ? element : ((typeof element == "object" || typeof element == "function") ? new WeakRef(element) : element)) : null;
+    element = wel?.deref?.() ?? element;
 
     //
     let controller: AbortController | null = null; // @ts-ignore
     controller?.abort?.(); controller = new AbortController();
 
     //
-    const wel = el instanceof WeakRef ? el : new WeakRef(el); el = wel?.deref?.() ?? el;
-    const wv = new WeakRef(value);
     const un = subscribe?.([value, "value"], (curr, _, old) => {
-        if (set?.deref?.()?.[prop] == wv?.deref?.() || !set?.deref?.()) {
-            if (typeof wv?.deref?.()?.[$behavior] == "function")
-                { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]); } else
-                { handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? curr); }
+        if (handler == handleProperty) {
+            if (set?.deref?.()?.[prop] == wv?.deref?.() || !set?.deref?.()) {
+                if (typeof wv?.deref?.()?.[$behavior] == "function") { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()), [wv?.deref?.(), prop, old], [controller?.signal, prop, wel]); } else { handler(wel?.deref?.(), prop, wv?.deref?.()); }
+            }
+        } else {
+            if (set?.deref?.()?.[prop] == wv?.deref?.() || !set?.deref?.()) {
+                if (typeof wv?.deref?.()?.[$behavior] == "function") { wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]); } else { handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? curr); }
+            }
         }
     });
 
     //
     let obs: any = null;
     if (typeof withObserver == "boolean" && withObserver) {
-        if (handler == handleAttribute) obs = $observeAttribute(el, value, prop);
-        if (handler == handleProperty)  obs = $observeInput(el, value, prop);
+        if (handler == handleAttribute) obs = $observeAttribute(element, value, prop);
+        if (handler == handleProperty) obs = $observeInput(element, value, prop);
     };
-    if (typeof withObserver == "function") { obs = withObserver(el, prop, value); };
-    const unsub = () => { obs?.disconnect?.(); (obs != null && typeof obs == "function") ? obs?.() : null; un?.(); controller?.abort?.(); removeFromBank?.(el, handler, prop); }; // @ts-ignore
-    addToCallChain(value, Symbol.dispose, unsub); alives.register(el, unsub);
-    if (!addToBank(el, handler, prop, [value, unsub])) { return unsub; } // prevent data disruption
+    if (typeof withObserver == "function") { obs = withObserver(element, prop, value); };
+    const unsub = () => { obs?.disconnect?.(); (obs != null && typeof obs == "function") ? obs?.() : null; un?.(); controller?.abort?.(); removeFromBank?.(element, handler, prop); }; // @ts-ignore
+    addToCallChain(value, Symbol.dispose, unsub); alives.register(element, unsub);
+    if (!addToBank(element, handler, prop, [value, unsub])) { return unsub; } // prevent data disruption
 }
 
 //
@@ -171,7 +177,7 @@ export const bindEvents = (el, events) => {
 }
 
 //
-export const bindWith   = (el, prop, value, handler, set?, withObserver?: boolean|Function)=>{ handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver); }
+export const bindWith = (el, prop, value, handler, set?, withObserver?: boolean | Function) => { handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver); }
 
 //
 export const bindForms  = (fields = document.documentElement, wrapper = ".u2-input", state = {})=>{

@@ -47,9 +47,9 @@ export const E = (selector: string | HTMLElement | Node | DocumentFragment | Doc
     const element = typeof selector == "string" ? Qp(createElement(selector)) : selector;
     if (element && children) { reflectChildren(element, children); }
     if (element && params) {
-        if (params.ctrls != null) reflectControllers(element, params.ctrls);
 
         //
+        if (params.ctrls != null) reflectControllers(element, params.ctrls);
         if (params.attributes != null) reflectAttributes(element, params.attributes);
         if (params.properties != null) reflectProperties(element, params.properties);
         if (params.classList != null) reflectClassList(element, params.classList);

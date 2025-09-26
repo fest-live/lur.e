@@ -73,7 +73,8 @@ const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: We
         }
 
         //
-        if (!EMap.has(el)) { cmdBuffer.push(()=>{ // @ts-ignore
+        if (!EMap.has(el)) {
+            cmdBuffer.push(() => { // @ts-ignore
             const ex = E(el, {aria, attributes, classList, dataset, style, properties, on, ctrls, visible}, mapped.has(el) ? M(iterate, mapped.get(el)) : makeReactive(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
             if (typeof doAction == "function") { doAction?.(el); } else if (doAction != null && typeof doAction == "object") { doAction.value = el; }
             if (el != ex) { EMap.set(el, ex); }; return ex;

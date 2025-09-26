@@ -89,11 +89,14 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 
     //
     const usubs = [
-        subscribe(properties, (value, prop: any)=>{
+        subscribe(properties, (value, prop: any) => {
             const el = wel.deref();
             if (el) {
-                if (typeof value == "object" && (value?.value != null || "value" in value)) { bindWith(el, prop, value, handleProperty, weak?.deref?.(), true); } else
-                    { if (prop == "checked") { setChecked(el as HTMLInputElement, value); } else { el[prop] = value; el?.dispatchEvent?.(new Event("change", { bubbles: true, cancelable: true, })); } }
+                if (prop == "checked") {
+                    setChecked(el as HTMLInputElement, value);
+                } else {
+                    bindWith(el, prop, value, handleProperty, weak?.deref?.(), true);
+                }
             }
         })
     ]
