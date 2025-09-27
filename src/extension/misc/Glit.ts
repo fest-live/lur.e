@@ -200,12 +200,12 @@ export const loadCachedStyles = (bTo, src)=>{
 
 //
 export const isNotExtended = (el: HTMLElement)=>{
-    return (el instanceof HTMLElement && !(
+    return !(
         (el instanceof HTMLDivElement) ||
         (el instanceof HTMLImageElement) ||
         (el instanceof HTMLVideoElement) ||
-        (el instanceof HTMLCanvasElement))
-    ) && !(el?.hasAttribute?.("is") || el?.getAttribute?.("is") != null);
+        (el instanceof HTMLCanvasElement)) &&
+        !(el?.hasAttribute?.("is") || el?.getAttribute?.("is") != null);
 }
 
 //
@@ -249,12 +249,21 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
         protected getProperty(key: string) { const current = this[inRenderKey]; this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = current; if (!current) { delete this[inRenderKey]; } return cp; }
 
         //
-        public loadStyleLibrary($module) { const root = this.shadowRoot; const module = typeof $module == "function" ? $module?.(root) : $module; this.styleLibs?.push?.(module); if (module) { this.#styleElement?.before?.(module); }; return this; }
+        public loadStyleLibrary($module) {
+            const root = this.shadowRoot;
+            const module = typeof $module == "function" ? $module?.(root) : $module;
+            if (module) {
+                this.styleLibs?.push?.(module);
+                this.#styleElement?.before?.(module);
+            }
+            return this;
+        }
         public createShadowRoot() { return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as any; }
         public connectedCallback() {
             const weak = new WeakRef(this);
-            if (!this.#initialized) { this.#initialized = true;
-                const shadowRoot = isNotExtended(this) ? (this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" })) : this.shadowRoot;
+            if (!this.#initialized) {
+                this.#initialized = true;
+                const shadowRoot = isNotExtended(this) ? (this.createShadowRoot?.() ?? this.shadowRoot ?? this.attachShadow({ mode: "open" })) : this.shadowRoot;
 
                 //
                 withProperties<any>(this).$init?.call?.(this);
@@ -264,8 +273,14 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
                 //! currenrly, `this.styleLibs` will not appear when rendering (not supported)
                 this[inRenderKey] = true;
                 if (isNotExtended(this) && shadowRoot) {
-                    const rendered = this.render?.call?.(this, weak);
-                    this.#shadowDOM = E(shadowRoot as any, {}, [H`<style data-type="ux-layer" prop:innerHTML=${this.$makeLayers()}></style>`, this.#defaultStyle, ...(this.styleLibs.map(x=>x.cloneNode?.(true))||[]), this.#styleElement ??= loadCachedStyles(this, this.styles), rendered]);
+                    const rendered = this.render?.call?.(this, weak) ?? document.createElement("slot");
+                    shadowRoot?.append(...[
+                        H`<style data-type="ux-layer" prop:innerHTML=${this.$makeLayers()}></style>`,
+                        this.#defaultStyle,
+                        ...(this.styleLibs.map(x => x.cloneNode?.(true)) || []),
+                        this.#styleElement ??= loadCachedStyles(this, this.styles),
+                        rendered
+                    ]?.filter?.(x => (x != null)));
                 }
                 this.onRender?.call?.(this, weak);
                 delete this[inRenderKey];

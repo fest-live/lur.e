@@ -30,7 +30,7 @@ const cleanupInterTagWhitespace = (root: Node) => {
 const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType == Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.includes("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
 
 //
-const connectElement = (el: HTMLElement|null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[], fragment?: DocumentFragment)=>{
+const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[]) => {
     if (!el) return el;
     if (el != null) {
         const attributes = {};
@@ -185,24 +185,19 @@ export function htmlBuilder({ createElement = null } = {}) {
         const parser = new DOMParser(), doc: any = parser.parseFromString(parts.join("").trim(), "text/html");
 
         //
-        let template: any = (((doc instanceof HTMLTemplateElement || doc?.matches?.("template")) ? doc : doc.querySelector("template"))?.content ?? doc.body);
-        if (template instanceof HTMLBodyElement) {
-            const children = Array.from(template.childNodes).filter((e: any) => (e != null));
-            template = document.createDocumentFragment();
-            template.append(...children);
-        }
+        const isTemplate = doc instanceof HTMLTemplateElement || doc?.matches?.("template");
+        let sources: any = (isTemplate ? doc : doc.querySelector("template"))?.content ?? (doc.body ?? doc);
 
         // Clean up whitespace-only text nodes between tags before further processing
-        cleanupInterTagWhitespace(template);
+        cleanupInterTagWhitespace(sources);
 
         //
-        const walker: any = template ? document.createTreeWalker(template, NodeFilter.SHOW_ALL, null) : null;
-        const fragment = template instanceof DocumentFragment ? template : document.createDocumentFragment();
+        const walker: any = sources ? document.createTreeWalker(sources, NodeFilter.SHOW_ALL, null) : null;
         do {
             const node: any = walker.currentNode;
 
             if (node.nodeType == Node.ELEMENT_NODE) {
-                connectElement(node as HTMLElement, atb, psh, mapped, cmdBuffer, fragment);
+                connectElement(node as HTMLElement, atb, psh, mapped, cmdBuffer);
             } else
             if (node.nodeType == Node.COMMENT_NODE && node.nodeValue.includes("o:")) {
                 let el: any = psh[Number(node.nodeValue.slice(2))];
@@ -238,19 +233,14 @@ export function htmlBuilder({ createElement = null } = {}) {
 
         //
         cmdBuffer?.forEach?.((c) => c?.());
-        // Final whitespace cleanup to ensure :empty works even after dynamic insertions
-        cleanupInterTagWhitespace(template); // @ts-ignore
-        if (fragment instanceof DocumentFragment) {
-            return (Array.from(fragment?.childNodes)?.length > 1 ? fragment : fragment?.childNodes?.[0]);
-        } else // @ts-ignore
-            if (fragment?.childNodes?.length > 1) { // @ts-ignore
-                const frag = fragment instanceof DocumentFragment ? fragment : document.createDocumentFragment(); // @ts-ignore
-                if (frag != fragment) { frag?.append?.(...Array.from(fragment.childNodes).filter((e: any) => (e != null)) as any); }
-                return frag;
-            }
 
-        // @ts-ignore
-        return (fragment?.childNodes?.[0] ?? fragment);
+        //
+        const frag = document.createDocumentFragment();
+        frag?.append?.(...Array.from(sources.childNodes).filter((e: any) => (e != null)) as any);
+
+        // Final whitespace cleanup to ensure :empty works even after dynamic insertions
+        cleanupInterTagWhitespace(frag); // @ts-ignore
+        return Array.from(frag?.childNodes)?.length > 1 ? frag : frag?.childNodes?.[0];
     };
 }
 
