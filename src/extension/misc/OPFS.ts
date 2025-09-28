@@ -308,14 +308,19 @@ export const provide = async (req: string | Request = "", rw = false) => {
         if (rw) { handle?.then?.((h)=>h?.createWritable?.()); }
         return handle?.then?.((h)=>h?.getFile?.());
     } else {
-        return fetch(req).then(async (r) => {
-            const blob = await r.blob();
-            const lastModified = Date.parse(r.headers.get("Last-Modified") || "") || 0;
-            return new File([blob], url.substring(url.lastIndexOf('/') + 1), {
-                type: blob.type,
-                lastModified
-            });
-        });
+        try {
+            if (!req) return null;
+            return fetch(req)?.then?.(async (r) => {
+                const blob = await r?.blob()?.catch?.(console.warn.bind(console));
+                const lastModified = Date.parse(r?.headers?.get?.("Last-Modified") || "") || 0;
+                if (blob) {
+                    return new File([blob], url?.substring(url?.lastIndexOf('/') + 1), {
+                        type: blob?.type,
+                        lastModified
+                    })
+                }
+            })?.catch?.(console.warn.bind(console));
+        } catch (e: any) { console.warn(e); }
     }
     return null;
 }
