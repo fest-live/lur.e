@@ -120,22 +120,49 @@ export async function createHandler(rootHandle, relPath, options = {}, logger = 
 export function openDirectory(rootHandle, relPath, options: {create: boolean} = {create: false}, logger = defaultLogger) {
     relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
 
-    let mapCache = makeReactive(new Map<any, any>());
+    //
+    let mapCache: Map<string, any> = makeReactive(new Map<string, any>()) as Map<string, any>;
     async function updateCache() { // @ts-ignore
         if (!(await dirHandle)) return mapCache;
+
+        //
         const entries = await Promise.all(await Array.fromAsync((await dirHandle)?.entries?.() || []) || []); // @ts-ignore
-        if (mapCache?.size == 0) { entries.forEach((nh: any) => { mapCache.set(nh?.[0], nh?.[1]); }); }
+        if (mapCache?.size == 0) { entries.forEach((nh: [string, any]) => { mapCache?.set?.(nh?.[0], nh?.[1]); }); }
 
         // @ts-ignore
-        const notFoundKeys = Array.from(entries?.map?.((pair)=>pair?.[0])).filter((key) => !mapCache.get(key)); // @ts-ignore
-        notFoundKeys.forEach((nk) => { if (nk) mapCache.set(nk, entries?.find?.(e => e?.[0] == nk)?.[1]); });
+        const newKeys = Array.from(entries?.map?.((pair: [string, any])=>pair?.[0])).filter((key: string) => !mapCache?.has?.(key)); // @ts-ignore
+        newKeys.forEach((nk: string) => {
+            if (nk) mapCache?.set?.(nk, entries?.find?.(e => e?.[0] == nk)?.[1]);
+        });
+
+        // @ts-ignore
+        const removedKeys = Array.from(mapCache?.entries?.())?.map?.((pair: [string, any]) => pair?.[0]).filter((key: string) => !entries?.find?.(e => e?.[0] == key)); // @ts-ignore
+        removedKeys.forEach((nk: string) => {
+            if (nk) mapCache?.delete?.(nk);
+        });
 
         //
         return mapCache;
     }
 
+    //
+    function observeHandle(records) {
+        for (const record of records) {
+            const handle = record.changedHandle;
+            if (record.type == "appeared") {
+                mapCache?.set?.(handle?.name, handle);
+            } else
+            if (record.type == "modified") {
+                mapCache?.set?.(handle?.name, handle);
+            } else
+            if (record.type == "disappeared") {
+                mapCache?.delete?.(handle?.name);
+            }
+        }
+    }
+
     // @ts-ignore
-    const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(updateCache) : null;
+    const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(observeHandle) : null;
     const handler: ProxyHandler<any> = {
         get(target, prop, receiver) { // @ts-ignore
             const withUpdate = Promised(dirHandle?.then?.(()=>updateCache())); // @ts-ignore
