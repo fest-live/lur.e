@@ -47,7 +47,7 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
     if (typeof dataset == "object" || typeof dataset == "function") {
         const usub = subscribe(dataset, (value, prop: any)=>{
             handleDataset(wel?.deref?.(), prop, value);
-            bindHandler(wel, value, prop, handleDataset, weak);
+            bindHandler(wel?.deref?.(), value, prop, handleDataset, weak);
         });
         addToCallChain(dataset, Symbol.dispose, usub);
         addToCallChain(element, Symbol.dispose, usub);
@@ -64,7 +64,7 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
         const weak = new WeakRef(styles), wel = new WeakRef(element);
         const usub = subscribe(styles, (value, prop: any)=>{
             handleStyleChange(wel?.deref?.(), prop, value);
-            bindHandler(wel, value, prop, handleStyleChange, weak);
+            bindHandler(wel?.deref?.(), value, prop, handleStyleChange, weak?.deref?.());
         });
 
         //

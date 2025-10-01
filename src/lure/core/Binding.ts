@@ -12,12 +12,17 @@ export const $virtual = Symbol.for("@virtual");
 export const $behavior = Symbol.for("@behavior");
 
 //
+const hasValue = (v: any) => {
+    return (typeof v == "object" && (v?.value != null || (v != null && ("value" in v))));
+}
+
+//
 export const bindBeh = (element, store, behavior) => {
-    const weak = element instanceof WeakRef ? element : new WeakRef(element), [name, obj] = store;
+    const weak = toRef(element), [name, obj] = store;
     if (behavior) {
         const usub = subscribe?.(store, (value, prop, old) => {
             const valMap = namedStoreMaps.get(name);
-            behavior?.([value, prop, old], [weak, store, valMap?.get(weak.deref?.())]);
+            behavior?.([value, prop, old], [weak, store, valMap?.get(deref(weak))]);
         });
         addToCallChain(store, Symbol.dispose, usub);
     }; return element;
@@ -36,39 +41,42 @@ export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl
 //
 export const $fxy = Symbol.for("@fix"), fixFx = (obj) => { if (typeof obj == "function" || obj == null) return obj; const fx = function(){}; fx[$fxy] = obj; return fx; }
 export const $set = (rv, key, val) => {
-    rv = (rv instanceof WeakRef || typeof rv?.deref == "function") ? rv?.deref?.() : rv;
-    if (rv != null && (typeof rv == "object" || typeof rv == "function")) {
-        return (rv[key] = val?.value ?? val);
+    if ((rv = deref(rv)) != null && (typeof rv == "object" || typeof rv == "function")) {
+        return (rv[key] = hasValue(val = deref(val)) ? val?.value : val);
     };
 }
 
 //
 export const $observeInput = (element, ref?: any|null, prop = "value") => {
-    const wel = element != null ? (element instanceof WeakRef ? element : ((typeof element == "object" || typeof element == "function") ? new WeakRef(element) : element)) : null;
-    const rf = ref != null ? (ref instanceof WeakRef ? ref : ((typeof ref == "object" || typeof ref == "function") ? new WeakRef(ref) : ref)) : null;
+    const wel = toRef(element);
+    const rf = toRef(ref);
     const ctrlCb = (ev)=>{
-        const input = wel?.deref?.();
-        if (input) { $set(rf, "value", input?.[prop ?? "value"] ?? rf?.deref?.()?.value); }
+        $set(rf, "value", deref(wel)?.[prop ?? "value"] ?? hasValue(deref(rf)) ? deref(rf)?.value : deref(rf));
     }
+
+    //
     const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb };
     ctrlCb?.({ target: element }); handleListeners?.(element, "addEventListener", hdl);
 
     //
-    const inputEl = wel?.deref?.();
-    if (!rf?.deref?.()?.value) { $set(rf, "value", inputEl?.[prop ?? "value"] ?? rf?.deref?.()?.value); }
+    $set(rf, "value", element?.[prop ?? "value"] ?? (hasValue(deref(ref)) ? deref(ref)?.value : deref(ref)));
     return () => handleListeners?.(element, "removeEventListener", hdl);
 }
 
 //
 export const $observeAttribute = (el: HTMLElement, ref?: any|null, prop: string = "") => {
-    const wel = el != null ? (el instanceof WeakRef ? el : ((typeof el == "object" || typeof el == "function") ? new WeakRef(el) : el)) : null; //el?.getAttribute?.(prop)
-    const wv = ref != null ? (ref instanceof WeakRef ? ref : ((typeof ref == "object" || typeof ref == "function") ? new WeakRef(ref) : ref)) : null; //el?.getAttribute?.(prop)
+    const wel = toRef(el); //el?.getAttribute?.(prop)
+    const wv = toRef(ref); //el?.getAttribute?.(prop)
     const cb = (mutation)=>{
+
+        //
         if (mutation.type == "attributes" && mutation.attributeName == attrName) {
             const value = mutation?.target?.getAttribute?.(mutation.attributeName);
-            const val = wv?.deref?.(), reVal = val?.value;
+            const val = deref(wv), reVal = hasValue(val) ? val?.value : val;
+
+            //
             if (isNotEqual(mutation.oldValue, value) && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
-            { if (isNotEqual(reVal, value) || reVal == null) { $set(val, "value", value ?? reVal); } }
+            { if (isNotEqual(reVal, value) || reVal == null) { $set(val, "value", hasValue(reVal) ? reVal?.value : reVal); } }
         }
     }
 
@@ -95,23 +103,35 @@ export const hasInBank = (el, handle)=>{
 }
 
 //
+const toRef = (el?: any | null) => {
+    return el != null ? (el instanceof WeakRef || typeof el?.deref == "function") ? el : ((typeof el == "object" || typeof el == "function") ? new WeakRef(el) : el) : null;
+}
+
+//
+const deref = (target?: any | null) => {
+    return target != null ? ((target instanceof WeakRef || typeof target?.deref == "function") ? target?.deref?.() : target) : null;
+};
+
+//
 export const bindHandler = (element: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean | Function) => {
-    if (!element || value == null || ((typeof value == "object" || typeof value == "function") ? !("value" in value || value?.value != null) : false) || value instanceof CSSStyleValue) return; // don't add any already bound property/attribute
-    const wv = (value instanceof WeakRef) ? value : ((typeof value == "object" || typeof value == "function") ? new WeakRef(value) : value);
-    const wel = element != null ? (element instanceof WeakRef ? element : ((typeof element == "object" || typeof element == "function") ? new WeakRef(element) : element)) : null;
-    element = wel?.deref?.() ?? element;
+    const wel = toRef(element); element = deref(wel);
+    if (!element) return;
 
     //
     let controller: AbortController | null = null; // @ts-ignore
     controller?.abort?.(); controller = new AbortController();
 
     //
+    const wv = toRef(value);
     const un = subscribe?.([value, "value"], (curr, _, old) => {
-        if (set?.deref?.()?.[prop] == wv?.deref?.() || !set?.deref?.()) {
-            if (typeof wv?.deref?.()?.[$behavior] == "function") {
-                wv?.deref?.()?.[$behavior]?.((val = curr) => handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? val), [curr, prop, old], [controller?.signal, prop, wel]);
+        if (!deref(set) || deref(set)?.[prop] == deref(wv)) {
+            const val = deref(wv);
+
+            //
+            if (typeof val?.[$behavior] == "function") {
+                val?.[$behavior]?.((val = curr) => handler(deref(wel), prop, hasValue(val) ? val?.value : val), [curr, prop, old], [controller?.signal, prop, wel]);
             } else {
-                handler(wel?.deref?.(), prop, wv?.deref?.()?.value ?? curr);
+                handler(deref(wel), prop, hasValue(val) ? val?.value : val);
             }
         }
     });
@@ -189,7 +209,7 @@ export const bindForms  = (fields = document.documentElement, wrapper = ".u2-inp
     //
     const wst = new WeakRef(state);
     const onChange = (ev)=>{
-        const state  = wst?.deref?.(); if (!state) return;
+        const state = deref(wst); if (!state) return;
         const input  = (ev?.target?.matches?.("input") ? ev?.target : ev?.target?.querySelector?.("input"));
         const target = (ev?.target?.matches?.(wrapper) ? ev?.target : input?.closest?.(wrapper)) ?? input;
         const name   = input?.name || target?.name || target?.dataset?.name;
@@ -225,7 +245,7 @@ export const bindForms  = (fields = document.documentElement, wrapper = ".u2-inp
     //
     const wf = new WeakRef(fields);
     addToCallChain(state, Symbol.dispose, () => {
-        const fields = wf?.deref?.();
+        const fields = deref(wf);
         fields?.removeEventListener?.("input", onChange);
         fields?.removeEventListener?.("change", onChange);
         fields?.removeEventListener?.("u2-appear", appearHandler);
