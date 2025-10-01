@@ -5,6 +5,16 @@ import { bindCtrl, bindWith } from "./Binding";
 import { setChecked } from "fest/dom";
 
 //
+const isValueRef = (exists) => {
+    return (typeof exists == "object" || typeof exists == "function") && (exists?.value != null || (exists != null && "value" in exists))
+}
+
+//
+const isObject = (exists) => {
+    return exists != null && (typeof exists == "object" || typeof exists == "function");
+}
+
+//
 export const localStorageLinkMap = new Map<string, any>();
 export const localStorageLink = (existsStorage?: any|null, exists?: any|null, key?: string, initial?: any|null) => {
     if (key == null) return;
@@ -17,7 +27,7 @@ export const localStorageLink = (existsStorage?: any|null, exists?: any|null, ke
     // @ts-ignore // assign new local storage link for key
     return localStorageLinkMap.getOrInsertComputed?.(key, ()=>{
         const def  = (existsStorage ?? localStorage).getItem(key) ?? (initial?.value ?? initial);
-        const ref = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : stringRef(def); /*if (typeof ref == "object" || typeof ref == "function")*/ ref.value ??= def;
+        const ref = isValueRef(exists) ? exists : stringRef(def); /*if (typeof ref == "object" || typeof ref == "function")*/ ref.value ??= def;
         const unsb = subscribe([ref, "value"], (val) => (existsStorage ?? localStorage).setItem(key, val));
         const list = (ev) => { if (ev.storageArea == (existsStorage ?? localStorage) && ev.key == key) {
             if (isNotEqual(ref.value, ev.newValue)) { ref.value = ev.newValue; };
@@ -31,7 +41,7 @@ export const localStorageLink = (existsStorage?: any|null, exists?: any|null, ke
 export const matchMediaLink = (existsMedia?: any|null, exists?: any|null, condition?: string) => {
     if (condition == null) return;
     const med = existsMedia ?? matchMedia(condition), def = med?.matches || false;
-    const ref = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : booleanRef(def); ref.value ??= def;
+    const ref = isValueRef(exists) ? exists : booleanRef(def); ref.value ??= def;
     const evf = (ev) => (ref.value = ev.matches); med?.addEventListener?.("change", evf);
     return () => { med?.removeEventListener?.("change", evf); };
 }
@@ -40,7 +50,7 @@ export const matchMediaLink = (existsMedia?: any|null, exists?: any|null, condit
 export const visibleLink = (element?: any|null, exists?: any|null, initial?: any|null) => {
     if (element == null) return;
     const def = (initial?.value ?? (typeof initial != "object" ? initial : null)) ?? (element?.getAttribute?.("data-hidden") == null);
-    const val = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : booleanRef(!!def);
+    const val = isValueRef(exists) ? exists : booleanRef(!!def);
     const usb = bindWith(element, "data-hidden", val, handleHidden);
     const evf = [(ev) => { val.value = ev?.type == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
     element?.addEventListener?.("u2-hidden" , ...evf);
@@ -55,15 +65,15 @@ export const visibleLink = (element?: any|null, exists?: any|null, initial?: any
 //
 export const attrLink = (element?: any|null, exists?: any|null, attribute?: string, initial?: any|null) => {
     const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) == true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
-    if (!element) return; const val = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : stringRef(def); if (val != null && (typeof val == "object" || typeof val == "function")) val.value ||= def; return bindWith(element, attribute, val, handleAttribute, null, true);
+    if (!element) return; const val = isValueRef(exists) ? exists : stringRef(def); if (isObject(val)) val.value ||= def; return bindWith(element, attribute, val, handleAttribute, null, true);
 }
 
 //
 export const sizeLink = (element?: any|null, exists?: any|null, axis?: "inline" | "block", box?: ResizeObserverBoxOptions) => {
     const def = box == "border-box" ? element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"] : (element?.[axis == "inline" ? "clientWidth" : "clientHeight"] - getPadding(element, axis));
-    const val = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : numberRef(def); if (val != null && (typeof val == "object" || typeof val == "function")) val.value ||= (def ?? val.value) || 1;
+    const val = isValueRef(exists) ? exists : numberRef(def); if (isObject(val)) val.value ||= (def ?? val.value) || 1;
     const obs = new ResizeObserver((entries) => {
-        if (val != null && (typeof val == "object" || typeof val == "function")) {
+        if (isObject(val)) {
             if (box == "border-box") { val.value = axis == "inline" ? entries[0].borderBoxSize[0].inlineSize : entries[0].borderBoxSize[0].blockSize };
             if (box == "content-box") { val.value = axis == "inline" ? entries[0].contentBoxSize[0].inlineSize : entries[0].contentBoxSize[0].blockSize };
             if (box == "device-pixel-content-box") { val.value = axis == "inline" ? entries[0].devicePixelContentBoxSize[0].inlineSize : entries[0].devicePixelContentBoxSize[0].blockSize };
@@ -78,7 +88,7 @@ export const scrollLink = (element?: any|null, exists?: any|null, axis?: "inline
     const wel = element instanceof WeakRef ? element : new WeakRef(element);
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (initial?.value ?? initial) }); };
     const def = element?.[axis == "block" ? "scrollTop" : "scrollLeft"];
-    const val = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : numberRef(def || 0); if (val != null && (typeof val == "object" || typeof val == "function")) val.value ||= (def ?? val.value) || 1; val.value ||= (def ?? val.value) || 0;
+    const val = isValueRef(exists) ? exists : numberRef(def || 0); if (isObject(val)) val.value ||= (def ?? val.value) || 1; val.value ||= (def ?? val.value) || 0;
     const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "block" ? element?.scrollTop : element?.scrollLeft) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (val?.value ?? val) })});
     const scb = [(ev) => { val.value = (axis == "block" ? wel?.deref?.()?.scrollTop : wel?.deref?.()?.scrollLeft) || 0; }, { passive: true }];
     element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };
@@ -87,7 +97,7 @@ export const scrollLink = (element?: any|null, exists?: any|null, axis?: "inline
 //
 export const checkedLink = (element?: any|null, exists?: any|null) => {
     const def = (!!element?.checked) || false;
-    const val = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : booleanRef(def); if (val != null && (typeof val == "object" || typeof val == "function")) val.value ??= def;
+    const val = isValueRef(exists) ? exists : booleanRef(def); if (isObject(val)) val.value ??= def;
     const dbf = bindCtrl(element, checkboxCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
         if (element && element?.checked != v) {
@@ -100,7 +110,7 @@ export const checkedLink = (element?: any|null, exists?: any|null) => {
 //
 export const valueLink = (element?: any|null, exists?: any|null) => {
     const def = element?.value ?? "";
-    const val = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : stringRef(def); if (val != null && (typeof val == "object" || typeof val == "function")) val.value ??= def;
+    const val = isValueRef(exists) ? exists : stringRef(def); if (isObject(val)) val.value ??= def;
     const dbf = bindCtrl(element, valueCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
         if (element && isNotEqual(element?.value, (v?.value ?? v))) {
@@ -114,7 +124,7 @@ export const valueLink = (element?: any|null, exists?: any|null) => {
 //
 export const valueAsNumberLink = (element?: any|null, exists?: any|null) => {
     const def = Number(element?.valueAsNumber) || 0;
-    const val = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : numberRef(def); if (val != null && (typeof val == "object" || typeof val == "function")) val.value ??= def;
+    const val = isValueRef(exists) ? exists : numberRef(def); if (isObject(val)) val.value ??= def;
     const dbf = bindCtrl(element, numberCtrl(val));
     const usb = subscribe([val, "value"], (v) => {
         if (element && (element.type == "range" || element.type == "number") && typeof element?.valueAsNumber == "number" && isNotEqual(element?.valueAsNumber, v)) {
@@ -127,7 +137,7 @@ export const valueAsNumberLink = (element?: any|null, exists?: any|null) => {
 
 //
 export const observeSizeLink = (element?: any|null, exists?: any|null, box?: any|null, styles?: any|null) => {
-    if (!styles) styles = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : makeReactive({}); let obs: any = null;
+    if (!styles) styles = isValueRef(exists) ? exists : makeReactive({}); let obs: any = null;
     (obs = new ResizeObserver((mut) => {
         if (box == "border-box") {
             styles.inlineSize = `${mut[0].borderBoxSize[0].inlineSize}px`;
@@ -156,7 +166,7 @@ export const refCtl = (value?: any|null) => {
 export const orientLink = (host?: any|null, exists?: any|null)=>{
     const orient = orientationNumberMap?.[getCorrectOrientation()] || 0;
     const def = Number(orient) || 0;
-    const val = ((typeof exists == "object" || typeof exists == "function") && ("value" in exists || exists?.value != null)) ? exists : numberRef(def); if (val != null && (typeof val == "object" || typeof val == "function")) val.value ??= def;
+    const val = isValueRef(exists) ? exists : numberRef(def); if (isObject(val)) val.value ??= def;
 
     // !Change orientation? You are seious?!
     //subscribe([exists, "value"], (orient)=>{ // pickup name...

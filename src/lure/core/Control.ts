@@ -2,24 +2,18 @@ import { isNotEqual } from "fest/object";
 import { Q } from "../node/Queried";
 
 //
-const isRef = (ref)=>{ return ref instanceof WeakRef || typeof ref?.deref == "function"; }
-const unref = (ref)=>{ return isRef(ref) ? ref?.deref?.() : ref; }
+const isRef = (ref) => { return ref instanceof WeakRef || typeof ref?.deref == "function"; }
+const unref = (ref) => { return isRef(ref) ? ref?.deref?.() : ref; }
+const toRef = (ref) => { return ref != null ? (isRef(ref) ? ref : ((typeof ref == "function" || typeof ref == "object") ? new WeakRef(ref) : ref)) : ref; }
 
 //
-const wref = (ref)=>{ return ref != null ? (isRef(ref) ? ref : ((typeof ref == "function" || typeof ref == "object") ? new WeakRef(ref) : ref)) : ref; }
-
-//
-export const checkboxCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref != null) { $ref.value = Q(`input[type="radio"], input[type="checkbox"], input:checked`, ev?.target)?.checked ?? $ref?.value; } } }
-
-//
-export const numberCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref != null && isNotEqual($ref?.value, ev?.target?.valueAsNumber)) { $ref.value = Number(Q("input", ev?.target)?.valueAsNumber || 0) ?? 0; } } }
-
-//
-export const valueCtrl = (ref) => { ref = wref(ref); return (ev) => { const $ref = unref(ref); if ($ref != null && isNotEqual(ev?.target?.value, $ref?.value)) { $ref.value = (Q("input", ev?.target)?.value ?? $ref?.value) || ""; } } }
+export const checkboxCtrl = (ref) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null) { $ref.value = Q(`input[type="radio"], input[type="checkbox"], input:checked`, ev?.target)?.checked ?? $ref?.value; } } }
+export const numberCtrl = (ref) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null && isNotEqual($ref?.value, ev?.target?.valueAsNumber)) { $ref.value = Number(Q("input", ev?.target)?.valueAsNumber || 0) ?? 0; } } }
+export const valueCtrl = (ref) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null && isNotEqual(ev?.target?.value, $ref?.value)) { $ref.value = (Q("input", ev?.target)?.value ?? $ref?.value) || ""; } } }
 
 //
 export const radioCtrl = (ref, name) => {
-    ref = wref(ref);
+    ref = toRef(ref);
     return (ev) => {
         let $ref = unref(ref);
         const selector = `input[name="${name}"]:checked`;
@@ -29,7 +23,7 @@ export const radioCtrl = (ref, name) => {
 
 //
 export const OOBTrigger = (element, ref, selector?) => {
-    ref = wref(ref);
+    ref = toRef(ref);
     const ROOT = document.documentElement;
     const checker = (ev) => {
         let $ref = unref(ref);
