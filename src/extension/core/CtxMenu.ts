@@ -104,7 +104,7 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
 export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenuDesc, menuElement: HTMLElement = Q("ui-modal[type=\"contextmenu\"]", document.body))=>{
     const evHandler = makeMenuHandler(triggerElement, (ev)=>[ev?.clientX, ev?.clientY, 200], ctxMenuDesc, menuElement);
     const untrigger = makeInterruptTrigger?.(menuElement, (ev: MouseEvent)=>{ // @ts-ignore
-        if (!(menuElement?.contains?.(ev?.target) || ev?.target == (triggerElement?.element ?? triggerElement)) || !ev?.target) {
+        if (!(menuElement?.contains?.(ev?.target) || ev?.target == (menuElement?.element ?? menuElement)) || !ev?.target) {
             ctxMenuDesc?.openedWith?.close?.();
             const visibleRef = getBoundVisibleRef(menuElement);
             if (visibleRef != null) visibleRef.value = false;
