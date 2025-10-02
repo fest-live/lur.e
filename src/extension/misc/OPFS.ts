@@ -255,21 +255,24 @@ export async function getFileWriter(rootHandle, relPath, options = { create: tru
 
 
 //
-export async function removeFile(rootHandle, relPath, options: any = {}, logger = defaultLogger) {
+export async function removeFile(rootHandle, relPath, options: any = { recursive: true }, logger = defaultLogger) {
     rootHandle ??= await navigator?.storage?.getDirectory?.();
     relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
 
     //
+    const parts = relPath?.split?.('/')?.filter?.((d)=>!!d?.trim?.());
+    const fileName = parts?.pop?.();
+
+    //
     try {
-        const parts = relPath?.split?.('/')?.filter?.((d)=>!!d?.trim?.());
-        const fileName = parts?.pop?.();
-        const dir = await getDirectoryHandle(rootHandle, parts?.join?.('/')?.trim?.()?.replace?.(/\/$/, ''), {  }, logger);
-        return dir?.removeEntry?.(fileName, { recursive: false })?.catch?.(console.warn.bind(console));
+        const dir = await getDirectoryHandle(rootHandle, parts?.join?.('/')?.trim?.()?.replace?.(/\/$/, ''), {}, logger);
+        const entry = await dir?.getFileHandle?.(fileName, { create: false });
+        return entry ? dir?.removeEntry?.(fileName, { recursive: options?.recursive })?.catch?.(console.warn.bind(console)) : null;
     } catch (e: any) { return handleError(logger, 'error', `removeFile: ${e.message}`); }
 }
 
 //
-export async function removeDirectory(rootHandle, relPath, options: any = {}, logger = defaultLogger) {
+export async function removeDirectory(rootHandle, relPath, options: any = { recursive: true }, logger = defaultLogger) {
     rootHandle ??= await navigator?.storage?.getDirectory?.();
     relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
 
@@ -287,9 +290,10 @@ export async function removeDirectory(rootHandle, relPath, options: any = {}, lo
         }
     }
 
+    //
     try {
-        const entry = await dir?.getFileHandle?.(entryName, { create: false });
-        return entry ? dir?.removeEntry?.(entryName, { recursive: true })?.catch?.(console.warn.bind(console)) : null;
+        const entry = await dir?.getDirectoryHandle?.(entryName, { create: false });
+        return (entry ? dir?.removeEntry?.(entryName, { recursive: options?.recursive ?? true })?.catch?.(console.warn.bind(console)) : null);
     } catch (e: any) { return handleError(logger, 'error', `removeDirectory: ${e.message}`); }
 }
 
@@ -297,7 +301,10 @@ export async function removeDirectory(rootHandle, relPath, options: any = {}, lo
 export async function remove(rootHandle, relPath, options = {}, logger = defaultLogger) {
     rootHandle ??= await navigator?.storage?.getDirectory?.();
     relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
-    return Promise.any([removeFile(rootHandle, relPath, options, logger)?.catch?.(console.warn.bind(console)), removeDirectory(rootHandle, relPath, options, logger)?.catch?.(console.warn.bind(console))]);
+    return Promise.any([
+        removeFile(rootHandle, relPath, options, logger)?.catch?.(console.warn.bind(console)),
+        removeDirectory(rootHandle, relPath, options, logger)?.catch?.(console.warn.bind(console))
+    ]);
 }
 
 
