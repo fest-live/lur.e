@@ -21,6 +21,7 @@ export interface CtxMenuDesc {
     items?: MenuItem[][];
     defaultAction?: (initiator: HTMLElement, item: MenuItem, ev: MouseEvent)=>void;
     openedWith?: {
+        event: MouseEvent;
         initiator: HTMLElement;
         element: HTMLElement;
         close: ()=>void;
@@ -31,7 +32,7 @@ export interface CtxMenuDesc {
 export const itemClickHandle = (ev: MouseEvent, ctxMenuDesc: CtxMenuDesc)=>{
     const id = Q(`[data-id]`, ev?.target as HTMLElement, 0, "parent")?.getAttribute?.("data-id");
     const item: MenuItem|undefined = ctxMenuDesc?.items?.find?.((I?: MenuItem[])=>I?.some?.((I: MenuItem)=>I?.id == id))?.find?.((I: MenuItem)=>I?.id == id);
-    (item?.action ?? ctxMenuDesc?.defaultAction)?.(ctxMenuDesc?.openedWith?.initiator as HTMLElement, item as MenuItem, ev);
+    (item?.action ?? ctxMenuDesc?.defaultAction)?.(ctxMenuDesc?.openedWith?.initiator as HTMLElement, item as MenuItem, ctxMenuDesc?.openedWith?.event ?? ev);
     ctxMenuDesc?.openedWith?.close?.();
 
     //
@@ -51,7 +52,9 @@ const getBoundVisibleRef = (menuElement: HTMLElement): RefBool|null => {
 //
 export const bindMenuItemClickHandler = (menuElement: HTMLElement, menuDesc: CtxMenuDesc)=>{
     const handler = (ev: MouseEvent)=>{ itemClickHandle(ev, menuDesc); };
-    const listening = addEvent(menuElement, "click", handler);
+    const listening = addEvent(menuElement, "click", handler, {
+        composed: true,
+    });
     return ()=>listening?.();
 }
 
@@ -59,7 +62,8 @@ export const bindMenuItemClickHandler = (menuElement: HTMLElement, menuDesc: Ctx
 export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctxMenuDesc: CtxMenuDesc, menuElement: HTMLElement = Q("ui-modal[type=\"contextmenu\"]", document.body))=>{
     return (ev: MouseEvent)=>{ // @ts-ignore
         if (menuElement?.contains?.(ev?.target) || ev?.target == (menuElement?.element ?? menuElement)) {
-            ev?.preventDefault?.(); return;
+            ev?.preventDefault?.();
+            return;
         }
 
         //
@@ -73,6 +77,7 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
         } else
         if (initiator && visibleRef) {
             ev?.preventDefault?.();
+            ev?.stopImmediatePropagation?.();
 
             // TODO: use reactive mapped ctx-menu element
             menuElement.innerHTML = ''; if (visibleRef != null) visibleRef.value = true;
@@ -90,6 +95,7 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
             if (ctxMenuDesc) ctxMenuDesc.openedWith = {
                 initiator: initiator as HTMLElement,
                 element: menuElement,
+                event: ev,
                 close() {
                     if (visibleRef != null) visibleRef.value = false;
                     ctxMenuDesc.openedWith = null;
@@ -112,7 +118,9 @@ export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenu
     }, [ "click", "pointerdown", "scroll" ]);
 
     //
-    const listening = addEvent(triggerElement, "contextmenu", evHandler);
+    const listening = addEvent(triggerElement, "contextmenu", evHandler, {
+        composed: true,
+    });
     return ()=>{ untrigger?.(); listening?.(); };
 }
 
@@ -129,6 +137,8 @@ export const dropMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMen
     }, [ "click", "pointerdown", "scroll" ]);
 
     //
-    const listening = addEvent(triggerElement, "click", evHandler);
+    const listening = addEvent(triggerElement, "click", evHandler, {
+        composed: true,
+    });
     return ()=>{ untrigger?.(); listening?.(); };
 }
