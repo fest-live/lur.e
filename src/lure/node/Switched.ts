@@ -1,6 +1,5 @@
 import { addToCallChain, subscribe, isNotEqual } from "fest/object";
 import getNode, { appendFix } from "../context/Utils";
-import { $mapped } from "../core/Binding";
 
 //
 const inProx = new WeakMap(), contextify = (pc: any, name: any) =>
@@ -15,8 +14,8 @@ export interface SwitchedParams {
 //
 const $getFromMapped = (mapped: any, value: number|string|null|undefined) => {
     if ((typeof value == "number" && value < 0) || (typeof value == "string" && !value) || value == null) return { element: "" };
-    if (mapped instanceof Map) { return mapped.get(value); }
-    if (mapped instanceof Set) { return mapped.has(value) ? value : null; }
+    if (mapped instanceof Map || typeof mapped?.get == "function") { return mapped.get(value); }
+    if (mapped instanceof Set || typeof mapped?.has == "function") { return mapped.has(value) ? value : null; }
     return mapped?.[value] ?? { element: "" };
 }
 

@@ -142,7 +142,12 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
         });
 
         //
-        return mapCache;
+        return {
+            getHandler: (name) => mapCache?.get?.(name),
+            getMap: () => mapCache,
+            refresh: () => pxy,
+            dirHandle: () => pxy,
+        };
     }
 
     //
@@ -165,14 +170,16 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
     const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(observeHandle) : null;
     const handler: ProxyHandler<any> = {
         get(target, prop, receiver) { // @ts-ignore
-            const withUpdate = Promised(dirHandle?.then?.(()=>updateCache())); // @ts-ignore
+            const withUpdate = Promised(dirHandle?.then?.(() => updateCache())); // @ts-ignore
             if (prop == 'getHandler') { return (name)=>withUpdate?.then?.(() => (name ? (mapCache as any)?.get?.(name) : dirHandle)); }
-            if (prop == 'getMap')     { return ()=>withUpdate?.then?.(() => dirHandle); }
-            if (prop == 'refresh')    { return ()=>withUpdate?.then?.(() => pxy); }
-            if (prop == 'dirHandle')  { return ()=>withUpdate?.then?.(() => pxy); } //@ts-ignore
+            if (prop == 'getMap') { return () => { withUpdate?.then?.(() => dirHandle); return mapCache; }; }
+            if (prop == 'refresh') { return () => withUpdate?.then?.(() => pxy); }
+            if (prop == 'dirHandle') { return () => withUpdate?.then?.(() => pxy); } //@ts-ignore
 
             //
-            if (["then", "catch", "finally"].includes(prop as string)) { return (typeof withUpdate?.[prop] == "function" ? withUpdate?.[prop]?.bind?.(withUpdate) : withUpdate?.[prop]); }
+            if (["then", "catch", "finally"].includes(prop as string)) {
+                return (typeof withUpdate?.[prop] == "function" ? withUpdate?.[prop]?.bind?.(withUpdate) : withUpdate?.[prop]);
+            }
 
             // @ts-ignore
             const complex = Promised(Promise.try?.(async ()=>{
@@ -195,7 +202,12 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
         if (handle = (await handle)) { obs?.observe?.(handle); };
         return handle;
     })?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
-    updateCache(); const fx: any = function(){}, pxy = new Proxy(fx, handler); return pxy;
+
+    //
+    updateCache();
+
+    //
+    const fx: any = function(){}, pxy = new Proxy(fx, handler); return pxy;
 }
 
 
