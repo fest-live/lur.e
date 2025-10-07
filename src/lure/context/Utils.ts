@@ -37,9 +37,10 @@ export const $getNode = (el, mapper?: Function | null, index?: number) => {
     if (isElement(el)) { return el; } else
     if (isElement(el?.element ?? el?.value)) { return isElementValue(el); } else
     if (typeof el?.value == "string" || typeof el?.value == "number") { return T(el); } else
-    if (typeof el == "function") { return getNode(el()); } else  // mapped arrays always empties after
     if (typeof el == "string" || typeof el == "number") { return document.createTextNode(String(el)); } else
-    if (typeof el == "object" && el != null) { return el?.element ?? elMap.get(el); }; return el;
+    if (typeof el == "object" && el != null) { return el?.element ?? elMap.get(el); } else
+    if (typeof el == "function") { return getNode(el?.()); }  // mapped arrays always empties after
+    return el;
 };
 
 // (obj instanceof WeakRef ? obj?.deref?.() : obj)

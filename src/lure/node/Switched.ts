@@ -13,11 +13,16 @@ export interface SwitchedParams {
 }
 
 //
-const getFromMapped = (mapped: any, value: number|string|null|undefined) => {
+const $getFromMapped = (mapped: any, value: number|string|null|undefined) => {
     if ((typeof value == "number" && value < 0) || (typeof value == "string" && !value) || value == null) return { element: "" };
     if (mapped instanceof Map) { return mapped.get(value); }
     if (mapped instanceof Set) { return mapped.has(value) ? value : null; }
     return mapped?.[value] ?? { element: "" };
+}
+
+//
+const getFromMapped = (mapped: any, value: number|string|null|undefined) => {
+    return getNode($getFromMapped(mapped, value));
 }
 
 //
@@ -56,7 +61,7 @@ export class SwM implements SwitchedParams {
             // Update DOM nodes accordingly
             if (parent && newNode) {
                 if (oldNode)
-                { try { oldNode?.replaceWith?.(newNode); } catch (e) { console.warn(e); } } else { appendFix(parent, getNode(newNode)); }
+                { try { oldNode?.replaceWith?.(newNode); } catch (e) { console.warn(e); } } else { appendFix(parent, newNode); }
             } else if (oldNode && !newNode) { oldNode?.remove?.(); }
         }
     }
