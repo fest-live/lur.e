@@ -154,14 +154,14 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
     function observeHandle(records) {
         for (const record of records) {
             const handle = record.changedHandle;
-            if (record.type == "appeared") {
+            if (record.type == "created" || record.type == "appeared") {
                 mapCache?.set?.(handle?.name, handle);
             } else
             if (record.type == "modified") {
                 mapCache?.set?.(handle?.name, handle);
             } else
-            if (record.type == "disappeared") {
-                mapCache?.delete?.(handle?.name);
+            if (record.type == "deleted" || record.type == "disappeared") {
+                mapCache?.delete?.(handle?.name || record.relativePathComponents?.at?.(-1));
             }
         }
     }
