@@ -42,7 +42,7 @@ class Mp {
     //
     get mapper() {
         return (...args) => {
-            if (typeof args?.[0] == "object" || typeof args?.[0] == "function") {
+            if (args?.[0] != null && (typeof args?.[0] == "object" || typeof args?.[0] == "function")) {
                 // @ts-ignore
                 return this.#reMap.getOrInsert(args?.[0], this.#mapCb(...args));
             }

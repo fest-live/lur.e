@@ -16,7 +16,7 @@ export const imageImportDesc = {
 
 //
 export function handleError(logger, status, message) { logger?.(status, message); return null; }
-export function defaultLogger(status, message) { console.log(`[${status}] ${message}`); };
+export function defaultLogger(status, message) { console.trace(`[${status}] ${message}`); };
 export function getFileExtension(path) { return path?.trim?.()?.split?.(".")?.[1]; }
 export function detectTypeByRelPath(relPath) { if (relPath?.trim()?.endsWith?.('/')) return 'directory'; return 'file'; }
 export function getMimeTypeByFilename(filename) {
@@ -154,11 +154,18 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
     function observeHandle(records) {
         for (const record of records) {
             const handle = record.changedHandle;
+            if (record.type == "moved") {
+                mapCache?.set?.(handle?.name || record.relativePathComponents?.at?.(-1), handle);
+            } else
+
+            // I don't know how, but needs to check if files newly created, before was written...
             if (record.type == "created" || record.type == "appeared") {
-                mapCache?.set?.(handle?.name, handle);
+                handle?.getFile?.()?.then?.((f)=>{
+                    if (f?.size != 0) { mapCache?.set?.(handle?.name || record.relativePathComponents?.at?.(-1), handle); }
+                })?.catch?.(console.warn.bind(console));
             } else
             if (record.type == "modified") {
-                mapCache?.set?.(handle?.name, handle);
+                mapCache?.set?.(handle?.name || record.relativePathComponents?.at?.(-1), handle);
             } else
             if (record.type == "deleted" || record.type == "disappeared") {
                 mapCache?.delete?.(handle?.name || record.relativePathComponents?.at?.(-1));
