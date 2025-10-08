@@ -14,6 +14,15 @@ export const imageImportDesc = {
     types: [{ description: "wallpaper", accept: { "image/*": [".png", ".gif", ".jpg", ".jpeg", ".webp", ".jxl",] }, }]
 }
 
+
+// "/" default is OPFS root (but may another root), "/user/" is OPFS root by default too, "/assets/" is unknown backend related assets
+export const mappedRoots = new Map([
+    ["/", ()=>navigator?.storage?.getDirectory?.()],
+    ["/user/", ()=>navigator?.storage?.getDirectory?.()],
+    ["/assets/", ()=>console.warn("Backend related API not implemented!")],
+]);
+
+
 //
 export function handleError(logger, status, message) { logger?.(status, message); return null; }
 export function defaultLogger(status, message) { console.trace(`[${status}] ${message}`); };
