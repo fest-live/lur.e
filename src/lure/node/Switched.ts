@@ -28,7 +28,7 @@ const getFromMapped = (mapped: any, value: number|string|null|undefined) => {
 export class SwM implements SwitchedParams {
     current?: { value: string | number; }|null;
     mapped?: any[]|any|Map<any, any>|Set<any>|null;
-    #lastParent?: Node;
+    boundParent: Node | null = null;
 
     //
     constructor(params?: SwitchedParams|null) {
@@ -53,7 +53,7 @@ export class SwM implements SwitchedParams {
             if (this.current) this.current.value = idx ?? -1;
 
             // Find parent and new/old nodes
-            const parent = getFromMapped(this.mapped, old ?? -1)?.parentNode ?? this.#lastParent; this.#lastParent = parent ?? this.#lastParent;
+            const parent = getFromMapped(this.mapped, old ?? -1)?.parentNode ?? this.boundParent; this.boundParent = parent ?? this.boundParent;
             const newNode = getFromMapped(this.mapped, idx ?? -1);
             const oldNode = getFromMapped(this.mapped, old ?? -1);
 
