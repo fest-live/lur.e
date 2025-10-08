@@ -14,101 +14,13 @@ export const imageImportDesc = {
     types: [{ description: "wallpaper", accept: { "image/*": [".png", ".gif", ".jpg", ".jpeg", ".webp", ".jxl",] }, }]
 }
 
+
 // "/" default is OPFS root (but may another root), "/user/" is OPFS root by default too, "/assets/" is unknown backend related assets
-export const mappedRoots = new Map<string, () => Promise<any>>([
-    ["/", async ()=>await navigator?.storage?.getDirectory?.()],
-    ["/user/", async ()=>await navigator?.storage?.getDirectory?.()],
-    ["/assets/", async ()=>{console.warn("Backend related API not implemented!"); return null;}],
+export const mappedRoots = new Map([
+    ["/", ()=>navigator?.storage?.getDirectory?.()],
+    ["/user/", ()=>navigator?.storage?.getDirectory?.()],
+    ["/assets/", ()=>console.warn("Backend related API not implemented!")],
 ]);
-
-// Enhanced root resolution function
-export async function resolveRootHandle(rootHandle: any, relPath: string): Promise<any> {
-    if (typeof rootHandle == "string") {
-        rootHandle = await getDirectoryHandle(null, rootHandle)?.catch?.(console.warn.bind(console));
-    }
-
-    //
-    if (typeof rootHandle == "string") {
-        rootHandle = await mappedRoots?.get?.(`/${rootHandle?.trim?.()?.split?.("/")?.filter?.(p => !!p?.trim?.())?.at?.(0)}/` || rootHandle?.trim?.())?.();
-    }
-
-    // If rootHandle is provided and valid, use it
-    if (rootHandle) {
-        return rootHandle;
-    }
-
-    // Normalize relPath for root matching
-    const normalizedPath = relPath?.trim?.() || "/";
-    const pathForMatch = normalizedPath.startsWith("/") ? normalizedPath : "/" + normalizedPath;
-
-    // Find the best matching root from mappedRoots
-    let bestMatch: (() => Promise<any>) | null = null;
-    let bestMatchLength = 0;
-
-    //
-    for (const [rootPath, rootResolver] of mappedRoots.entries()) {
-        if (pathForMatch.startsWith(rootPath) && rootPath.length > bestMatchLength) {
-            bestMatch = rootResolver;
-            bestMatchLength = rootPath.length;
-        }
-    }
-
-    // Use the best matching root resolver, fallback to OPFS root
-    try {
-        const resolvedRoot = bestMatch ? await bestMatch() : null;
-        return resolvedRoot || await navigator?.storage?.getDirectory?.();
-    } catch (error) {
-        console.warn("Failed to resolve root handle, falling back to OPFS root:", error);
-        return await navigator?.storage?.getDirectory?.();
-    }
-}
-
-// Enhanced path normalization with relative directory support
-export function normalizePath(basePath: string = "", relPath: string): string {
-    if (!relPath?.trim()) return basePath;
-
-    const cleanRelPath = relPath.trim();
-
-    // Handle absolute paths (starting with /)
-    if (cleanRelPath.startsWith("/")) {
-        return cleanRelPath;
-    }
-
-    // Handle relative paths
-    const baseParts = basePath.split("/").filter(p => p?.trim());
-    const relParts = cleanRelPath.split("/").filter(p => p?.trim());
-
-    for (const part of relParts) {
-        if (part === ".") {
-            // Current directory - no change
-            continue;
-        } else if (part === "..") {
-            // Parent directory - go up one level
-            if (baseParts.length > 0) {
-                baseParts.pop();
-            }
-        } else {
-            // Regular directory/file name
-            baseParts.push(part);
-        }
-    }
-
-    return "/" + baseParts.join("/");
-}
-
-// Enhanced path resolution that combines root mapping and relative path handling
-export async function resolvePath(rootHandle: any, relPath: string, basePath: string = ""): Promise<{rootHandle: any, resolvedPath: string}> {
-    // First normalize the relative path
-    const normalizedRelPath = normalizePath(basePath, relPath);
-
-    // Then resolve the root handle
-    const resolvedRootHandle = await resolveRootHandle(rootHandle, normalizedRelPath);
-
-    return {
-        rootHandle: resolvedRootHandle,
-        resolvedPath: normalizedRelPath
-    };
-}
 
 
 //
@@ -154,20 +66,15 @@ const hasFileExtension = (path: string) => {
 }
 
 //
-export async function getDirectoryHandle(rootHandle, relPath, { create = false, basePath = "" } = {}, logger = defaultLogger) {
+export async function getDirectoryHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
     try {
-        // Use enhanced path resolution
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, basePath);
-
-        // Remove /user/ prefix if present for actual directory traversal
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
-
-        const parts = cleanPath.split('/').filter((p)=>(!!p?.trim?.()));
-        if (parts.length > 0 && hasFileExtension(parts[parts.length - 1]?.trim?.())) { parts?.pop?.(); };
+        const parts = relPath.split('/').filter((p)=>(!!p?.trim?.()));
+        if (hasFileExtension(parts?.at?.(-1)?.trim?.())) { parts?.pop?.(); };
 
         //
-        let dir = resolvedRootHandle;
+        let dir = rootHandle;
         if (parts?.length > 0) {
             for (const part of parts) {
                 dir = await dir?.getDirectoryHandle?.(part, { create });
@@ -181,62 +88,47 @@ export async function getDirectoryHandle(rootHandle, relPath, { create = false, 
 }
 
 //
-export async function getFileHandle(rootHandle, relPath, { create = false, basePath = "" } = {}, logger = defaultLogger) {
+export async function getFileHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
     try {
-        // Use enhanced path resolution
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, basePath);
-
-        // Remove /user/ prefix if present for actual file traversal
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
-
-        const parts = cleanPath.split('/').filter((d) => (!!d?.trim?.()));
+        const parts = relPath.split('/').filter((d) => (!!d?.trim?.()));
         if (parts?.length == 0) return null;
 
         //
-        const filePath = parts.length > 0 ? parts[parts.length - 1]?.trim?.()?.replace?.(/\s+/g, '-') : '';
-        const dirName  = parts.length > 1 ? parts?.slice(0, -1)?.join?.('/')?.trim?.()?.replace?.(/\s+/g, '-') : '';
+        const filePath = parts?.at(-1)?.trim?.()?.replace?.(/\s+/g, '-');
+        const dirName  = parts?.slice(0, -1)?.join?.('/')?.trim?.()?.replace?.(/\s+/g, '-');
 
         //
-        if (cleanPath?.trim?.()?.endsWith?.("/")) { return null; };
-        const dir = await getDirectoryHandle(resolvedRootHandle, dirName, { create, basePath }, logger);
+        if (relPath?.trim?.()?.endsWith?.("/")) { return null; };
+        const dir = await getDirectoryHandle(rootHandle, dirName, { create }, logger);
         return dir?.getFileHandle?.(filePath, { create });
     } catch (e: any) { return handleError(logger, 'error', `getFileHandle: ${e.message}`); }
 }
 
 //
-export async function getHandler(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
-    try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const type = detectTypeByRelPath(resolvedPath);
-        if (type == 'directory') {
-            const dir = await getDirectoryHandle(resolvedRootHandle, resolvedPath?.trim?.()?.replace?.(/\/$/, ''), options, logger);
-            if (dir) return { type: 'directory', handle: dir };
-        } else {
-            const file = await getFileHandle(resolvedRootHandle, resolvedPath, options, logger);
-            if (file) return { type: 'file', handle: file };
-        }
-        return null;
-    } catch (e: any) { return handleError(logger, 'error', `getHandler: ${e.message}`); }
+export async function getHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
+    const type = detectTypeByRelPath(relPath);
+    if (type == 'directory') { const dir = getDirectoryHandle(rootHandle, relPath?.trim?.()?.replace?.(/\/$/, ''), options, logger); if (dir) return { type: 'directory', handle: dir }; } else { const file = await getFileHandle(rootHandle, relPath, options, logger); if (file) return { type: 'file', handle: file }; }
+    return null;
 }
 
 //
-export async function createHandler(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
-    try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const type = detectTypeByRelPath(resolvedPath);
-        if (type == 'directory') {
-            return await getDirectoryHandle(resolvedRootHandle, resolvedPath?.trim?.()?.replace?.(/\/$/, ''), options, logger);
-        } else {
-            return await getFileHandle(resolvedRootHandle, resolvedPath, options, logger);
-        }
-    } catch (e: any) { return handleError(logger, 'error', `createHandler: ${e.message}`); }
+export async function createHandler(rootHandle, relPath, options = {}, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
+    const type = detectTypeByRelPath(relPath);
+    if (type == 'directory') { return getDirectoryHandle(rootHandle, relPath?.trim?.()?.replace?.(/\/$/, ''), options, logger); } else { return getFileHandle(rootHandle, relPath, options, logger); }
 }
 
 
 
 //
-export function openDirectory(rootHandle, relPath, options: {create: boolean, basePath?: string} = {create: false}, logger = defaultLogger) {
+export function openDirectory(rootHandle, relPath, options: {create: boolean} = {create: false}, logger = defaultLogger) {
+    relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
+
     //
     let mapCache: Map<string, any> = makeReactive(new Map<string, any>()) as Map<string, any>;
     async function updateCache() { // @ts-ignore
@@ -321,15 +213,7 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
     };
 
     //
-    let dirHandle: any = (async () => {
-        try {
-            const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-            return await getDirectoryHandle(resolvedRootHandle, resolvedPath, options, logger);
-        } catch (e: any) {
-            return handleError(logger, 'error', `openDirectory: ${e.message}`);
-        }
-    })();
-
+    let dirHandle: any = getDirectoryHandle(rootHandle, relPath, options, logger);
     dirHandle = dirHandle?.then?.(async (handle)=>{
         if (handle = (await handle)) { obs?.observe?.(handle); };
         return handle;
@@ -345,52 +229,53 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
 
 
 //
-export async function readFile(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
-    try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        return (await getFileHandle(resolvedRootHandle, resolvedPath, options, logger))?.getFile?.();
-    } catch (e: any) { return handleError(logger, 'error', `readFile: ${e.message}`); }
+export async function readFile(rootHandle, relPath, options = {}, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    try { return (await getFileHandle(rootHandle, relPath, options, logger))?.getFile?.(); } catch (e: any)
+        { return handleError(logger, 'error', `readFile: ${e.message}`); }
 }
 
 //
-export async function readAsObjectURL(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
+export async function readAsObjectURL(rootHandle, relPath, options = {}, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const fileHandle = await getFileHandle(resolvedRootHandle, resolvedPath, options, logger);
+        const fileHandle = await getFileHandle(rootHandle, relPath, {}, logger);
         const file = await fileHandle?.getFile?.();
         return file ? URL.createObjectURL(file) : null;
-    } catch (e: any) { return handleError(logger, 'error', `readAsObjectURL: ${e.message}`); }
+    } catch (e: any)
+        { return handleError(logger, 'error', `readAsObjectURL: ${e.message}`); }
 }
 
 //
-export async function readFileUTF8(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
+export async function readFileUTF8(rootHandle, relPath, options = {}, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const fileHandle = await getFileHandle(resolvedRootHandle, resolvedPath, options, logger);
+        const fileHandle = await getFileHandle(rootHandle, relPath, {}, logger);
         const file = await fileHandle?.getFile?.(), u8b = await file?.arrayBuffer?.();
         return u8b ? new TextEncoder()?.encode?.(u8b) : "";
-    } catch (e: any) { return handleError(logger, 'error', `readFileUTF8: ${e.message}`); }
+    } catch (e: any)
+        { return handleError(logger, 'error', `readAsObjectURL: ${e.message}`); }
 }
 
 
 
 //
 export async function writeFile(rootHandle, relPath, data, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
     try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, "");
-        const fileHandle = await getFileHandle(resolvedRootHandle, resolvedPath, { create: true }, logger);
+        const fileHandle = await getFileHandle(rootHandle, relPath, { create: true }, logger);
         const writable = await fileHandle?.createWritable?.();
         await writable?.write?.(data); await writable?.close?.();
         return true;
-    } catch (e: any) { return handleError(logger, 'error', `writeFile: ${e.message}`); }
+    } catch (e: any)
+        { return handleError(logger, 'error', `writeFile: ${e.message}`); }
 }
 
 //
-export async function getFileWriter(rootHandle, relPath, options: {create?: boolean, basePath?: string} = { create: true }, logger = defaultLogger) {
-    try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        return (await getFileHandle(resolvedRootHandle, resolvedPath, options, logger))?.createWritable?.();
-    } catch (e: any) { return handleError(logger, 'error', `getFileWriter: ${e.message}`); }
+export async function getFileWriter(rootHandle, relPath, options = { create: true }, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    try { return (await getFileHandle(rootHandle, relPath, options, logger))?.createWritable?.(); } catch (e: any)
+        { return handleError(logger, 'error', `getFileWriter: ${e.message}`); }
 }
 
 
@@ -398,58 +283,56 @@ export async function getFileWriter(rootHandle, relPath, options: {create?: bool
 
 
 //
-export async function removeFile(rootHandle, relPath, options: {recursive?: boolean, basePath?: string} = { recursive: true }, logger = defaultLogger) {
+export async function removeFile(rootHandle, relPath, options: any = { recursive: true }, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
+
+    //
+    const parts = relPath?.split?.('/')?.filter?.((d)=>!!d?.trim?.());
+    const fileName = parts?.pop?.();
+
+    //
     try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-
-        // Remove /user/ prefix if present for actual file removal
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
-
-        const parts = cleanPath?.split?.('/')?.filter?.((d)=>!!d?.trim?.());
-        const fileName = parts.length > 0 ? parts.pop() : '';
-
-        const dir = await getDirectoryHandle(resolvedRootHandle, parts?.join?.('/')?.trim?.()?.replace?.(/\/$/, ''), options, logger);
+        const dir = await getDirectoryHandle(rootHandle, parts?.join?.('/')?.trim?.()?.replace?.(/\/$/, ''), {}, logger);
         const entry = await dir?.getFileHandle?.(fileName, { create: false });
         return entry ? dir?.removeEntry?.(fileName, { recursive: options?.recursive })?.catch?.(console.warn.bind(console)) : null;
     } catch (e: any) { return handleError(logger, 'error', `removeFile: ${e.message}`); }
 }
 
 //
-export async function removeDirectory(rootHandle, relPath, options: {recursive?: boolean, basePath?: string} = { recursive: true }, logger = defaultLogger) {
-    try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
+export async function removeDirectory(rootHandle, relPath, options: any = { recursive: true }, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
 
-        // Remove /user/ prefix if present for actual directory removal
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+    //
+    const parts = relPath.split('/').filter((p) => (!!p?.trim?.()));
+    if (hasFileExtension(parts?.at?.(-1)?.trim?.())) { return; };
 
-        const parts = cleanPath.split('/').filter((p) => (!!p?.trim?.()));
-        if (parts.length > 0 && hasFileExtension(parts[parts.length - 1]?.trim?.())) { return; };
-
-        const entryName = parts.length > 0 ? parts.pop() : '';
-        let dir = resolvedRootHandle;
-        if (parts?.length > 0) {
-            for (const part of parts) {
-                dir = await dir?.getDirectoryHandle?.(part);
-                if (!dir) { break; };
-            }
+    //
+    const entryName = parts?.pop?.();
+    let dir = rootHandle;
+    if (parts?.length > 0) {
+        for (const part of parts) {
+            dir = await dir?.getDirectoryHandle?.(part);
+            if (!dir) { break; };
         }
+    }
 
+    //
+    try {
         const entry = await dir?.getDirectoryHandle?.(entryName, { create: false });
         return (entry ? dir?.removeEntry?.(entryName, { recursive: options?.recursive ?? true })?.catch?.(console.warn.bind(console)) : null);
     } catch (e: any) { return handleError(logger, 'error', `removeDirectory: ${e.message}`); }
 }
 
 //
-export async function remove(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
-    try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        return Promise.any([
-            removeFile(resolvedRootHandle, resolvedPath, options, logger)?.catch?.(console.warn.bind(console)),
-            removeDirectory(resolvedRootHandle, resolvedPath, options, logger)?.catch?.(console.warn.bind(console))
-        ]);
-    } catch (e: any) { return handleError(logger, 'error', `remove: ${e.message}`); }
+export async function remove(rootHandle, relPath, options = {}, logger = defaultLogger) {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
+    return Promise.any([
+        removeFile(rootHandle, relPath, options, logger)?.catch?.(console.warn.bind(console)),
+        removeDirectory(rootHandle, relPath, options, logger)?.catch?.(console.warn.bind(console))
+    ]);
 }
 
 
@@ -626,16 +509,14 @@ export const dropAsTempFile = async (data: any)=>{
 }
 
 //
-export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", options: {basePath?: string} = {}, logger = defaultLogger) => {
-    try {
-        const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const normalizedPath = getDir(resolvedPath?.trim?.()?.startsWith?.("/user/") ? resolvedPath?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath);
-        const dir = await getDirectoryHandle(resolvedRootHandle, normalizedPath, options, logger);
-        if (dir) {
-            const entries = await Array.fromAsync(dir?.entries?.() ?? []);
-            return Promise.all(entries.map((entry) => dir?.removeEntry?.(entry?.[0], { recursive: true })));
-        }
-    } catch (e: any) { return handleError(logger, 'error', `clearAllInDirectory: ${e.message}`); }
+export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", options = {}, logger = defaultLogger) => {
+    rootHandle ??= await navigator?.storage?.getDirectory?.();
+    relPath = getDir(relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.replace?.(/^\/user/g, "")?.trim?.() : relPath);
+    const dir = await getDirectoryHandle(rootHandle, relPath, options, logger);
+    if (dir) {
+        const entries = await Array.fromAsync(dir?.entries?.() ?? []);
+        return Promise.all(entries.map((entry) => dir?.removeEntry?.(entry?.[0], { recursive: true })));
+    }
 }
 
 // used for import/export by file pickers (OPFS, FileSystem, etc. )
