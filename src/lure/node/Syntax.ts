@@ -136,6 +136,11 @@ const checkInsideTagBlock = (contextParts: string[], ...str: string[]) => {
 }
 
 //
+const IS_PRIMITIVE = (value: any) => {
+    return value == null || typeof value == "string" || typeof value == "number" || typeof value == "boolean";
+}
+
+//
 export function htmlBuilder({ createElement = null } = {}) {
     return function(strings, ...values) {
         let parts: string[] = [];
@@ -165,16 +170,16 @@ export function htmlBuilder({ createElement = null } = {}) {
 
                     //
                     const isAttr = ($attributePattern || $betweenQuotes) && $inTagOpen;
-                    if (isAttr) {
-                        const $needsToQuoteWrap = ($attributePattern && !($betweenQuotes));
-                        const ati = atb.length;
-                        parts.push($needsToQuoteWrap ? `"#{${ati}}"` : `#{${ati}}`);
-                        atb.push(values?.[i]);
+                    if (!$inTagOpen) {
+                        const psi = psh.length;
+                        parts.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? (IS_PRIMITIVE(values?.[i]) ? String(values?.[i])?.trim?.() : `<!--o:${psi}-->`) : "");
+                        psh.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? values?.[i] : (values?.[i] ?? ""));
                     } else
-                        if (!$inTagOpen) {
-                            const psi = psh.length;
-                            parts.push(`<!--o:${psi}-->`);
-                            psh.push(values?.[i]);
+                        if (isAttr) {
+                            const $needsToQuoteWrap = ($attributePattern && !($betweenQuotes));
+                            const ati = atb.length;
+                            parts.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? (IS_PRIMITIVE(values?.[i]) ? String(values?.[i])?.trim?.() : (($needsToQuoteWrap ? `"#{${ati}}"` : `#{${ati}}`))) : "");
+                            atb.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? values?.[i] : (values?.[i] ?? ""));
                         }
                 }
             }
@@ -219,6 +224,9 @@ export function htmlBuilder({ createElement = null } = {}) {
                             }
                         });
                     }
+                } else if (el == null || el === undefined || el?.trim?.() == "") {
+                    // Handle null/undefined values by removing the placeholder comment
+                    cmdBuffer.push(() => { node?.remove?.(); });
                 } else {
                     cmdBuffer.push(() => {
                         if (Array.isArray(unwrap(el)))
