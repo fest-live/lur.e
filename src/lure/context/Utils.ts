@@ -31,7 +31,7 @@ const isElementValue = (el: any) => { return el?.element ?? el?.value; }
 
 //
 const elMap = new WeakMap();
-export const $getNode = (el, mapper?: Function | null, index?: number) => {
+export const $getNode = (el, mapper?: Function | null, index: number = -1) => {
     if (el instanceof WeakRef) { el = el.deref() ?? el; }
     if (mapper != null) { return (el = getNode(mapper?.(el, index) ?? el)); }
     if (isElement(el)) { return el; } else
@@ -44,7 +44,7 @@ export const $getNode = (el, mapper?: Function | null, index?: number) => {
 };
 
 // (obj instanceof WeakRef ? obj?.deref?.() : obj)
-export const getNode = (el, mapper?: Function | null, index?: number) => {
+export const getNode = (el, mapper?: Function | null, index: number = -1) => {
     if (el instanceof WeakRef) { el = el.deref() ?? el; }
     if ((typeof el == "object" || typeof el == "function") && !isElement(el)) {
         if (elMap.has(el)) { const obj: any = elMap.get(el) ?? $getNode(el, mapper, index); return (obj instanceof WeakRef ? obj?.deref?.() : obj); };
@@ -66,32 +66,33 @@ export const appendFix = (parent: any, child: any) => {
 
 //
 export const appendArray = (parent: any, children: any[], mapper?: Function | null) => {
+    const len = children?.length ?? 0;
     if (Array.isArray(unwrap(children))) {
         children
-            ?.map?.((cl, _: number) => getNode(cl, mapper))
+            ?.map?.((cl, _: number) => getNode(cl, mapper, len))
             ?.filter?.((el) => el != null)
             ?.forEach?.((el) => appendFix(parent, el));
     } else {
-        const node = getNode(children, mapper);
+        const node = getNode(children, mapper, len);
         if (node != null) { appendFix(parent, node); }
     }
 }
 
 //
-export const appendChild = (element, cp, mapper?: Function | null) => {
-    if (mapper != null) { cp = mapper?.(cp) ?? cp; }
+export const appendChild = (element, cp, mapper?: Function | null, index: number = -1) => {
+    if (mapper != null) { cp = mapper?.(cp, index) ?? cp; }
 
     // has children lists
     if (cp?.children && Array.isArray(unwrap(cp?.children)) && (cp?.[$virtual] || cp?.[$mapped])) {
         appendArray(element, cp?.children);
     } else {
-        appendArray(element, cp);
+        appendArray(element, cp, null);
     }
 }
 
 //
 export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1) => {
-    if (mapper != null) { cp = mapper?.(cp) ?? cp; }
+    if (mapper != null) { cp = mapper?.(cp, index) ?? cp; }
     const cn = index >= 0 ? element?.childNodes?.[index] : cp?.parentNode; // @ts-ignore
     if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
         if (cp != null) {
@@ -108,7 +109,7 @@ export const replaceChildren = (element, cp, mapper?: Function | null, index: nu
 export const removeChild = (element, cp, mapper?: Function | null, index: number = -1) => {
     element = element?.element ?? element;
     if (element?.childNodes?.length < 1) return;
-    const node = getNode(cp = mapper?.(cp) ?? cp);
+    const node = getNode(cp, mapper, index);
     const ch = node ?? (index >= 0 ? element?.childNodes?.[index] : null);
     if (ch?.parentNode == element) { ch?.remove?.(); } else
         if (ch?.children && ch?.children?.length >= 1) { // TODO: remove by same string value
@@ -119,7 +120,7 @@ export const removeChild = (element, cp, mapper?: Function | null, index: number
 
 //
 export const removeNotExists = (element, children, mapper?: Function | null) => {
-    const list = Array.from(unwrap(children) || [])?.map?.((cp) => getNode(mapper?.(cp) ?? cp));
+    const list = Array.from(unwrap(children) || [])?.map?.((cp, index) => getNode(cp, mapper, index));
     Array.from(element.childNodes).forEach((nd: any) => { if (!list?.find?.((cp) => (!isNotEqual?.(cp, nd)))) nd?.remove?.(); });
     return element;
 }

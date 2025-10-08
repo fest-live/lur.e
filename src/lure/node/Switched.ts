@@ -21,7 +21,7 @@ const $getFromMapped = (mapped: any, value: number|string|null|undefined) => {
 
 //
 const getFromMapped = (mapped: any, value: number|string|null|undefined) => {
-    return getNode($getFromMapped(mapped, value));
+    return getNode($getFromMapped(mapped, value), null, -1);
 }
 
 //
