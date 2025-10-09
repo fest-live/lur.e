@@ -5,6 +5,7 @@ import { getNode } from "../context/Utils";
 import E from "./Bindings";
 import M from "./Mapped";
 import { reflectChildren } from "../context/ReflectChildren";
+import { $mapped } from "../core/Binding";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
@@ -30,6 +31,18 @@ const cleanupInterTagWhitespace = (root: Node) => {
 const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType == Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.includes("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
 
 //
+const bindEvent = (on, key, value)=>{
+    if (on?.[key]) {
+        const exists = on[key];
+        if (Array.isArray(value)) { exists.add(...value); } else if (typeof value == "function") { exists.add(value); }
+        return on;
+    }
+    on[key] ??= Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value);
+    return on;
+}
+
+
+//
 const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>, cmdBuffer: any[]) => {
     if (!el) return el;
     if (el != null) {
@@ -45,7 +58,17 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         const ctrlsIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "ctrls" && attr.value?.includes?.("#{")));
 
         //
-        let style = atb[styleIndex], dataset = atb[datasetIndex], properties: any = atb[propIndex] ?? {}, on = atb[onIndex] ?? {}, aria = atb[ariaIndex] ?? {}, iterate = [], doAction: any = null, ctrls = new Map(), classList: any = atb[classListIndex], visible: any = atb[visibleIndex];
+        let
+            style = atb[styleIndex],
+            dataset = atb[datasetIndex],
+            properties: any = atb[propIndex] ?? {},
+            on = atb[onIndex],
+            aria = atb[ariaIndex] ?? {},
+            iterate = [],
+            doAction: any = null,
+            ctrls = new Map(),
+            classList: any = atb[classListIndex],
+            visible: any = atb[visibleIndex];
 
         //
         if (propIndex != -1) { atb.splice(propIndex, 1); };
@@ -65,8 +88,8 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
             if (attr.name == "ref") { doAction = value; } else
             if (attr.name == "iterate") { iterate = value; mapped.set(el, mapped.get(el) ?? findIterator(el, psh)); } else
             if (attr.name == "value") { properties.value = value; } else
-            if (attr.name?.trim?.()?.startsWith?.("@")) { on[attr.name.trim().replace("@", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
-            if (attr.name?.trim?.()?.startsWith?.("on:")) { on[attr.name.trim().replace("on:", "").trim()] = Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value); } else
+            if (attr.name?.trim?.()?.startsWith?.("@")) { if (!on) on = {}; bindEvent(on, attr.name.trim().replace("@", "").trim(), value); } else
+            if (attr.name?.trim?.()?.startsWith?.("on:")) { if (!on) on = {}; bindEvent(on, attr.name.trim().replace("on:", "").trim(), value); } else
             if (attr.name?.trim?.()?.startsWith?.("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
             if (attr.name?.trim?.()?.startsWith?.("ctrl:")) { ctrls.set(attr.name.trim().replace("ctrl:", "").trim(), value); } else { attributes[attr.name.trim()] = value; }
             if (isCustom) { el.removeAttribute(attr.name); };
@@ -136,6 +159,11 @@ const checkInsideTagBlock = (contextParts: string[], ...str: string[]) => {
 }
 
 //
+const isValidParent = (parent: Node) => {
+    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
+}
+
+//
 const IS_PRIMITIVE = (value: any) => {
     return value == null || typeof value == "string" || typeof value == "number" || typeof value == "boolean";
 }
@@ -196,55 +224,50 @@ export function htmlBuilder({ createElement = null } = {}) {
         // Clean up whitespace-only text nodes between tags before further processing
         cleanupInterTagWhitespace(sources);
 
-        //
-        const walker: any = sources ? document.createTreeWalker(sources, NodeFilter.SHOW_ALL, null) : null;
-        do {
-            const node: any = walker.currentNode;
-
-            if (node.nodeType == Node.ELEMENT_NODE) {
-                connectElement(node as HTMLElement, atb, psh, mapped, cmdBuffer);
-            } else
-            if (node.nodeType == Node.COMMENT_NODE && node.nodeValue.includes("o:")) {
-                let el: any = psh[Number(node.nodeValue.slice(2))];
-
-                // make iteratable array and set
-                if (typeof el == "function") {
-                    if (node?.parentNode?.getAttribute?.("iterate") || node?.parentNode?.childNodes?.length <= 1) {
-                        cmdBuffer.push(() => { node?.remove?.(); });
-                        mapped.set(node?.parentNode, el);
-                    } else {
-                        // Fallback: render function result inline (supports placeholders within mixed content)
-                        cmdBuffer.push(() => {
-                            const result = el?.();
-                            if (Array.isArray(unwrap(result))) {
-                                const $parent = node?.parentNode; node?.remove?.(); reflectChildren($parent, result);
-                            } else {
-                                const n = getNode(result);
-                                if (n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); }
-                            }
-                        });
-                    }
-                } else if (el == null || el === undefined || el?.trim?.() == "") {
-                    // Handle null/undefined values by removing the placeholder comment
-                    cmdBuffer.push(() => { node?.remove?.(); });
-                } else {
-                    cmdBuffer.push(() => {
-                        if (Array.isArray(unwrap(el)))
-                        { const $parent = node?.parentNode; node?.remove?.(); reflectChildren($parent, el); } else
-                        {
-                            const n = getNode(el); if (typeof el == "object" && el != null) el.boundParent ??= (!(n?.parentParent instanceof DocumentFragment) ? n?.parentParent : null) ?? (!(n?.parentParent instanceof DocumentFragment) ? node?.parentParent : null) ?? el.boundParent; if (n == null) { node?.remove?.(); } else { node?.replaceWith?.(n); }
-                        }
-                    });
-                }
-            }
-        } while (walker?.nextNode?.());
-
-        //
-        cmdBuffer?.forEach?.((c) => c?.());
+        //node?.remove?.();
+        const bucket = Array.from(sources.childNodes)?.filter((e: any) => {
+            return e instanceof Node;
+        });
 
         //
         const frag = document.createDocumentFragment();
-        frag?.append?.(...Array.from(sources.childNodes).filter((e: any) => (e != null)) as any);
+        bucket.forEach((node: any)=>{
+            if (!isValidParent(node?.parentNode) && node?.parentNode != frag) {
+                node?.remove?.();
+                frag?.append?.(node);
+            }
+        });
+
+        //
+        bucket.forEach((nodeSet: any)=>{
+            const walker: any = nodeSet ? document.createTreeWalker(nodeSet, NodeFilter.SHOW_ALL, null) : null;
+            do {
+                const node: any = walker?.currentNode;
+                if (node.nodeType == Node.ELEMENT_NODE) {
+                    connectElement(node as HTMLElement, atb, psh, mapped, cmdBuffer);
+                } else
+                if (node.nodeType == Node.COMMENT_NODE && node.nodeValue.includes("o:")) {
+                    let el: any = psh[Number(node.nodeValue.slice(2))];
+
+                    // make iteratable array and set
+                    if (el == null || el === undefined || el?.trim?.() == "") {
+                        // Handle null/undefined values by removing the placeholder comment
+                        cmdBuffer.push(() => { node?.remove?.(); });
+                    } else {
+                        cmdBuffer.push(() => {
+                            const $parent = node?.parentNode;
+                            const n = getNode(el, null, -1, $parent);
+                            if (n == null)
+                                { node?.remove?.(); } else
+                                { node?.replaceWith?.(n); }
+                        });
+                    }
+                }
+            } while (walker?.nextNode?.());
+        });
+
+        //
+        cmdBuffer?.forEach?.((c) => c?.());
 
         // Final whitespace cleanup to ensure :empty works even after dynamic insertions
         cleanupInterTagWhitespace(frag); // @ts-ignore

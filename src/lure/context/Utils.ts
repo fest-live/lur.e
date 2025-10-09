@@ -1,5 +1,6 @@
 import { unwrap, subscribe, isNotEqual } from "fest/object";
 import { $virtual, $mapped } from "../core/Binding";
+import { M } from "fest/lure/index";
 
 //
 const
@@ -26,42 +27,55 @@ export const createElement = (selector): HTMLElement | DocumentFragment => {
 };
 
 //
+const isValidParent = (parent: Node) => {
+    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
+}
+
+//
+const KINDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
+    return ((requestor && requestor != el && !el?.contains?.(requestor) && isValidParent(requestor)) ? el?.elementForPotentialParent?.(requestor) : null) ?? el?.element;
+}
+
+//
 const isElement = (el: any) => { return el instanceof Node || el instanceof Text || el instanceof Element || el instanceof HTMLElement || el instanceof DocumentFragment; }
-const isElementValue = (el: any) => { return el?.element ?? el?.value; }
+const isElementValue = (el: any, requestor?: any | null) => { return KINDNAP_WITHOUT_HANG(el, requestor) ?? el?.value; }
 
 //
 const elMap = new WeakMap();
-export const $getNode = (el, mapper?: Function | null, index: number = -1) => {
+export const $getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null) => {
     if (el instanceof WeakRef) { el = el.deref() ?? el; }
-    if (mapper != null) { return (el = getNode(mapper?.(el, index) ?? el)); }
-    if (isElement(el)) { return el; } else
-    if (isElement(el?.element ?? el?.value)) { return isElementValue(el); } else
+    if (mapper != null) { return (el = getNode(mapper?.(el, index) ?? el, null, -1, requestor)); }
+    if (isElement(el?.element ?? el?.value)) { return isElementValue(el, requestor); } else
+    if (isElement(el) && !(el as any)?._onUpdate && !(el as any)?.self && !(el as any)?.element) { return el; } else
     if (typeof el?.value == "string" || typeof el?.value == "number") { return T(el); } else
     if (typeof el == "string" || typeof el == "number") { return document.createTextNode(String(el)); } else
-    if (typeof el == "object" && el != null) { return el?.element ?? elMap.get(el); } else
-    if (typeof el == "function") { return getNode(el?.()); }  // mapped arrays always empties after
-    return el;
+    if (typeof el == "object" && el != null) { return KINDNAP_WITHOUT_HANG(el, requestor) ?? elMap.get(el); } else
+    if (typeof el == "function") { return getNode(el?.(), mapper, index, requestor); }  // mapped arrays always empties after
+    return null;
 };
 
 // (obj instanceof WeakRef ? obj?.deref?.() : obj)
-export const getNode = (el, mapper?: Function | null, index: number = -1) => {
+export const getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null) => {
     if (el instanceof WeakRef) { el = el.deref() ?? el; }
     if ((typeof el == "object" || typeof el == "function") && !isElement(el)) {
-        if (elMap.has(el)) { const obj: any = elMap.get(el) ?? $getNode(el, mapper, index); return (obj instanceof WeakRef ? obj?.deref?.() : obj); };
-        const $node = $getNode(el, mapper, index);
+        if (elMap.has(el)) {
+            const obj: any = elMap.get(el) ?? $getNode(el, mapper, index, requestor);
+            return (obj instanceof WeakRef ? obj?.deref?.() : obj);
+        };
+        const $node = $getNode(el, mapper, index, requestor);
         if (!mapper && $node != null && $node != el && (!el?.self && !el?.element)) { elMap.set(el, $node); }
         return $node;
     }
-    return $getNode(el, mapper, index);
+    return $getNode(el, mapper, index, requestor);
 }
 
 //
 export const appendFix = (parent: any, child: any) => {
     if (!isElement(child) || parent == child) return;
-    child = (child as any)?.element ?? child;
+    child = (child as any)?._onUpdate ? KINDNAP_WITHOUT_HANG(child, parent) : child;
     if (!child?.parentNode) { parent?.append?.(child); return; };
     if (parent?.parentNode == child?.parentNode) { return; }
-    child?.remove?.(); parent?.append?.(child);
+    ((child as any)?.element ?? child)?.remove?.(); parent?.append?.(child);
 }
 
 //
@@ -69,11 +83,11 @@ export const appendArray = (parent: any, children: any[], mapper?: Function | nu
     const len = children?.length ?? 0;
     if (Array.isArray(unwrap(children))) {
         children
-            ?.map?.((cl, _: number) => getNode(cl, mapper, len))
+            ?.map?.((cl, _: number) => getNode(cl, mapper, len, parent))
             ?.filter?.((el) => el != null)
             ?.forEach?.((el) => appendFix(parent, el));
     } else {
-        const node = getNode(children, mapper, len);
+        const node = getNode(children, mapper, len, parent);
         if (node != null) { appendFix(parent, node); }
     }
 }

@@ -1,4 +1,4 @@
-import { addToCallChain, subscribe, isNotEqual } from "fest/object";
+import { addToCallChain, subscribe, isNotEqual, $trigger } from "fest/object";
 import getNode, { appendFix } from "../context/Utils";
 
 //
@@ -20,8 +20,13 @@ const $getFromMapped = (mapped: any, value: number|string|null|undefined) => {
 }
 
 //
-const getFromMapped = (mapped: any, value: number|string|null|undefined) => {
-    return getNode($getFromMapped(mapped, value), null, -1);
+const getFromMapped = (mapped: any, value: number|string|null|undefined, requestor: any | null = null) => {
+    return getNode($getFromMapped(mapped, value), null, -1, requestor);
+}
+
+//
+const isValidParent = (parent: Node) => {
+    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
 }
 
 //
@@ -43,6 +48,13 @@ export class SwM implements SwitchedParams {
     //
     get element(): Node {
         return getFromMapped(this.mapped, this.current?.value ?? -1);
+    }
+
+    //
+    elementForPotentialParent(requestor: any) {
+        this.boundParent = requestor;
+        this.current?.[$trigger]?.();
+        return this.element;
     }
 
     //
@@ -74,6 +86,7 @@ class SwHandler implements ProxyHandler<SwitchedParams> {
     set(params: SwitchedParams, name, val) { return Reflect.set(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, name, val); }
     has(params: SwitchedParams, name) { return Reflect.has(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, name); }
     get(params: SwitchedParams, name, ctx) {
+        if (name == "elementForPotentialParent" && (name in params || params?.[name] != null)) { return (params as SwM)?.elementForPotentialParent?.bind(params); };
         if (name == "element" && (name in params || params?.[name] != null)) { return (params as SwM)?.element; };
         if (name == "_onUpdate" && (name in params || params?.[name] != null)) { return (params as SwM)?._onUpdate?.bind(params); };
         return contextify(getFromMapped(params?.mapped, params?.current?.value ?? -1) ?? params, name);

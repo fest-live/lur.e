@@ -6,8 +6,8 @@ import { removeChild } from "./Utils";
 import { $mapped, $behavior, addToBank, hasInBank } from "../core/Binding";
 
 //
-const isValidParent = (parent: Node) => {
-    return (parent != null && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
+const isValidParent = (parent: Node | null) => {
+    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement)) ? parent : null;
 }
 
 //
@@ -28,8 +28,8 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
 
     //
     const updateChildList = (newEl, idx, oldEl, op: string | null = "@add", boundParent: Node | null = null) => {
-        let element = getNode(newEl ?? oldEl, mapper, idx)?.parentElement ?? boundParent ?? defaultParent;
-        if (!isValidParent(element)) { element = defaultParent ?? element; }
+        let doubtfulParent = getNode(newEl ?? oldEl, mapper, idx)?.parentElement;
+        let element = isValidParent(boundParent) ?? isValidParent(defaultParent) ?? isValidParent(doubtfulParent);
         if (!element) return; if (defaultParent != element) { defaultParent = element; }
 
         //
@@ -50,18 +50,21 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
 
 // TODO! use handlerMap registry
 export const reflectChildren = (element: HTMLElement | DocumentFragment, children: any[] = [], mapper?: Function) => {
-    const $parent = getNode(children?.[0], mapper, -1)?.parentElement;
+    const $parent = getNode(children?.[0], mapper, 0)?.parentElement;
     if (!isValidParent(element)) { element = (isValidParent($parent) ? $parent : element) ?? element; }
     if (!children || hasInBank(element, children)) return element;
 
     //
+    const seemsToBeMapped: any = children;
     mapper = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
     children = (children?.[$mapped] ? (children as any)?.children : children) ?? children;
 
     //
     const updater = makeUpdater(element, mapper, Array.isArray(children));
     const unsub = (Array.isArray(children) ? observe : subscribe)(children, (...args) => {
-        return updater(...args);
+        const firstOf = getNode(children?.[0], mapper, 0);
+        const boundParent = firstOf?.parentElement;
+        return updater(args?.[0], args?.[1], args?.[2], args?.[3], boundParent);
     });
 
     //
@@ -72,13 +75,18 @@ export const reflectChildren = (element: HTMLElement | DocumentFragment, childre
 
 // forcely update child nodes (and erase current content)
 export const reformChildren = (element: HTMLElement | DocumentFragment, children: any[] = [], mapper?: Function) => {
-    if (!children) return element; const ref = new WeakRef(element);
-    mapper = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
+    if (!children) return element;
 
     //
-    const cvt = (children = (children?.[$mapped] ? (children as any)?.children : children) ?? children)?.map?.((nd, index) => { if (mapper != null) { nd = mapper?.(nd, index); return nd; }; });
-    removeNotExists(element, cvt); cvt?.forEach?.((nd) => {
-        const element = ref.deref();
+    mapper = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
+    children = (children?.[$mapped] ? (children as any)?.children : children) ?? children;
+
+    //
+    const cvt = children?.map?.((nd, index) => getNode(nd, mapper, index, element));
+
+    //
+    removeNotExists(element, cvt);
+    cvt?.forEach?.((nd) => {
         if (!element) return nd;
         appendChild(element, nd);
     }); return element;
