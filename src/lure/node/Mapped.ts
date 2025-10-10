@@ -69,30 +69,32 @@ class Mp {
 
     //
     elementForPotentialParent(requestor: any) {
-        const element = getNode(this.#observable?.[0], this.mapper.bind(this), 0);
-        if (!element || !requestor || element?.contains?.(requestor) || requestor == element) {
-            return this.element;
-        }
-        if (!this.boundParent && requestor instanceof HTMLElement && isValidParent(requestor)) {
-            if (Array.from(requestor?.children).find((node) => node === element)) {
-                this.boundParent = requestor;
-            } else {
-                const observer = new MutationObserver((records) => {
-                    for (const record of records) {
-                        if (record.type === "childList") {
-                            if (record.addedNodes.length > 0) {
-                                const connectedNode = Array.from((record.addedNodes as any) || []).find((node) => node === element);
-                                if (connectedNode) {
-                                    this.boundParent = requestor;
-                                    observer.disconnect();
+        Promise.resolve().then(() => {
+            const element = getNode(this.#observable?.[0], this.mapper.bind(this), 0);
+            if (!element || !requestor || element?.contains?.(requestor) || requestor == element) {
+                return this.element;
+            }
+            if (!this.boundParent && requestor instanceof HTMLElement && isValidParent(requestor)) {
+                if (Array.from(requestor?.children).find((node) => node === element)) {
+                    this.boundParent = requestor;
+                } else {
+                    const observer = new MutationObserver((records) => {
+                        for (const record of records) {
+                            if (record.type === "childList") {
+                                if (record.addedNodes.length > 0) {
+                                    const connectedNode = Array.from((record.addedNodes as any) || []).find((node) => node === element);
+                                    if (connectedNode) {
+                                        this.boundParent = requestor;
+                                        observer.disconnect();
+                                    }
                                 }
                             }
                         }
-                    }
-                });
-                observer.observe(requestor, { childList: true });
+                    });
+                    observer.observe(requestor, { childList: true });
+                }
             }
-        }
+        });
         return this.element;
     }
 
