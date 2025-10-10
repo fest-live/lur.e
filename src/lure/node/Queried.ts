@@ -45,7 +45,6 @@ class UniversalElementHandler {
                 const list = (typeof target?.querySelectorAll == "function" && target?.element != null) ? target?.querySelectorAll?.(this.selector) : [];
                 return list?.length >= 1 ? [...list] : inclusion;
             } else if (this.direction == "parent") {
-                // closest возвращает только первый найденный элемент, обернём в массив для совместимости
                 const closest = target?.closest?.(this.selector);
                 return closest ? [closest] : inclusion;
             }

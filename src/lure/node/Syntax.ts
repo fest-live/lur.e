@@ -64,21 +64,10 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
             properties: any = atb[propIndex] ?? {},
             on = atb[onIndex],
             aria = atb[ariaIndex] ?? {},
-            iterate = [],
             doAction: any = null,
             ctrls = new Map(),
             classList: any = atb[classListIndex],
             visible: any = atb[visibleIndex];
-
-        //
-        if (propIndex != -1) { atb.splice(propIndex, 1); };
-        if (datasetIndex != -1) { atb.splice(datasetIndex, 1); };
-        if (styleIndex != -1) { atb.splice(styleIndex, 1); };
-        if (classListIndex != -1) { atb.splice(classListIndex, 1); };
-        if (visibleIndex != -1) { atb.splice(visibleIndex, 1); };
-        if (ariaIndex != -1) { atb.splice(ariaIndex, 1); };
-        if (onIndex != -1) { atb.splice(onIndex, 1); };
-        if (ctrlsIndex != -1) { atb.splice(ctrlsIndex, 1); };
 
         //
         for (const attr of Array.from(el?.attributes || [])) {
@@ -90,13 +79,14 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
             if (attr.name?.trim?.()?.startsWith?.("@")) { if (!on) on = {}; bindEvent(on, attr.name.trim().replace("@", "").trim(), value); } else
             if (attr.name?.trim?.()?.startsWith?.("on:")) { if (!on) on = {}; bindEvent(on, attr.name.trim().replace("on:", "").trim(), value); } else
             if (attr.name?.trim?.()?.startsWith?.("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
-            if (attr.name?.trim?.()?.startsWith?.("ctrl:")) { ctrls.set(attr.name.trim().replace("ctrl:", "").trim(), value); } else { attributes[attr.name.trim()] = value; }
+            if (attr.name?.trim?.()?.startsWith?.("ctrl:")) { ctrls.set(attr.name.trim().replace("ctrl:", "").trim(), value); } else
+            { attributes[attr.name.trim()] = value; }
             if (isCustom) { el.removeAttribute(attr.name); };
         }
 
         //
         if (!EMap.has(el)) {
-            const ex = E(el, {aria, attributes, classList, dataset, style, properties, on, ctrls, visible}, mapped.has(el) ? M(iterate, mapped.get(el)) : makeReactive(Array.from(el.childNodes)?.map?.((el)=>EMap.get(el)??el)));
+            const ex = E(el, {aria, dataset, attributes, classList, style, properties, on, ctrls, visible});
             if (typeof doAction == "function") { doAction?.(el); } else if (doAction != null && typeof doAction == "object") { doAction.value = el; }
             if (el != ex) { EMap.set(el, ex); }; return ex;
         };
@@ -150,12 +140,27 @@ const checkInsideTagBlock = (contextParts: string[], ...str: string[]) => {
 
 //
 const isValidParent = (parent: Node) => {
-    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
+    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || (parent instanceof HTMLBodyElement && parent != document.body)));
 }
 
 //
 const IS_PRIMITIVE = (value: any) => {
     return value == null || typeof value == "string" || typeof value == "number" || typeof value == "boolean";
+}
+
+//
+const replaceNode = (parent: Node, node: Node, el: any) => {
+    if (el != null) { el.boundParent = parent; }
+
+    //
+    let newNode = getNode(el, null, -1, parent);
+    if (newNode instanceof Node) {
+        if (newNode?.parentNode != parent && !newNode?.contains?.(parent)) {
+            (node as any)?.replaceWith?.(newNode);
+        }
+    } else {
+        (node as any)?.remove?.();
+    }
 }
 
 //
@@ -188,23 +193,23 @@ export function htmlBuilder({ createElement = null } = {}) {
 
                     //
                     const isAttr = ($attributePattern || $betweenQuotes) && $inTagOpen;
+                    if (isAttr) {
+                        const $needsToQuoteWrap = ($attributePattern && !($betweenQuotes));
+                        const ati = atb.length;
+                        parts.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? (($needsToQuoteWrap ? `"#{${ati}}"` : `#{${ati}}`)) : "");
+                        atb.push(values?.[i]);
+                    } else
                     if (!$inTagOpen) {
                         const psi = psh.length;
                         parts.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? (IS_PRIMITIVE(values?.[i]) ? String(values?.[i])?.trim?.() : `<!--o:${psi}-->`) : "");
-                        psh.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? values?.[i] : (values?.[i] ?? ""));
-                    } else
-                        if (isAttr) {
-                            const $needsToQuoteWrap = ($attributePattern && !($betweenQuotes));
-                            const ati = atb.length;
-                            parts.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? (IS_PRIMITIVE(values?.[i]) ? String(values?.[i])?.trim?.() : (($needsToQuoteWrap ? `"#{${ati}}"` : `#{${ati}}`))) : "");
-                            atb.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? values?.[i] : (values?.[i] ?? ""));
-                        }
+                        psh.push(values?.[i]);
+                    }
                 }
             }
         }
 
         //
-        const mapped = new WeakMap(), cmdBuffer: any[] = [];
+        const mapped = new WeakMap();
         const parser = new DOMParser(), doc: any = parser.parseFromString(parts.join("").trim(), "text/html");
 
         //
@@ -230,8 +235,8 @@ export function htmlBuilder({ createElement = null } = {}) {
         //
         let walkedNodes: any[] = [];
         bucket.forEach((nodeSet: any)=>{
-            const walker: any = nodeSet ? document.createTreeWalker(nodeSet, NodeFilter.SHOW_ALL, null) : null;
             cleanupInterTagWhitespace(nodeSet);
+            const walker: any = nodeSet ? document.createTreeWalker(nodeSet, NodeFilter.SHOW_ALL, null) : null;
             do {
                 const node: any = walker?.currentNode;
                 walkedNodes.push(node);
@@ -249,13 +254,9 @@ export function htmlBuilder({ createElement = null } = {}) {
                 } else {
                     const $parent = node?.parentNode;
                     if (Array.isArray(el)) {
-                        node?.remove?.();
-                        el = M(el, null, $parent);
+                        replaceNode?.($parent, node, el = M(el, null, $parent));
                     } else {
-                        const n = getNode(el, null, -1, $parent);
-                        if (n == null)
-                            { node?.remove?.(); } else
-                            { try { node?.replaceWith?.(n); } catch (e) { console.warn(e); } }
+                        replaceNode?.($parent, node, el);
                     }
                 }
             }

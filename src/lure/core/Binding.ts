@@ -1,5 +1,5 @@
 import { addToCallChain, makeReactive, subscribe, isNotEqual } from "fest/object";
-import { camelToKebab, handleAttribute, handleListeners, handleProperty, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
+import { addEvent, addEvents, camelToKebab, handleAttribute, handleListeners, handleProperty, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
 import { setChecked } from "fest/dom";
 
 //
@@ -188,14 +188,15 @@ const isArrayOrIterable = (obj) => Array.isArray(obj) || (obj != null && typeof 
 //
 export const bindEvents = (el, events) => {
     if (events) {
-        let entries: any[] = [];
+        let entries: any[] = events;
         if (events instanceof Map) {
             entries = [...events.entries()];
         } else {
-            Object.entries(events)
-            entries = Object.entries(events);
+            entries = [...Object.entries(events)];
         }
-        entries?.forEach?.(([name, list]) => ((isArrayOrIterable(list) ? [...list as any] : list) || [])?.forEach?.((fn) => el.addEventListener(name, (typeof fn == "function") ? fn : fn?.[0], fn?.[1] || {})));
+        return entries.map(([name, list]) => ((isArrayOrIterable(list) ? [...list as any] : list) ?? [])?.map?.((cbs)=>{
+            return addEvent(el, name, cbs)
+        }));
     }
 }
 

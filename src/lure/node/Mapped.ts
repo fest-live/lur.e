@@ -25,6 +25,7 @@ class Mp {
     #fragments: DocumentFragment;
     #mapCb: any;
     #reMap: WeakMap<any, any>;
+    #pmMap: Map<any, any>;
     #updater: any = null;
     #internal: any = null;
 
@@ -35,7 +36,7 @@ class Mp {
     makeUpdater(basisParent: Node | null = null) {
         if (basisParent) {
             this.#internal?.(); this.#internal = null; this.#updater = null;
-            this.#updater ??= makeUpdater(basisParent, this.mapper.bind(this), Array.isArray(this.#observable));
+            this.#updater ??= makeUpdater(basisParent, this.mapper.bind(this), true);
             this.#internal ??= observe?.(this.#observable, this._onUpdate.bind(this));
         }
     }
@@ -52,15 +53,16 @@ class Mp {
     //
     constructor(observable, mapCb = (el) => el, boundParent: Node | null = null) {
         this.#reMap = new WeakMap();
+        this.#pmMap = new Map<any, any>();
         this.#mapCb = mapCb ?? ((el) => el);
         this.#observable = observable;
         this.#fragments = document.createDocumentFragment();
         this.boundParent = boundParent;
         if (!boundParent) {
-            reformChildren(
+            /*reformChildren(
                 this.#fragments, this.#observable,
                 this.mapper.bind(this)
-            );
+            );*/
         }
     }
 
@@ -69,10 +71,12 @@ class Mp {
 
     //
     elementForPotentialParent(requestor: any) {
-        Promise.resolve().then(() => {
+        this.boundParent = requestor;
+        return this.element;
+        /*Promise.resolve().then(() => {
             const element = getNode(this.#observable?.[0], this.mapper.bind(this), 0);
             if (!element || !requestor || element?.contains?.(requestor) || requestor == element) {
-                return this.element;
+                return;
             }
             if (!this.boundParent && requestor instanceof HTMLElement && isValidParent(requestor)) {
                 if (Array.from(requestor?.children).find((node) => node === element)) {
@@ -95,12 +99,14 @@ class Mp {
                 }
             }
         });
-        return this.element;
+        return this.element;*/
     }
 
     //
     get children() { return this.#observable; }
-    get element(): HTMLElement | DocumentFragment | Text | null {
+
+    //
+    get self(): HTMLElement | DocumentFragment | Text | null {
         const existsNode = getNode(this.#observable?.[0], this.mapper.bind(this), 0);
         const theirParent = isValidParent(existsNode?.parentElement) ? existsNode?.parentElement : this.boundParent;
 
@@ -117,15 +123,31 @@ class Mp {
     }
 
     //
+    get element(): HTMLElement | DocumentFragment | Text | null {
+        return getNode(this.#observable?.[0], this.mapper.bind(this), 0);
+    }
+
+    //
     get mapper() {
         return (...args) => {
-            if (args?.[1] == null || args?.[1] < 0 || (typeof args?.[1] != "number" || !canBeInteger(args?.[1]))) return;
             if (args?.[0] instanceof Node) { return args?.[0]; };
-            if (args?.[0] != null && (typeof args?.[0] == "object" || typeof args?.[0] == "function")) {
-                // @ts-ignore
+            if (args?.[1] == null || args?.[1] < 0 || (typeof args?.[1] != "number" || !canBeInteger(args?.[1]))) {
+                return args?.[0];
+            }
+
+            if (args?.[0] != null && (typeof args?.[0] == "object" || typeof args?.[0] == "function")) { // @ts-ignore
                 return this.#reMap.getOrInsert(args?.[0], this.#mapCb(...args));
             }
-            if (args?.[0] != null) { return this.#mapCb(...args); };
+
+            // prevalence of Set typed
+            if (args?.[0] != null && this.#observable instanceof Set) { // @ts-ignore
+                return this.#pmMap.getOrInsert(args?.[0], this.#mapCb(...args));
+            }
+
+            // array may has same values twice, no viable solution...
+            if (args?.[0] != null) {
+                return this.#mapCb(...args);
+            }
         }
     }
 

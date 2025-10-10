@@ -37,19 +37,19 @@ const KINDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
 }
 
 //
-const isElement = (el: any) => { return el instanceof Node || el instanceof Text || el instanceof Element || el instanceof HTMLElement || el instanceof DocumentFragment; }
+const isElement = (el: any) => { return el != null && (el instanceof Node || el instanceof Text || el instanceof Element || el instanceof HTMLElement || el instanceof DocumentFragment) ? el : null; }
 const isElementValue = (el: any, requestor?: any | null) => { return KINDNAP_WITHOUT_HANG(el, requestor) ?? el?.value; }
 
 //
 const elMap = new WeakMap();
 export const $getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null) => {
     if (el instanceof WeakRef) { el = el.deref() ?? el; }
-    if (mapper != null) { return (el = getNode(mapper?.(el, index) ?? el, null, -1, requestor)); }
-    if (isElement(el?.element ?? el?.value)) { return isElementValue(el, requestor); } else
-    if (isElement(el) && !(el as any)?._onUpdate && !(el as any)?.self && !(el as any)?.element) { return el; } else
+    if (mapper != null) { return (el = getNode(mapper?.(el, index), null, -1, requestor)); }
+    if (isElement(el) && !el?.element) { return el; } else
+    if (isElement(el?.element)) { return el?.element || null; } else
     if (typeof el?.value == "string" || typeof el?.value == "number") { return T(el); } else
     if (typeof el == "string" || typeof el == "number") { return document.createTextNode(String(el)); } else
-    if (typeof el == "object" && el != null) { return KINDNAP_WITHOUT_HANG(el, requestor) ?? elMap.get(el); } else
+    if (typeof el == "object" && el != null) { return elMap.get(el); } else
     if (typeof el == "function") { return getNode(el?.(), mapper, index, requestor); }  // mapped arrays always empties after
     return null;
 };
@@ -73,9 +73,9 @@ export const getNode = (el, mapper?: Function | null, index: number = -1, reques
 export const appendFix = (parent: any, child: any) => {
     if (!isElement(child) || parent == child) return;
     child = (child as any)?._onUpdate ? KINDNAP_WITHOUT_HANG(child, parent) : child;
-    if (!child?.parentNode) { parent?.append?.(child); return; };
+    if (!child?.parentNode && child instanceof Node) { parent?.append?.(child); return; };
     if (parent?.parentNode == child?.parentNode) { return; }
-    ((child as any)?.element ?? child)?.remove?.(); parent?.append?.(child);
+    if (child instanceof Node) { /*(child as any)?.remove?.();*/ parent?.append?.(child); };
 }
 
 //
@@ -94,7 +94,7 @@ export const appendArray = (parent: any, children: any[], mapper?: Function | nu
 
 //
 export const appendChild = (element, cp, mapper?: Function | null, index: number = -1) => {
-    if (mapper != null) { cp = mapper?.(cp, index) ?? cp; }
+    if (mapper != null) { cp = mapper?.(cp, index); }
 
     // has children lists
     if (cp?.children && Array.isArray(unwrap(cp?.children)) && (cp?.[$virtual] || cp?.[$mapped])) {
@@ -104,31 +104,54 @@ export const appendChild = (element, cp, mapper?: Function | null, index: number
     }
 }
 
+
+
 //
+export const dePhantomNode = (parent, node, index: number = -1)=>{
+    if (node?.parentNode != parent && !isValidParent(node?.parentNode)) {
+        if (index >= 0 && Array.from(parent.childNodes || [])?.length > index) {
+            return parent.childNodes?.[index];
+        }
+    }
+    if (node?.parentNode == parent) {
+        return node;
+    }
+    return null;
+}
+
+
+
+// TODO: what exactly to replace, if has (i.e. object itself, not index)
 export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1) => {
-    if (mapper != null) { cp = mapper?.(cp, index) ?? cp; }
-    const cn = index >= 0 ? element?.childNodes?.[index] : cp?.parentNode; // @ts-ignore
-    if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
-        if (cp != null) {
-        const node = getNode(cp);
-            const cn = index >= 0 ? element?.childNodes?.[index] : cp?.parentNode; // @ts-ignore
+    if (mapper != null) { cp = mapper?.(cp, index); }
+    const cn = index >= 0 ? element?.childNodes?.[index] : null; // @ts-ignore
+    if (cn instanceof Text && typeof cp == "string" && cn != null) { cn.textContent = cp; } else
+    if (cp != null) {
+        const node = getNode(cp), oldNode = null; // oldNode is always unknown and phantom
+        const cn = dePhantomNode(element, oldNode, index)
+
+        if (cn != node) {
             if (cn instanceof Text && node instanceof Text) {
                 if (cn.textContent != node.textContent) { cn.textContent = node.textContent; }
             } else
             if (cn != node && (!node?.parentNode || node?.parentNode != element)) { cn?.replaceWith?.(node); }
+        }
     }
 }
 
 //
+export const removeChildDirectly = (element, node, _?: Function | null, index: number = -1) => {
+    if (Array.from(element?.childNodes ?? [])?.length < 1) return;
+    const whatToRemove = dePhantomNode(element, node, index);
+    if (whatToRemove?.parentNode == element) whatToRemove?.remove?.();
+    return element;
+}
+
+//
 export const removeChild = (element, cp, mapper?: Function | null, index: number = -1) => {
-    element = element?.element ?? element;
-    if (element?.childNodes?.length < 1) return;
-    const node = getNode(cp, mapper, index);
-    const ch = node ?? (index >= 0 ? element?.childNodes?.[index] : null);
-    if (ch?.parentNode == element) { ch?.remove?.(); } else
-        if (ch?.children && ch?.children?.length >= 1) { // TODO: remove by same string value
-            ch?.children?.forEach?.(c => { const R = (elMap.get(c) ?? c); if (R == element?.parentNode) R?.remove?.(); });
-        } else { (ch)?.remove?.(); }
+    if (Array.from(element?.childNodes ?? [])?.length < 1) return;
+    const whatToRemove = dePhantomNode(element, getNode(cp, mapper), index);
+    if (whatToRemove?.parentNode == element) whatToRemove?.remove?.();
     return element;
 }
 

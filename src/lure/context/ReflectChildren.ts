@@ -2,7 +2,7 @@ import { addToCallChain, observe, ref, subscribe } from "fest/object";
 
 //
 import getNode, { appendChild, removeNotExists, replaceChildren } from "./Utils";
-import { removeChild } from "./Utils";
+import { removeChild, removeChildDirectly } from "./Utils";
 import { $mapped, $behavior, addToBank, hasInBank } from "../core/Binding";
 
 //
@@ -21,23 +21,25 @@ const indexOf = (element: Node, node: Node) => {
 export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function | null, isArray: boolean = true) => {
     const toBeRemoved: any[] = [], toBeAppend: any[] = [], toBeReplace: any[] = [];
     const merge = () => { // @ts-ignore
+        toBeAppend.forEach((args) => appendChild(...args)); toBeAppend.splice(0, toBeAppend.length); // @ts-ignore
         toBeReplace.forEach((args) => replaceChildren(...args)); toBeReplace.splice(0, toBeReplace.length); // @ts-ignore
         toBeRemoved.forEach((args) => removeChild(...args)); toBeRemoved.splice(0, toBeRemoved.length); // @ts-ignore
-        toBeAppend.forEach((args) => appendChild(...args)); toBeAppend.splice(0, toBeAppend.length); // @ts-ignore
     }
 
     //
     const updateChildList = (newEl, idx, oldEl, op: string | null = "@add", boundParent: Node | null = null) => {
-        let doubtfulParent = getNode(newEl ?? oldEl, mapper, idx)?.parentElement;
-        let element = isValidParent(boundParent) ?? isValidParent(defaultParent) ?? isValidParent(doubtfulParent);
+        let doubtfulParent = getNode(newEl ?? oldEl, mapper, idx, isValidParent(boundParent) ?? isValidParent(defaultParent))?.parentElement;
+        let element = isValidParent(doubtfulParent) ?? isValidParent(boundParent) ?? isValidParent(defaultParent);
         if (!element) return; if (defaultParent != element) { defaultParent = element; }
 
         //
-        const oldIdx = indexOf(element, getNode(oldEl ?? newEl, mapper, idx)) ?? idx ?? -1;
+        const oldNode = getNode(oldEl, mapper, idx);
+        const newNode = getNode(newEl, mapper, idx);
+        const oldIdx = indexOf(element, oldNode);
         if (element && (["@add", "@set", "@remove"].indexOf(op || "") >= 0) || (!op)) {
-            if (oldEl != null && (newEl == null || op == "@remove")) { toBeRemoved.push([element, oldEl ?? newEl, mapper, oldIdx]); };
-            if (newEl != null && (oldEl != null || op == "@set")) { toBeReplace.push([element, newEl ?? oldEl, mapper, oldIdx]); };
-            if (newEl != null && (oldEl == null || op == "@add")) { toBeAppend.push([element, newEl ?? oldEl, mapper, idx]); };
+            if ((newNode != null && oldNode == null) || op == "@add") { toBeAppend.push([element, newNode ?? oldNode, null, idx]); };
+            if ((newNode != null && oldNode != null) || op == "@set") { toBeReplace.push([element, newNode ?? oldNode, null, oldIdx >= 0 ? oldIdx : idx]); };
+            if ((oldNode != null && newNode == null) || op == "@remove") { toBeRemoved.push([element, oldNode ?? newNode, null, oldIdx >= 0 ? oldIdx : idx]); };
         }
 
         //
@@ -50,20 +52,19 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
 
 // TODO! use handlerMap registry
 export const reflectChildren = (element: HTMLElement | DocumentFragment, children: any[] = [], mapper?: Function) => {
-    const $parent = getNode(children?.[0], mapper, 0)?.parentElement;
+    const $parent = getNode(Array.from(children?.values?.() || [])?.[0], mapper, 0)?.parentElement;
     if (!isValidParent(element)) { element = (isValidParent($parent) ? $parent : element) ?? element; }
     if (!children || hasInBank(element, children)) return element;
 
     //
-    const seemsToBeMapped: any = children;
     mapper = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
     children = (children?.[$mapped] ? (children as any)?.children : children) ?? children;
 
     //
-    const updater = makeUpdater(element, mapper, Array.isArray(children));
-    const unsub = (Array.isArray(children) ? observe : subscribe)(children, (...args) => {
-        const firstOf = getNode(children?.[0], mapper, 0);
-        const boundParent = firstOf?.parentElement;
+    const updater = makeUpdater(element, mapper, true);
+    const unsub = observe(children, (...args) => {
+        const firstOf = getNode(Array.from(children?.values?.() || [])?.[0], mapper, 0);
+        const boundParent = firstOf?.parentElement; // @ts-ignore
         return updater(args?.[0], args?.[1], args?.[2], args?.[3], boundParent);
     });
 
@@ -75,7 +76,7 @@ export const reflectChildren = (element: HTMLElement | DocumentFragment, childre
 
 // forcely update child nodes (and erase current content)
 export const reformChildren = (element: HTMLElement | DocumentFragment, children: any[] = [], mapper?: Function) => {
-    if (!children) return element;
+    if (!children || !element) return element;
 
     //
     mapper = (children?.[$mapped] ? (children as any)?.mapper : mapper) ?? mapper;
@@ -83,11 +84,6 @@ export const reformChildren = (element: HTMLElement | DocumentFragment, children
 
     //
     const cvt = children?.map?.((nd, index) => getNode(nd, mapper, index, element));
-
-    //
-    removeNotExists(element, cvt);
-    cvt?.forEach?.((nd) => {
-        if (!element) return nd;
-        appendChild(element, nd);
-    }); return element;
+    removeNotExists(element, cvt); cvt?.forEach?.((nd) => appendChild(element, nd));
+    return element;
 }
