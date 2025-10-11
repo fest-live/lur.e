@@ -12,8 +12,27 @@ export const $virtual = Symbol.for("@virtual");
 export const $behavior = Symbol.for("@behavior");
 
 //
+const hasProperty = (v: any, prop: string = "value") => {
+    return (typeof v == "object" && (v?.[prop] != null || (v != null && (prop in v))));
+}
+
+//
 const hasValue = (v: any) => {
-    return (typeof v == "object" && (v?.value != null || (v != null && ("value" in v))));
+    return hasProperty(v, "value");
+}
+
+
+//
+const $triggerLock  = Symbol.for("@trigger-lock");
+const $avoidTrigger = (ref: any, cb: Function, $prop: string = "value")=>{
+    if (hasProperty(ref, $prop)) ref[$triggerLock] = true;
+    let result;
+    try {
+        result = cb?.();
+    } finally {
+        if (hasProperty(ref, $prop)) { delete ref[$triggerLock]; }
+    }
+    return result;
 }
 
 //
@@ -161,22 +180,28 @@ export const updateInput = (target, state)=>{
     if (state?.[name] != null || name in state) { // not exists not preferred...
         if (state && input?.matches?.(selector)) {
             if (input.value != state[name]) {
-                input.value = state[name];
-                input.dispatchEvent(new Event("change", { bubbles: true, cancelable: true, }));
+                $avoidTrigger(state, ()=>{
+                    input.value = state[name];
+                    input.dispatchEvent(new Event("change", { bubbles: true, cancelable: true, }));
+                }, name);
             }
         }
 
         // setup radio boxes (requires wrapper)
         if (state) {
             const radio = includeSelf(target, `input:where([type=\"radio\"][name=\"${name}\"][value=\"${state?.[name]}\"])`);
-            if (state && radio && state[name] == radio.value && !radio?.checked) { setChecked(radio, state[name]); };
+            if (state && radio && state[name] == radio.value && !radio?.checked) {
+                $avoidTrigger(state, ()=>{ setChecked(radio, state[name]); }, name);
+            };
         }
 
         // setup check boxes
         const checkbox = includeSelf(target, "input:where([type=\"checkbox\"])");
         if (state && checkbox) {
             if (state[name] != checkbox.checked) {
-                setChecked(checkbox, state[name]);
+                $avoidTrigger(state, ()=>{
+                    setChecked(checkbox, state[name]);
+                }, name);
             }
         }
     }

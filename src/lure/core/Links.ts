@@ -5,6 +5,11 @@ import { bindCtrl, bindWith } from "./Binding";
 import { setChecked } from "fest/dom";
 
 //
+const hasValue = (v: any) => {
+    return (typeof v == "object" && (v?.value != null || (v != null && ("value" in v))));
+}
+
+//
 const isValueRef = (exists) => {
     return (typeof exists == "object" || typeof exists == "function") && (exists?.value != null || (exists != null && "value" in exists))
 }
@@ -12,6 +17,19 @@ const isValueRef = (exists) => {
 //
 const isObject = (exists) => {
     return exists != null && (typeof exists == "object" || typeof exists == "function");
+}
+
+//
+const $triggerLock  = Symbol.for("@trigger-lock");
+const $avoidTrigger = (ref: any, cb: Function)=>{
+    if (hasValue(ref)) ref[$triggerLock] = true;
+    let result;
+    try {
+        result = cb?.();
+    } finally {
+        if (hasValue(ref)) { delete ref[$triggerLock]; }
+    }
+    return result;
 }
 
 //
@@ -108,14 +126,22 @@ export const checkedLink = (element?: any|null, exists?: any|null) => {
 }
 
 //
+const $getValue = (val: any)=>{
+    if (typeof val == "object" && val != null && (val?.value != null || "value" in val)) { return val?.value; }; return val;
+}
+
+//
 export const valueLink = (element?: any|null, exists?: any|null) => {
     const def = element?.value ?? "";
     const val = isValueRef(exists) ? exists : stringRef(def); if (isObject(val)) val.value ??= def;
     const dbf = bindCtrl(element, valueCtrl(val));
+    const $val = new WeakRef(val);
     const usb = subscribe([val, "value"], (v) => {
         if (element && isNotEqual(element?.value, (v?.value ?? v))) {
-            element.value = v?.value ?? v;
-            element?.dispatchEvent?.(new Event("change", { bubbles: true }));
+            $avoidTrigger($val?.deref?.(), ()=>{
+                element.value = $getValue($val?.deref?.()) ?? $getValue(v);
+                element?.dispatchEvent?.(new Event("change", { bubbles: true }));
+            });
         }
     });
     return ()=>{ usb?.(); dbf?.(); };

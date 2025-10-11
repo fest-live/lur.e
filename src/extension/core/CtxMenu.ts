@@ -126,7 +126,7 @@ export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenu
 
 // bit same as contextmenu, but different by anchor and trigger (from element drop-down)
 export const dropMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenuDesc, menuElement: HTMLElement = Q("ui-modal[type=\"menulist\"]", document.body))=>{
-    const anchorElement = triggerElement;
+    const anchorElement = triggerElement; // @ts-ignore
     const evHandler = makeMenuHandler(triggerElement, (ev)=>boundingBoxRef(anchorElement)?.slice?.(0, 3), ctxMenuDesc, menuElement);
     const untrigger = makeInterruptTrigger?.(menuElement, (ev: MouseEvent)=>{ // @ts-ignore
         if (!(menuElement?.contains?.(ev?.target) || ev?.target == (triggerElement?.element ?? triggerElement)) || !ev?.target) {
