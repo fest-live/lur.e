@@ -34,6 +34,7 @@ interface MappedOptions {
     uniquePrimitives?: boolean;
     removeNotExistsWhenHasPrimitives?: boolean;
     boundParent?: Node | null;
+    preMap?: boolean;
 }
 
 //
@@ -69,19 +70,19 @@ class Mp {
     }
 
     //
-    constructor(observable, mapCb = (el) => el, options: Node | null | MappedOptions = { removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true } as MappedOptions) {
+    constructor(observable, mapCb = (el) => el, options: Node | null | MappedOptions = { removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions) {
         this.#reMap = new WeakMap();
         this.#pmMap = new Map<any, any>();
         this.#mapCb = mapCb ?? ((el) => el);
         this.#observable = observable;
         this.#fragments = document.createDocumentFragment();
-        this.#options = (isValidParent(options as any) ? null : (options as MappedOptions|null)) || ({ removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true } as MappedOptions);
+        this.#options = (isValidParent(options as any) ? null : (options as MappedOptions|null)) || ({ removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions);
         this.boundParent = isValidParent(this.#options?.boundParent) ?? isValidParent(options as any);
         if (!this.boundParent) {
-            /*reformChildren(
+            if (this.#options.preMap) reformChildren(
                 this.#fragments, this.#observable,
                 this.mapper.bind(this)
-            );*/
+            );
         }
     }
 
@@ -143,7 +144,7 @@ class Mp {
 
     //
     get element(): HTMLElement | DocumentFragment | Text | null {
-        return getNode(this.#observable?.[0], this.mapper.bind(this), 0);
+        return this.#fragments?.childElementCount > 0 ? this.#fragments : getNode(this.#observable?.[0], this.mapper.bind(this), 0);
     }
 
     //
