@@ -61,6 +61,7 @@ export const reflectChildren = (element: HTMLElement | DocumentFragment, childre
     children = (children?.[$mapped] ? (children as any)?.children : children) ?? children;
 
     //
+    removeNotExists(element, children?.map?.((nd, index) => getNode(nd, mapper, index, element)));
     const updater = makeUpdater(element, mapper, true);
     const unsub = observe(children, (...args) => {
         const firstOf = getNode(Array.from(children?.values?.() || [])?.[0], mapper, 0);

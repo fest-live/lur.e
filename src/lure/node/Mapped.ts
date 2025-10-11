@@ -1,5 +1,5 @@
 import { observe } from "fest/object";
-import { getNode } from "../context/Utils";
+import { getNode, removeNotExists } from "../context/Utils";
 import { $mapped } from "../core/Binding";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
 
@@ -15,8 +15,25 @@ const canBeInteger = (value: any) => {
 }
 
 //
-const isValidParent = (parent: Node) => {
-    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
+const isValidParent = (parent: Node|null|undefined) => {
+    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement)) ? parent : null;
+}
+
+//
+const isPrimitive = (value: any) => {
+    return (value != null && (typeof value == "string" || typeof value == "number" || typeof value == "boolean"));
+}
+
+//
+const isHasPrimitives = (observable: any) => {
+    return observable?.some?.(isPrimitive);
+}
+
+//
+interface MappedOptions {
+    uniquePrimitives?: boolean;
+    removeNotExistsWhenHasPrimitives?: boolean;
+    boundParent?: Node | null;
 }
 
 //
@@ -28,6 +45,7 @@ class Mp {
     #pmMap: Map<any, any>;
     #updater: any = null;
     #internal: any = null;
+    #options: MappedOptions = {} as MappedOptions;
 
     //
     #boundParent: Node | null = null;
@@ -51,14 +69,15 @@ class Mp {
     }
 
     //
-    constructor(observable, mapCb = (el) => el, boundParent: Node | null = null) {
+    constructor(observable, mapCb = (el) => el, options: Node | null | MappedOptions = { removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true } as MappedOptions) {
         this.#reMap = new WeakMap();
         this.#pmMap = new Map<any, any>();
         this.#mapCb = mapCb ?? ((el) => el);
         this.#observable = observable;
         this.#fragments = document.createDocumentFragment();
-        this.boundParent = boundParent;
-        if (!boundParent) {
+        this.#options = (isValidParent(options as any) ? null : (options as MappedOptions|null)) || ({ removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true } as MappedOptions);
+        this.boundParent = isValidParent(this.#options?.boundParent) ?? isValidParent(options as any);
+        if (!this.boundParent) {
             /*reformChildren(
                 this.#fragments, this.#observable,
                 this.mapper.bind(this)
@@ -135,7 +154,8 @@ class Mp {
                 return args?.[0];
             }
 
-            if (args?.[0] != null && (typeof args?.[0] == "object" || typeof args?.[0] == "function")) { // @ts-ignore
+            //
+            if (args?.[0] != null && (typeof args?.[0] == "object" || typeof args?.[0] == "function" || typeof args?.[0] == "symbol")) { // @ts-ignore
                 return this.#reMap.getOrInsert(args?.[0], this.#mapCb(...args));
             }
 
@@ -146,19 +166,32 @@ class Mp {
 
             // array may has same values twice, no viable solution...
             if (args?.[0] != null) {
-                return this.#mapCb(...args);
+                if (this.#options?.uniquePrimitives && isPrimitive(args?.[0])) { // @ts-ignore
+                    return this.#pmMap.getOrInsert(args?.[0], this.#mapCb(...args));
+                } else {
+                    return this.#mapCb(...args);
+                }
             }
         }
     }
 
     //
     _onUpdate(newEl, idx, oldEl, op: string | null = "@add") {
+        // keep cache clear from garbage (unique primitives mode)
+        if ((op == "@remove" || op == "@set") && isPrimitive(oldEl) && oldEl != newEl && this.#options?.uniquePrimitives) {
+            this.#pmMap.delete(oldEl);
+        }
+        if (Array.isArray(this.#observable) && (this.#options?.removeNotExistsWhenHasPrimitives ? (isHasPrimitives(this.#observable) || isPrimitive(oldEl)) : false) && this.#observable?.length < 1) {
+            removeNotExists(this.boundParent, this.#observable?.map?.((nd, index) => getNode(nd, this.mapper, index, this.boundParent)));
+        }
         return this.#updater?.(newEl, idx, oldEl, op, this.boundParent);
     }
 }
 
 //
-export const M = (observable, mapCb?, boundParent: Node | null = null) => { return new Mp(observable, mapCb, boundParent); };
+export const M = (observable, mapCb?, boundParent: Node | null | MappedOptions = null) => {
+    return new Mp(observable, mapCb, boundParent);
+};
 
 //
 export default M;
