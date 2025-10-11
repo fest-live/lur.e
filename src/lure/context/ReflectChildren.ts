@@ -41,7 +41,7 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
             if ((newNode != null && oldNode != null) || op == "@set") { toBeReplace.push([element, newNode, null, oldIdx >= 0 ? oldIdx : idx]); }; // TODO: add support for oldNode in replace method
 
             // due splice already removed that index, we need to add +1 to the index in exists children
-            if ((newNode == null || oldNode != null) || op == "@remove") { toBeRemoved.push([element, oldNode, null, oldIdx >= 0 ? oldIdx : (idx+1)]); };
+            if ((newNode == null || oldNode != null) || op == "@remove") { toBeRemoved.push([element, oldNode, null, oldIdx >= 0 ? oldIdx : idx]); };
         }
 
         //

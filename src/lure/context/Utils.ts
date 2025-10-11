@@ -70,25 +70,34 @@ export const getNode = (el, mapper?: Function | null, index: number = -1, reques
 }
 
 //
-export const appendFix = (parent: any, child: any) => {
-    if (!isElement(child) || parent == child) return;
-    child = (child as any)?._onUpdate ? KINDNAP_WITHOUT_HANG(child, parent) : child;
-    if (!child?.parentNode && child instanceof Node) { parent?.append?.(child); return; };
-    if (parent?.parentNode == child?.parentNode) { return; }
-    if (child instanceof Node) { /*(child as any)?.remove?.();*/ parent?.append?.(child); };
+const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => {
+    if (index >= 0 && index < parent?.childNodes?.length) {
+        parent?.insertBefore?.(child, parent?.childNodes?.[index]);
+    } else {
+        parent?.append?.(child);
+    }
 }
 
 //
-export const appendArray = (parent: any, children: any[], mapper?: Function | null) => {
+export const appendFix = (parent: any, child: any, index: number = -1) => {
+    if (!isElement(child) || parent == child) return;
+    child = (child as any)?._onUpdate ? KINDNAP_WITHOUT_HANG(child, parent) : child;
+    if (!child?.parentNode && child instanceof Node) { appendOrEmplaceByIndex(parent, child, index); return; };
+    if (parent?.parentNode == child?.parentNode) { return; }
+    if (child instanceof Node) { /*(child as any)?.remove?.();*/ appendOrEmplaceByIndex(parent, child, index); };
+}
+
+//
+export const appendArray = (parent: any, children: any[], mapper?: Function | null, index: number = -1) => {
     const len = children?.length ?? 0;
     if (Array.isArray(unwrap(children))) {
         children
             ?.map?.((cl, _: number) => getNode(cl, mapper, len, parent))
             ?.filter?.((el) => el != null)
-            ?.forEach?.((el) => appendFix(parent, el));
+            ?.forEach?.((el) => appendFix(parent, el, index));
     } else {
         const node = getNode(children, mapper, len, parent);
-        if (node != null) { appendFix(parent, node); }
+        if (node != null) { appendFix(parent, node, index); }
     }
 }
 
@@ -98,9 +107,9 @@ export const appendChild = (element, cp, mapper?: Function | null, index: number
 
     // has children lists
     if (cp?.children && Array.isArray(unwrap(cp?.children)) && (cp?.[$virtual] || cp?.[$mapped])) {
-        appendArray(element, cp?.children);
+        appendArray(element, cp?.children, null, index);
     } else {
-        appendArray(element, cp, null);
+        appendArray(element, cp, null, index);
     }
 }
 
