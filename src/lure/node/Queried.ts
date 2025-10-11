@@ -304,6 +304,7 @@ export const Q = (selector: any, host = document.documentElement, index = 0, dir
     }
 
     //
+    if (host == null || typeof host == "string" || typeof host == "number" || typeof host == "boolean" || typeof host == "symbol" || typeof host == "undefined") { return null; }
     if (existsQueries?.get?.(host)?.has?.(selector)) { return existsQueries?.get?.(host)?.get?.(selector); }
 
     // @ts-ignore // is selector by host

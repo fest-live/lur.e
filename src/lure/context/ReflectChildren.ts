@@ -37,9 +37,11 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
         const newNode = getNode(newEl, mapper, idx);
         const oldIdx = indexOf(element, oldNode);
         if (element && (["@add", "@set", "@remove"].indexOf(op || "") >= 0) || (!op)) {
-            if ((newNode != null && oldNode == null) || op == "@add") { toBeAppend.push([element, newNode ?? oldNode, null, idx]); };
-            if ((newNode != null && oldNode != null) || op == "@set") { toBeReplace.push([element, newNode ?? oldNode, null, oldIdx >= 0 ? oldIdx : idx]); };
-            if ((oldNode != null && newNode == null) || op == "@remove") { toBeRemoved.push([element, oldNode ?? newNode, null, oldIdx >= 0 ? oldIdx : idx]); };
+            if ((newNode != null && oldNode == null) || op == "@add") { toBeAppend.push([element, newNode, null, idx]); };
+            if ((newNode != null && oldNode != null) || op == "@set") { toBeReplace.push([element, newNode, null, oldIdx >= 0 ? oldIdx : idx]); }; // TODO: add support for oldNode in replace method
+
+            // due splice already removed that index, we need to add +1 to the index in exists children
+            if ((newNode == null || oldNode != null) || op == "@remove") { toBeRemoved.push([element, oldNode, null, oldIdx >= 0 ? oldIdx : (idx+1)]); };
         }
 
         //

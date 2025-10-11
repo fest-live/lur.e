@@ -134,7 +134,7 @@ const deref = (target?: any | null) => {
 //
 export const bindHandler = (element: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean | Function) => {
     const wel = toRef(element); element = deref(wel);
-    if (!element) return;
+    if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
 
     //
     let controller: AbortController | null = null; // @ts-ignore

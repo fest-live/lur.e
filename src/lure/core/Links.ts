@@ -20,6 +20,11 @@ const isObject = (exists) => {
 }
 
 //
+const isPrimitive = (exists: any) => {
+    return exists == null || typeof exists == "string" || typeof exists == "number" || typeof exists == "boolean" || typeof exists == "symbol" || typeof exists == "undefined";
+}
+
+//
 const $triggerLock  = Symbol.for("@trigger-lock");
 const $avoidTrigger = (ref: any, cb: Function)=>{
     if (hasValue(ref)) ref[$triggerLock] = true;
@@ -127,11 +132,16 @@ export const checkedLink = (element?: any|null, exists?: any|null) => {
 
 //
 const $getValue = (val: any)=>{
+    if (isPrimitive(val)) return val;
     if (typeof val == "object" && val != null && (val?.value != null || "value" in val)) { return val?.value; }; return val;
 }
 
 //
 export const valueLink = (element?: any|null, exists?: any|null) => {
+    if (isPrimitive(element)) return;
+    if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
+
+    //
     const def = element?.value ?? "";
     const val = isValueRef(exists) ? exists : stringRef(def); if (isObject(val)) val.value ??= def;
     const dbf = bindCtrl(element, valueCtrl(val));
@@ -149,6 +159,10 @@ export const valueLink = (element?: any|null, exists?: any|null) => {
 
 //
 export const valueAsNumberLink = (element?: any|null, exists?: any|null) => {
+    if (isPrimitive(element)) return;
+    if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
+
+    //
     const def = Number(element?.valueAsNumber) || 0;
     const val = isValueRef(exists) ? exists : numberRef(def); if (isObject(val)) val.value ??= def;
     const dbf = bindCtrl(element, numberCtrl(val));
@@ -163,6 +177,10 @@ export const valueAsNumberLink = (element?: any|null, exists?: any|null) => {
 
 //
 export const observeSizeLink = (element?: any|null, exists?: any|null, box?: any|null, styles?: any|null) => {
+    if (isPrimitive(element)) return;
+    if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
+
+    //
     if (!styles) styles = isValueRef(exists) ? exists : makeReactive({}); let obs: any = null;
     (obs = new ResizeObserver((mut) => {
         if (box == "border-box") {
@@ -183,6 +201,9 @@ export const observeSizeLink = (element?: any|null, exists?: any|null, box?: any
 
 //
 export const refCtl = (value?: any|null) => {
+    if (isPrimitive(value)) return;
+
+    //
     let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
         (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
     })); return ctl;
