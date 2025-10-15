@@ -16,7 +16,7 @@ export class Task implements ITask {
         this.taskId = taskId;
         this.list = list; this.payload = payload; Object.assign(this, state);
         this.$action = action ?? (()=>{
-            if (location.hash != this.taskId) {
+            if ((location.hash != this.taskId) && this.taskId) {
                 return history.replaceState("", "", this.taskId || location.hash);
             }
         });
@@ -38,7 +38,7 @@ export class Task implements ITask {
 
         //
         if (doFocus) { this.focus = true; }
-        history.pushState("", "", getFocused(list, false)?.taskId || "");
+        history.pushState("", "", getFocused(list, false)?.taskId || location.hash);
         document.dispatchEvent(new CustomEvent("task-focus", { detail: this, bubbles: true, composed: true, cancelable: true }));
 
         //

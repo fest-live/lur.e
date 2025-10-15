@@ -1,5 +1,5 @@
 import { stringRef, autoRef, numberRef, booleanRef, deref, isValidObj, makeReactive, addToCallChain, WRef } from "fest/object";
-import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap } from "./Links";
+import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink } from "./Links";
 
 //
 export const makeRef = (host?: any, type?: any, link?: any, ...args)=>{
@@ -27,6 +27,7 @@ export const checkedRef = (host?: any, ...args)=>makeRef(host, booleanRef, check
 export const scrollRef = (host?: any, ...args)=>makeRef(host, numberRef, scrollLink, ...args);
 export const visibleRef = (host?: any, ...args)=>makeRef(host, booleanRef, visibleLink, ...args);
 export const matchMediaRef = (...args)=>makeRef(null, booleanRef, matchMediaLink, ...args);
+export const hashTargetRef = (...args)=>makeRef(null, stringRef, hashTargetLink, ...args);
 
 //
 export const makeWeakRef = (/*host?: any,*/ initial?: any, behavior?: any)=>{

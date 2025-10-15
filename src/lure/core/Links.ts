@@ -61,6 +61,31 @@ export const localStorageLink = (existsStorage?: any|null, exists?: any|null, ke
 }
 
 //
+const normalizeHash = (hash: string | null, withHashCharacter: boolean = true) => {
+    if (hash == null) return (withHashCharacter ? "#" : "");
+    if (!withHashCharacter && hash?.startsWith?.("#")) { return (hash?.replace?.("#", "") || ""); };
+    if (withHashCharacter && !hash?.startsWith?.("#")) { return `#${hash || ""}`; };
+    return (withHashCharacter ? (hash?.startsWith?.("#") ? hash : `#${hash || ""}`) : hash?.replace?.("#", "")) || "";
+}
+
+//
+export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|null, withHashCharacter: boolean = true)=>{
+    const locationHash = normalizeHash(normalizeHash(location?.hash, false) || normalizeHash(initial, false) || "", withHashCharacter) || "";
+    const ref = isValueRef(exists) ? exists : stringRef(locationHash); ref.value ||= locationHash;
+    const evf = (ev) => { ref.value = normalizeHash(normalizeHash(location?.hash, false) || normalizeHash(ref.value, false), withHashCharacter) || ref.value; };
+    const usb = subscribe([ref, "value"], (val) => {
+        const newHash = normalizeHash(normalizeHash(val, false) || normalizeHash(location.hash, false), true);
+        if (newHash != location.hash) { location.hash = newHash || location.hash; }
+    });
+    addEventListener("popstate", evf);
+    addEventListener("hashchange", evf);
+    return () => { usb?.();
+        removeEventListener("popstate", evf);
+        removeEventListener("hashchange", evf);
+    };
+}
+
+//
 export const matchMediaLink = (existsMedia?: any|null, exists?: any|null, condition?: string) => {
     if (condition == null) return;
     const med = existsMedia ?? matchMedia(condition), def = med?.matches || false;

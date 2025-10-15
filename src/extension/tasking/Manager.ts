@@ -26,7 +26,10 @@ export const navigationEnable = (tasks: ITask[], taskEnvAction?: (task?: ITask|n
     // prevent behaviour once...
     addEvent(window, "hashchange", (ev)=>{
         const fc = getBy(tasks, location.hash);
-        if (fc) { fc.focus = true; } else { history.replaceState("", "", getFocused(tasks, false)?.taskId || ""); };
+        if (fc) { fc.focus = true; } else {
+            const hash = getFocused(tasks, false)?.taskId || location.hash || "";
+            if (location.hash != hash) { history?.replaceState?.("", "", hash); };
+        };
     }); history?.pushState?.("", "", location.hash = location.hash || "#");
     addEvent(window, "popstate", (ev)=>{
         ev.preventDefault();
@@ -36,9 +39,11 @@ export const navigationEnable = (tasks: ITask[], taskEnvAction?: (task?: ITask|n
         if (ignoreForward) { ignoreForward = false; } else
         if (taskEnvAction?.(getFocused(tasks, true) ?? null)) {
             ignoreForward = true; history?.forward?.();
-            ignoreForward = true; history?.replaceState?.("", "", getFocused(tasks, false)?.taskId || "");
-        } else
-        { history?.go?.(initialHistoryCount + 1 - history.length); }
+            const hash = getFocused(tasks, false)?.taskId || location.hash || "";
+            if (location.hash != hash) { ignoreForward = true; history.replaceState("", "", hash); };
+        } else {
+            history?.go?.(initialHistoryCount + 1 - history.length);
+        }
     });
 
     //
