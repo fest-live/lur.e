@@ -66,8 +66,6 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
     //
     const element = E(type, normalizedProps, $children);
     if (!element) return element;
-    Promise.resolve().then(()=>{
-        if (ref) { if (typeof ref == "function") { ref?.(element); } else { ref.value = element; } }
-    })?.catch?.(console.warn.bind(console));
+    Promise.try(()=>{ if (ref) { if (typeof ref == "function") { ref?.(element); } else { ref.value = element; } } })?.catch?.(console.warn.bind(console));
     return element;
 }
