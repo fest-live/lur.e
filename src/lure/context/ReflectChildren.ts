@@ -22,8 +22,8 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
     const toBeRemoved: any[] = [], toBeAppend: any[] = [], toBeReplace: any[] = [];
     const merge = () => { // @ts-ignore
         toBeAppend.forEach((args) => appendChild(...args)); toBeAppend.splice(0, toBeAppend.length); // @ts-ignore
-        toBeReplace.forEach((args) => replaceChildren(...args)); toBeReplace.splice(0, toBeReplace.length); // @ts-ignore
         toBeRemoved.forEach((args) => removeChild(...args)); toBeRemoved.splice(0, toBeRemoved.length); // @ts-ignore
+        toBeReplace.forEach((args) => replaceChildren(...args)); toBeReplace.splice(0, toBeReplace.length); // @ts-ignore
     }
 
     //

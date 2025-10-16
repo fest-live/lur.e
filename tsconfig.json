@@ -1,11 +1,11 @@
 {
-    "include": ["./src/**/*.ts", "./test/**/*.ts"],
+    "include": ["./src/**/*.ts", "./test/**/*.ts", "test/test.tsx"],
     "exclude": ["./dist/**/*", "./externals/**/*"],
     "compilerOptions": {
         "outDir": "./dist/",
         "paths": {
             "@phosphor-icons/core/assets/*": ["./node_modules/@phosphor-icons/core/assets/*"],
-            "fonts/*": ["../../shared/fonts/*"],
+            "fonts/*": ["../../shared/assets/fonts/*"],
             "fest/*": ["../../shared/fest/*"],
             "fest/cdnImport": ["../../cdnImport.mjs"],
             "fest/dom": ["../dom.ts/src/index.ts"],
@@ -22,6 +22,9 @@
         "module": "ESNext",
         "moduleResolution": "bundler",
         "lib": ["ESNext", "DOM", "WebWorker"],
+        "jsx": "preserve",
+        "jsxFactory": "createElement",
+        "jsxFragmentFactory": "Fragment",
         "esModuleInterop": true,
         "strict": true,
         "forceConsistentCasingInFileNames": true,

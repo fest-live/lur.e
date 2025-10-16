@@ -12,7 +12,7 @@ export const camelToKebab = (str) => { return str?.replace?.(/([a-z])([A-Z])/g, 
 export const kebabToCamel = (str) => { return str?.replace?.(/-([a-z])/g, (_, char) => char.toUpperCase()); }
 
 //
-export const createElement = (selector): HTMLElement | DocumentFragment => {
+export const createElementVanilla = (selector): HTMLElement | DocumentFragment => {
     if (selector == ":fragment:") return document.createDocumentFragment();
     const create = document.createElement.bind(document);
     for (var node: any = create('div'), match, className = ''; selector && (match = selector.match(REGEX));) {
@@ -32,13 +32,13 @@ const isValidParent = (parent: Node) => {
 }
 
 //
-const KINDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
+const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
     return ((requestor && requestor != el && !el?.contains?.(requestor) && isValidParent(requestor)) ? el?.elementForPotentialParent?.(requestor) : null) ?? el?.element;
 }
 
 //
 const isElement = (el: any) => { return el != null && (el instanceof Node || el instanceof Text || el instanceof Element || el instanceof HTMLElement || el instanceof DocumentFragment) ? el : null; }
-const isElementValue = (el: any, requestor?: any | null) => { return KINDNAP_WITHOUT_HANG(el, requestor) ?? el?.value; }
+const isElementValue = (el: any, requestor?: any | null) => { return KIDNAP_WITHOUT_HANG(el, requestor) ?? el?.value; }
 
 //
 const elMap = new WeakMap();
@@ -81,7 +81,7 @@ const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => 
 //
 export const appendFix = (parent: any, child: any, index: number = -1) => {
     if (!isElement(child) || parent == child) return;
-    child = (child as any)?._onUpdate ? KINDNAP_WITHOUT_HANG(child, parent) : child;
+    child = (child as any)?._onUpdate ? KIDNAP_WITHOUT_HANG(child, parent) : child;
     if (!child?.parentNode && child instanceof Node) { appendOrEmplaceByIndex(parent, child, index); return; };
     if (parent?.parentNode == child?.parentNode) { return; }
     if (child instanceof Node) { /*(child as any)?.remove?.();*/ appendOrEmplaceByIndex(parent, child, index); };
@@ -133,18 +133,16 @@ export const dePhantomNode = (parent, node, index: number = -1)=>{
 // TODO: what exactly to replace, if has (i.e. object itself, not index)
 export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1) => {
     if (mapper != null) { cp = mapper?.(cp, index); }
-    const cn = index >= 0 ? element?.childNodes?.[index] : null; // @ts-ignore
-    if (cn instanceof Text && typeof cp == "string" && cn != null) { cn.textContent = cp; } else
+    const cn = dePhantomNode(element, null, index);
+    if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
     if (cp != null) {
-        const node = getNode(cp), oldNode = null; // oldNode is always unknown and phantom
-        const cn = dePhantomNode(element, oldNode, index)
-
-        if (cn != node) {
+        const node = getNode(cp); // oldNode is always unknown and phantom
+        if (cn?.parentNode != element && cn != node && cn != null) {
             if (cn instanceof Text && node instanceof Text) {
-                if (cn.textContent != node.textContent) { cn.textContent = node.textContent; }
+                if (cn?.textContent != node?.textContent) { cn.textContent = node.textContent; }
             } else
             if (cn != node && (!node?.parentNode || node?.parentNode != element)) { cn?.replaceWith?.(node); }
-        }
+        } else { appendChild(element, node, null, index); }
     }
 }
 

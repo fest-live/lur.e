@@ -1,6 +1,6 @@
 // @ts-ignore
 import { makeReactive, assign } from "fest/object";
-import { defineElement, GLitElement, property, S, E, H } from "fest/lure";
+import { defineElement, GLitElement, property, S, E, H, createElement } from "fest/lure";
 
 //
 @defineElement("x-block")
@@ -45,7 +45,8 @@ const style = makeReactive({
 });
 
 // create document fragment
-const dom = H`<${"x-block#test.test"} on:click=${()=>alert("Тетрис!")} style=${style}><span>${children}</span></div>`;
+const dom = (<x-block id="test" class="test" on:click={()=>alert("Тетрис!")} style={style}><span>{children}</span></x-block>);
+console.log(dom);
 
 //
 setTimeout(()=>{
