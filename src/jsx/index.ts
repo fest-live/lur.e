@@ -21,7 +21,6 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
 
     //
     for (const i in props) {
-        console.log(i, props[i]);
         if (i == 'key') { key = props[i]; } else
         if (i == 'ref') {
             if (typeof type != 'function') {
@@ -65,7 +64,6 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
     }
 
     //
-    console.log(type, $children);
     const element = E(type, normalizedProps, $children);
     Promise.resolve().then(()=>{
         if (ref) { if (typeof ref == "function") { ref?.(element); } else { ref.value = element; } }

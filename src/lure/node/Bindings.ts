@@ -8,6 +8,7 @@ import { createElementVanilla } from "../context/Utils";
 import { Q } from "./Queried";
 import { reflectChildren } from "../context/ReflectChildren";
 import M from "./Mapped";
+import { getNode } from "../context/Utils";
 
 //
 interface Params {
@@ -57,7 +58,7 @@ const $createElement = (selector: string | HTMLElement | Node | DocumentFragment
 
 //
 export const E = (selector: string | HTMLElement | Node | DocumentFragment | Document | Element, params: Params = {}, children?: any[]|any|null) => {
-    const element = typeof selector == "string" ? $createElement(selector) : selector;
+    const element = getNode(typeof selector == "string" ? $createElement(selector) : selector, null, -1);
     if (element && children) { M(children, (el)=>el, element); /*reflectChildren(element, children);*/ }
     if (element && params) {
         if (params.ctrls != null) reflectControllers(element, params.ctrls);
