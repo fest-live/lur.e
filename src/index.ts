@@ -6,6 +6,7 @@ export * from "./lure/node/Syntax"
 export * from "./lure/node/Switched"
 export * from "./lure/node/Mapped"
 export * from "./lure/node/Queried"
+export * from "./lure/node/JSX"
 
 //
 export * from "./extension/misc/Glit"
@@ -30,6 +31,3 @@ export * from "./extension/core/Anchor"
 export * from "./extension/core/CtxMenu"
 export * from "./extension/core/InputExt"
 export * from "./extension/core/Status"
-
-//
-export * from "./jsx/index"

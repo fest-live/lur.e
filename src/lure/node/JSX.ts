@@ -1,7 +1,7 @@
-import { E } from "../lure/node/Bindings";
-import { M } from "../lure/node/Mapped";
-import { I } from "../lure/node/Switched";
-import { Q } from "../lure/node/Queried";
+import { E } from "./Bindings";
+import { M } from "./Mapped";
+import { I } from "./Switched";
+import { Q } from "./Queried";
 
 //
 const bindEvent = (on: any, key: string, value: any)=>{
@@ -65,8 +65,9 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
 
     //
     const element = E(type, normalizedProps, $children);
+    if (!element) return element;
     Promise.resolve().then(()=>{
         if (ref) { if (typeof ref == "function") { ref?.(element); } else { ref.value = element; } }
-    });
+    })?.catch?.(console.warn.bind(console));
     return element;
 }
