@@ -89,7 +89,7 @@ class Mp {
         this.#reMap = new WeakMap();
         this.#pmMap = new Map<any, any>(); // make 'mapper' compatible with React syntax ('mapper' property instead of function)
         this.#mapCb = (mapCb != null ? (typeof mapCb == "function" ? mapCb : (typeof mapCb == "object" ? mapCb?.mapper : null)) : null) ?? ((el) => el);
-        this.#observable = observable;
+        this.#observable = (isObservable(observable) ? observable : (observable?.iterator ?? mapCb?.iterator ?? observable)) ?? [];
         this.#fragments = document.createDocumentFragment();
         this.#options = (isValidParent(options as any) ? null : (options as MappedOptions|null)) || ({ removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions);
         this.boundParent = isValidParent(this.#options?.boundParent) ?? isValidParent(options as any);

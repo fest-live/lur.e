@@ -16,12 +16,11 @@ const bindEvent = (on: any, key: string, value: any)=>{
 
 //
 export const createElement = (type: string | HTMLElement | Node | DocumentFragment | Document | Element | Function, props: any = {}, children?: any[]|any|null, ...others: any[]|any|null)=>{
-    let normalized: any = {}, key, ref;
-    let attributes: any = {}, properties: any = {}, classList: any = {}, style: any = {}, ctrls: any = {}, iterator: any = null, switchKey: any = null, on: any = {};
+    let normalized: any = {}, ref;
+    let attributes: any = {}, properties: any = {}, classList: any = {}, style: any = {}, ctrls: any = {}, on: any = {};
 
     //
     for (const i in props) {
-        if (i == 'key') { key = props[i]; } else
         if (i == 'ref') {
             if (typeof type != 'function') {
                 ref = typeof props[i] != 'function' ? props[i] : Q(props[i]);
@@ -29,8 +28,6 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
         } else
         if (i == 'classList') { classList = props[i]; } else
         if (i == 'style') { style = props[i]; } else
-        if (i == 'iterator') { iterator = props[i]; } else
-        if (i == 'switchKey') { switchKey = props[i]; } else
 
         //
         if (i?.startsWith?.("@"))     { const name = i.replace("@", "").trim();   if (name) { bindEvent(on, name, props[i]); } else { on = props[i]; } } else
@@ -42,9 +39,6 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
     };
 
     //
-    const $children = Array.isArray(children) ? children : (others?.length > 0 ? [children, ...others] : [children]);
-
-    //
     Object.assign(normalized, {
         attributes,
         properties,
@@ -54,22 +48,14 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
     });
 
     //
-    if (typeof type == "function") {
-        return type(props, $children);
-    }
+    const $children = Array.isArray(children) ? children :
+        (others?.length > 0 ? [children, ...others] :
+            ((typeof children == "object" && !(children instanceof Node) || children instanceof DocumentFragment) ? children : [children]));
 
     //
-    if (type == "For" && iterator) {
-        return M(iterator, $children);
-    }
-
-    //
-    if (type == "Switch") {
-        return I({
-            current: switchKey,
-            mapped: $children,
-        });
-    }
+    if (typeof type == "function") { return type(props, $children); }
+    if (type == "For") { return M(props, $children); }
+    if (type == "Switch") { return I(props, $children); }
 
     //
     const element = E(type, normalized, $children); if (!element) return element;
