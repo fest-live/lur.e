@@ -41,7 +41,6 @@ const bindEvent = (on, key, value)=>{
     return on;
 }
 
-
 //
 const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>) => {
     if (!el) return el;
@@ -76,10 +75,10 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
             if (attr.name == "classList" || attr.name == "classlist") { classList = value ?? classList; } else
             if (attr.name == "ref") { doAction = value; } else
             if (attr.name == "value") { properties.value = value; } else
-            if (attr.name?.trim?.()?.startsWith?.("@")) { if (!on) on = {}; bindEvent(on, attr.name.trim().replace("@", "").trim(), value); } else
-            if (attr.name?.trim?.()?.startsWith?.("on:")) { if (!on) on = {}; bindEvent(on, attr.name.trim().replace("on:", "").trim(), value); } else
-            if (attr.name?.trim?.()?.startsWith?.("prop:")) { properties[attr.name.trim().replace("prop:", "").trim()] = value; } else
-            if (attr.name?.trim?.()?.startsWith?.("ctrl:")) { ctrls.set(attr.name.trim().replace("ctrl:", "").trim(), value); } else
+            if (attr.name?.trim?.()?.startsWith?.("@"))     { const name = attr.name.trim().replace("@"  , "").trim(); if (name) { if (!on) on = {}; bindEvent(on, name, value); } else { on = value; } } else
+            if (attr.name?.trim?.()?.startsWith?.("on:"))   { const name = attr.name.trim().replace("on:", "").trim(); if (name) { if (!on) on = {}; bindEvent(on, name, value); } else { on = value; } } else
+            if (attr.name?.trim?.()?.startsWith?.("prop:")) { const name = attr.name.trim().replace("prop:", "").trim(); if (name) { properties[name] = value; } else { properties = value; } } else
+            if (attr.name?.trim?.()?.startsWith?.("ctrl:")) { const name = attr.name.trim().replace("ctrl:", "").trim(); if (name) { ctrls.set(name, value); } else { ctrls = value; } } else
             { attributes[attr.name.trim()] = value; }
             if (isCustom) { el.removeAttribute(attr.name); };
         }
