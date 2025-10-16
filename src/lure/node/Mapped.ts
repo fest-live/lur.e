@@ -63,12 +63,10 @@ class Mp {
     //
     get boundParent() { return this.#boundParent; }
     set boundParent(value: Node | null) {
-        if (value instanceof HTMLElement && isValidParent(value)) {
-            this.#boundParent = value;
-            this.makeUpdater(value);
+        if (value instanceof HTMLElement && isValidParent(value) && value != this.#boundParent) {
+            this.#boundParent = value; this.makeUpdater(value);
         }
     }
-
     //
     constructor(observable, mapCb = (el) => el, options: Node | null | MappedOptions = { removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions) {
         this.#reMap = new WeakMap();
@@ -91,14 +89,12 @@ class Mp {
 
     //
     elementForPotentialParent(requestor: any) {
-        this.boundParent = requestor;
-        return this.element;
-        /*Promise.resolve().then(() => {
+        Promise.try(() => {
             const element = getNode(this.#observable?.[0], this.mapper.bind(this), 0);
             if (!element || !requestor || element?.contains?.(requestor) || requestor == element) {
                 return;
             }
-            if (!this.boundParent && requestor instanceof HTMLElement && isValidParent(requestor)) {
+            if (requestor instanceof HTMLElement && isValidParent(requestor)) {
                 if (Array.from(requestor?.children).find((node) => node === element)) {
                     this.boundParent = requestor;
                 } else {
@@ -118,8 +114,8 @@ class Mp {
                     observer.observe(requestor, { childList: true });
                 }
             }
-        });
-        return this.element;*/
+        })?.catch?.(console.warn.bind(console));
+        return this.element;
     }
 
     //
@@ -129,11 +125,7 @@ class Mp {
     get self(): HTMLElement | DocumentFragment | Text | null {
         const existsNode = getNode(this.#observable?.[0], this.mapper.bind(this), 0);
         const theirParent = isValidParent(existsNode?.parentElement) ? existsNode?.parentElement : this.boundParent;
-
-        //
-        if (theirParent) {
-            this.boundParent ??= theirParent ?? this.boundParent;
-        }
+        this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
         //
         return (theirParent ?? (reformChildren(
@@ -144,7 +136,10 @@ class Mp {
 
     //
     get element(): HTMLElement | DocumentFragment | Text | null {
-        return this.#fragments?.childElementCount > 0 ? this.#fragments : getNode(this.#observable?.[0], this.mapper.bind(this), 0);
+        const children = this.#fragments?.childElementCount > 0 ? this.#fragments : getNode(this.#observable?.[0], this.mapper.bind(this), 0);
+        const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
+        this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
+        return children;
     }
 
     //
