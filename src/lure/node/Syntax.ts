@@ -1,16 +1,9 @@
-import { makeReactive, unwrap } from "fest/object";
-
-//
 import { getNode } from "../context/Utils";
 import E from "./Bindings";
 import M from "./Mapped";
-import { reflectChildren } from "../context/ReflectChildren";
-import { $mapped } from "../core/Binding";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
-
-//
 const preserveWhitespaceTags = new Set(["PRE", "TEXTAREA", "SCRIPT", "STYLE"]);
 const cleanupInterTagWhitespace = (root: Node) => {
     if (!root) return;
@@ -26,9 +19,6 @@ const cleanupInterTagWhitespace = (root: Node) => {
     }
     for (const t of queue) t?.remove?.();
 }
-
-//
-const findIterator = (element, psh) => { if (element.childNodes.length <= 1 && element.childNodes?.[0]?.nodeType == Node.COMMENT_NODE && element.childNodes?.[0]?.nodeValue.includes("o:")) { const node = element.childNodes?.[0]; if (!node) return; let el: any = psh[Number(node?.nodeValue?.slice(2))]; if (typeof el == "function") return el; } }
 
 //
 const bindEvent = (on, key, value)=>{
@@ -295,7 +285,7 @@ export const H = (str: any, ...values: any[])=>{
     } else
     if (typeof str == "function") { return H(str?.()); } else
     if (Array.isArray(str) && values) { return html(str, ...values); } else
-                if (str instanceof Node) { cleanupInterTagWhitespace(str); return str; }; return null;
+    if (str instanceof Node) { cleanupInterTagWhitespace(str); return str; }; return null;
 }
 
 //
