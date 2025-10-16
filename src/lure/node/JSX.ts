@@ -15,8 +15,8 @@ const bindEvent = (on: any, key: string, value: any)=>{
 }
 
 //
-export const createElement = (type: string | HTMLElement | Node | DocumentFragment | Document | Element, props: any = {}, children?: any[]|any|null, ...others: any[]|any|null)=>{
-    let normalizedProps: any = {}, key, ref;
+export const createElement = (type: string | HTMLElement | Node | DocumentFragment | Document | Element | Function, props: any = {}, children?: any[]|any|null, ...others: any[]|any|null)=>{
+    let normalized: any = {}, key, ref;
     let attributes: any = {}, properties: any = {}, classList: any = {}, style: any = {}, ctrls: any = {}, iterator: any = null, switchKey: any = null, on: any = {};
 
     //
@@ -45,7 +45,7 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
     const $children = Array.isArray(children) ? children : (others?.length > 0 ? [children, ...others] : [children]);
 
     //
-    Object.assign(normalizedProps, {
+    Object.assign(normalized, {
         attributes,
         properties,
         classList,
@@ -54,18 +54,25 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
     });
 
     //
-    if (type == "For" && iterator) {
-        return M(iterator, children);
+    if (typeof type == "function") {
+        return type(props, $children);
     }
+
+    //
+    if (type == "For" && iterator) {
+        return M(iterator, $children);
+    }
+
+    //
     if (type == "Switch") {
         return I({
             current: switchKey,
-            mapped: children,
+            mapped: $children,
         });
     }
 
     //
-    const element = E(type, normalizedProps, $children); if (!element) return element;
+    const element = E(type, normalized, $children); if (!element) return element;
     Promise.try(()=>{ if (ref) { if (typeof ref == "function") { ref?.(element); } else { ref.value = element; } } })?.catch?.(console.warn.bind(console));
     return element;
 }
