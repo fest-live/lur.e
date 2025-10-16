@@ -50,7 +50,7 @@ export const createElement = (type: string | HTMLElement | Node | DocumentFragme
     //
     const $children = Array.isArray(children) ? children :
         (others?.length > 0 ? [children, ...others] :
-            ((typeof children == "object" && !(children instanceof Node) || children instanceof DocumentFragment) ? children : [children]));
+            (((typeof children == "object" || typeof children == "function") && !(children instanceof Node) || children instanceof DocumentFragment) ? children : [children]));
 
     //
     if (typeof type == "function") { return type(props, $children); }
