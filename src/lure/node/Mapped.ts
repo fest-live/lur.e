@@ -38,6 +38,11 @@ interface MappedOptions {
 }
 
 //
+const isObservable = (observable: any) => {
+    return Array.isArray(observable) || observable instanceof Set || observable instanceof Map;
+};
+
+//
 class Mp {
     #observable?: any[];
     #fragments: DocumentFragment;
@@ -67,11 +72,23 @@ class Mp {
             this.#boundParent = value; this.makeUpdater(value);
         }
     }
+
     //
-    constructor(observable, mapCb = (el) => el, options: Node | null | MappedOptions = { removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions) {
+    constructor(observable, mapCb: any = (el) => el, options: Node | null | MappedOptions = /*{ removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions*/ null) {
+        // swap arguments (JSX compatibility)
+        if (isObservable(mapCb) && ((typeof observable == "function" || typeof observable == "object") && !isObservable(observable))) {
+            [observable, mapCb] = [mapCb, observable] as [any, any];
+        }
+
+        // may be unified with options, if isn't exists (JSX compatibility)
+        if (!options && (mapCb != null && typeof mapCb == "object") && !isObservable(mapCb)) {
+            options = mapCb as MappedOptions;
+        }
+
+        //
         this.#reMap = new WeakMap();
-        this.#pmMap = new Map<any, any>();
-        this.#mapCb = mapCb ?? ((el) => el);
+        this.#pmMap = new Map<any, any>(); // make 'mapper' compatible with React syntax ('mapper' property instead of function)
+        this.#mapCb = (mapCb != null ? (typeof mapCb == "function" ? mapCb : (typeof mapCb == "object" ? mapCb?.mapper : null)) : null) ?? ((el) => el);
         this.#observable = observable;
         this.#fragments = document.createDocumentFragment();
         this.#options = (isValidParent(options as any) ? null : (options as MappedOptions|null)) || ({ removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions);

@@ -36,9 +36,9 @@ export class SwM implements SwitchedParams {
     boundParent: Node | null = null;
 
     //
-    constructor(params?: SwitchedParams|null) {
+    constructor(params?: SwitchedParams|null, mapped?: any[]|any|Map<any, any>|Set<any>|null) {
         this.current = params?.current ?? { value: -1 };
-        this.mapped = params?.mapped ?? [];
+        this.mapped = params?.mapped ?? mapped ?? [];
 
         //
         const us = subscribe([params?.current, "value"], (newVal, prop, oldVal) => (this as any)._onUpdate(newVal, prop, oldVal));
@@ -105,9 +105,9 @@ class SwHandler implements ProxyHandler<SwitchedParams> {
 }
 
 //
-export const I = (params: SwitchedParams) => { // @ts-ignore
+export const I = (params: SwitchedParams, mapped?: any[]|any|Map<any, any>|Set<any>|null) => { // @ts-ignore
     return inProx?.getOrInsertComputed?.(params, ()=>{
-        const px = new Proxy(params instanceof SwM ? params : new SwM(params), new SwHandler());
+        const px = new Proxy(params instanceof SwM ? params : new SwM(params, mapped), new SwHandler());
         return px;
     });
 }
