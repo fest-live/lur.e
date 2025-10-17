@@ -48,7 +48,6 @@ export const makeRenderer = () => {
     canvas.layoutsubtree = true;
     canvas.setAttribute("layoutsubtree", "true");
 
-
     //
     const ctx = canvas?.getContext?.("2d") as CanvasRenderingContext2D | null;
     if (!ctx) { return fallback; }
@@ -70,22 +69,18 @@ export const makeRenderer = () => {
         if (drawElement == null) return;
 
         //
-        const parentEl = canvas.offsetParent;
-        const box = drawElement?.getBoundingClientRect();
-
-        //
         try {
             (ctx as any).setHitTestRegions([{
                 element: drawElement,
                 rect: {
                     x: 0,
                     y: 0,
-                    width: canvas.width,
-                    height: canvas.height
+                    width: drawElement?.offsetWidth * devicePixelRatio,
+                    height: drawElement?.offsetHeight * devicePixelRatio
                 }
             }]);
         } catch(e) {
-            console.error(e);
+            console.warn(e);
         }
     }
 
@@ -97,8 +92,11 @@ export const makeRenderer = () => {
 
         //
         ctx.reset();
-        drawElementAct(drawElement, 0, 0);
+        ctx.save();
+        ctx.scale(devicePixelRatio || 1, devicePixelRatio || 1);
+        try { drawElementAct(drawElement, 0, 0, canvas.width / devicePixelRatio, canvas.height / devicePixelRatio); } catch(e) { console.warn(e); }
         makeInteractive();
+        ctx.restore();
     }
 
     //https://localhost/#task2
