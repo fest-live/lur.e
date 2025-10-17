@@ -48,7 +48,7 @@ export const makeRenderer = () => {
     canvas.layoutsubtree = true;
     canvas.setAttribute("layoutsubtree", "true");
 
-    //
+    //\
     const ctx = canvas?.getContext?.("2d") as CanvasRenderingContext2D | null;
     if (!ctx) { return fallback; }
 
