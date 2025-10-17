@@ -33,7 +33,7 @@ export class ResizeHandler {
         return real;
     }
 
-    //
+    // TODO! Resizing v2 (full reworking for performance)
     resizable(options) {
         const handler  = options.handler ?? this.#holder, status: InteractStatus = { pointerId: -1 };
         const resizing = this.#resizing, weak = new WeakRef(this.#holder), self_w = new WeakRef(this);
@@ -48,6 +48,8 @@ export class ResizeHandler {
                 holder?.removeAttribute?.("data-resizing");
             });
         };
+
+        //
         const binding  = (grabAction)=>handler.addEventListener("pointerdown", makeShiftTrigger((ev)=>grabAction(ev, this.#holder), this.#holder));
         const initDrag = ()=>{
             const starting = [resizing?.[0]?.value || 0, resizing?.[1]?.value || 0];
@@ -59,7 +61,12 @@ export class ResizeHandler {
         };
 
         //
-        E(this.#holder, { style: { "--resize-x": resizing?.[0], "--resize-y": resizing?.[1] } });
+        E(this.#holder, { style: {
+            "--resize-x": resizing?.[0],
+            "--resize-y": resizing?.[1]
+        } });
+
+        //
         return bindDraggable(binding, dragResolve, resizing, initDrag);
     }
 }
