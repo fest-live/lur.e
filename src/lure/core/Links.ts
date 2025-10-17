@@ -51,7 +51,12 @@ export const localStorageLink = (existsStorage?: any|null, exists?: any|null, ke
     return localStorageLinkMap.getOrInsertComputed?.(key, ()=>{
         const def  = (existsStorage ?? localStorage).getItem(key) ?? (initial?.value ?? initial);
         const ref = isValueRef(exists) ? exists : stringRef(def); /*if (typeof ref == "object" || typeof ref == "function")*/ ref.value ??= def;
-        const unsb = subscribe([ref, "value"], (val) => (existsStorage ?? localStorage).setItem(key, val));
+        const $val = new WeakRef(ref);
+        const unsb = subscribe([ref, "value"], (val) => {
+            $avoidTrigger($val?.deref?.(), ()=>{
+                (existsStorage ?? localStorage).setItem(key, val);
+            });
+        });
         const list = (ev) => { if (ev.storageArea == (existsStorage ?? localStorage) && ev.key == key) {
             if (isNotEqual(ref.value, ev.newValue)) { ref.value = ev.newValue; };
         } };
@@ -71,11 +76,14 @@ const normalizeHash = (hash: string | null, withHashCharacter: boolean = true) =
 //
 export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|null, withHashCharacter: boolean = true)=>{
     const locationHash = normalizeHash(normalizeHash(location?.hash, false) || normalizeHash(initial, false) || "", withHashCharacter) || "";
-    const ref = isValueRef(exists) ? exists : stringRef(locationHash); ref.value ||= locationHash;
+    const ref = isValueRef(exists) ? exists : stringRef(locationHash); if (isObject(ref)) ref.value ||= locationHash;
     const evf = (ev) => { ref.value = normalizeHash(normalizeHash(location?.hash, false) || normalizeHash(ref.value, false), withHashCharacter) || ref.value; };
+    const $val = new WeakRef(ref);
     const usb = subscribe([ref, "value"], (val) => {
-        const newHash = normalizeHash(normalizeHash(val, false) || normalizeHash(location.hash, false), true);
-        if (newHash != location.hash) { location.hash = newHash || location.hash; }
+        const newHash = normalizeHash(normalizeHash($getValue($val?.deref?.()) || val, false) || normalizeHash(location.hash, false), true);
+        if (newHash != location.hash) { $avoidTrigger($val?.deref?.(), ()=>{
+            location.hash = newHash || location.hash;
+        }); }
     });
     addEventListener("popstate", evf);
     addEventListener("hashchange", evf);
