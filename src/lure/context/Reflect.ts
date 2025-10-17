@@ -17,7 +17,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (typeof attributes == "object" || typeof attributes == "function") {
         const usub = subscribe(attributes, (value, prop: any)=>{
             handleAttribute(wel?.deref?.(), prop, value);
-            bindHandler(wel, value, prop, handleAttribute, weak, true);
+            bindHandler(wel?.deref?.(), value, prop, handleAttribute, weak, true);
         });
         addToCallChain(attributes, Symbol.dispose, usub);
         addToCallChain(element, Symbol.dispose, usub);

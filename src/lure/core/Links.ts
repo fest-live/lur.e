@@ -25,6 +25,11 @@ const isPrimitive = (exists: any) => {
 }
 
 //
+const getValue = (val: any) => {
+    return (hasValue(val) ? val?.value : val);
+}
+
+//
 const $triggerLock  = Symbol.for("@trigger-lock");
 const $avoidTrigger = (ref: any, cb: Function)=>{
     if (hasValue(ref)) ref[$triggerLock] = true;
@@ -119,9 +124,16 @@ export const visibleLink = (element?: any|null, exists?: any|null, initial?: any
 }
 
 //
+const normalizePrimitive = (val: any) => {
+    return (typeof val == "boolean" ? (val ? "" : null) : (typeof val == "number" ? String(val) : val));
+}
+
+//
 export const attrLink = (element?: any|null, exists?: any|null, attribute?: string, initial?: any|null) => {
-    const def = element?.getAttribute?.(attribute) ?? ((initial?.value ?? initial) == true && typeof initial == "boolean" ? "" : (initial?.value ?? initial));
-    if (!element) return; const val = isValueRef(exists) ? exists : stringRef(def); if (isObject(val)) val.value ||= def; return bindWith(element, attribute, val, handleAttribute, null, true);
+    const def = element?.getAttribute?.(attribute) ?? (typeof initial == "boolean" ? (initial ? "" : null) : getValue(initial));
+    if (!element) return; const val = isValueRef(exists) ? exists : stringRef(def);
+    if (isObject(val) && !normalizePrimitive(val.value)) val.value = normalizePrimitive(def) ?? val.value ?? "";
+    return bindWith(element, attribute, val, handleAttribute, null, true);
 }
 
 //
@@ -246,7 +258,8 @@ export const refCtl = (value?: any|null) => {
 export const orientLink = (host?: any|null, exists?: any|null)=>{
     const orient = orientationNumberMap?.[getCorrectOrientation()] || 0;
     const def = Number(orient) || 0;
-    const val = isValueRef(exists) ? exists : numberRef(def); if (isObject(val)) val.value ??= def;
+    const val = isValueRef(exists) ? exists : numberRef(def);
+    if (isObject(val)) val.value = def;
 
     // !Change orientation? You are seious?!
     //subscribe([exists, "value"], (orient)=>{ // pickup name...

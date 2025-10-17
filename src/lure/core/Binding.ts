@@ -21,6 +21,10 @@ const hasValue = (v: any) => {
     return hasProperty(v, "value");
 }
 
+//
+const $getValue = (v: any) => {
+    return hasValue(v) ? v?.value : v;
+}
 
 //
 const $triggerLock  = Symbol.for("@trigger-lock");
@@ -61,7 +65,7 @@ export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl
 export const $fxy = Symbol.for("@fix"), fixFx = (obj) => { if (typeof obj == "function" || obj == null) return obj; const fx = function(){}; fx[$fxy] = obj; return fx; }
 export const $set = (rv, key, val) => {
     if ((rv = deref(rv)) != null && (typeof rv == "object" || typeof rv == "function")) {
-        return (rv[key] = hasValue(val = deref(val)) ? val?.value : val);
+        return (rv[key] = $getValue(val = deref(val)));
     };
 }
 
@@ -70,7 +74,7 @@ export const $observeInput = (element, ref?: any|null, prop = "value") => {
     const wel = toRef(element);
     const rf = toRef(ref);
     const ctrlCb = (ev)=>{
-        $set(rf, "value", deref(wel)?.[prop ?? "value"] ?? hasValue(deref(rf)) ? deref(rf)?.value : deref(rf));
+        $set(rf, "value", deref(wel)?.[prop ?? "value"] ?? $getValue(deref(rf)));
     }
 
     //
@@ -78,7 +82,7 @@ export const $observeInput = (element, ref?: any|null, prop = "value") => {
     ctrlCb?.({ target: element }); handleListeners?.(element, "addEventListener", hdl);
 
     //
-    $set(rf, "value", element?.[prop ?? "value"] ?? (hasValue(deref(ref)) ? deref(ref)?.value : deref(ref)));
+    $set(rf, "value", element?.[prop ?? "value"] ?? $getValue(deref(ref)));
     return () => handleListeners?.(element, "removeEventListener", hdl);
 }
 
@@ -91,11 +95,11 @@ export const $observeAttribute = (el: HTMLElement, ref?: any|null, prop: string 
         //
         if (mutation.type == "attributes" && mutation.attributeName == attrName) {
             const value = mutation?.target?.getAttribute?.(mutation.attributeName);
-            const val = deref(wv), reVal = hasValue(val) ? val?.value : val;
+            const valRef = deref(wv), reVal = $getValue(valRef);
 
             //
-            if (isNotEqual(mutation.oldValue, value) && (val != null && (reVal != null || (typeof val == "object" || typeof val == "function"))))
-            { if (isNotEqual(reVal, value) || reVal == null) { $set(val, "value", hasValue(reVal) ? reVal?.value : reVal); } }
+            if (isNotEqual(mutation.oldValue, value) && (valRef != null && (typeof valRef == "object" || typeof valRef == "function")))
+            { if (isNotEqual(reVal, value) || reVal == null) { $set(valRef, "value", value); } }
         }
     }
 
@@ -123,7 +127,7 @@ export const hasInBank = (el, handle)=>{
 
 //
 const toRef = (el?: any | null) => {
-    return el != null ? (el instanceof WeakRef || typeof el?.deref == "function") ? el : ((typeof el == "object" || typeof el == "function") ? new WeakRef(el) : el) : null;
+    return el != null ? ((el instanceof WeakRef || typeof el?.deref == "function") ? el : ((typeof el == "object" || typeof el == "function") ? new WeakRef(el) : el)) : null;
 }
 
 //
@@ -143,14 +147,17 @@ export const bindHandler = (element: any, value: any, prop: any, handler: any, s
     //
     const wv = toRef(value);
     const un = subscribe?.([value, "value"], (curr, _, old) => {
-        if (!deref(set) || deref(set)?.[prop] == deref(wv)) {
-            const val = deref(wv);
+        const valueRef = deref(wv);
+        const setRef = deref(set);
+        const elementRef = deref(wel);
+        const value = $getValue(valueRef) ?? curr;
+        if (!setRef || setRef?.[prop] == valueRef) {
 
             //
-            if (typeof val?.[$behavior] == "function") {
-                val?.[$behavior]?.((val = curr) => handler(deref(wel), prop, hasValue(val) ? val?.value : val), [curr, prop, old], [controller?.signal, prop, wel]);
+            if (typeof valueRef?.[$behavior] == "function") {
+                valueRef?.[$behavior]?.((val = curr) => handler(elementRef, prop, $getValue(val) ?? curr), [curr, prop, old], [controller?.signal, prop, wel]);
             } else {
-                handler(deref(wel), prop, hasValue(val) ? val?.value : val);
+                handler(elementRef, prop, value ?? curr);
             }
         }
     });

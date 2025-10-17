@@ -1,14 +1,20 @@
 import { stringRef, autoRef, numberRef, booleanRef, deref, isValidObj, makeReactive, addToCallChain, WRef } from "fest/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink } from "./Links";
+import { handleAttribute } from "fest/dom";
+import { elMap } from "./Binding";
 
 //
 export const makeRef = (host?: any, type?: any, link?: any, ...args)=>{
+    if (link == attrLink || link == handleAttribute) {
+        const exists = elMap?.get?.(host)?.get?.(handleAttribute)?.get?.(args[0])?.[0];
+        if (exists) { return exists; };
+    }
     const rf = (type ?? autoRef)?.(null), usub = link?.(host, rf, ...args);
     if (usub && rf) addToCallChain(rf, Symbol.dispose, usub); return rf;
 }
 
 //
-export const orientRef = (host?: any, ...args)=>makeRef(host, stringRef, orientLink, ...args);
+export const orientRef = (host?: any, ...args)=>makeRef(host, numberRef, orientLink, ...args);
 export const attrRef = (host?: any, ...args)=>makeRef(host, stringRef, attrLink, ...args);
 export const valueRef = (host?: any, ...args)=>makeRef(host, stringRef, valueLink, ...args);
 export const valueAsNumberRef = (host?: any, ...args)=>makeRef(host, numberRef, valueAsNumberLink, ...args);
