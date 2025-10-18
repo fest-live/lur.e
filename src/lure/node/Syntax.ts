@@ -1,3 +1,4 @@
+import { bindEvent } from "fest/core";
 import { getNode } from "../context/Utils";
 import E from "./Bindings";
 import M from "./Mapped";
@@ -18,17 +19,6 @@ const cleanupInterTagWhitespace = (root: Node) => {
         if (/^\s+$/.test(t?.nodeValue?.trim?.() || "") || !t?.textContent?.trim?.()) queue.push(t);
     }
     for (const t of queue) t?.remove?.();
-}
-
-//
-const bindEvent = (on, key, value)=>{
-    if (on?.[key]) {
-        const exists = on[key];
-        if (Array.isArray(value)) { exists.add(...value); } else if (typeof value == "function") { exists.add(value); }
-        return on;
-    }
-    on[key] ??= Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value);
-    return on;
 }
 
 //

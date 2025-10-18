@@ -1,6 +1,7 @@
-import { addToCallChain, makeReactive, subscribe, isNotEqual } from "fest/object";
-import { addEvent, addEvents, camelToKebab, handleAttribute, handleListeners, handleProperty, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
+import { addToCallChain, makeReactive, subscribe } from "fest/object";
+import { handleAttribute, handleProperty, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
 import { setChecked } from "fest/dom";
+import { $getValue, camelToKebab, $set, toRef, deref, includeSelf, isNotEqual, handleListeners, $avoidTrigger } from "fest/core";
 
 //
 export const elMap  = new WeakMap<any, WeakMap<any, any>>();
@@ -10,34 +11,6 @@ export const alives = new FinalizationRegistry((unsub: any) => unsub?.());
 export const $mapped = Symbol.for("@mapped");
 export const $virtual = Symbol.for("@virtual");
 export const $behavior = Symbol.for("@behavior");
-
-//
-const hasProperty = (v: any, prop: string = "value") => {
-    return (typeof v == "object" && (v?.[prop] != null || (v != null && (prop in v))));
-}
-
-//
-const hasValue = (v: any) => {
-    return hasProperty(v, "value");
-}
-
-//
-const $getValue = (v: any) => {
-    return hasValue(v) ? v?.value : v;
-}
-
-//
-const $triggerLock  = Symbol.for("@trigger-lock");
-const $avoidTrigger = (ref: any, cb: Function, $prop: string = "value")=>{
-    if (hasProperty(ref, $prop)) ref[$triggerLock] = true;
-    let result;
-    try {
-        result = cb?.();
-    } finally {
-        if (hasProperty(ref, $prop)) { delete ref[$triggerLock]; }
-    }
-    return result;
-}
 
 //
 export const bindBeh = (element, store, behavior) => {
@@ -60,14 +33,6 @@ export const bindCtrl = (element, ctrlCb) => {
 
 //
 export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
-
-//
-export const $fxy = Symbol.for("@fix"), fixFx = (obj) => { if (typeof obj == "function" || obj == null) return obj; const fx = function(){}; fx[$fxy] = obj; return fx; }
-export const $set = (rv, key, val) => {
-    if ((rv = deref(rv)) != null && (typeof rv == "object" || typeof rv == "function")) {
-        return (rv[key] = $getValue(val = deref(val)));
-    };
-}
 
 //
 export const $observeInput = (element, ref?: any|null, prop = "value") => {
@@ -126,16 +91,6 @@ export const hasInBank = (el, handle)=>{
 }
 
 //
-const toRef = (el?: any | null) => {
-    return el != null ? ((el instanceof WeakRef || typeof el?.deref == "function") ? el : ((typeof el == "object" || typeof el == "function") ? new WeakRef(el) : el)) : null;
-}
-
-//
-const deref = (target?: any | null) => {
-    return target != null ? ((target instanceof WeakRef || typeof target?.deref == "function") ? target?.deref?.() : target) : null;
-};
-
-//
 export const bindHandler = (element: any, value: any, prop: any, handler: any, set?: any, withObserver?: boolean | Function) => {
     const wel = toRef(element); element = deref(wel);
     if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
@@ -175,20 +130,17 @@ export const bindHandler = (element: any, value: any, prop: any, handler: any, s
 }
 
 //
-export const includeSelf = (target, selector)=>{ return (target.querySelector(selector) ?? (target.matches(selector) ? target : null)); }
-
-//
 export const updateInput = (target, state)=>{
     const selector = "input:where([type=\"text\"], [type=\"number\"], [type=\"range\"])";
     const input    = includeSelf(target, "input");
-    const name     = input?.name || target?.dataset?.name || "";
+    const name     = (input as HTMLInputElement)?.name || (target as HTMLElement)?.dataset?.name || "";
 
     //
     if (state?.[name] != null || name in state) { // not exists not preferred...
         if (state && input?.matches?.(selector)) {
-            if (input.value != state[name]) {
+            if ((input as HTMLInputElement).value != state[name]) {
                 $avoidTrigger(state, ()=>{
-                    input.value = state[name];
+                    (input as HTMLInputElement).value = state[name];
                     input.dispatchEvent(new Event("change", { bubbles: true, cancelable: true, }));
                 }, name);
             }
@@ -197,38 +149,20 @@ export const updateInput = (target, state)=>{
         // setup radio boxes (requires wrapper)
         if (state) {
             const radio = includeSelf(target, `input:where([type=\"radio\"][name=\"${name}\"][value=\"${state?.[name]}\"])`);
-            if (state && radio && state[name] == radio.value && !radio?.checked) {
-                $avoidTrigger(state, ()=>{ setChecked(radio, state[name]); }, name);
+            if (state && radio && state[name] == (radio as HTMLInputElement).value && !(radio as HTMLInputElement).checked) {
+                $avoidTrigger(state, ()=>{ setChecked((radio as HTMLInputElement), state[name]); }, name);
             };
         }
 
         // setup check boxes
         const checkbox = includeSelf(target, "input:where([type=\"checkbox\"])");
         if (state && checkbox) {
-            if (state[name] != checkbox.checked) {
+            if (state[name] != (checkbox as HTMLInputElement).checked) {
                 $avoidTrigger(state, ()=>{
-                    setChecked(checkbox, state[name]);
+                    setChecked((checkbox as HTMLInputElement), state[name]);
                 }, name);
             }
         }
-    }
-}
-
-//
-const isArrayOrIterable = (obj) => Array.isArray(obj) || (obj != null && typeof obj == "object" && typeof obj[Symbol.iterator] == "function");
-
-//
-export const bindEvents = (el, events) => {
-    if (events) {
-        let entries: any[] = events;
-        if (events instanceof Map) {
-            entries = [...events.entries()];
-        } else {
-            entries = [...Object.entries(events)];
-        }
-        return entries.map(([name, list]) => ((isArrayOrIterable(list) ? [...list as any] : list) ?? [])?.map?.((cbs)=>{
-            return addEvent(el, name, cbs)
-        }));
     }
 }
 

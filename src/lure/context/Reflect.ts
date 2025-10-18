@@ -1,4 +1,5 @@
-import { addToCallChain, subscribe, observe, isNotEqual } from "fest/object";
+import { addToCallChain, subscribe, observe } from "fest/object";
+import { isNotEqual } from "fest/core";
 
 //
 import { bindHandler, bindWith } from "../core/Binding";

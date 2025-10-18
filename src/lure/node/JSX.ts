@@ -2,17 +2,7 @@ import { E } from "./Bindings";
 import { M } from "./Mapped";
 import { I } from "./Switched";
 import { Q } from "./Queried";
-
-//
-const bindEvent = (on: any, key: string, value: any)=>{
-    if (on?.[key] != null) {
-        const exists = on[key];
-        if (Array.isArray(value)) { exists.add(...value); } else if (typeof value == "function") { exists.add(value); }
-        return on;
-    }
-    on[key] ??= Array.isArray(value) ? new Set(value) : (typeof value == "function" ? new Set([value]) : value);
-    return on;
-}
+import { bindEvent } from "fest/core";
 
 //
 export const createElement = (type: string | HTMLElement | Node | DocumentFragment | Document | Element | Function, props: any = {}, children?: any[]|any|null, ...others: any[]|any|null)=>{

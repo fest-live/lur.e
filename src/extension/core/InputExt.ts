@@ -1,4 +1,5 @@
-import { addEvent, bindDraggable, handleStyleChange, RAFBehavior, setChecked } from "fest/dom";
+import { bindDraggable, handleStyleChange, RAFBehavior, setChecked } from "fest/dom";
+import { addEvent } from "fest/core";
 //import { bindWith, bindCtrl } from "fest/lure";
 import { computed, numberRef, conditional } from "fest/object";
 

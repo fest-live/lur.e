@@ -1,7 +1,8 @@
-import { stringRef, autoRef, numberRef, booleanRef, deref, isValidObj, makeReactive, addToCallChain, WRef } from "fest/object";
+import { stringRef, autoRef, numberRef, booleanRef, deref, makeReactive, addToCallChain, WRef } from "fest/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink } from "./Links";
 import { handleAttribute } from "fest/dom";
 import { elMap } from "./Binding";
+import { isValidObj } from "fest/core";
 
 //
 export const makeRef = (host?: any, type?: any, link?: any, ...args)=>{

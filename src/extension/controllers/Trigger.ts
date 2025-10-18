@@ -1,4 +1,5 @@
-import { ROOT, addEvents, agWrapEvent, doBorderObserve, doContentObserve } from "fest/dom";
+import { ROOT, doBorderObserve, doContentObserve } from "fest/dom";
+import { addEvents } from "fest/core";
 
 //
 export const doObserve = (holder, parent)=>{
@@ -8,7 +9,7 @@ export const doObserve = (holder, parent)=>{
 }
 
 //
-export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
+export const makeShiftTrigger = (callable, newItem?)=> ((evc)=>{
     const ev = evc;
     newItem ??= ev?.target ?? newItem;
     if (!newItem.dataset.dragging) {
@@ -18,7 +19,7 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
         };
 
         //
-        const shifting = agWrapEvent((evc_l: any)=>{
+        const shifting = ((evc_l: any)=>{
             const ev_l = evc_l;
             ev_l?.preventDefault?.();
             if (ev_l?.pointerId == ev?.pointerId) {
@@ -36,7 +37,7 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
         });
 
         //
-        const releasePointer = agWrapEvent((evc_l)=>{
+        const releasePointer = ((evc_l)=>{
             const ev_l = evc_l;
             if (ev_l?.pointerId == ev?.pointerId) {
                 (newItem as HTMLElement)?.releasePointerCapture?.(ev?.pointerId);
@@ -52,7 +53,7 @@ export const makeShiftTrigger = (callable, newItem?)=> agWrapEvent((evc)=>{
         }
 
         //
-        const unbind = agWrapEvent((evc_l)=>{
+        const unbind = ((evc_l)=>{
             const ev_l = evc_l;
             if (ev_l?.pointerId == ev?.pointerId) {
                 bindings?.forEach(binding => binding?.());

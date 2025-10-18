@@ -15,6 +15,7 @@
             "fest/ui": ["../fl.ui/src/index.ts"],
             "fest/uniform": ["../uniform.ts/src/index.ts"],
             "fest/theme": ["../theme.core/src/index.ts"],
+            "fest/core": ["../core.ts/src/index.ts"],
             "fest/polyfill/*": ["../../shared/fest/polyfill/*"],
             "polyfill/*": ["../../shared/fest/polyfill/*"]
         },

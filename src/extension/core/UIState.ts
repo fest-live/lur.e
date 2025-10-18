@@ -1,5 +1,6 @@
 import { JSOX } from "jsox";
-import { addEvent, setIdleInterval } from "fest/dom";
+import { setIdleInterval } from "fest/dom";
+import { addEvent } from "fest/core";
 import { safe, addToCallChain } from "fest/object";
 
 //

@@ -1,4 +1,5 @@
-import { addEvents, agWrapEvent, ROOT } from "fest/dom";
+import { agWrapEvent, ROOT } from "fest/dom";
+import { addEvents } from "fest/core";
 
 //
 export class LongHoverHandler {
@@ -19,7 +20,7 @@ export class LongHoverHandler {
     //
     longHover(options, fx = (ev) => {ev.target.dispatchEvent(new PointerEvent("long-hover", {...ev, bubbles: true}));}) {
         const action: any = { pointerId: -1, timer: null };
-        const initiate = agWrapEvent((evc)=>{
+        const initiate = ((evc)=>{
             const ev = evc;
             if ((ev.target.matches(options.selector) || ev.target.closest(options.selector)) && action.pointerId < 0) {
                 action.pointerId = ev.pointerId;
@@ -30,7 +31,7 @@ export class LongHoverHandler {
         });
 
         //
-        const cancelEv = agWrapEvent((evc)=>{
+        const cancelEv = ((evc)=>{
             const ev = evc;
             if ((ev.target.matches(options.selector) || ev.target.closest(options.selector)) && action.pointerId == ev.pointerId) {
                 if (action.timer) { clearTimeout(action.timer); };

@@ -1,14 +1,13 @@
 import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden } from "fest/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectProperties, reflectWithStyleRules, reflectARIA } from '../context/Reflect';
-import { reflectControllers, bindEvents, bindWith } from '../core/Binding';
+import { reflectControllers, bindWith } from '../core/Binding';
 
 //
 import { subscribe } from "fest/object";
-import { createElementVanilla } from "../context/Utils";
 import { Q } from "./Queried";
-import { reflectChildren } from "../context/ReflectChildren";
 import M from "./Mapped";
 import { getNode } from "../context/Utils";
+import { bindEvents, createElementVanilla } from "fest/core";
 
 //
 interface Params {
@@ -45,7 +44,7 @@ export const Qp = (ref, host = document.documentElement)=>{
 }
 
 //
-const $createElement = (selector: string | HTMLElement | Node | DocumentFragment | Document | Element)=>{
+export const $createElement = (selector: string | HTMLElement | Node | DocumentFragment | Document | Element)=>{
     if (typeof selector == "string") {
         const nl = Qp(createElementVanilla(selector));
         return nl?.element ?? nl;

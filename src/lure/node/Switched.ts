@@ -1,9 +1,6 @@
-import { addToCallChain, subscribe, isNotEqual, $trigger } from "fest/object";
-import getNode, { appendFix } from "../context/Utils";
-
-//
-const inProx = new WeakMap(), contextify = (pc: any, name: any) =>
-    { return (typeof pc?.[name] == "function" ? pc?.[name]?.bind?.(pc) : pc?.[name]); }
+import { addToCallChain, subscribe, $trigger } from "fest/object";
+import { appendFix, getNode } from "../context/Utils";
+import { contextify, isNotEqual, inProxy } from "fest/core";
 
 //
 export interface SwitchedParams {
@@ -22,11 +19,6 @@ const $getFromMapped = (mapped: any, value: number|string|null|undefined) => {
 //
 const getFromMapped = (mapped: any, value: number|string|null|undefined, requestor: any | null = null) => {
     return getNode($getFromMapped(mapped, value), null, -1, requestor);
-}
-
-//
-const isValidParent = (parent: Node) => {
-    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
 }
 
 //
@@ -106,7 +98,7 @@ class SwHandler implements ProxyHandler<SwitchedParams> {
 
 //
 export const I = (params: SwitchedParams, mapped?: any[]|any|Map<any, any>|Set<any>|null) => { // @ts-ignore
-    return inProx?.getOrInsertComputed?.(params, ()=>{
+    return inProxy?.getOrInsertComputed?.(params, ()=>{
         const px = new Proxy(params instanceof SwM ? params : new SwM(params, mapped), new SwHandler());
         return px;
     });

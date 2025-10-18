@@ -1,4 +1,5 @@
-import { ROOT, agWrapEvent, addEvents } from "fest/dom";
+import { ROOT } from "fest/dom";
+import { addEvents } from "fest/core";
 
 //
 export class SwipeHandler {
@@ -62,7 +63,7 @@ export class SwipeHandler {
             };
 
             //
-            const takeAction = agWrapEvent((evc) => {
+            const takeAction = ((evc) => {
                 const ev = evc;
                 if (ev.target == options?.handler) {
                     swipes?.set(ev.pointerId, {

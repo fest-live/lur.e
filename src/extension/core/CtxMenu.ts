@@ -1,5 +1,5 @@
 //import { visibleRef, H, Q } from "fest/lure";
-import { addEvent } from "fest/dom";
+import { addEvent } from "fest/core";
 import { visibleRef } from "../../lure/core/Refs";
 
 //

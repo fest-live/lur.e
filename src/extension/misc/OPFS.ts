@@ -1,5 +1,5 @@
-import { UUIDv4 } from 'fest/dom';
-import { makeReactive, Promised } from 'fest/object';
+import { UUIDv4, Promised } from 'fest/core';
+import { makeReactive } from 'fest/object';
 
 //
 export const getDir = (dest)=>{

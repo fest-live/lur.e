@@ -1,4 +1,4 @@
-import { addEvents, clickPrevention } from "fest/dom";
+import { addEvents } from "fest/core";
 
 //
 const defaultOptions = {

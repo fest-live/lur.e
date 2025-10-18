@@ -1,44 +1,13 @@
-import { unwrap, subscribe, isNotEqual } from "fest/object";
+import { unwrap, subscribe } from "fest/object";
 import { $virtual, $mapped } from "../core/Binding";
-import { M } from "fest/lure/index";
+import { isElement, isNotEqual, isValidParent } from "fest/core";
 
 //
-const
-    MATCH = '(-?[_a-zA-Z]+[_a-zA-Z0-9-]*)',
-    REGEX = '^(?:' + MATCH + ')|^#' + MATCH + '|^\\.' + MATCH + '|^\\[' + MATCH + '(?:([*$|~^]?=)(["\'])((?:(?=(\\\\?))\\8.)*?)\\6)?\\]';
-
-//
-export const camelToKebab = (str) => { return str?.replace?.(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
-export const kebabToCamel = (str) => { return str?.replace?.(/-([a-z])/g, (_, char) => char.toUpperCase()); }
-
-//
-export const createElementVanilla = (selector): HTMLElement | DocumentFragment => {
-    if (selector == ":fragment:") return document.createDocumentFragment();
-    const create = document.createElement.bind(document);
-    for (var node: any = create('div'), match, className = ''; selector && (match = selector.match(REGEX));) {
-        if (match[1]) node = create(match[1]);
-        if (match[2]) node.id = match[2];
-        if (match[3]) className += ' ' + match[3];
-        if (match[4]) node.setAttribute(match[4], match[7] || '');
-        selector = selector.slice(match[0].length);
-    }
-    if (className) node.className = className.slice(1);
-    return node;
-};
-
-//
-const isValidParent = (parent: Node) => {
-    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement));
-}
-
-//
-const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
+export const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
     return ((requestor && requestor != el && !el?.contains?.(requestor) && isValidParent(requestor)) ? el?.elementForPotentialParent?.(requestor) : null) ?? el?.element;
 }
 
-//
-const isElement = (el: any) => { return el != null && (el instanceof Node || el instanceof Text || el instanceof Element || el instanceof HTMLElement || el instanceof DocumentFragment) ? el : null; }
-const isElementValue = (el: any, requestor?: any | null) => { return KIDNAP_WITHOUT_HANG(el, requestor) ?? el?.value; }
+export const isElementValue = (el: any, requestor?: any | null) => { return KIDNAP_WITHOUT_HANG(el, requestor) ?? el?.value; }
 
 //
 const elMap = new WeakMap();

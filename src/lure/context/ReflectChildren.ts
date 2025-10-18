@@ -4,18 +4,7 @@ import { addToCallChain, observe, ref, subscribe } from "fest/object";
 import getNode, { appendChild, removeNotExists, replaceChildren } from "./Utils";
 import { removeChild, removeChildDirectly } from "./Utils";
 import { $mapped, $behavior, addToBank, hasInBank } from "../core/Binding";
-
-//
-const isValidParent = (parent: Node | null) => {
-    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement)) ? parent : null;
-}
-
-//
-const indexOf = (element: Node, node: Node) => {
-    return Array.from(element?.childNodes ?? []).indexOf(node as any);
-}
-
-
+import { indexOf, isValidParent } from "fest/core";
 
 //
 export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function | null, isArray: boolean = true) => {

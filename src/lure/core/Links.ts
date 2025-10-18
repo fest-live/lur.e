@@ -1,46 +1,9 @@
 import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding } from "fest/dom";
-import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref, isNotEqual } from "fest/object";
+import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref } from "fest/object";
+import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref } from "fest/core";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
 import { setChecked } from "fest/dom";
-
-//
-const hasValue = (v: any) => {
-    return (typeof v == "object" && (v?.value != null || (v != null && ("value" in v))));
-}
-
-//
-const isValueRef = (exists) => {
-    return (typeof exists == "object" || typeof exists == "function") && (exists?.value != null || (exists != null && "value" in exists))
-}
-
-//
-const isObject = (exists) => {
-    return exists != null && (typeof exists == "object" || typeof exists == "function");
-}
-
-//
-const isPrimitive = (exists: any) => {
-    return exists == null || typeof exists == "string" || typeof exists == "number" || typeof exists == "boolean" || typeof exists == "symbol" || typeof exists == "undefined";
-}
-
-//
-const getValue = (val: any) => {
-    return (hasValue(val) ? val?.value : val);
-}
-
-//
-const $triggerLock  = Symbol.for("@trigger-lock");
-const $avoidTrigger = (ref: any, cb: Function)=>{
-    if (hasValue(ref)) ref[$triggerLock] = true;
-    let result;
-    try {
-        result = cb?.();
-    } finally {
-        if (hasValue(ref)) { delete ref[$triggerLock]; }
-    }
-    return result;
-}
 
 //
 export const localStorageLinkMap = new Map<string, any>();
@@ -124,11 +87,6 @@ export const visibleLink = (element?: any|null, exists?: any|null, initial?: any
 }
 
 //
-const normalizePrimitive = (val: any) => {
-    return (typeof val == "boolean" ? (val ? "" : null) : (typeof val == "number" ? String(val) : val));
-}
-
-//
 export const attrLink = (element?: any|null, exists?: any|null, attribute?: string, initial?: any|null) => {
     const def = element?.getAttribute?.(attribute) ?? (typeof initial == "boolean" ? (initial ? "" : null) : getValue(initial));
     if (!element) return; const val = isValueRef(exists) ? exists : stringRef(def);
@@ -176,12 +134,6 @@ export const checkedLink = (element?: any|null, exists?: any|null) => {
 }
 
 //
-const $getValue = (val: any)=>{
-    if (isPrimitive(val)) return val;
-    if (typeof val == "object" && val != null && (val?.value != null || "value" in val)) { return val?.value; }; return val;
-}
-
-//
 export const valueLink = (element?: any|null, exists?: any|null) => {
     if (isPrimitive(element)) return;
     if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
@@ -193,8 +145,8 @@ export const valueLink = (element?: any|null, exists?: any|null) => {
     const $val = new WeakRef(val);
     const usb = subscribe([val, "value"], (v) => {
         if (element && isNotEqual(element?.value, (v?.value ?? v))) {
-            $avoidTrigger($val?.deref?.(), ()=>{
-                element.value = $getValue($val?.deref?.()) ?? $getValue(v);
+            $avoidTrigger(deref($val), ()=>{
+                element.value = $getValue(deref($val)) ?? $getValue(v);
                 element?.dispatchEvent?.(new Event("change", { bubbles: true }));
             });
         }

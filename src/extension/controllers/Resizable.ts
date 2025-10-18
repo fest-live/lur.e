@@ -1,5 +1,6 @@
-import { fixedClientZoom, getBoundingOrientRect, bindDraggable, clamp, bbh, bbw, cbh, cbw, ROOT, type InteractStatus, RAFBehavior } from "fest/dom";
+import { bindDraggable, bbh, bbw, cbh, cbw, ROOT, type InteractStatus, RAFBehavior } from "fest/dom";
 import { makeShiftTrigger, doObserve } from "./Trigger";
+import { clamp } from "fest/core";
 
 //
 //import {  E  } from "fest/lure";

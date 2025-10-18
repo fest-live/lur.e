@@ -2,32 +2,7 @@ import { observe } from "fest/object";
 import { getNode, removeNotExists } from "../context/Utils";
 import { $mapped } from "../core/Binding";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
-
-//
-const integerRegExp = /^\d+$/;
-
-//
-const canBeInteger = (value: any) => {
-    if (typeof value == "string") {
-        return value?.trim?.() && integerRegExp.test(value?.trim?.()) && Number.isInteger(Number(value?.trim?.())) && Number(value?.trim?.()) >= 0;
-    } else
-        return typeof value == "number" && Number.isInteger(value) && value >= 0;
-}
-
-//
-const isValidParent = (parent: Node|null|undefined) => {
-    return (parent != null && parent instanceof HTMLElement && !(parent instanceof DocumentFragment || parent instanceof HTMLBodyElement)) ? parent : null;
-}
-
-//
-const isPrimitive = (value: any) => {
-    return (value != null && (typeof value == "string" || typeof value == "number" || typeof value == "boolean"));
-}
-
-//
-const isHasPrimitives = (observable: any) => {
-    return observable?.some?.(isPrimitive);
-}
+import { canBeInteger, isObservable, isValidParent, isPrimitive, isHasPrimitives } from "fest/core";
 
 //
 interface MappedOptions {
@@ -36,11 +11,6 @@ interface MappedOptions {
     boundParent?: Node | null;
     preMap?: boolean;
 }
-
-//
-const isObservable = (observable: any) => {
-    return Array.isArray(observable) || observable instanceof Set || observable instanceof Map;
-};
 
 //
 class Mp {
@@ -92,7 +62,7 @@ class Mp {
         this.#observable = (isObservable(observable) ? observable : (observable?.iterator ?? mapCb?.iterator ?? observable)) ?? [];
         this.#fragments = document.createDocumentFragment();
         this.#options = (isValidParent(options as any) ? null : (options as MappedOptions|null)) || ({ removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions);
-        this.boundParent = isValidParent(this.#options?.boundParent) ?? isValidParent(options as any);
+        this.boundParent = isValidParent(this.#options?.boundParent as any) ?? (isValidParent(options as any) ?? null);
         if (!this.boundParent) {
             if (this.#options.preMap) reformChildren(
                 this.#fragments, this.#observable,
@@ -163,8 +133,8 @@ class Mp {
     get mapper() {
         return (...args) => {
             if (args?.[0] instanceof Node) { return args?.[0]; };
-            if (args?.[1] == null || args?.[1] < 0 || (typeof args?.[1] != "number" || !canBeInteger(args?.[1]))) {
-                return args?.[0];
+            if (args?.[1] == null || args?.[1] < 0 || (typeof args?.[1] != "number" || !canBeInteger(args?.[1] as any))) {
+                return args?.[0] as any;
             }
 
             //
