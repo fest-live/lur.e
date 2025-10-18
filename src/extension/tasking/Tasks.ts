@@ -51,7 +51,7 @@ export class Task implements ITask {
     get focus(): boolean {
         if (!this.taskId) return false;
         const task = this.list?.findLast?.((t)=>t.active) ?? null; if (!task) return false;
-        if (task?.taskId == this.taskId) { return true; };
+        if (task?.taskId &&task?.taskId == this.taskId) { return true; };
         return false;
     }
 
