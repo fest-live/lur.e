@@ -143,7 +143,7 @@ export function getMimeTypeByFilename(filename) {
         'zip': 'application/zip',
         'rar': 'application/vnd.rar',
         '7z': 'application/x-7z-compressed',
-        // ...добавьте по необходимости
+        // ...
     };
     return mimeTypes[ext] || 'application/octet-stream';
 }
@@ -376,6 +376,13 @@ export async function readFileUTF8(rootHandle, relPath, options: {basePath?: str
 
 //
 export async function writeFile(rootHandle, relPath, data, logger = defaultLogger) {
+    if (data instanceof FileSystemFileHandle) { data = await data.getFile(); }
+    if (data instanceof FileSystemDirectoryHandle) {
+        const dstHandle = await getDirectoryHandle(await navigator?.storage?.getDirectory?.(), relPath + (relPath?.trim?.()?.endsWith?.("/") ? "" : "/") + (data?.name || "")?.trim?.()?.replace?.(/\s+/g, '-'), { create: true });
+        return await copyFromOneHandlerToAnother(data, dstHandle, {})?.catch?.(console.warn.bind(console));
+    } else
+
+    //
     try {
         const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, "");
         const fileHandle = await getFileHandle(resolvedRootHandle, resolvedPath, { create: true }, logger);
@@ -452,8 +459,6 @@ export async function remove(rootHandle, relPath, options: {basePath?: string} =
     } catch (e: any) { return handleError(logger, 'error', `remove: ${e.message}`); }
 }
 
-
-
 //
 export const openImageFilePicker = async ()=>{
     const $e = "showOpenFilePicker"; // @ts-ignore
@@ -463,8 +468,28 @@ export const openImageFilePicker = async ()=>{
 
 //
 export const downloadFile = async (file) => {
+    // as file
+    if (file instanceof FileSystemFileHandle) { file = await file.getFile(); }
     if (typeof file == "string") { file = await provide(file); }; const filename = file.name; if (!filename) return; // @ts-ignore // IE10+
     if ("msSaveOrOpenBlob" in self.navigator) { self.navigator.msSaveOrOpenBlob(file, filename); };
+
+    // for directory
+    if (file instanceof FileSystemDirectoryHandle) {
+        // @ts-ignore
+        let dstHandle = await showDirectoryPicker?.({
+            mode: "readwrite"
+        })?.catch?.(console.warn.bind(console));
+
+        //
+        if (file && dstHandle) {
+            // open handle relative to selected directory
+            dstHandle = (await getDirectoryHandle(dstHandle, file.name || "", { create: true })?.catch?.(console.warn.bind(console))) || dstHandle;
+            return await copyFromOneHandlerToAnother(file, dstHandle, {})?.catch?.(console.warn.bind(console));
+        }
+
+        // currently, different methods are unsupported... (not implemented)
+        return;
+    }
 
     // @ts-ignore
     const fx = await (self?.showOpenFilePicker ? new Promise((r) => r({ // @ts-ignore
@@ -566,6 +591,25 @@ export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g
     // TODO! needs to fix same directory scope
     current?.set?.("/user" + fp?.trim?.()?.replace?.(/\s+/g, '-'), file);
     return "/user" + fp?.trim?.();
+}
+
+//
+export const uploadDirectory = async (dest = "/user/", id: any = null)=>{
+    dest = dest?.trim?.()?.startsWith?.("/user/") ? dest?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : dest;
+    if (!globalThis.showDirectoryPicker) {
+        return;
+    }
+
+    // @ts-ignore
+    const srcHandle = await showDirectoryPicker?.({
+        mode: "readonly", id
+    })?.catch?.(console.warn.bind(console));
+    if (!srcHandle) return;
+
+    //
+    const dstHandle = await getDirectoryHandle(await navigator?.storage?.getDirectory?.(), dest + (dest?.trim?.()?.endsWith?.("/") ? "" : "/") + srcHandle.name?.trim?.()?.replace?.(/\s+/g, '-'), { create: true });
+    if (!dstHandle) return;
+    return await copyFromOneHandlerToAnother(srcHandle, dstHandle, {})?.catch?.(console.warn.bind(console));
 }
 
 //
