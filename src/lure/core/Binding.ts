@@ -105,14 +105,12 @@ export const bindHandler = (element: any, value: any, prop: any, handler: any, s
         const valueRef = deref(wv);
         const setRef = deref(set);
         const elementRef = deref(wel);
-        const value = $getValue(valueRef) ?? curr;
+        const value = $getValue(valueRef) ?? $getValue(curr);
         if (!setRef || setRef?.[prop] == valueRef) {
-
-            //
             if (typeof valueRef?.[$behavior] == "function") {
-                valueRef?.[$behavior]?.((val = curr) => handler(elementRef, prop, $getValue(val) ?? curr), [curr, prop, old], [controller?.signal, prop, wel]);
+                valueRef?.[$behavior]?.((val = curr) => handler(elementRef, prop, value), [curr, prop, old], [controller?.signal, prop, wel]);
             } else {
-                handler(elementRef, prop, value ?? curr);
+                handler(elementRef, prop, value);
             }
         }
     });
@@ -124,6 +122,8 @@ export const bindHandler = (element: any, value: any, prop: any, handler: any, s
         if (handler == handleProperty) obs = $observeInput(element, value, prop);
     };
     if (typeof withObserver == "function") { obs = withObserver(element, prop, value); };
+
+    //
     const unsub = () => { obs?.disconnect?.(); (obs != null && typeof obs == "function") ? obs?.() : null; un?.(); controller?.abort?.(); removeFromBank?.(element, handler, prop); }; // @ts-ignore
     addToCallChain(value, Symbol.dispose, unsub); alives.register(element, unsub);
     if (!addToBank(element, handler, prop, [value, unsub])) { return unsub; } // prevent data disruption
