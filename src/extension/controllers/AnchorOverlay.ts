@@ -31,9 +31,11 @@ const getParentOrShadowRoot = (element: HTMLElement): HTMLElement|ShadowRoot|und
 }
 
 //
-export const appendAsOverlay = (self: HTMLElement, element?: HTMLElement) => {
-    let anchor: any = self?.children?.[0] ?? null;
-    if (self?.children?.length < 1) {
+export const appendAsOverlay = (anchor: HTMLElement|null, overlay?: HTMLElement|null, self?: HTMLElement|null) => {
+    anchor ??= (self?.children?.[0] as HTMLElement) ?? anchor;
+
+    //
+    if (!anchor && (self?.children?.length ?? 0) < 1) {
         // fix anchor problems
         const fillAnchorBox = document.createElement("div");
         fillAnchorBox.classList.add("ui-window-frame-anchor-box");
@@ -45,64 +47,63 @@ export const appendAsOverlay = (self: HTMLElement, element?: HTMLElement) => {
         fillAnchorBox.style.opacity = "1";
         fillAnchorBox.style.visibility = "visible";
         fillAnchorBox.style.backgroundColor = "transparent";
-        (self as any).append(anchor = fillAnchorBox);
+        (self as any)?.append?.(anchor = fillAnchorBox);
     }
 
     //
-    if (anchor == null || element == null) { return; }
+    if (anchor == null || overlay == null) { return; }
 
     //
     const CSSAnchorId = generateAnchorId();
-
-    anchor.style.setProperty("position-visibility", `always`);
-    //anchor.style.setProperty("anchor-name", CSSAnchorId);
-    //self.style.setProperty("anchor-scope", CSSAnchorId);
-    self.style.setProperty("anchor-name", CSSAnchorId);
+    anchor?.style?.setProperty("position-visibility", `always`);
+    anchor?.style?.setProperty("anchor-name", CSSAnchorId);
 
     //
-    const parent = getParentOrShadowRoot(self);
-    const styleApplicable = parent instanceof HTMLElement ? parent : parent?.host;
+    const parent = getParentOrShadowRoot(anchor) ?? self;
+    const styled = parent instanceof HTMLElement ? parent : parent?.host;
+
+    //
     if (parent) {
-        (styleApplicable as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
-        (self as any)?.after?.(element);
+        (styled as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
+        (anchor as any)?.after?.(overlay);
     } else {
         requestAnimationFrame(()=>{
-            const parent = getParentOrShadowRoot(self);
-            const styleApplicable = parent instanceof HTMLElement ? parent : parent?.host;
+            const parent = getParentOrShadowRoot(anchor) ?? self;
+            const styled = parent instanceof HTMLElement ? parent : parent?.host;
             if (parent) {
-                (styleApplicable as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
-                (self as any)?.after?.(element);
+                (styled as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
+                (anchor as any)?.after?.(overlay);
             }
         });
     }
 
     //
-    if (self?.matches?.("ui-window-frame")) {
-        element.style.setProperty("inset-block-start", `calc(anchor(start, 0px) + 2.5rem)`);
-        element.style.setProperty("inset-inline-start", `calc(anchor(start, 0px) + 0.25rem)`);
-        element.style.setProperty("inset-block-end", `calc(anchor(end, 0px) + 0.25rem)`);
-        element.style.setProperty("inset-inline-end", `calc(anchor(end, 0px) + 0.25rem)`);
-        element.style.setProperty("inline-size", `calc(anchor-size(inline, 640px) - 0.5rem)`);
-        element.style.setProperty("block-size", `calc(anchor-size(block, 480px) - 2.75rem)`);
+    if (anchor?.matches?.("ui-window-frame")) {
+        overlay.style.setProperty("inset-block-start", `calc(anchor(start, 0px) + 2.5rem)`);
+        overlay.style.setProperty("inset-inline-start", `calc(anchor(start, 0px) + 0.25rem)`);
+        overlay.style.setProperty("inset-block-end", `calc(anchor(end, 0px) + 0.25rem)`);
+        overlay.style.setProperty("inset-inline-end", `calc(anchor(end, 0px) + 0.25rem)`);
+        overlay.style.setProperty("inline-size", `calc(anchor-size(inline, 640px) - 0.5rem)`);
+        overlay.style.setProperty("block-size", `calc(anchor-size(block, 480px) - 2.75rem)`);
     }
     else {
-        element.style.setProperty("inset-block-start", `anchor(start, 0px)`);
-        element.style.setProperty("inset-inline-start", `anchor(start, 0px)`);
-        element.style.setProperty("inset-block-end", `anchor(end, 0px)`);
-        element.style.setProperty("inset-inline-end", `anchor(end, 0px)`);
-        element.style.setProperty("inline-size", `anchor-size(inline, 100%)`);
-        element.style.setProperty("block-size", `anchor-size(block, 100%)`);
+        overlay.style.setProperty("inset-block-start", `anchor(start, 0px)`);
+        overlay.style.setProperty("inset-inline-start", `anchor(start, 0px)`);
+        overlay.style.setProperty("inset-block-end", `anchor(end, 0px)`);
+        overlay.style.setProperty("inset-inline-end", `anchor(end, 0px)`);
+        overlay.style.setProperty("inline-size", `anchor-size(inline, 100%)`);
+        overlay.style.setProperty("block-size", `anchor-size(block, 100%)`);
     }
 
     //
-    element.style.setProperty("position-visibility", `always`);
-    element.style.setProperty("position-anchor", CSSAnchorId);
-    element.style.setProperty("position", `absolute`);
-    element.style.setProperty("position-area", `span-all`);
-    element.style.setProperty("z-index", String(getExistsZIndex(self) + 200));
+    overlay.style.setProperty("position-visibility", `always`);
+    overlay.style.setProperty("position-anchor", CSSAnchorId);
+    overlay.style.setProperty("position", `absolute`);
+    overlay.style.setProperty("position-area", `span-all`);
+    overlay.style.setProperty("z-index", String(getExistsZIndex(anchor) + 200));
 
     //
-    element?.setAttribute("data-overlay", "true");
-    element?.setAttribute("data-window-frame", self.getAttribute("data-name") ?? self.getAttribute("name") ?? self.getAttribute("id") ?? "");
-    return self;
+    overlay?.setAttribute("data-overlay", "true");
+    overlay?.setAttribute("data-window-frame", anchor?.getAttribute("data-name") ?? anchor?.getAttribute("name") ?? anchor?.getAttribute("id") ?? "");
+    return anchor;
 }
