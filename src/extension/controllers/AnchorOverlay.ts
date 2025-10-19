@@ -61,14 +61,16 @@ export const appendAsOverlay = (self: HTMLElement, element?: HTMLElement) => {
 
     //
     const parent = getParentOrShadowRoot(self);
+    const styleApplicable = parent instanceof HTMLElement ? parent : parent?.host;
     if (parent) {
-        (parent as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
+        (styleApplicable as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
         (self as any)?.after?.(element);
     } else {
         requestAnimationFrame(()=>{
             const parent = getParentOrShadowRoot(self);
+            const styleApplicable = parent instanceof HTMLElement ? parent : parent?.host;
             if (parent) {
-                (parent as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
+                (styleApplicable as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
                 (self as any)?.after?.(element);
             }
         });
@@ -78,17 +80,28 @@ export const appendAsOverlay = (self: HTMLElement, element?: HTMLElement) => {
     element.style.setProperty("position-visibility", `always`);
     element.style.setProperty("position-anchor", CSSAnchorId);
     element.style.setProperty("position", `absolute`);
-    //element.style.setProperty("position-area", `span-all`);
+    element.style.setProperty("position-area", `span-all`);
 
-    element.style.setProperty("inset-block-start", `calc(anchor(start, 0px) + 2.5rem)`);
-    element.style.setProperty("inset-inline-start", `calc(anchor(start, 0px) + 0.25rem)`);
-    element.style.setProperty("inset-block-end", `calc(anchor(end, 0px) + 0.25rem)`);
-    element.style.setProperty("inset-inline-end", `calc(anchor(end, 0px) + 0.25rem)`);
+    if (self?.matches?.("ui-window-frame")) {
+        element.style.setProperty("inset-block-start", `calc(anchor(start, 0px) + 2.5rem)`);
+        element.style.setProperty("inset-inline-start", `calc(anchor(start, 0px) + 0.25rem)`);
+        element.style.setProperty("inset-block-end", `calc(anchor(end, 0px) + 0.25rem)`);
+        element.style.setProperty("inset-inline-end", `calc(anchor(end, 0px) + 0.25rem)`);
+        element.style.setProperty("inline-size", `calc(anchor-size(inline, 640px) - 0.5rem)`);
+        element.style.setProperty("block-size", `calc(anchor-size(block, 480px) - 2.75rem)`);
+    }
+    else {
+        element.style.setProperty("inset-block-start", `anchor(start, 0px)`);
+        element.style.setProperty("inset-inline-start", `anchor(start, 0px)`);
+        element.style.setProperty("inset-block-end", `anchor(end, 0px)`);
+        element.style.setProperty("inset-inline-end", `anchor(end, 0px)`);
+        element.style.setProperty("inline-size", `anchor-size(inline, 100%)`);
+        element.style.setProperty("block-size", `anchor-size(block, 100%)`);
+    }
 
     //
     element.style.setProperty("z-index", String(getExistsZIndex(self) + 200));
-    element.style.setProperty("inline-size", `calc(anchor-size(self-inline, 640px) - 0.5rem)`);
-    element.style.setProperty("block-size", `calc(anchor-size(self-block, 480px) - 2.75rem)`);
+
 
     //
     element?.setAttribute("data-overlay", "true");
