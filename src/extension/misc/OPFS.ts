@@ -16,24 +16,69 @@ export const imageImportDesc = {
 
 // "/" default is OPFS root (but may another root), "/user/" is OPFS root by default too, "/assets/" is unknown backend related assets
 export const mappedRoots = new Map<string, () => Promise<any>>([
-    ["/", async ()=>await navigator?.storage?.getDirectory?.()],
-    ["/user/", async ()=>await navigator?.storage?.getDirectory?.()],
+    ["/", async ()=> ((await navigator?.storage?.getDirectory?.())) ],
+    ["/user/", async ()=> (await navigator?.storage?.getDirectory?.()) ],
     ["/assets/", async ()=>{console.warn("Backend related API not implemented!"); return null;}],
 ]);
 
+//
+export const currentHandleMap = new Map<string, any>()
+
+//
+export const mountAsRoot = async (forId: string, copyFromInternal?: boolean)=>{
+    const cleanId = forId?.trim?.()?.replace?.(/^\//, "")?.trim?.()?.split?.("/")?.filter?.(p => !!p?.trim?.())?.at?.(0);
+
+    // @ts-ignore
+    const rootHandle = currentHandleMap?.get(cleanId) ?? (await showDirectoryPicker?.({
+        mode: "readwrite",
+        id: `${cleanId}`
+    })?.catch?.(console.warn.bind(console)));
+
+    //
+    if (rootHandle && cleanId && typeof cleanId == "string") { currentHandleMap?.set?.(cleanId, rootHandle); };
+    if (rootHandle) {
+        localStorage.setItem("opfs.mounted", JSON.stringify([...JSON.parse(localStorage.getItem("opfs.mounted") || "[]"), cleanId])); };
+
+    //
+    if (copyFromInternal && rootHandle && cleanId == "user") {
+        const internalRoot = await navigator?.storage?.getDirectory?.();
+        await copyFromOneHandlerToAnother(internalRoot, rootHandle, {})?.catch?.(console.warn.bind(console));
+    };
+
+    //
+    return rootHandle;
+}
+
+//
+export const unmountAsRoot = async (forId: string)=>{
+    localStorage.setItem("opfs.mounted", JSON.stringify(JSON.parse(localStorage.getItem("opfs.mounted") || "[]").filter((id: string)=>id != forId)));
+}
+
 // Enhanced root resolution function
-export async function resolveRootHandle(rootHandle: any, relPath: string): Promise<any> {
-    if (typeof rootHandle == "string") {
-        rootHandle = await getDirectoryHandle(null, rootHandle)?.catch?.(console.warn.bind(console));
+export async function resolveRootHandle(rootHandle: any, relPath: string = ""): Promise<any> {
+    // if is null, just return OPFS root
+    if (rootHandle == null || rootHandle == undefined || rootHandle?.trim?.()?.length == 0) {
+        rootHandle = "/user/";
     }
 
     //
-    if (typeof rootHandle == "string") {
-        rootHandle = await mappedRoots?.get?.(`/${rootHandle?.trim?.()?.split?.("/")?.filter?.(p => !!p?.trim?.())?.at?.(0)}/` || rootHandle?.trim?.())?.();
+    const cleanId = typeof rootHandle == "string" ? rootHandle?.trim?.()?.replace?.(/^\//, "")?.trim?.()?.split?.("/")?.filter?.(p => !!p?.trim?.())?.at?.(0) : null;
+    if (cleanId) {
+        if (JSON.parse(localStorage.getItem("opfs.mounted") || "[]").includes(cleanId)) {
+            // @ts-ignore
+            rootHandle = currentHandleMap?.get(cleanId); /*?? await showDirectoryPicker?.({
+                mode: "readwrite",
+                id: `${cleanId}`
+            })?.catch?.(console.warn.bind(console));*/
+
+            //
+            //if (rootHandle) { currentHandleMap?.set?.(cleanId, rootHandle); };
+        }
+        if (!rootHandle) { rootHandle = (await mappedRoots?.get?.(`/${cleanId}/`)?.()) ?? (await getDirectoryHandle(null, relPath, { create: true })?.catch?.(console.warn.bind(console))); };
     }
 
-    // If rootHandle is provided and valid, use it
-    if (rootHandle) {
+    //
+    if (rootHandle instanceof FileSystemDirectoryHandle) {
         return rootHandle;
     }
 
@@ -378,7 +423,7 @@ export async function readFileUTF8(rootHandle, relPath, options: {basePath?: str
 export async function writeFile(rootHandle, relPath, data, logger = defaultLogger) {
     if (data instanceof FileSystemFileHandle) { data = await data.getFile(); }
     if (data instanceof FileSystemDirectoryHandle) {
-        const dstHandle = await getDirectoryHandle(await navigator?.storage?.getDirectory?.(), relPath + (relPath?.trim?.()?.endsWith?.("/") ? "" : "/") + (data?.name || "")?.trim?.()?.replace?.(/\s+/g, '-'), { create: true });
+        const dstHandle = await getDirectoryHandle(await resolveRootHandle(rootHandle), relPath + (relPath?.trim?.()?.endsWith?.("/") ? "" : "/") + (data?.name || "")?.trim?.()?.replace?.(/\s+/g, '-'), { create: true });
         return await copyFromOneHandlerToAnother(data, dstHandle, {})?.catch?.(console.warn.bind(console));
     } else
 
@@ -526,7 +571,7 @@ export const provide = async (req: string | Request = "", rw = false) => {
         const $path = path?.replace?.("/user/", "")?.trim?.();
         const clean = (($path?.split?.("/") || [$path])?.filter?.((p)=>!!p?.trim?.()) || [""])?.join?.("/") || "";
         const npt = ((clean && clean != "/") ? "/" + clean + "/" : clean) || "/";
-        const handle = getFileHandle(await navigator?.storage?.getDirectory?.(), npt + fn, { create: true });
+        const handle = getFileHandle(await resolveRootHandle(null), npt + fn, { create: true });
         if (rw) { handle?.then?.((h)=>h?.createWritable?.()); }
         return handle?.then?.((h)=>h?.getFile?.());
     } else {
@@ -574,7 +619,7 @@ export const getLeast = (item)=>{
 
 //
 export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any)=>{
-    const fs = await navigator?.storage?.getDirectory?.();
+    const fs = await resolveRootHandle(null);
     const path = getDir(dest?.trim?.()?.startsWith?.("/user/") ? dest?.replace?.(/^\/user/g, "")?.trim?.() : dest);
 
     //
@@ -607,7 +652,7 @@ export const uploadDirectory = async (dest = "/user/", id: any = null)=>{
     if (!srcHandle) return;
 
     //
-    const dstHandle = await getDirectoryHandle(await navigator?.storage?.getDirectory?.(), dest + (dest?.trim?.()?.endsWith?.("/") ? "" : "/") + srcHandle.name?.trim?.()?.replace?.(/\s+/g, '-'), { create: true });
+    const dstHandle = await getDirectoryHandle(await resolveRootHandle(null), dest + (dest?.trim?.()?.endsWith?.("/") ? "" : "/") + srcHandle.name?.trim?.()?.replace?.(/\s+/g, '-'), { create: true });
     if (!dstHandle) return;
     return await copyFromOneHandlerToAnother(srcHandle, dstHandle, {})?.catch?.(console.warn.bind(console));
 }
