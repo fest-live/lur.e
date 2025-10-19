@@ -6,6 +6,31 @@ export const generateAnchorId = () => {
 }
 
 //
+const getComputedZIndex = (element: HTMLElement): number => {
+    if (element?.computedStyleMap) {
+        return Number(element.computedStyleMap().get("z-index")?.toString() || 0) || 0;
+    } else {
+        return Number(getComputedStyle((element as any)?.element ?? element).getPropertyValue("z-index") || 0) || 0;
+    }
+}
+
+//
+const getExistsZIndex = (element: HTMLElement): number => {
+    if (!element) { return 0; }
+    if ((element as any)?.attributeStyleMap && (element as any).attributeStyleMap.get("z-index") != null) { return Number((element as any).attributeStyleMap.get("z-index")?.value ?? 0) || 0; }
+    if ((element as any)?.style && "zIndex" in (element as any).style && (element as any).style.zIndex != null) { return Number((element as any).style.zIndex || 0) || 0; }
+    return getComputedZIndex(element);
+}
+
+//
+const getParentOrShadowRoot = (element: HTMLElement): HTMLElement|ShadowRoot|undefined => {
+    if ((element as any)?.parentElement) {
+        return (!((element as any)?.parentElement instanceof DocumentFragment) ? (element as any)?.parentElement as HTMLElement : undefined);
+    }
+    return (element as any)?.host?.shadowRoot as ShadowRoot;
+}
+
+//
 export const appendAsOverlay = (self: HTMLElement, element?: HTMLElement) => {
     let anchor: any = self?.children?.[0] ?? null;
     if (self?.children?.length < 1) {
@@ -35,13 +60,15 @@ export const appendAsOverlay = (self: HTMLElement, element?: HTMLElement) => {
     self.style.setProperty("anchor-name", CSSAnchorId);
 
     //
-    if ((self as any)?.parentElement && !((self as any)?.parentElement instanceof DocumentFragment)) {
-        ((self as any)?.parentElement as any).style.setProperty("anchor-scope", CSSAnchorId);
+    const parent = getParentOrShadowRoot(self);
+    if (parent) {
+        (parent as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
         (self as any)?.after?.(element);
     } else {
         requestAnimationFrame(()=>{
-            if ((self as any)?.parentElement && !((self as any)?.parentElement instanceof DocumentFragment)) {
-                ((self as any)?.parentElement as any).style.setProperty("anchor-scope", CSSAnchorId);
+            const parent = getParentOrShadowRoot(self);
+            if (parent) {
+                (parent as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
                 (self as any)?.after?.(element);
             }
         });
@@ -58,20 +85,13 @@ export const appendAsOverlay = (self: HTMLElement, element?: HTMLElement) => {
     element.style.setProperty("inset-block-end", `calc(anchor(end, 0px) + 0.25rem)`);
     element.style.setProperty("inset-inline-end", `calc(anchor(end, 0px) + 0.25rem)`);
 
-    element.style.setProperty("z-index", ((Number((getComputedStyle(self)?.zIndex || self?.style.zIndex) || 0) || 0) + 200) + "");
+    //
+    element.style.setProperty("z-index", String(getExistsZIndex(self) + 200));
     element.style.setProperty("inline-size", `calc(anchor-size(self-inline, 640px) - 0.5rem)`);
     element.style.setProperty("block-size", `calc(anchor-size(self-block, 480px) - 2.75rem)`);
-
-
-    requestAnimationFrame(()=>{
-        element.style.setProperty("z-index", ((Number((getComputedStyle(self)?.zIndex || self?.style.zIndex) || 0) || 0) + 200) + "");
-    });
 
     //
     element?.setAttribute("data-overlay", "true");
     element?.setAttribute("data-window-frame", self.getAttribute("data-name") ?? self.getAttribute("name") ?? self.getAttribute("id") ?? "");
-
-    //
-    console.log("appendAsOverlay", self, element, anchor);
     return self;
 }

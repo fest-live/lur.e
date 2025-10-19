@@ -26,6 +26,7 @@ export * from "./extension/controllers/LongPress"
 export * from "./extension/controllers/Trigger"
 export * from "./extension/controllers/Swipe"
 export * from "./extension/controllers/Renderer"
+export * from "./extension/controllers/AnchorOverlay"
 
 //
 export * from "./extension/core/Anchor"
