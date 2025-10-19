@@ -77,11 +77,6 @@ export const appendAsOverlay = (self: HTMLElement, element?: HTMLElement) => {
     }
 
     //
-    element.style.setProperty("position-visibility", `always`);
-    element.style.setProperty("position-anchor", CSSAnchorId);
-    element.style.setProperty("position", `absolute`);
-    element.style.setProperty("position-area", `span-all`);
-
     if (self?.matches?.("ui-window-frame")) {
         element.style.setProperty("inset-block-start", `calc(anchor(start, 0px) + 2.5rem)`);
         element.style.setProperty("inset-inline-start", `calc(anchor(start, 0px) + 0.25rem)`);
@@ -100,8 +95,11 @@ export const appendAsOverlay = (self: HTMLElement, element?: HTMLElement) => {
     }
 
     //
+    element.style.setProperty("position-visibility", `always`);
+    element.style.setProperty("position-anchor", CSSAnchorId);
+    element.style.setProperty("position", `absolute`);
+    element.style.setProperty("position-area", `span-all`);
     element.style.setProperty("z-index", String(getExistsZIndex(self) + 200));
-
 
     //
     element?.setAttribute("data-overlay", "true");
