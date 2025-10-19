@@ -282,6 +282,8 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
                         rendered
                     ]?.filter?.(x => (x != null)));
                 }
+
+                //
                 this.onRender?.call?.(this, weak);
                 delete this[inRenderKey];
             }
