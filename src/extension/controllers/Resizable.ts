@@ -1,11 +1,11 @@
-import { bindDraggable, bbh, bbw, cbh, cbw, ROOT, type InteractStatus, RAFBehavior } from "fest/dom";
+import { bbh, bbw, cbh, cbw, ROOT, type InteractStatus, RAFBehavior } from "fest/dom";
 import { makeShiftTrigger, doObserve } from "./Trigger";
 import { clamp } from "fest/core";
 
 //
-//import {  E  } from "fest/lure";
 import { numberRef } from "fest/object";
-import E from "../../lure/node/Bindings";
+import { E } from "../../lure/node/Bindings";
+import { bindDraggable } from "../core/PointerAPI";
 
 //
 export class ResizeHandler {

@@ -29,6 +29,7 @@ export * from "./extension/controllers/Renderer"
 export * from "./extension/controllers/AnchorOverlay"
 
 //
+export * from "./extension/core/PointerAPI"
 export * from "./extension/core/Anchor"
 export * from "./extension/core/CtxMenu"
 export * from "./extension/core/InputExt"

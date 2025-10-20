@@ -1,5 +1,4 @@
-import { ROOT, doBorderObserve, doContentObserve } from "fest/dom";
-import { addEvents } from "fest/core";
+import { ROOT, doBorderObserve, doContentObserve, addEvents } from "fest/dom";
 
 //
 export const doObserve = (holder, parent)=>{

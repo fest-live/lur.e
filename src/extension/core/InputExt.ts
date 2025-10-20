@@ -1,7 +1,6 @@
-import { bindDraggable, handleStyleChange, RAFBehavior, setChecked } from "fest/dom";
-import { addEvent } from "fest/core";
-//import { bindWith, bindCtrl } from "fest/lure";
-import { computed, numberRef, conditional } from "fest/object";
+import { addEvent, setChecked, handleStyleChange } from "fest/dom";
+import { computed, conditional, numberRef } from "fest/object";
+import { bindDraggable } from "./PointerAPI";
 
 //
 import { makeShiftTrigger } from "../controllers/Trigger";
@@ -112,7 +111,6 @@ const setValueByPointer = (input, pointer, container)=>{
 // TODO: support animation
 const resolveDragging = (input, dragging, container) => {
     // in case of input is HTMLInputElement
-    console.log(getValueWithShift(input, convertPointerToValueShift(input, dragging, container)));
     setValueByShift(input, convertPointerToValueShift(input, dragging, container));
 
 

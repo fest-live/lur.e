@@ -1,7 +1,6 @@
 import { addToCallChain, makeReactive, subscribe } from "fest/object";
-import { handleAttribute, handleProperty, namedStoreMaps, observeAttribute, observeBySelector } from "fest/dom";
-import { setChecked } from "fest/dom";
-import { $getValue, camelToKebab, $set, toRef, deref, includeSelf, isNotEqual, handleListeners, $avoidTrigger } from "fest/core";
+import { handleAttribute, handleProperty, namedStoreMaps, observeAttribute, observeBySelector, includeSelf, setChecked } from "fest/dom";
+import { $getValue, camelToKebab, $set, toRef, deref, isNotEqual, handleListeners, $avoidTrigger } from "fest/core";
 
 //
 export const elMap  = new WeakMap<any, WeakMap<any, any>>();

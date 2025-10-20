@@ -1,5 +1,5 @@
 import { ITask } from "./Types";
-import { addEvent } from "fest/core";
+import { addEvent } from "fest/dom";
 
 //
 export const getBy = (tasks: ITask[] = [], taskId: ITask|string|any)=>{

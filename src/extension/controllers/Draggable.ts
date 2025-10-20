@@ -1,5 +1,6 @@
-import { setStyleProperty, getBoundingOrientRect, bindDraggable, contentBoxWidth, contentBoxHeight, borderBoxWidth, borderBoxHeight, ROOT, RAFBehavior } from "fest/dom";
+import { setStyleProperty, getBoundingOrientRect, contentBoxWidth, contentBoxHeight, borderBoxWidth, borderBoxHeight, ROOT, RAFBehavior } from "fest/dom";
 import { makeShiftTrigger, doObserve } from "./Trigger";
+import { bindDraggable } from "../core/PointerAPI";
 
 //
 //import {  E  } from "fest/lure";

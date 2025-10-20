@@ -1,13 +1,12 @@
-import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden } from "fest/dom";
+import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden, addEventsList, createElementVanilla } from "fest/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectProperties, reflectWithStyleRules, reflectARIA } from '../context/Reflect';
 import { reflectControllers, bindWith } from '../core/Binding';
 
 //
 import { subscribe } from "fest/object";
 import { Q } from "./Queried";
-import M from "./Mapped";
+import { M } from "./Mapped";
 import { getNode } from "../context/Utils";
-import { bindEvents, createElementVanilla } from "fest/core";
 
 //
 interface Params {
@@ -81,7 +80,7 @@ export const E = (selector: string | HTMLElement | Node | DocumentFragment | Doc
         if (params.icon != null) bindWith(element, "icon", params.icon, handleAttribute, params, true);
         if (params.inert != null) bindWith(element, "inert", params.inert, handleAttribute, params, true);
         if (params.hidden != null) bindWith(element, "hidden", params.visible ?? params.hidden, handleHidden, params);
-        if (params.on != null) bindEvents(element, params.on);
+        if (params.on != null) addEventsList(element, params.on);
 
         //
         if (params.rules != null) params.rules.forEach?.((rule) => reflectWithStyleRules(element, rule));

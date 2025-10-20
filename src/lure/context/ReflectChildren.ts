@@ -4,7 +4,7 @@ import { addToCallChain, observe, ref, subscribe } from "fest/object";
 import getNode, { appendChild, removeNotExists, replaceChildren } from "./Utils";
 import { removeChild, removeChildDirectly } from "./Utils";
 import { $mapped, $behavior, addToBank, hasInBank } from "../core/Binding";
-import { indexOf, isValidParent } from "fest/core";
+import { indexOf, isValidParent } from "fest/dom";
 
 //
 export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function | null, isArray: boolean = true) => {

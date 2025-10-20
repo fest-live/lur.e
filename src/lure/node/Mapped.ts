@@ -2,7 +2,8 @@ import { observe } from "fest/object";
 import { getNode, removeNotExists } from "../context/Utils";
 import { $mapped } from "../core/Binding";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
-import { canBeInteger, isObservable, isValidParent, isPrimitive, isHasPrimitives } from "fest/core";
+import { canBeInteger, isObservable, isPrimitive, isHasPrimitives } from "fest/core";
+import { isValidParent } from "fest/dom";
 
 //
 interface MappedOptions {

@@ -1,6 +1,7 @@
 import { unwrap, subscribe } from "fest/object";
 import { $virtual, $mapped } from "../core/Binding";
-import { isElement, isNotEqual, isValidParent } from "fest/core";
+import { isElement, isValidParent } from "fest/dom";
+import { isNotEqual } from "fest/core";
 
 //
 export const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {

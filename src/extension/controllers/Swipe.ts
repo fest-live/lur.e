@@ -1,5 +1,4 @@
-import { ROOT } from "fest/dom";
-import { addEvents } from "fest/core";
+import { ROOT, addEvents } from "fest/dom";
 
 //
 export class SwipeHandler {

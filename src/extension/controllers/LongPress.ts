@@ -1,4 +1,4 @@
-import { addEvents } from "fest/core";
+import { addEvents } from "fest/dom";
 
 //
 const defaultOptions = {

@@ -1,5 +1,4 @@
-import { agWrapEvent, ROOT } from "fest/dom";
-import { addEvents } from "fest/core";
+import { agWrapEvent, ROOT, addEvents } from "fest/dom";
 
 //
 export class LongHoverHandler {
