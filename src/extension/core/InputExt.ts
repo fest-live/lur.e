@@ -88,7 +88,7 @@ const setValue = (input, value)=>{
     if (input?.type == "number" || input?.type == "range")
         { if (value != input.valueAsNumber) { input.valueAsNumber = value; input?.dispatchEvent?.(new Event("change", { bubbles: true })); } } else
     if (input?.type == "checkbox")
-        { setChecked(input, value); } else
+        { setChecked(input, value > 0.5 ? true : false); } else
     if (input?.type == "radio") {
         const all = [...input?.parentNode?.querySelectorAll?.('input[type="radio"]')];
         if (value != 0) { setChecked(all[Math.max(Math.min(Math.round(value), max), min)], value); }
@@ -112,7 +112,9 @@ const setValueByPointer = (input, pointer, container)=>{
 // TODO: support animation
 const resolveDragging = (input, dragging, container) => {
     // in case of input is HTMLInputElement
+    console.log(getValueWithShift(input, convertPointerToValueShift(input, dragging, container)));
     setValueByShift(input, convertPointerToValueShift(input, dragging, container));
+
 
     // reset dragging coordinate
     try { dragging[0].value = 0, dragging[1].value = 0; } catch(e) {};
@@ -122,7 +124,7 @@ const resolveDragging = (input, dragging, container) => {
 //
 export const getInputValues = (inp): [number, number, number] =>{
     if ((inp?.type == "number" || inp?.type == "range") && inp?.valueAsNumber != null) { return [(inp?.valueAsNumber || 0), parseFloat(inp?.min || 0), parseFloat(inp?.max || 0)]; } else
-    if (inp?.checked != null && inp?.type == "checkbox") { return [inp?.checked ? 1 : 0, 0, 1]; } else
+    if (inp?.type == "checkbox") { return [inp?.checked ? 1 : 0, 0, 1]; } else
     if (inp?.type == "radio") {
         const all = [...inp?.parentNode?.querySelectorAll?.('input[type="radio"]')];
         const len = all?.length, nth = all?.indexOf?.(inp) ?? -1;
@@ -150,10 +152,18 @@ export const clampedValueRef = (inp)=>{
 
 //
 export const dragSlider = (thumb, handler, input)=>{ // @ts-ignore
+    const usedPointer = { id: -1 };
     const correctOffset = ()=>{ try { dragging[0].value = 0, dragging[1].value = 0; } catch(e) {}; return [0, 0]; };
     const customTrigger = (doGrab)=>{
-        const ub = addEvent(handler, "pointerdown", makeShiftTrigger((ev)=>{ thumb?.setAttribute?.("data-dragging", "true"); correctOffset(); doGrab(ev, handler) }, handler));
-        listening.push(ub);
+        const $handler = makeShiftTrigger((ev)=>{
+            thumb?.setPointerCapture?.(usedPointer.id = ev?.pointerId);
+            thumb?.setAttribute?.("data-dragging", "true");
+            correctOffset(); doGrab?.(ev, thumb);
+        }, thumb);
+
+        const ub = addEvent(handler, "pointerdown", $handler);
+        const ubt = addEvent(thumb, "pointerdown", $handler);
+        listening.push(ub, ubt);
         return ub;
     };
 
@@ -173,11 +183,17 @@ export const dragSlider = (thumb, handler, input)=>{ // @ts-ignore
     ];
 
     //
-    const dragging = [ numberRef(0, RAFBehavior()), numberRef(0, RAFBehavior()) ];
+    const dragging = [ numberRef(0), numberRef(0) ];
+    bindWith?.(thumb, "--drag-x", dragging?.[0], handleStyleChange);
     bindWith?.(handler, "--drag-x", dragging?.[0], handleStyleChange);
     bindWith?.(handler, "--relate", computed(dragging?.[0], (v)=>convertPointerToValueShift(input, dragging, handler)), handleStyleChange); // "relative"
     bindWith?.(handler, "--value", clampedValueRef(input), handleStyleChange); // from [0, 1]
-    const obj = bindDraggable(customTrigger, (dragging)=>{ thumb?.removeAttribute?.("data-dragging"); resolveDragging(input, dragging, handler); }, dragging, correctOffset);
+    const obj = bindDraggable(customTrigger, (dragging)=>{
+        thumb?.removeAttribute?.("data-dragging");
+        if (usedPointer.id >= 0)
+            { thumb?.releasePointerCapture?.(usedPointer.id); usedPointer.id = -1; }
+        resolveDragging(input, dragging, handler);
+    }, dragging, correctOffset);
     //addToCallChain(obj, Symbol.dispose, ()=>listening.forEach(ub=>ub?.()));
     return ()=>{
         listening.forEach(ub=>ub?.());

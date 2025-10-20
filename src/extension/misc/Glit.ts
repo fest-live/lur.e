@@ -158,7 +158,7 @@ export function property({attribute, source, name, from}: { attribute?: string|b
 
                 //
                 if (inRender) return stored;
-                if ((typeof stored == "object" || typeof stored == "function") && (stored?.value != null || "value" in stored)) { return stored?.value; };
+                if (stored?.element instanceof HTMLElement) { return stored?.element; };
                 return ((typeof stored == "object" || typeof stored == "function") && (stored?.value != null || "value" in stored)) ? stored?.value : stored;
             },
             set(newValue: any) {
