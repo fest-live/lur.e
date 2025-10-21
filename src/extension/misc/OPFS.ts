@@ -36,8 +36,8 @@ export const mountAsRoot = async (forId: string, copyFromInternal?: boolean)=>{
 
     //
     if (rootHandle && cleanId && typeof cleanId == "string") { currentHandleMap?.set?.(cleanId, rootHandle); };
-    if (rootHandle) {
-        localStorage.setItem("opfs.mounted", JSON.stringify([...JSON.parse(localStorage.getItem("opfs.mounted") || "[]"), cleanId])); };
+    if (rootHandle && typeof localStorage != "undefined") {
+        localStorage?.setItem?.("opfs.mounted", JSON.stringify([...JSON.parse(localStorage?.getItem?.("opfs.mounted") || "[]"), cleanId])); };
 
     //
     if (copyFromInternal && rootHandle && cleanId == "user") {
@@ -51,7 +51,9 @@ export const mountAsRoot = async (forId: string, copyFromInternal?: boolean)=>{
 
 //
 export const unmountAsRoot = async (forId: string)=>{
-    localStorage.setItem("opfs.mounted", JSON.stringify(JSON.parse(localStorage.getItem("opfs.mounted") || "[]").filter((id: string)=>id != forId)));
+    if (typeof localStorage != "undefined") {
+        localStorage?.setItem?.("opfs.mounted", JSON.stringify(JSON.parse(localStorage?.getItem?.("opfs.mounted") || "[]").filter((id: string)=>id != forId)));
+    }
 }
 
 // Enhanced root resolution function
@@ -64,7 +66,7 @@ export async function resolveRootHandle(rootHandle: any, relPath: string = ""): 
     //
     const cleanId = typeof rootHandle == "string" ? rootHandle?.trim?.()?.replace?.(/^\//, "")?.trim?.()?.split?.("/")?.filter?.(p => !!p?.trim?.())?.at?.(0) : null;
     if (cleanId) {
-        if (JSON.parse(localStorage.getItem("opfs.mounted") || "[]").includes(cleanId)) {
+        if (typeof localStorage != "undefined" && JSON.parse(localStorage?.getItem?.("opfs.mounted") || "[]").includes(cleanId)) {
             // @ts-ignore
             rootHandle = currentHandleMap?.get(cleanId); /*?? await showDirectoryPicker?.({
                 mode: "readwrite",

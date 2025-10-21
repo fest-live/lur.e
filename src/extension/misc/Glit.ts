@@ -73,33 +73,7 @@ const getDef = (source?: string|any|null): any =>{
 //
 if (defaultStyle) {
     defaultStyle.innerHTML = `@layer ux-preload {
-        :where(ui-select-row, ui-button-row),
-        :host(ui-select-row, ui-button-row),
-        ::slotted(ui-select-row, ui-button-row) {
-            display: none;
-            content-visibility: hidden;
-        }
-        :where(
-            :host(:not(:defined)),
-            :not(:defined),
-            ::slotted(:not(:defined))
-        ) {
-            :where(*:not(ui-icon) {
-                content-visibility: hidden;
-            }
-        }
-        :host:not(:has(style[loaded]))::slotted(*) { display: none; }
-        :where(
-            :host(:not(:defined)),
-            ::slotted(:not(:defined))
-        ) { display: none;
-            ::slotted(ui-icon) { display: none; content-visibility: hidden; }
-        }
-        :where(
-            :host(:not(:defined)),
-            ::slotted(:not(:defined))
-        ) { content-visibility: hidden; }
-        style { display: none !important; }
+        :host { display: none; }
     }`
 }
 
