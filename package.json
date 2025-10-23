@@ -1,5 +1,5 @@
 {
-    "name": "fl-ui",
+    "name": "@fest/fl-ui",
     "version": "0.0.0",
     "type": "module",
     "browserslist": [
