@@ -1,4 +1,4 @@
-import { setStyleProperty, getBoundingOrientRect, contentBoxWidth, contentBoxHeight, borderBoxWidth, borderBoxHeight, ROOT, RAFBehavior } from "fest/dom";
+import { setStyleProperty, RAFBehavior, ROOT } from "fest/dom";
 import { makeShiftTrigger, doObserve } from "./Trigger";
 import { bindDraggable } from "../core/PointerAPI";
 
