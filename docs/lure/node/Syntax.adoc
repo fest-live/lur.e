@@ -1,8 +1,0 @@
-= Syntax.ts
-:source_path: modules/lur.e/src/lure/node/Syntax.ts
-
-Auto-generated documentation.
-
-== Exports
-- functions: html(strings, ...values), htmlBuilder({ createElement = null } = {})
-- consts: H

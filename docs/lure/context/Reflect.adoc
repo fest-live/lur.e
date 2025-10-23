@@ -1,7 +1,0 @@
-= Reflect.ts
-:source_path: modules/lur.e/src/lure/context/Reflect.ts
-
-Auto-generated documentation.
-
-== Exports
-- consts: reflectAttributes, reflectARIA, reflectDataset, reflectStyles, reflectWithStyleRules, reflectProperties, reflectChildren, reflectClassList, reformChildren

@@ -1,7 +1,0 @@
-= index.ts
-:source_path: modules/lur.e/src/index.ts
-
-Auto-generated documentation.
-
-== Exports
-- star reexports from: ./lure/core/Binding, ./lure/core/Links, ./lure/core/Refs, ./lure/node/Bindings, ./lure/node/Syntax, ./lure/node/Switched, ./lure/node/Mapped, ./lure/node/Queried, ./extension/Glit, ./extension/OPFS, ./extension/Styles

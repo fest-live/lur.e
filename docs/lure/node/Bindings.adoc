@@ -1,7 +1,0 @@
-= Bindings.ts
-:source_path: modules/lur.e/src/lure/node/Bindings.ts
-
-Auto-generated documentation.
-
-== Exports
-- consts: Qp, E

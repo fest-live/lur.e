@@ -1,8 +1,0 @@
-= OPFS.ts
-:source_path: modules/lur.e/src/extension/OPFS.ts
-
-Auto-generated documentation.
-
-== Exports
-- functions: handleError(logger, status, message), defaultLogger(status, message), getFileExtension(path), detectTypeByRelPath(relPath), getMimeTypeByFilename(filename), getDirectoryHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger), openDirectory(rootHandle, relPath, options: {create: boolean} = {create: false}, logger = defaultLogger), readFile(rootHandle, relPath, options = {}, logger = defaultLogger), readAsObjectURL(rootHandle, relPath, options = {}, logger = defaultLogger), readFileUTF8(rootHandle, relPath, options = {}, logger = defaultLogger), writeFile(rootHandle, relPath, { data }, logger = defaultLogger), getFileWriter(rootHandle, relPath, options = { create: true }, logger = defaultLogger), getFileHandle(rootHandle, relPath, { create = false } = {}, logger = defaultLogger), getHandler(rootHandle, relPath, options = {}, logger = defaultLogger), createHandler(rootHandle, relPath, options = {}, logger = defaultLogger), removeFile(rootHandle, relPath, options: any = {}, logger = defaultLogger), removeDirectory(rootHandle, relPath, options: any = {}, logger = defaultLogger), remove(rootHandle, relPath, options = {}, logger = defaultLogger)
-- consts: getDir, imageImportDesc, openImageFilePicker, downloadFile, provide, getLeast, dropFile, uploadFile, ghostImage, attachFile, dropAsTempFile

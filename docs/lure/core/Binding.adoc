@@ -1,7 +1,0 @@
-= Binding.ts
-:source_path: modules/lur.e/src/lure/core/Binding.ts
-
-Auto-generated documentation.
-
-== Exports
-- consts: elMap, alives, bindBeh, bindCtrl, reflectControllers, removeFromBank, addToBank, hasInBank, bindHandler, includeSelf, updateInput, bindEvents, bindWith, bindForms, synchronizeInputs
