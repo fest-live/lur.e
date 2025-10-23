@@ -1,5 +1,5 @@
 {
-    "include": ["./src/**/*.ts", "./test/**/*.ts", "test/test.tsx"],
+    "include": ["./src/**/*.ts", "./test/**/*.ts", "test/test.tsx", "../fl.ui/src/design/engine/Config.ts"],
     "exclude": ["./dist/**/*", "./externals/**/*"],
     "compilerOptions": {
         "outDir": "./dist/",
