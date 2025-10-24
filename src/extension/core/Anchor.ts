@@ -1,6 +1,7 @@
-import { addToCallChain, numberRef, stringRef, booleanRef, WRef } from "fest/object";
+import { addToCallChain, numberRef, stringRef, booleanRef } from "fest/object";
 import { handleStyleChange, observeContentBox, addEvents, addEvent } from "fest/dom";
 import { bindWith } from "../../lure/core/Binding";
+import { WRef } from "fest/core";
 
 //
 const ROOT = typeof document != "undefined" ? document?.documentElement : null;
