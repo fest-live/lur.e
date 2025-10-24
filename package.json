@@ -24,7 +24,7 @@
         "terser": "^5.41.0",
         "typedoc": "^0.28.5",
         "typescript": "^5.9.2",
-        "vite": ">=7.1.5",
+        "vite": ">=7.1.11",
         "vite-plugin-external": "^6.2.2",
         "vite-plugin-optimizer": "^1.4.3",
         "webdav": "^5.8.0"
