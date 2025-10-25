@@ -197,6 +197,7 @@ class Mp {
                 yield this.mapper(el, i++);
             }
         }
+        return;
     }
 }
 

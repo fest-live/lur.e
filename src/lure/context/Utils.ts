@@ -76,7 +76,7 @@ export const getNode = (el, mapper?: Function | null, index: number = -1, reques
 
 //
 const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => {
-    if (isElement(child) && child != null) {
+    if (isValidElement(child) && child != null) {
         if (index >= 0 && index < parent?.childNodes?.length) {
             parent?.insertBefore?.(child, parent?.childNodes?.[index]);
         } else {

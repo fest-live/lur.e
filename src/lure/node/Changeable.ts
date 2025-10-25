@@ -74,11 +74,11 @@ class Ch {
 
     //
     elementForPotentialParent(requestor: any) {
-        if (isValidParent(requestor)) {
+        /*if (isValidParent(requestor)) {
             this.boundParent = requestor;
             this.#valueRef?.[$trigger]?.();
-        }
-        /*Promise.try(() => {
+        }*/
+        Promise.try(() => {
             const element = this.$getNode(requestor);
             if (!element || !requestor || element?.contains?.(requestor) || requestor == element) {
                 return;
@@ -103,7 +103,7 @@ class Ch {
                     observer.observe(requestor, { childList: true });
                 }
             }
-        })?.catch?.(console.warn.bind(console));*/
+        })?.catch?.(console.warn.bind(console));
         return this.element;
     }
 
