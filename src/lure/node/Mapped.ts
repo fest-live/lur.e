@@ -153,7 +153,8 @@ class Mp {
         return (...args) => {
             if (args?.[0] instanceof Node) { return args?.[0]; };
             if (args?.[1] == null || args?.[1] < 0 || (typeof args?.[1] != "number" || !canBeInteger(args?.[1] as any))) {
-                return args?.[0] as any;
+                //return this.#mapCb(args?.[0] as any, args?.[1]);
+                return;
             }
 
             //
