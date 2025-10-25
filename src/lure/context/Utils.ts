@@ -41,10 +41,12 @@ export const getNode = (el, mapper?: Function | null, index: number = -1, reques
 
 //
 const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => {
-    if (index >= 0 && index < parent?.childNodes?.length) {
-        parent?.insertBefore?.(child, parent?.childNodes?.[index]);
-    } else {
-        parent?.append?.(child);
+    if (isValidParent(child) || child instanceof DocumentFragment) {
+        if (index >= 0 && index < parent?.childNodes?.length) {
+            parent?.insertBefore?.(child, parent?.childNodes?.[index]);
+        } else {
+            parent?.append?.(child);
+        }
     }
 }
 
