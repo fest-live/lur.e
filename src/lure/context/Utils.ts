@@ -37,7 +37,7 @@ export const $getBase = (el, mapper?: Function | null, index: number = -1, reque
 }
 
 //
-const isValidElement = (el)=>{
+export const isValidElement = (el)=>{
     return (isValidParent(el) || (el instanceof DocumentFragment) || (el instanceof Text)) ? el : null;
 }
 
