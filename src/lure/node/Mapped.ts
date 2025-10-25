@@ -62,7 +62,13 @@ class Mp {
         this.#mapCb = (mapCb != null ? (typeof mapCb == "function" ? mapCb : (typeof mapCb == "object" ? mapCb?.mapper : null)) : null) ?? ((el) => el);
         this.#observable = (isObservable(observable) ? observable : (observable?.iterator ?? mapCb?.iterator ?? observable)) ?? [];
         this.#fragments = document.createDocumentFragment();
-        this.#options = (isValidParent(options as any) ? null : (options as MappedOptions|null)) || ({ removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions);
+
+        //
+        const $baseOptions = { removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions;
+        const $newOptions = (isValidParent(options as any) ? null : (options as MappedOptions|null)) || {};
+        this.#options = Object.assign($baseOptions, $newOptions);
+
+        //
         this.boundParent = isValidParent(this.#options?.boundParent as any) ?? (isValidParent(options as any) ?? null);
         if (!this.boundParent) {
             if (this.#options.preMap) reformChildren(
