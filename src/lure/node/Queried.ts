@@ -1,5 +1,6 @@
 import { getStyleRule, handleAttribute, observeAttribute, observeAttributeBySelector, observeBySelector, containsOrSelf, MOCElement } from "fest/dom";
-import { bindWith, elMap } from "../core/Binding";
+import { bindWith } from "../core/Binding";
+import { elMap } from "../context/Utils";
 
 //
 const queryExtensions = {

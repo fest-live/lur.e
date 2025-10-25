@@ -122,6 +122,12 @@ class Mp {
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
         //
+        Promise.resolve()?.then?.(()=>{
+            const theirParent = isValidParent(existsNode?.parentElement) ? existsNode?.parentElement : this.boundParent;
+            this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
+        });
+
+        //
         return (theirParent ?? (reformChildren(
             this.#fragments, this.#observable,
             this.mapper.bind(this)
@@ -133,6 +139,12 @@ class Mp {
         const children = this.#fragments?.childElementCount > 0 ? this.#fragments : getNode(this.#observable?.[0], this.mapper.bind(this), 0);
         const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
+
+        Promise.resolve()?.then?.(()=>{
+            const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
+            this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
+        });
+
         return children;
     }
 
@@ -175,6 +187,16 @@ class Mp {
             removeNotExists(this.boundParent, this.#observable?.map?.((nd, index) => getNode(nd, this.mapper, index, this.boundParent)));
         }
         return this.#updater?.(newEl, idx, oldEl, op, this.boundParent);
+    }
+
+    // generator and iterator
+    *[Symbol.iterator]() {
+        let i=0;
+        if (this.#observable) {
+            for (let el of this.#observable) {
+                yield this.mapper(el, i++);
+            }
+        }
     }
 }
 

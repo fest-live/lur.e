@@ -1,26 +1,61 @@
 import { unwrap, subscribe } from "fest/object";
 import { $virtual, $mapped } from "../core/Binding";
 import { isElement, isValidParent } from "fest/dom";
-import { isNotEqual } from "fest/core";
+import { hasValue, isNotEqual, isPrimitive } from "fest/core";
+import C from "../node/Changeable";
 
 //
 export const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
     return ((requestor && requestor != el && !el?.contains?.(requestor) && isValidParent(requestor)) ? el?.elementForPotentialParent?.(requestor) : null) ?? el?.element;
 }
 
-export const isElementValue = (el: any, requestor?: any | null) => { return KIDNAP_WITHOUT_HANG(el, requestor) ?? el?.value; }
+//
+export const isElementValue = (el: any, requestor?: any | null) => { return KIDNAP_WITHOUT_HANG(el, requestor) ?? (hasValue(el) && isElement(el?.value) ? el?.value : el); }
 
 //
-const elMap = new WeakMap();
+export const elMap = new WeakMap();
+export const tmMap = new WeakMap();
+
+//
+const getMapped = (obj: any)=>{
+    if (isPrimitive(obj)) return obj;
+    if (hasValue(obj) && isPrimitive(obj?.value)) return tmMap?.get(obj);
+    return elMap?.get?.(obj);
+}
+
+//
+export const $getBase = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
+    if (el instanceof WeakRef) { el = el.deref() ?? el; }
+    if (mapper != null) { return (el = $getBase(mapper?.(el, index), null, -1, requestor)); }
+    if (isElement(el) && !el?.element) { return el; } else
+    if (isElement(el?.element)) { return el; } else
+    if (hasValue(el)) { return C(el); } else
+    if (typeof el == "object" && el != null) { return getMapped(el); } else
+    if (typeof el == "function") { return $getBase(el?.(), mapper, index, requestor); }  // mapped arrays always empties after
+    if (isPrimitive(el) && el != null) return T(el);
+    return null;
+}
+
+//
+const isValidElement = (el)=>{
+    return (isValidParent(el) || (el instanceof DocumentFragment) || (el instanceof Text)) ? el : null;
+}
+
+//
+export const $getLeaf = (el, requestor?: any | null)=>{
+    return isElementValue(el, requestor) ?? isElement(el);
+}
+
+//
 export const $getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null) => {
     if (el instanceof WeakRef) { el = el.deref() ?? el; }
     if (mapper != null) { return (el = getNode(mapper?.(el, index), null, -1, requestor)); }
     if (isElement(el) && !el?.element) { return el; } else
-    if (isElement(el?.element)) { return el?.element || null; } else
-    if (typeof el?.value == "string" || typeof el?.value == "number") { return T(el); } else
-    if (typeof el == "string" || typeof el == "number") { return document.createTextNode(String(el)); } else
-    if (typeof el == "object" && el != null) { return elMap.get(el); } else
-    if (typeof el == "function") { return getNode(el?.(), mapper, index, requestor); }  // mapped arrays always empties after
+    if (isElement(el?.element)) { return isElementValue(el, requestor); } else
+    if (hasValue(el)) { return C(el)?.element; } else
+    if (typeof el == "object" && el != null) { return getMapped(el); } else
+    if (typeof el == "function") { return getNode(el?.(), mapper, index, requestor); } else
+    if (isPrimitive(el) && el != null) return T(el);
     return null;
 };
 
@@ -29,19 +64,19 @@ export const getNode = (el, mapper?: Function | null, index: number = -1, reques
     if (el instanceof WeakRef) { el = el.deref() ?? el; }
     if ((typeof el == "object" || typeof el == "function") && !isElement(el)) {
         if (elMap.has(el)) {
-            const obj: any = elMap.get(el) ?? $getNode(el, mapper, index, requestor);
-            return (obj instanceof WeakRef ? obj?.deref?.() : obj);
+            const obj: any = getMapped(el) ?? $getBase(el, mapper, index, requestor);
+            return $getLeaf(obj instanceof WeakRef ? obj?.deref?.() : obj, requestor);
         };
-        const $node = $getNode(el, mapper, index, requestor);
-        if (!mapper && $node != null && $node != el && (!el?.self && !el?.element)) { elMap.set(el, $node); }
-        return $node;
+        const $node = $getBase(el, mapper, index, requestor);
+        if (!mapper && $node != null && $node != el && (typeof el == "object" || typeof el == "function") && !isElement(el)) { elMap.set(el, $node); }
+        return $getLeaf($node, requestor);
     }
     return $getNode(el, mapper, index, requestor);
 }
 
 //
 const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => {
-    if (isValidParent(child) || child instanceof DocumentFragment) {
+    if (isElement(child) && child != null) {
         if (index >= 0 && index < parent?.childNodes?.length) {
             parent?.insertBefore?.(child, parent?.childNodes?.[index]);
         } else {
@@ -103,17 +138,17 @@ export const dePhantomNode = (parent, node, index: number = -1)=>{
 
 
 // TODO: what exactly to replace, if has (i.e. object itself, not index)
-export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1) => {
+export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1, old?: any|null) => {
     if (mapper != null) { cp = mapper?.(cp, index); }
-    const cn = dePhantomNode(element, null, index);
+    const cn = dePhantomNode(element, getNode(old, null, index), index);
     if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
     if (cp != null) {
         const node = getNode(cp); // oldNode is always unknown and phantom
         if (cn?.parentNode != element && cn != node && cn != null) {
             if (cn instanceof Text && node instanceof Text) {
-                if (cn?.textContent != node?.textContent) { cn.textContent = node.textContent; }
+                if (cn?.textContent != node?.textContent) { cn.textContent = node?.textContent ?? ""; }
             } else
-            if (cn != node && (!node?.parentNode || node?.parentNode != element)) { cn?.replaceWith?.(node); }
+            if (cn != node && (!node?.parentNode || node?.parentNode != element) && node != null) { cn?.replaceWith?.(node); }
         } else { appendChild(element, node, null, index); }
     }
 }
@@ -143,10 +178,16 @@ export const removeNotExists = (element, children, mapper?: Function | null) => 
 
 //
 export const T = (ref) => {
-    // @ts-ignore // !experimental `getOrInsert` feature!
-    return elMap.getOrInsertComputed(ref, () => {
-        const element = document.createTextNode(String(ref?.value ?? ""));
-        subscribe([ref, "value"], (val) => (element.textContent = val));
+    if (isPrimitive(ref) && ref != null)
+        { return document.createTextNode(ref); }
+    if (ref == null) return;
+
+    // @ts-ignore
+    return tmMap.getOrInsertComputed(ref, () => {
+        const element = document.createTextNode((hasValue(ref) ? ref?.value : ref) ?? "");
+        subscribe([ref, "value"], (val) => {
+            (element.textContent = val?.innerText ?? val?.textContent ?? val ?? "")
+        });
         return element;
     });
 }

@@ -1,7 +1,9 @@
-import { bindEvent } from "fest/core";
+import { bindEvent, hasValue } from "fest/core";
 import { getNode } from "../context/Utils";
 import E from "./Bindings";
 import M from "./Mapped";
+import C from "./Changeable";
+import { isElement } from "fest/dom";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
@@ -73,7 +75,29 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
 }
 
 //
-export function html(strings, ...values) { return htmlBuilder({ createElement: null })(strings, ...values); };
+const linearBuilder = (strings, ...values)=>{
+    const nodes: any[] = [];
+    for (let i=0;i<strings?.length;i++) {
+        const str = strings?.[i];
+        const val = values?.[i];
+        nodes.push(H(str));
+        nodes.push(val);
+    }
+    if (nodes?.length <= 1) return getNode(nodes?.[0], null, 0);
+
+    // TODO! fix parent node bound support
+    const fragment = document.createDocumentFragment();
+    fragment.append(...nodes?.filter?.((nd)=>(nd!=null))?.map?.((en, i: number)=>getNode(en, null, i))?.filter?.((nd)=>(nd!=null)));
+    return fragment;
+}
+
+//
+export function html(strings, ...values) {
+    if (strings?.at?.(0)?.trim?.()?.startsWith?.("<") && strings?.at?.(-1)?.trim?.()?.endsWith?.(">")) {
+        return htmlBuilder({ createElement: null })(strings, ...values);
+    }
+    return linearBuilder(strings, ...values);
+};
 
 //
 const checkInsideTagBlock = (contextParts: string[], ...str: string[]) => {
@@ -133,9 +157,9 @@ const replaceNode = (parent: Node, node: Node, el: any) => {
 
     //
     let newNode = getNode(el, null, -1, parent);
-    if (newNode instanceof Node) {
-        if (newNode?.parentNode != parent && !newNode?.contains?.(parent)) {
-            (node as any)?.replaceWith?.(newNode);
+    if (isElement(newNode)) {
+        if (newNode?.parentNode != parent && !newNode?.contains?.(parent) && newNode != null) {
+            (node as any)?.replaceWith?.((hasValue(newNode) && (typeof newNode?.value == "object" || typeof newNode?.value == "function") && isElement(newNode?.value)) ? newNode?.value : newNode);
         }
     } else {
         (node as any)?.remove?.();
@@ -158,8 +182,6 @@ export function htmlBuilder({ createElement = null } = {}) {
                 } else {
                     // sequences such as inside of `<...>`
                     const $inTagOpen = checkInsideTagBlock(strings, strings?.[i] || "", strings?.[i + 1] || "");
-
-                    //
                     const $afterEquals = /[\w:\-\.\]]\s*=\s*$/.test(strings[i]?.trim?.() ?? "") || strings[i]?.trim?.()?.endsWith?.("=");
 
                     //
@@ -206,7 +228,7 @@ export function htmlBuilder({ createElement = null } = {}) {
             cleanupInterTagWhitespace(node);
             if (!isValidParent(node?.parentNode) && node?.parentNode != frag) {
                 node?.remove?.();
-                frag?.append?.(node);
+                if (node != null) { frag?.append?.(node); };
             }
             return node;
         });
@@ -234,7 +256,8 @@ export function htmlBuilder({ createElement = null } = {}) {
                     const $parent = node?.parentNode;
                     if (Array.isArray(el)) {
                         replaceNode?.($parent, node, el = M(el, null, $parent));
-                    } else {
+                    } else
+                    if (el != null) {
                         replaceNode?.($parent, node, el);
                     }
                 }
@@ -254,28 +277,34 @@ export function htmlBuilder({ createElement = null } = {}) {
 
 //
 export const H = (str: any, ...values: any[])=>{
+    //if (typeof str == "object" && hasValue(str)) return C(str);
     if (typeof str == "string") {
-        if (str?.trim?.()?.startsWith?.("<")) {
+        if (str?.trim?.()?.startsWith?.("<") && str?.trim?.()?.endsWith?.(">")) {
             const parser = new DOMParser(), doc = parser.parseFromString(str, "text/html");
             const basis  = doc.querySelector("template")?.content ?? doc.body;
             // Normalize and clean whitespace-only text nodes between tags
             if (basis instanceof HTMLBodyElement) {
                 const frag = document.createDocumentFragment();
-                frag.append(...Array.from(basis.childNodes));
+                frag.append(...Array.from(basis.childNodes ?? []));
                 cleanupInterTagWhitespace(frag);
                 return (Array.from(frag.childNodes)?.length > 1 ? frag : frag?.childNodes?.[0]);
-            } else {
-                cleanupInterTagWhitespace(basis);
             }
+            cleanupInterTagWhitespace(basis);
             if (basis instanceof DocumentFragment) { return basis; }
-            if (basis?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag.append(...Array.from(basis?.childNodes));  return frag; }
-            return basis?.childNodes?.[0] ?? new Text(str);
+            if (basis?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag.append(...Array.from(basis?.childNodes ?? []));  return frag; }
+            return basis?.childNodes?.[0] ?? (new Text(str));
         }
         return new Text(str);
     } else
     if (typeof str == "function") { return H(str?.()); } else
-    if (Array.isArray(str) && values) { return html(str, ...values); } else
-    if (str instanceof Node) { cleanupInterTagWhitespace(str); return str; }; return null;
+    if (Array.isArray(str) && values) {
+        return html(str, ...values);
+    } else
+    if (str instanceof Node) {
+        cleanupInterTagWhitespace(str);
+        return str;
+    };
+    return getNode(str);
 }
 
 //

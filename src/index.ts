@@ -5,6 +5,7 @@ export * from "./lure/node/Bindings"
 export * from "./lure/node/Syntax"
 export * from "./lure/node/Switched"
 export * from "./lure/node/Mapped"
+export * from "./lure/node/Changeable"
 export * from "./lure/node/Queried"
 export * from "./lure/node/JSX"
 
