@@ -1,6 +1,7 @@
 import { addToCallChain, subscribe, $trigger } from "fest/object";
 import { appendFix, getNode } from "../context/Utils";
 import { contextify, isNotEqual, inProxy } from "fest/core";
+import { isValidParent } from "fest/dom";
 
 //
 export interface SwitchedParams {
@@ -44,7 +45,11 @@ export class SwM implements SwitchedParams {
 
     //
     elementForPotentialParent(requestor: any) {
-        this.boundParent = requestor;
+        if (isValidParent(requestor)) {
+            this.boundParent = requestor;
+        }
+
+        //
         this.current?.[$trigger]?.();
         return this.element;
     }
