@@ -8,11 +8,18 @@ import { indexOf, isValidParent } from "fest/dom";
 
 //
 export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function | null, isArray: boolean = true) => {
-    const toBeRemoved: any[] = [], toBeAppend: any[] = [], toBeReplace: any[] = [];
+    /*const toBeRemoved: any[] = [], toBeAppend: any[] = [], toBeReplace: any[] = [];
     const merge = () => { // @ts-ignore
         toBeAppend.forEach((args) => appendChild(...args)); toBeAppend.splice(0, toBeAppend.length); // @ts-ignore
         toBeRemoved.forEach((args) => removeChild(...args)); toBeRemoved.splice(0, toBeRemoved.length); // @ts-ignore
         toBeReplace.forEach((args) => replaceChildren(...args)); toBeReplace.splice(0, toBeReplace.length); // @ts-ignore
+    }*/
+
+    //
+    const commandBuffer: any[] = [];
+    const merge = ()=>{
+        commandBuffer?.forEach?.(([fn, args])=>fn?.(...args));
+        commandBuffer?.splice?.(0, commandBuffer?.length);
     }
 
     //
@@ -26,11 +33,10 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
         const newNode = getNode(newEl, mapper, idx);
         const oldIdx = indexOf(element, oldNode);
         if (element && (["@add", "@set", "@remove"].indexOf(op || "") >= 0) || (!op)) {
-            if ((newNode != null && oldNode == null) || op == "@add") { toBeAppend.push([element, newNode, null, idx]); };
-            if ((newNode != null && oldNode != null) || op == "@set") { toBeReplace.push([element, newNode, null, oldIdx >= 0 ? oldIdx : idx, oldNode]); }; // TODO: add support for oldNode in replace method
-
             // due splice already removed that index, we need to add +1 to the index in exists children
-            if ((newNode == null || oldNode != null) || op == "@remove") { toBeRemoved.push([element, oldNode, null, oldIdx >= 0 ? oldIdx : idx]); };
+            if ((newNode == null && oldNode != null) || op == "@remove") { commandBuffer?.push?.([removeChild, [element, oldNode, null, oldIdx >= 0 ? oldIdx : idx]]); } else
+            if ((newNode != null && oldNode == null) || op == "@add") { commandBuffer?.push?.([appendChild, [element, newNode, null, idx]]); } else
+            if ((newNode != null && oldNode != null) || op == "@set") { commandBuffer?.push?.([replaceChildren, [element, newNode, null, oldIdx >= 0 ? oldIdx : idx, oldNode]]); }; // TODO: add support for oldNode in replace method
         }
 
         //

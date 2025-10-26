@@ -124,15 +124,33 @@ export const appendChild = (element, cp, mapper?: Function | null, index: number
 
 //
 export const dePhantomNode = (parent, node, index: number = -1)=>{
+    if (node?.parentNode == parent && node?.parentNode != null) {
+        return node;
+    } else
     if (node?.parentNode != parent && !isValidParent(node?.parentNode)) {
-        if (index >= 0 && Array.from(parent.childNodes || [])?.length > index) {
+        if (index >= 0 && Array.from(parent?.childNodes || [])?.length > index) {
             return parent.childNodes?.[index];
         }
     }
-    if (node?.parentNode == parent) {
-        return node;
-    }
     return null;
+}
+
+//
+export const replaceOrSwap = (parent, oldEl, newEl) => {
+    if (oldEl?.parentNode) {
+        if (oldEl?.parentNode == newEl?.parentNode) {
+            parent = oldEl?.parentNode ?? parent;
+            if (oldEl.nextSibling === newEl) { parent.insertBefore(newEl, oldEl); } else
+            if (newEl.nextSibling === oldEl) { parent.insertBefore(oldEl, newEl); } else
+            {
+                const nextSiblingOfElement1 = oldEl.nextSibling;
+                parent.replaceChild(newEl, oldEl);
+                parent.insertBefore(oldEl, nextSiblingOfElement1);
+            }
+        } else {
+            oldEl?.replaceWith?.(newEl);
+        }
+    }
 }
 
 
@@ -140,16 +158,20 @@ export const dePhantomNode = (parent, node, index: number = -1)=>{
 // TODO: what exactly to replace, if has (i.e. object itself, not index)
 export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1, old?: any|null) => {
     if (mapper != null) { cp = mapper?.(cp, index); }
-    const cn = dePhantomNode(element, getNode(old, null, index), index);
+    const cn = dePhantomNode(element, getNode(old, mapper, index), index);
     if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
     if (cp != null) {
         const node = getNode(cp); // oldNode is always unknown and phantom
-        if (cn?.parentNode != element && cn != node && cn != null) {
-            if (cn instanceof Text && node instanceof Text) {
-                if (cn?.textContent != node?.textContent) { cn.textContent = node?.textContent ?? ""; }
-            } else
-            if (cn != node && (!node?.parentNode || node?.parentNode != element) && node != null) { cn?.replaceWith?.(node); }
-        } else { appendChild(element, node, null, index); }
+
+        if (cn?.parentNode == element && cn != node && (cn instanceof Text && node instanceof Text)) {
+            if (cn?.textContent != node?.textContent) { cn.textContent = node?.textContent?.trim?.() ?? ""; }
+        } else
+        if (cn?.parentNode == element && cn != node && cn != null && cn?.parentNode != null) {
+            replaceOrSwap(element, cn, node);
+        } else
+        if (cn?.parentNode != element || cn?.parentNode == null) {
+            appendChild(element, node, null, index);
+        }
     }
 }
 
