@@ -184,9 +184,11 @@ export const T = (ref) => {
 
     // @ts-ignore
     return tmMap.getOrInsertComputed(ref, () => {
-        const element = document.createTextNode((hasValue(ref) ? ref?.value : ref) ?? "");
+        const element = document.createTextNode(((hasValue(ref) ? ref?.value : ref) ?? "")?.trim?.() ?? "");
+        //subscribe([ref, "value"], (val) => (element.textContent = (val?.innerText ?? val?.textContent ?? val ?? "")?.trim?.() ?? ""));
         subscribe([ref, "value"], (val) => {
-            (element.textContent = val?.innerText ?? val?.textContent ?? val ?? "")
+            const untrimmed = "" + (val?.innerText ?? val?.textContent ?? val?.value ?? val ?? "");
+            (element.textContent = untrimmed?.trim?.() ?? "");
         });
         return element;
     });

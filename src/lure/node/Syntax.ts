@@ -2,26 +2,13 @@ import { bindEvent, hasValue } from "fest/core";
 import { getNode } from "../context/Utils";
 import E from "./Bindings";
 import M from "./Mapped";
-import C from "./Changeable";
 import { isElement } from "fest/dom";
+import { cleanupInterTagWhitespaceAndIndent } from "./Normalizer";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
 const preserveWhitespaceTags = new Set(["PRE", "TEXTAREA", "SCRIPT", "STYLE"]);
-const cleanupInterTagWhitespace = (root: Node) => {
-    if (!root) return;
-    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
-    const queue: Text[] = [];
-    // Walk and collect whitespace-only text nodes for removal
-    // Preserve whitespace in certain tags like <pre>, <textarea>, <script>, <style>
-    while (walker.nextNode()) {
-        const t = walker.currentNode as Text;
-        const parent: any = t?.parentNode;
-        if (!parent || preserveWhitespaceTags.has(parent?.tagName)) continue;
-        if (/^\s+$/.test(t?.nodeValue?.trim?.() || "") || !t?.textContent?.trim?.()) queue.push(t);
-    }
-    for (const t of queue) t?.remove?.();
-}
+
 
 //
 const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>) => {
@@ -29,14 +16,14 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
     if (el != null) {
         const attributes = {};
         // TODO: advanced attributes support
-        const datasetIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "dataset" && attr.value?.includes?.("#{")));
-        const styleIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "style" && attr.value?.includes?.("#{")));
-        const classListIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "classList" && attr.value?.includes?.("#{")));
-        const visibleIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "visible" && attr.value?.includes?.("#{")));
-        const ariaIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "aria" && attr.value?.includes?.("#{")));
-        const onIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "on" && attr.value?.includes?.("#{")));
-        const propIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "properties" && attr.value?.includes?.("#{")));
-        const ctrlsIndex = Array.from(el?.attributes || []).findIndex((attr)=>(attr.name == "ctrls" && attr.value?.includes?.("#{")));
+        const datasetIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "dataset" && attr.value?.includes?.("#{")));
+        const styleIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "style" && attr.value?.includes?.("#{")));
+        const classListIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "classList" && attr.value?.includes?.("#{")));
+        const visibleIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "visible" && attr.value?.includes?.("#{")));
+        const ariaIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "aria" && attr.value?.includes?.("#{")));
+        const onIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "on" && attr.value?.includes?.("#{")));
+        const propIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "properties" && attr.value?.includes?.("#{")));
+        const ctrlsIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "ctrls" && attr.value?.includes?.("#{")));
 
         //
         let
@@ -55,19 +42,18 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
             const isCustom = attr.value?.includes?.("#{");
             const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match?.(/^#\{(.+)\}$/)?.[1] ?? "0")] : attr.value;
             if (attr.name == "classList" || attr.name == "classlist") { classList = value ?? classList; } else
-            if (attr.name == "ref") { doAction = value; } else
-            if (attr.name == "value") { properties.value = value; } else
-            if (attr.name?.trim?.()?.startsWith?.("@"))     { const name = attr.name.trim().replace("@"  , "").trim(); if (name) { if (!on) on = {}; bindEvent(on, name, value); } else { on = value; } } else
-            if (attr.name?.trim?.()?.startsWith?.("on:"))   { const name = attr.name.trim().replace("on:", "").trim(); if (name) { if (!on) on = {}; bindEvent(on, name, value); } else { on = value; } } else
-            if (attr.name?.trim?.()?.startsWith?.("prop:")) { const name = attr.name.trim().replace("prop:", "").trim(); if (name) { properties[name] = value; } else { properties = value; } } else
-            if (attr.name?.trim?.()?.startsWith?.("ctrl:")) { const name = attr.name.trim().replace("ctrl:", "").trim(); if (name) { ctrls.set(name, value); } else { ctrls = value; } } else
-            { attributes[attr.name.trim()] = value; }
+                if (attr.name == "ref") { doAction = value; } else
+                    if (attr.name == "value") { properties.value = value; } else
+                        if (attr.name?.trim?.()?.startsWith?.("@")) { const name = attr.name.trim().replace("@", "").trim(); if (name) { if (!on) on = {}; bindEvent(on, name, value); } else { on = value; } } else
+                            if (attr.name?.trim?.()?.startsWith?.("on:")) { const name = attr.name.trim().replace("on:", "").trim(); if (name) { if (!on) on = {}; bindEvent(on, name, value); } else { on = value; } } else
+                                if (attr.name?.trim?.()?.startsWith?.("prop:")) { const name = attr.name.trim().replace("prop:", "").trim(); if (name) { properties[name] = value; } else { properties = value; } } else
+                                    if (attr.name?.trim?.()?.startsWith?.("ctrl:")) { const name = attr.name.trim().replace("ctrl:", "").trim(); if (name) { ctrls.set(name, value); } else { ctrls = value; } } else { attributes[attr.name.trim()] = value; }
             if (isCustom) { el.removeAttribute(attr.name); };
         }
 
         //
         if (!EMap.has(el)) {
-            const ex = E(el, {aria, dataset, attributes, classList, style, properties, on, ctrls, visible});
+            const ex = E(el, { aria, dataset, attributes, classList, style, properties, on, ctrls, visible });
             if (typeof doAction == "function") { doAction?.(el); } else if (doAction != null && typeof doAction == "object") { doAction.value = el; }
             if (el != ex) { EMap.set(el, ex); }; return ex;
         };
@@ -75,9 +61,9 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
 }
 
 //
-const linearBuilder = (strings, ...values)=>{
+const linearBuilder = (strings, ...values) => {
     const nodes: any[] = [];
-    for (let i=0;i<strings?.length;i++) {
+    for (let i = 0; i < strings?.length; i++) {
         const str = strings?.[i];
         const val = values?.[i];
         nodes.push(H(str));
@@ -87,7 +73,7 @@ const linearBuilder = (strings, ...values)=>{
 
     // TODO! fix parent node bound support
     const fragment = document.createDocumentFragment();
-    fragment.append(...nodes?.filter?.((nd)=>(nd!=null))?.map?.((en, i: number)=>getNode(en, null, i))?.filter?.((nd)=>(nd!=null)));
+    fragment.append(...nodes?.filter?.((nd) => (nd != null))?.map?.((en, i: number) => getNode(en, null, i))?.filter?.((nd) => (nd != null)));
     return fragment;
 }
 
@@ -168,7 +154,7 @@ const replaceNode = (parent: Node, node: Node, el: any) => {
 
 //
 export function htmlBuilder({ createElement = null } = {}) {
-    return function(strings, ...values) {
+    return function (strings, ...values) {
         let parts: string[] = [];
         const psh: any[] = [], atb: any[] = [];
         for (let i = 0; i < strings.length; i++) {
@@ -200,32 +186,32 @@ export function htmlBuilder({ createElement = null } = {}) {
                         parts.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? (($needsToQuoteWrap ? `"#{${ati}}"` : `#{${ati}}`)) : "");
                         atb.push(values?.[i]);
                     } else
-                    if (!$inTagOpen) {
-                        const psi = psh.length;
-                        parts.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? (IS_PRIMITIVE(values?.[i]) ? String(values?.[i])?.trim?.() : `<!--o:${psi}-->`) : "");
-                        psh.push(values?.[i]);
-                    }
+                        if (!$inTagOpen) {
+                            const psi = psh.length;
+                            parts.push((typeof values?.[i] == "string" ? values?.[i]?.trim?.() != "" : values?.[i] != null) ? (IS_PRIMITIVE(values?.[i]) ? String(values?.[i])?.trim?.() : `<!--o:${psi}-->`) : "");
+                            psh.push(values?.[i]);
+                        }
                 }
             }
         }
 
         //
+        let sourceCode = parts.join("").trim();
+        sourceCode = cleanupInterTagWhitespaceAndIndent(sourceCode);
+
+        //
         const mapped = new WeakMap();
-        const parser = new DOMParser(), doc: any = parser.parseFromString(parts.join("").trim(), "text/html");
+        const parser = new DOMParser(), doc: any = parser.parseFromString(sourceCode, "text/html");
 
         //
         const isTemplate = doc instanceof HTMLTemplateElement || doc?.matches?.("template");
         let sources: any = (isTemplate ? doc : doc.querySelector("template"))?.content ?? (doc.body ?? doc);
 
-        // Clean up whitespace-only text nodes between tags before further processing
-        cleanupInterTagWhitespace(sources);
-
         //
         const frag = document.createDocumentFragment();
         const bucket = Array.from(sources.childNodes)?.filter((e: any) => {
             return e instanceof Node;
-        }).map((node: any)=>{
-            cleanupInterTagWhitespace(node);
+        }).map((node: any) => {
             if (!isValidParent(node?.parentNode) && node?.parentNode != frag) {
                 node?.remove?.();
                 if (node != null) { frag?.append?.(node); };
@@ -235,8 +221,7 @@ export function htmlBuilder({ createElement = null } = {}) {
 
         //
         let walkedNodes: any[] = [];
-        bucket.forEach((nodeSet: any)=>{
-            cleanupInterTagWhitespace(nodeSet);
+        bucket.forEach((nodeSet: any) => {
             const walker: any = nodeSet ? document.createTreeWalker(nodeSet, NodeFilter.SHOW_ALL, null) : null;
             do {
                 const node: any = walker?.currentNode;
@@ -245,9 +230,9 @@ export function htmlBuilder({ createElement = null } = {}) {
         });
 
         //
-        walkedNodes?.filter((node: any)=>node.nodeType == Node.COMMENT_NODE)?.forEach((node: any)=>{
-            if (node.nodeValue.includes("o:")) {
-                let el: any = psh[Number(node.nodeValue.slice(2))];
+        walkedNodes?.filter((node: any) => node.nodeType == Node.COMMENT_NODE)?.forEach((node: any) => {
+            if (node.nodeValue?.trim()?.includes("o:")) {
+                let el: any = psh[Number(node.nodeValue?.trim()?.slice(2))];
 
                 // make iteratable array and set
                 if (el == null || el === undefined || el?.trim?.() == "") {
@@ -257,53 +242,49 @@ export function htmlBuilder({ createElement = null } = {}) {
                     if (Array.isArray(el)) {
                         replaceNode?.($parent, node, el = M(el, null, $parent));
                     } else
-                    if (el != null) {
-                        replaceNode?.($parent, node, el);
-                    }
+                        if (el != null) {
+                            replaceNode?.($parent, node, el);
+                        }
                 }
             }
         });
 
         //
-        walkedNodes?.filter((node: any)=>node.nodeType == Node.ELEMENT_NODE)?.map?.((node)=>{
+        walkedNodes?.filter((node: any) => node.nodeType == Node.ELEMENT_NODE)?.map?.((node) => {
             connectElement(node as HTMLElement, atb, psh, mapped);
         });
 
         // Final whitespace cleanup to ensure :empty works even after dynamic insertions
-        cleanupInterTagWhitespace(frag); // @ts-ignore
         return Array.from(frag?.childNodes)?.length > 1 ? frag : frag?.childNodes?.[0];
     };
 }
 
 //
-export const H = (str: any, ...values: any[])=>{
+export const H = (str: any, ...values: any[]) => {
     //if (typeof str == "object" && hasValue(str)) return C(str);
     if (typeof str == "string") {
         if (str?.trim?.()?.startsWith?.("<") && str?.trim?.()?.endsWith?.(">")) {
-            const parser = new DOMParser(), doc = parser.parseFromString(str, "text/html");
-            const basis  = doc.querySelector("template")?.content ?? doc.body;
+            const parser = new DOMParser(), doc = parser.parseFromString(cleanupInterTagWhitespaceAndIndent(str?.trim?.()), "text/html");
+            const basis = doc.querySelector("template")?.content ?? doc.body;
             // Normalize and clean whitespace-only text nodes between tags
             if (basis instanceof HTMLBodyElement) {
                 const frag = document.createDocumentFragment();
                 frag.append(...Array.from(basis.childNodes ?? []));
-                cleanupInterTagWhitespace(frag);
                 return (Array.from(frag.childNodes)?.length > 1 ? frag : frag?.childNodes?.[0]);
             }
-            cleanupInterTagWhitespace(basis);
             if (basis instanceof DocumentFragment) { return basis; }
-            if (basis?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag.append(...Array.from(basis?.childNodes ?? []));  return frag; }
+            if (basis?.childNodes?.length > 1) { const frag = document.createDocumentFragment(); frag.append(...Array.from(basis?.childNodes ?? [])); return frag; }
             return basis?.childNodes?.[0] ?? (new Text(str));
         }
         return new Text(str);
     } else
-    if (typeof str == "function") { return H(str?.()); } else
-    if (Array.isArray(str) && values) {
-        return html(str, ...values);
-    } else
-    if (str instanceof Node) {
-        cleanupInterTagWhitespace(str);
-        return str;
-    };
+        if (typeof str == "function") { return H(str?.()); } else
+            if (Array.isArray(str) && values) {
+                return html(str, ...values);
+            } else
+                if (str instanceof Node) {
+                    return str;
+                };
     return getNode(str);
 }
 
