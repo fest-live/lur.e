@@ -84,3 +84,15 @@ Feel free to check [issues page](https://github.com/unite-2-re/lur.e/issues).
 <p align="center">
   <b>Made with ❤️ by unite-2-re</b>
 </p>
+
+---
+
+## About naming conflicts...
+
+- Originally, project was named as **BLU.E**.
+  - However, I won't have 'B' as first letter.
+- Also, **LUR.E** also should been named as **BLUR**.
+  - However, I would to save 'E' letter at end.
+  - And also, I don't want 'B' as first letter.
+- So, I decided to use **LUR.E** naming.
+  - However, that naming still controversial.
