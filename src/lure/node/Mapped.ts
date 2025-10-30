@@ -1,5 +1,5 @@
 import { observe } from "fest/object";
-import { getNode, removeNotExists } from "../context/Utils";
+import { appendFix, getNode, removeNotExists } from "../context/Utils";
 import { $mapped } from "../core/Binding";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
 import { canBeInteger, isObservable, isPrimitive, isHasPrimitives } from "fest/core";
@@ -40,7 +40,8 @@ class Mp {
     get boundParent() { return this.#boundParent; }
     set boundParent(value: Node | null) {
         if (value instanceof HTMLElement && isValidParent(value) && value != this.#boundParent) {
-            this.#boundParent = value; this.makeUpdater(value);
+            this.#boundParent = value; this.makeUpdater(value); const element = this.element;
+            if (element && element instanceof DocumentFragment) { appendFix(this.#boundParent, element); };
         }
     }
 

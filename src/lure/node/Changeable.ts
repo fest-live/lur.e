@@ -1,5 +1,5 @@
 import { $trigger, observe, subscribe } from "fest/object";
-import { elMap, getNode, removeNotExists, T } from "../context/Utils";
+import { appendFix, elMap, getNode, removeNotExists, T } from "../context/Utils";
 import { $mapped } from "../core/Binding";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
 import { canBeInteger, isObservable, isPrimitive, isHasPrimitives, hasValue } from "fest/core";
@@ -25,7 +25,7 @@ class Ch {
     makeUpdater(basisParent: Node | null = null) {
         if (basisParent) {
             this.#internal?.(); this.#internal = null; this.#updater = null;
-            this.#updater ??= makeUpdater(basisParent, null);
+            this.#updater ??= makeUpdater(basisParent, null, false);
             this.#internal ??= subscribe?.([this.#valueRef, "value"], this._onUpdate.bind(this));
         }
     }
@@ -34,7 +34,8 @@ class Ch {
     get boundParent() { return this.#boundParent; }
     set boundParent(value: Node | null) {
         if (value instanceof HTMLElement && isValidParent(value) && value != this.#boundParent) {
-            this.#boundParent = value; this.makeUpdater(value);
+            this.#boundParent = value; this.makeUpdater(value); const element = this.element;
+            if (element) { appendFix(this.#boundParent, element); };
         }
     }
 
@@ -140,7 +141,7 @@ class Ch {
         if (isPrimitive(newEl) && isPrimitive(oldEl)) {
             return;
         };
-        return this.#updater?.(this.#valueRef, 0, oldEl, op, this.boundParent);
+        return this.#updater?.(newEl, 0, oldEl, op, this.boundParent);
     }
 }
 

@@ -32,7 +32,9 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
         const oldNode = getNode(oldEl, mapper, idx);
         const newNode = getNode(newEl, mapper, idx);
         const oldIdx = indexOf(element, oldNode);
-        if (element && (["@add", "@set", "@remove"].indexOf(op || "") >= 0) || (!op)) {
+
+        //
+        if (element && (["@add", "@set", "@remove"].indexOf(op || "") >= 0 || !op)) {
             // due splice already removed that index, we need to add +1 to the index in exists children
             if ((newNode == null && oldNode != null) || op == "@remove") { commandBuffer?.push?.([removeChild, [element, oldNode, null, oldIdx >= 0 ? oldIdx : idx]]); } else
             if ((newNode != null && oldNode == null) || op == "@add") { commandBuffer?.push?.([appendChild, [element, newNode, null, idx]]); } else

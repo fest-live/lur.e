@@ -76,7 +76,7 @@ export const getNode = (el, mapper?: Function | null, index: number = -1, reques
 
 //
 const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => {
-    if (isValidElement(child) && child != null) {
+    if (isElement(child) && child != null && child?.parentNode != parent) {
         if (index >= 0 && index < parent?.childNodes?.length) {
             parent?.insertBefore?.(child, parent?.childNodes?.[index]);
         } else {
@@ -87,21 +87,22 @@ const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => 
 
 //
 export const appendFix = (parent: any, child: any, index: number = -1) => {
-    if (!isElement(child) || parent == child) return;
+    if (!isElement(child) || parent == child || child?.parentNode == parent) return;
     child = (child as any)?._onUpdate ? KIDNAP_WITHOUT_HANG(child, parent) : child;
-    if (!child?.parentNode && child instanceof Node) { appendOrEmplaceByIndex(parent, child, index); return; };
+    if (!child?.parentNode && isElement(child)) { appendOrEmplaceByIndex(parent, child, index); return; };
     if (parent?.parentNode == child?.parentNode) { return; }
-    if (child instanceof Node) { /*(child as any)?.remove?.();*/ appendOrEmplaceByIndex(parent, child, index); };
+    if (isElement(child)) { appendOrEmplaceByIndex(parent, child, index); };
 }
 
 //
 export const appendArray = (parent: any, children: any[], mapper?: Function | null, index: number = -1) => {
     const len = children?.length ?? 0;
     if (Array.isArray(unwrap(children))) {
-        children
-            ?.map?.((cl, _: number) => getNode(cl, mapper, len, parent))
-            ?.filter?.((el) => el != null)
-            ?.forEach?.((el) => appendFix(parent, el, index));
+        const list = children?.map?.((cl, I: number) => getNode(cl, mapper, I, parent))?.filter?.((el) => el != null)
+        const frag = document.createDocumentFragment();
+        //list?.forEach?.((cl)=>appendFix(parent, cl, index));
+        list?.forEach?.((cl)=>appendFix(frag, cl));
+        appendFix(parent, frag, index);
     } else {
         const node = getNode(children, mapper, len, parent);
         if (node != null) { appendFix(parent, node, index); }
