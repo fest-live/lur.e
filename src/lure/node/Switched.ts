@@ -1,7 +1,7 @@
 import { addToCallChain, subscribe, $trigger } from "fest/object";
-import { appendFix, getNode } from "../context/Utils";
+import { appendFix, getNode, removeChild, replaceOrSwap } from "../context/Utils";
 import { contextify, isNotEqual, inProxy } from "fest/core";
-import { isValidParent } from "fest/dom";
+import { isElement, isValidParent } from "fest/dom";
 
 //
 export interface SwitchedParams {
@@ -40,7 +40,11 @@ export class SwM implements SwitchedParams {
 
     //
     get element(): Node {
-        return getFromMapped(this.mapped, this.current?.value ?? -1);
+        const element = getFromMapped(this.mapped, this.current?.value ?? -1, this.boundParent);
+        if (element != null && (element?.parentNode != this.boundParent || !element?.parentNode)) {
+            if (this.boundParent) { appendFix(this.boundParent, element); };
+        }
+        return element;
     }
 
     //
@@ -62,15 +66,20 @@ export class SwM implements SwitchedParams {
             if (this.current) this.current.value = idx ?? -1;
 
             // Find parent and new/old nodes
-            const parent = getFromMapped(this.mapped, old ?? -1)?.parentNode ?? this.boundParent; this.boundParent = parent ?? this.boundParent;
-            const newNode = getFromMapped(this.mapped, idx ?? -1);
-            const oldNode = getFromMapped(this.mapped, old ?? -1);
+            const parent  = getFromMapped(this.mapped, old ?? idx ?? -1)?.parentNode ?? this.boundParent; this.boundParent = parent ?? this.boundParent;
+            const newNode = getFromMapped(this.mapped, idx ?? -1, parent);
+            const oldNode = getFromMapped(this.mapped, old ?? -1, parent);
 
             // Update DOM nodes accordingly
-            if (parent && newNode) {
-                if (oldNode)
-                { try { oldNode?.replaceWith?.(newNode); } catch (e) { console.warn(e); } } else { appendFix(parent, newNode); }
-            } else if (oldNode && !newNode) { oldNode?.remove?.(); }
+            if (isElement(parent)) {
+                if (isElement(newNode)) {
+                    if (isElement(oldNode))
+                        { try { replaceOrSwap(parent, oldNode, newNode); } catch (e) { console.warn(e); } } else
+                        { appendFix(parent, newNode); }
+                } else
+                if (oldNode && !newNode)
+                    { removeChild(parent, oldNode); }
+            }
         }
     }
 }
