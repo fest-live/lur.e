@@ -44,7 +44,7 @@ class UniversalElementHandler {
         if (typeof this.selector == "string") {
             const inclusion = ((typeof target?.matches == "function" && target?.element != null) && target?.matches?.(this.selector)) ? [target] : [];
             if (this.direction == "children") {
-                const list = (typeof target?.querySelectorAll == "function" && target?.element != null) ? target?.querySelectorAll?.(this.selector) : [];
+                const list = (typeof target?.querySelectorAll == "function" && target?.element != null) ? [...target?.querySelectorAll?.(this.selector)] : [];
                 return list?.length >= 1 ? [...list] : inclusion;
             } else if (this.direction == "parent") {
                 const closest = target?.closest?.(this.selector);
@@ -66,31 +66,42 @@ class UniversalElementHandler {
         return sel;
     }
 
-    //
+    // if selector isn't string, can't be redirected
     _redirectToBubble(eventName: any) {
-        return {
-            ["pointerenter"]: "pointerover",
-            ["pointerleave"]: "pointerout",
-            ["mouseenter"]: "mouseover",
-            ["mouseleave"]: "mouseout",
-            ["focus"]: "focusin",
-            ["blur"]: "focusout",
-        }?.[eventName] || eventName;
+        const sel: any = this._selector();
+        if (typeof sel == "string") {
+            return {
+                ["pointerenter"]: "pointerover",
+                ["pointerleave"]: "pointerout",
+                ["mouseenter"]: "mouseover",
+                ["mouseleave"]: "mouseout",
+                ["focus"]: "focusin",
+                ["blur"]: "focusout",
+            }?.[eventName] || eventName;
+        }
+        return eventName;
     }
 
     //
     _addEventListener(target: any, name: any, cb: any, option?: any) {
+        const selector = this._selector(target);
+        if (typeof selector != "string") {
+            selector?.addEventListener?.(name, cb, option);
+            return cb;
+        }
+
+        //
         const eventName = this._redirectToBubble(name);
         const parent = target?.self ?? target;
         const wrap = (ev) => {
             const sel: any = this._selector(target);
             const rot = ev?.currentTarget ?? parent;
-            let tg = (ev?.target ?? this._getSelected(target)) ?? (ev?.currentTarget ?? parent);
+            let tg = (ev?.target ?? this._getSelected(target)) ?? rot;
             tg = tg?.element ?? tg;
             if (typeof sel == "string") {
                 if (containsOrSelf(rot, MOCElement(tg, sel))) { cb?.call?.(tg, ev); }
             } else {
-                if (containsOrSelf(sel, tg)) { cb?.call?.(tg, ev); }
+                if (containsOrSelf(rot, sel) && containsOrSelf(sel, tg)) { cb?.call?.(tg, ev); }
             }
         };
         parent?.addEventListener?.(eventName, wrap, option);
@@ -104,6 +115,13 @@ class UniversalElementHandler {
 
     //
     _removeEventListener(target: any, name: any, cb: any, option?: any) {
+        const selector = this._selector(target);
+        if (typeof selector != "string") {
+            selector?.removeEventListener?.(name, cb, option);
+            return cb;
+        }
+
+        //
         const parent = target?.self ?? target;
         const eventName = this._redirectToBubble(name), eventMap = this._eventMap.get(parent);
         if (!eventMap) return; const cbMap = eventMap.get(eventName), entry = cbMap?.get?.(cb);
@@ -113,7 +131,7 @@ class UniversalElementHandler {
     }
 
     //
-    _selector(tg: any) {
+    _selector(tg?: any) {
         if (typeof this.selector == "string" && typeof tg?.selector == "string") { return ((tg?.selector || "") + " " + this.selector)?.trim?.(); }
         return this.selector;
     }
