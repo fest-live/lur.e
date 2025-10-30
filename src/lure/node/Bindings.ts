@@ -85,7 +85,7 @@ export const E = (selector: string | HTMLElement | Node | DocumentFragment | Doc
         //
         if (params.rules != null) params.rules.forEach?.((rule) => reflectWithStyleRules(element, rule));
     };
-    return element;
+    return Q(element);
 }
 
 //
