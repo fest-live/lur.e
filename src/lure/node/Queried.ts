@@ -1,6 +1,7 @@
 import { getStyleRule, handleAttribute, observeAttribute, observeAttributeBySelector, observeBySelector, containsOrSelf, MOCElement } from "fest/dom";
 import { bindWith } from "../core/Binding";
 import { elMap } from "../context/Utils";
+import { $subscribe } from "fest/object";
 
 //
 const queryExtensions = {
@@ -210,6 +211,48 @@ class UniversalElementHandler {
             if (array?.length <= 1) return selected?.element ?? selected;
             const fragment = document.createDocumentFragment();
             fragment.append(...array); return fragment;
+        }
+
+        //
+        if (name == Symbol.toPrimitive) {
+            if ((this.selector as any)?.includes?.("input") || (this.selector as any)?.matches?.("input")) {
+                return (hint)=>{
+                    if (hint == "number") return (selected?.element ?? selected)?.valueAsNumber ?? parseFloat((selected?.element ?? selected)?.value);
+                    if (hint == "string") return String((selected?.element ?? selected)?.value ?? (selected?.element ?? selected));
+                    if (hint == "boolean") return (selected?.element ?? selected)?.checked;
+                    return (selected?.element ?? selected)?.checked ?? (selected?.element ?? selected)?.value ?? (selected?.element ?? selected);
+                }
+            }
+        }
+
+        //
+        if (name == "checked") {
+            if ((this.selector as any)?.includes?.("input") || (this.selector as any)?.matches?.("input")) {
+                return (selected?.element ?? selected)?.checked;
+            }
+        }
+
+        //
+        if (name == "value") {
+            if ((this.selector as any)?.includes?.("input") || (this.selector as any)?.matches?.("input")) {
+                return (selected?.element ?? selected)?.valueAsNumber ?? (selected?.element ?? selected)?.valueAsDate ?? (selected?.element ?? selected)?.value ?? (selected?.element ?? selected)?.checked;
+            }
+        }
+
+        // can be subscribed
+        if (name == $subscribe) {
+            if ((this.selector as any)?.includes?.("input") || (this.selector as any)?.matches?.("input")) {
+                return (cb)=>{
+                    const evt: [any, any] = [
+                        (ev)=>{
+                            const input = this._getSelected(ev?.target);
+                            cb?.(input?.value, "value", input?.value);
+                        }, {passive: true}
+                    ];
+                    this._addEventListener(target, "change", ...evt)
+                    return ()=>this._removeEventListener(target, "change", ...evt)
+                }
+            }
         }
 
         //
