@@ -114,12 +114,14 @@ class Ch {
         const theirParent = isValidParent(existsNode?.parentElement) ? existsNode?.parentElement : this.boundParent;
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
+        //
         Promise.resolve()?.then?.(()=>{
             const theirParent = isValidParent(existsNode?.parentElement) ? existsNode?.parentElement : this.boundParent;
             this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
         });
 
-        return (theirParent ?? existsNode);
+        //
+        return (theirParent ?? this.boundParent ?? existsNode);
     }
 
     //

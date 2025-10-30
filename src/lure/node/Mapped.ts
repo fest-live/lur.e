@@ -110,6 +110,8 @@ class Mp {
                 }
             }
         })?.catch?.(console.warn.bind(console));
+
+        //
         return this.element;
     }
 
@@ -129,7 +131,7 @@ class Mp {
         });
 
         //
-        return (theirParent ?? (reformChildren(
+        return (theirParent ?? this.boundParent ?? (reformChildren(
             this.#fragments, this.#observable,
             this.mapper.bind(this)
         )));
@@ -141,11 +143,13 @@ class Mp {
         const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
+        //
         Promise.resolve()?.then?.(()=>{
             const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
             this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
         });
 
+        //
         return children;
     }
 

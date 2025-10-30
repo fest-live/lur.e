@@ -41,9 +41,21 @@ export class SwM implements SwitchedParams {
     //
     get element(): Node {
         const element = getFromMapped(this.mapped, this.current?.value ?? -1, this.boundParent);
+        const theirParent = isValidParent(element?.parentElement) ? element?.parentElement : this.boundParent;
+        this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
+
+        //
         if (element != null && (element?.parentNode != this.boundParent || !element?.parentNode)) {
             if (this.boundParent) { appendFix(this.boundParent, element); };
         }
+
+        //
+        Promise.resolve()?.then?.(()=>{
+            const theirParent = isValidParent(element?.parentElement) ? element?.parentElement : this.boundParent;
+            this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
+        });
+
+        //
         return element;
     }
 
