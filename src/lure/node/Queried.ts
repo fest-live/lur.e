@@ -98,10 +98,9 @@ class UniversalElementHandler {
             const rot = ev?.currentTarget ?? parent;
             let tg = (ev?.target ?? this._getSelected(target)) ?? rot;
             tg = tg?.element ?? tg;
-            if (typeof sel == "string") {
-                if (containsOrSelf(rot, MOCElement(tg, sel))) { cb?.call?.(tg, ev); }
-            } else {
-                if (containsOrSelf(rot, sel) && containsOrSelf(sel, tg)) { cb?.call?.(tg, ev); }
+            if (typeof sel == "string")
+                { if (containsOrSelf(rot, MOCElement(tg, sel))) { cb?.call?.(tg, ev); } } else
+                { if (containsOrSelf(rot, sel) && containsOrSelf(sel, tg)) { cb?.call?.(tg, ev); }
             }
         };
         parent?.addEventListener?.(eventName, wrap, option);
