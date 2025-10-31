@@ -1,18 +1,15 @@
-import { getStyleRule, handleAttribute, observeAttribute, observeAttributeBySelector, observeBySelector, containsOrSelf, MOCElement } from "fest/dom";
-import { bindWith } from "../core/Binding";
-import { elMap } from "../context/Utils";
+import { observeAttributeBySelector, getStyleRule, handleAttribute, observeAttribute, observeBySelector, containsOrSelf, MOCElement } from "fest/dom";
+import { bindWith, elMap } from "../core/Binding";
 import { $subscribe } from "fest/object";
 
 //
+const existsQueries = new WeakMap<any, Map<string|HTMLElement, any>>();
+const alreadyUsed   = new WeakMap();
 const queryExtensions = {
     logAll (ctx) { return ()=> console.log("attributes:", [...ctx?.attributes].map(x => ({ name: x.name, value: x.value })) ); },
     append (ctx) { return (...args)=> ctx?.append?.(...([...args||[]]?.map?.((e)=>e?.element??e) || args)) },
     current(ctx) { return ctx; } // direct getter
 }
-
-//
-const existsQueries = new WeakMap<any, Map<string|HTMLElement, any>>();
-const alreadyUsed   = new WeakMap();
 
 //
 class UniversalElementHandler {

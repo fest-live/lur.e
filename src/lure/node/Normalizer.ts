@@ -299,3 +299,45 @@ export function cleanupInterTagWhitespaceAndIndent(
     const cleaned = working.replace(/\u0000(\d+)\u0000/g, (_, i) => placeholders[+i]);
     return cleaned?.trim?.();
 }
+
+//
+export const checkInsideTagBlock = (contextParts: string[], ...str: string[]) => {
+    const current = str?.[0] ?? "";
+    const idx = contextParts.indexOf(current);
+    // Fallback simple heuristic if index not found
+    if (idx < 0) {
+        const tail = (str?.join?.("") ?? "");
+        return /<([A-Za-z\/!?])[\w\W]*$/.test(tail) && !/>[\w\W]*$/.test(tail);
+    }
+
+    // Scan all static parts up to and including the current part
+    const prefix = contextParts.slice(0, idx + 1).join("");
+    let inTag = false, inSingle = false, inDouble = false;
+
+    for (let i = 0; i < prefix.length; i++) {
+        const ch = prefix[i];
+        const next = prefix[i + 1] ?? '';
+
+        if (!inTag) {
+            if (ch === '<') {
+                // Treat as a tag only if followed by a likely opener: letter, '/', '!', or '?'
+                if (/[A-Za-z\/!?]/.test(next)) {
+                    inTag = true; inSingle = false; inDouble = false;
+                }
+            }
+            continue;
+        }
+
+        if (!inSingle && !inDouble) {
+            if (ch === '"') { inDouble = true; continue; }
+            if (ch === "'") { inSingle = true; continue; }
+            if (ch === '>') { inTag = false; continue; }
+        } else if (inDouble) {
+            if (ch === '"') { inDouble = false; continue; }
+        } else if (inSingle) {
+            if (ch === "'") { inSingle = false; continue; }
+        }
+    }
+
+    return inTag;
+}

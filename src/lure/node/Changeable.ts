@@ -1,9 +1,9 @@
-import { $trigger, observe, subscribe } from "fest/object";
-import { appendFix, elMap, getNode, removeNotExists, T } from "../context/Utils";
-import { $mapped } from "../core/Binding";
-import { makeUpdater, reformChildren } from "../context/ReflectChildren";
-import { canBeInteger, isObservable, isPrimitive, isHasPrimitives, hasValue } from "fest/core";
+import { subscribe } from "fest/object";
+import { appendFix, elMap, getNode, T } from "../context/Utils";
+import { makeUpdater } from "../context/ReflectChildren";
+import { isPrimitive, hasValue } from "fest/core";
 import { isValidParent } from "fest/dom";
+import { $mapped } from "../core/Binding";
 
 //
 interface ChangeableOptions {
