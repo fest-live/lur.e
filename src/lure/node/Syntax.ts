@@ -180,7 +180,7 @@ export function htmlBuilder({ createElement = null } = {}) {
                 let el: any = psh[Number(node.nodeValue?.trim()?.slice(2))];
 
                 // make iteratable array and set
-                if (el == null || el === undefined || el?.trim?.() == "") {
+                if (el == null || el === undefined || (typeof el == "string" ? el : null)?.trim?.() == "") {
                     node?.remove?.();
                 } else {
                     const $parent = node?.parentNode;

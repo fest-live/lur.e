@@ -29,7 +29,7 @@ export const $getBase = (el, mapper?: Function | null, index: number = -1, reque
     if (mapper != null) { return (el = $getBase(mapper?.(el, index), null, -1, requestor)); }
     if (isElement(el) && !el?.element) { return el; } else
     if (isElement(el?.element)) { return el; } else
-    if (hasValue(el)) { return C(el); } else
+    if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : C(el)); } else
     if (typeof el == "object" && el != null) { return getMapped(el); } else
     if (typeof el == "function") { return $getBase(el?.(), mapper, index, requestor); }  // mapped arrays always empties after
     if (isPrimitive(el) && el != null) return T(el);
@@ -52,15 +52,16 @@ export const $getNode = (el, mapper?: Function | null, index: number = -1, reque
     if (mapper != null) { return (el = getNode(mapper?.(el, index), null, -1, requestor)); }
     if (isElement(el) && !el?.element) { return el; } else
     if (isElement(el?.element)) { return isElementValue(el, requestor); } else
-    if (hasValue(el)) { return C(el)?.element; } else
+    if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : C(el))?.element; } else
     if (typeof el == "object" && el != null) { return getMapped(el); } else
     if (typeof el == "function") { return getNode(el?.(), mapper, index, requestor); } else
     if (isPrimitive(el) && el != null) return T(el);
     return null;
 };
 
-// (obj instanceof WeakRef ? obj?.deref?.() : obj)
-export const getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null) => {
+//
+const __nodeGuard = new WeakSet<any>();
+const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
     if (el instanceof WeakRef) { el = el.deref() ?? el; }
     if ((typeof el == "object" || typeof el == "function") && !isElement(el)) {
         if (elMap.has(el)) {
@@ -73,6 +74,23 @@ export const getNode = (el, mapper?: Function | null, index: number = -1, reques
     }
     return $getNode(el, mapper, index, requestor);
 }
+
+//
+const isWeakCompatible = (el: any)=>{
+    return (typeof el == "object" || typeof el == "function") && el != null;
+}
+
+// (obj instanceof WeakRef ? obj?.deref?.() : obj)
+export const getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null) => {
+    if (isWeakCompatible(el) && __nodeGuard.has(el)) { return getMapped(el) ?? isElement(el); }
+    if (isWeakCompatible(el)) __nodeGuard.add(el); const result = __getNode(el, mapper, index, requestor);
+    if (isWeakCompatible(el)) __nodeGuard.delete(el); return result;
+}
+
+/*
+export const getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null) => {
+    return __getNode(el, mapper, index, requestor);
+}*/
 
 //
 const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => {
@@ -100,7 +118,6 @@ export const appendArray = (parent: any, children: any[], mapper?: Function | nu
     if (Array.isArray(unwrap(children))) {
         const list = children?.map?.((cl, I: number) => getNode(cl, mapper, I, parent))?.filter?.((el) => el != null)
         const frag = document.createDocumentFragment();
-        //list?.forEach?.((cl)=>appendFix(parent, cl, index));
         list?.forEach?.((cl)=>appendFix(frag, cl));
         appendFix(parent, frag, index);
     } else {

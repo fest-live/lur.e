@@ -16,7 +16,10 @@ class Ch {
     #fragments: DocumentFragment;
     #updater: any = null;
     #internal: any = null;
+    #updating: boolean = false;
     #options: ChangeableOptions = {} as ChangeableOptions;
+    #oldNode: any; // in case, if '.value' is primitive, and can't be reused by maps
+    //#reMap: WeakMap<any, any>; // reuse same object from value
 
     //
     #boundParent: Node | null = null;
@@ -34,7 +37,11 @@ class Ch {
     get boundParent() { return this.#boundParent; }
     set boundParent(value: Node | null) {
         if (value instanceof HTMLElement && isValidParent(value) && value != this.#boundParent) {
-            this.#boundParent = value; this.makeUpdater(value); const element = this.element;
+            this.#boundParent = value; this.makeUpdater(value);
+            if (this.#oldNode) { this.#oldNode?.parentNode != null && this.#oldNode?.remove?.(); this.#oldNode = null; };
+
+            //
+            const element = this.element;
             if (element) { appendFix(this.#boundParent, element); };
         }
     }
@@ -65,8 +72,16 @@ class Ch {
     }
 
     //
-    $getNode(requestor?: any) {
-        const node = isPrimitive(this.#valueRef?.value) ? T(this.#valueRef) : getNode(this.#valueRef?.value, null, 0, requestor);
+    $getNodeBy(requestor?: any, value?: any) {
+        const node = isPrimitive(hasValue(value) ? value?.value : value) ? T(value) : getNode(value, null, -1, requestor);
+        return node;
+    }
+
+    //
+    $getNode(requestor?: any, reassignOldNode: boolean | null = true) {
+        // TODO: resolve somehow returning this.#valueRef as element...
+        const node = isPrimitive(this.#valueRef?.value) ? T(this.#valueRef) : getNode(this.#valueRef?.value, null, -1, requestor);
+        if (node != null && reassignOldNode) { this.#oldNode = (isPrimitive(this.#valueRef?.value) ? node : null); };
         return node;
     }
 
@@ -110,7 +125,7 @@ class Ch {
 
     //
     get self(): HTMLElement | DocumentFragment | Text | null {
-        const existsNode = this.$getNode();
+        const existsNode = this.$getNode(this.boundParent);
         const theirParent = isValidParent(existsNode?.parentElement) ? existsNode?.parentElement : this.boundParent;
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
@@ -126,24 +141,37 @@ class Ch {
 
     //
     get element(): HTMLElement | DocumentFragment | Text | null {
-        const children = this.$getNode();
+        const children = this.$getNode(this.boundParent);
         const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
+        //
         Promise.resolve()?.then?.(()=>{
             const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
             this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
         });
 
+        //
         return children;
     }
 
     //
-    _onUpdate(newEl, idx, oldEl, op: string | null = "@add") {
-        if (isPrimitive(newEl) && isPrimitive(oldEl)) {
-            return;
-        };
-        return this.#updater?.(newEl, 0, oldEl, op, this.boundParent);
+    _onUpdate(newVal, idx, oldVal, op) {
+        //if (this.#updating) { return; }
+        if (isPrimitive(oldVal) && isPrimitive(newVal)) { return; }
+
+        //
+        const oldEl = isPrimitive(oldVal) ? this.#oldNode : this.$getNodeBy(this.boundParent, oldVal);
+        const newEl = this.$getNode(this.boundParent, false);
+
+        //
+        console.log(oldVal, newVal);
+        console.log(oldEl, newEl);
+
+        //
+        let updated: any = this.#updater?.(newEl, -1, oldEl, op, this.boundParent);
+        if (newEl != null) { this.#oldNode = isPrimitive(newVal) ? newEl : null; };
+        return updated;
     }
 }
 
