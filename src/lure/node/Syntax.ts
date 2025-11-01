@@ -13,50 +13,121 @@ const preserveWhitespaceTags = new Set(["PRE", "TEXTAREA", "SCRIPT", "STYLE"]);
 const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>) => {
     if (!el) return el;
     if (el != null) {
-        const attributes = {};
-        // TODO: advanced attributes support
-        const datasetIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "dataset" && attr.value?.includes?.("#{")));
-        const styleIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "style" && attr.value?.includes?.("#{")));
-        const classListIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "classList" && attr.value?.includes?.("#{")));
-        const visibleIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "visible" && attr.value?.includes?.("#{")));
-        const ariaIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "aria" && attr.value?.includes?.("#{")));
-        const onIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "on" && attr.value?.includes?.("#{")));
-        const propIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "properties" && attr.value?.includes?.("#{")));
-        const ctrlsIndex = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == "ctrls" && attr.value?.includes?.("#{")));
+        const entriesIdc: [string, number][] = [];
+        const addEntryIfExists = (name: string) => {
+            const idx = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == name && attr.value?.includes?.("#{")));
+            if (idx >= 0) entriesIdc.push([name, idx]);
+        };
+        addEntryIfExists("dataset");
+        addEntryIfExists("style");
+        addEntryIfExists("classList");
+        addEntryIfExists("visible");
+        addEntryIfExists("aria");
+        addEntryIfExists("value");
+        addEntryIfExists("ref");
 
         //
-        let
-            style = atb[styleIndex],
-            dataset = atb[datasetIndex],
-            properties: any = atb[propIndex] ?? {},
-            on = atb[onIndex],
-            aria = atb[ariaIndex] ?? {},
-            doAction: any = null,
-            ctrls = new Map(),
-            classList: any = atb[classListIndex],
-            visible: any = atb[visibleIndex];
-
-        //
-        for (const attr of Array.from(el?.attributes || [])) {
-            const isCustom = attr.value?.includes?.("#{");
-            const value = isCustom ? atb[parseInt(((attr?.value || "") as string)?.match?.(/^#\{(.+)\}$/)?.[1] ?? "0")] : attr.value;
-            if (attr.name == "classList" || attr.name == "classlist") { classList = value ?? classList; } else
-                if (attr.name == "ref") { doAction = value; } else
-                    if (attr.name == "value") { properties.value = value; } else
-                        if (attr.name?.trim?.()?.startsWith?.("@")) { const name = attr.name.trim().replace("@", "").trim(); if (name) { if (!on) on = {}; bindEvent(on, name, value); } else { on = value; } } else
-                            if (attr.name?.trim?.()?.startsWith?.("on:")) { const name = attr.name.trim().replace("on:", "").trim(); if (name) { if (!on) on = {}; bindEvent(on, name, value); } else { on = value; } } else
-                                if (attr.name?.trim?.()?.startsWith?.("prop:")) { const name = attr.name.trim().replace("prop:", "").trim(); if (name) { properties[name] = value; } else { properties = value; } } else
-                                    if (attr.name?.trim?.()?.startsWith?.("ctrl:")) { const name = attr.name.trim().replace("ctrl:", "").trim(); if (name) { ctrls.set(name, value); } else { ctrls = value; } } else { attributes[attr.name.trim()] = value; }
-            if (isCustom) { el.removeAttribute(attr.name); };
+        const parseIndex = (value: string) => {
+            return value?.includes?.("#{") ? value?.match?.(/#{(.*?)}/)?.[1] : null;
         }
 
         //
-        if (!EMap.has(el)) {
-            const ex = E(el, { aria, dataset, attributes, classList, style, properties, on, ctrls, visible });
-            if (typeof doAction == "function") { doAction?.(el); } else if (doAction != null && typeof doAction == "object") { doAction.value = el; }
-            if (el != ex) { EMap.set(el, ex); }; return ex;
-        };
-    }; return el;
+        const makeEntries = (startsWith: string[] | string, except: string[] | string)=>{
+            const entries: [string, number][] = [];
+            for (const attr of Array.from(el?.attributes || [])) {
+                // needs review startsWith with "" i.e. attributes itself, just #{}
+
+                const allowedNoPrefix: boolean = (Array.isArray(startsWith) ? startsWith?.some?.((str: string)=>str=="") : (startsWith == ""));
+                const prefix: string = (Array.isArray(startsWith) ? startsWith.find((start) => attr.name?.startsWith?.(start)) : (startsWith = attr.name?.startsWith?.(startsWith) ? startsWith : "") as string) ?? "";
+                const trueAttributeName = attr.name.trim()?.replace?.(prefix, "");
+                const isPlaceholder = attr.value?.includes?.("#{") && attr.value?.includes?.("}");
+                const atbIndex = parseInt(parseIndex(attr.value) ?? "-1") ?? -1;
+
+                const excepted: boolean = (Array.isArray(except) ? except?.some?.((str: string)=>trueAttributeName?.startsWith?.(str)) : (except == trueAttributeName));
+
+                if (isPlaceholder && ((prefix == "" && allowedNoPrefix) || prefix != "") && atbIndex >= 0 && !excepted) {
+                    entries.push([trueAttributeName, atbIndex]);
+                }
+            }
+            return entries;
+        }
+
+        //
+        const makeCumulativeEntries = (startsWith: string[] | string, except: string[] | string, specific: string[] | string = "") => {
+            const entriesMap = new Map<string, any[]>();
+            for (const attr of Array.from(el?.attributes || [])) {
+                const allowedNoPrefix: boolean = (Array.isArray(startsWith) ? startsWith?.some?.((str: string)=>str=="") : (startsWith == ""));
+                const prefix: string = (Array.isArray(startsWith) ? startsWith.find((start) => attr.name?.startsWith?.(start)) : (startsWith = attr.name?.startsWith?.(startsWith) ? startsWith : "") as string) ?? "";
+                const trueAttributeName = attr.name.trim()?.replace?.(prefix, "");
+                const isPlaceholder = attr.value?.includes?.("#{") && attr.value?.includes?.("}");
+                const atbIndex = parseInt(parseIndex(attr.value) ?? "-1") ?? -1;
+
+                const excepted: boolean = (Array.isArray(except) ? except?.some?.((str: string)=>trueAttributeName?.startsWith?.(str)) : (except == trueAttributeName));
+                const isSpecific: boolean = (Array.isArray(specific) ? specific?.some?.((str: string)=>attr.name === str) : (attr.name === specific)) && specific !== "";
+
+                if (isPlaceholder && (((prefix == "" && allowedNoPrefix) || prefix != "") || isSpecific) && atbIndex >= 0 && !excepted) {
+                    const key = isSpecific ? attr.name : trueAttributeName;
+                    if (!entriesMap.has(key)) {
+                        entriesMap.set(key, []);
+                    }
+                    entriesMap.get(key)?.push(atbIndex);
+                }
+            }
+            return Array.from(entriesMap.entries());
+        }
+
+        //
+        let attributesEntries: [string, any][] = makeEntries(["attr:", ""], ["ref"]);
+        let propertiesEntries: [string, any][] = makeEntries(["prop:"], []);
+        let onEntries: [string, any[]][] = makeCumulativeEntries(["on:", "@"], [], "");
+        let refEntries: [string, any[]][] = makeCumulativeEntries(["ref:"], [], ["ref"]);
+
+        // remove entries that are already in properties or on
+        //attributesEntries = attributesEntries?.filter?.((pair) => !(propertiesEntries?.some?.((p) => p[0] == pair[0]) || onEntries?.some?.((p) => p[0] == pair[0]) || refEntries?.some?.((p) => p[0] == pair[0]))) ?? [];
+
+        //
+        const bindings: any = Object.fromEntries(entriesIdc?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
+        bindings.attributes = Object.fromEntries(attributesEntries?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
+        bindings.properties = Object.fromEntries(propertiesEntries?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
+        bindings.on = Object.fromEntries(onEntries?.map?.((pair) => [pair[0], pair[1]?.map?.((idx: number) => atb?.[idx]).filter((v: any) => v != null)]) ?? []);
+
+        //
+        const refIndex = entriesIdc?.findIndex?.((pair) => (pair[0] == "ref"));
+        if (refIndex >= 0) {
+            const ref = atb?.[refIndex];
+            if (typeof ref == "function") { ref?.(el); } else if (ref != null && typeof ref == "object") { ref.value = el; }
+        }
+
+        //
+        refEntries?.forEach?.((pair) => {
+            const handlers = pair[1]?.map?.((idx: number) => atb?.[idx]).filter((v: any) => v != null);
+            handlers?.forEach?.((ref) => {
+                if (typeof ref == "function") { ref?.(el); } else if (ref != null && typeof ref == "object") { ref.value = el; }
+            });
+        });
+
+        //
+        const clearPlaceholdersFromAttributesOfElement = (el: HTMLElement | null)=>{
+            if (el == null) return;
+
+            //
+            const attributeIsInRegistry = (name: string) => {
+                return attributesEntries?.some?.((pair) => pair[0] == name);
+            }
+
+            // needs by splice or remove, DOM element.attributes is a live collection
+            for (const attr of Array.from(el?.attributes || [])) {
+                if (attr.value?.includes?.("#{") && attr.value?.includes?.("}") && attributeIsInRegistry(attr.name as string)) {
+                    el?.removeAttribute?.(attr.name as string);
+                }
+            };
+        }
+
+        //
+        clearPlaceholdersFromAttributesOfElement(el);
+        if (!EMap?.has?.(el)) { EMap?.set?.(el, E(el, bindings)); };
+    };
+    return EMap?.get?.(el) ?? el;
 }
 
 //
