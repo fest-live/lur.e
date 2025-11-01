@@ -280,17 +280,55 @@ export async function createHandler(rootHandle, relPath, options: {basePath?: st
     } catch (e: any) { return handleError(logger, 'error', `createHandler: ${e.message}`); }
 }
 
-
+//
+export const directoryCacheMap = new Map<string, { mapCache: Map<string, any>, observer: any, dirHandle: Promise<any>, resolvePath: string }>();
 
 //
 export function openDirectory(rootHandle, relPath, options: {create: boolean, basePath?: string} = {create: false}, logger = defaultLogger) {
     //
-    let mapCache: Map<string, any> = makeReactive(new Map<string, any>()) as Map<string, any>;
+    let cacheKey: string = "";
+    let cachedEntry: { mapCache: Map<string, any>, observer: any, dirHandle: Promise<any>, resolvePath: string } | undefined;
+    let mapCache: Map<string, any>;
+    let dirHandle: any;
+    let obs: any;
+
+    //
+    const pathPromise = (async () => {
+        try {
+            const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
+            cacheKey = `${resolvedRootHandle?.name || 'root'}:${resolvedPath}`;
+            cachedEntry = directoryCacheMap?.get?.(cacheKey);
+            return { rootHandle: resolvedRootHandle, resolvedPath };
+        } catch (e: any) {
+            return { rootHandle: null, resolvedPath: "" };
+        }
+    })();
+
+    //
+    dirHandle = (async () => {
+        try {
+            const { rootHandle: resolvedRootHandle, resolvedPath } = await pathPromise;
+            return await getDirectoryHandle(resolvedRootHandle, resolvedPath, options, logger);
+        } catch (e: any) {
+            return handleError(logger, 'error', `openDirectory: ${e.message}`);
+        }
+    })();
+
+    //
+    if (cachedEntry) {
+        mapCache = cachedEntry.mapCache;
+        dirHandle = cachedEntry.dirHandle || dirHandle;
+    } else {
+        mapCache = makeReactive(new Map<string, any>()) as Map<string, any>;
+    }
+
+    //
     async function updateCache() { // @ts-ignore
-        if (!(await dirHandle)) return mapCache;
+        const handle = await dirHandle;
+        if (!handle) return mapCache;
 
         //
-        const entries = await Promise.all(await Array.fromAsync((await dirHandle)?.entries?.() || []) || []); // @ts-ignore
+        const entries = await Promise.all(await Array.fromAsync(handle?.entries?.() || []) || []); // @ts-ignore
         if (mapCache?.size == 0) { entries.forEach((nh: [string, any]) => { mapCache?.set?.(nh?.[0], nh?.[1]); }); }
 
         // @ts-ignore
@@ -304,6 +342,11 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
         removedKeys.forEach((nk: string) => {
             if (nk) mapCache?.delete?.(nk);
         });
+
+        //
+        if (cacheKey) {
+            directoryCacheMap?.set?.(cacheKey, { mapCache, observer: obs, dirHandle, resolvePath: (await pathPromise)?.resolvedPath || "" });
+        }
 
         //
         return {
@@ -338,7 +381,8 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
     }
 
     // @ts-ignore
-    const obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(observeHandle) : null;
+    obs = typeof FileSystemObserver != "undefined" ? new FileSystemObserver(observeHandle) : null;
+
     const handler: ProxyHandler<any> = {
         get(target, prop, receiver) { // @ts-ignore
             const withUpdate = Promised(dirHandle?.then?.(() => updateCache())); // @ts-ignore
@@ -368,22 +412,14 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
     };
 
     //
-    let dirHandle: any = (async () => {
-        try {
-            const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-            return await getDirectoryHandle(resolvedRootHandle, resolvedPath, options, logger);
-        } catch (e: any) {
-            return handleError(logger, 'error', `openDirectory: ${e.message}`);
-        }
-    })();
-
     dirHandle = dirHandle?.then?.(async (handle)=>{
-        if (handle = (await handle)) { obs?.observe?.(handle); };
-        return handle;
+        const resolvedHandle = await handle;
+        if (resolvedHandle && obs) { obs?.observe?.(resolvedHandle); }
+        return resolvedHandle;
     })?.catch?.((e)=> handleError(logger, 'error', `openDirectory: ${e.message}`));
 
     //
-    updateCache();
+    if (!cachedEntry) { updateCache(); }
 
     //
     const fx: any = function(){}, pxy = new Proxy(fx, handler); return pxy;
