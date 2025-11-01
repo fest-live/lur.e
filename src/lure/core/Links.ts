@@ -45,10 +45,14 @@ const normalizeHash = (hash: string | null, withHashCharacter: boolean = true) =
 export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|null, withHashCharacter: boolean = true)=>{
     const locationHash = normalizeHash(normalizeHash(location?.hash, false) || normalizeHash(initial, false) || "", withHashCharacter) || "";
     const ref = isValueRef(exists) ? exists : stringRef(locationHash); if (isObject(ref)) ref.value ||= locationHash;
-    const evf = (ev) => { ref.value = normalizeHash(normalizeHash(location?.hash, false) || normalizeHash(ref.value, false), withHashCharacter) || ref.value; };
+    const evf = (ev) => {
+        const normalizedLocationHash = normalizeHash(location?.hash, false);
+        const newValue = normalizeHash(normalizedLocationHash || normalizeHash(ref.value, false), withHashCharacter) || "";
+        if (ref.value !== newValue) { $avoidTrigger(ref, () => { ref.value = newValue; }); }
+    };
     const $val = new WeakRef(ref);
     const usb = subscribe([ref, "value"], (val) => {
-        const newHash = normalizeHash(normalizeHash($getValue($val?.deref?.()) || val, false) || normalizeHash(location.hash, false), true);
+        const newHash = normalizeHash(normalizeHash($getValue($val?.deref?.()) || val, false) || normalizeHash(location.hash, false), withHashCharacter);
         if (newHash != location.hash) { $avoidTrigger($val?.deref?.(), ()=>{
             location.hash = newHash || location.hash;
         }); }

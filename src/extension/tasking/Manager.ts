@@ -21,28 +21,42 @@ export const getFocused = (tasks: ITask[] = [], includeHash: boolean = true)=>{
 //
 export const navigationEnable = (tasks: ITask[], taskEnvAction?: (task?: ITask|null)=>boolean|void)=>{
     let ignoreForward = false;
+    let processingHashChange = false;
+    let processingPopState = false;
     const initialHistoryCount = history?.length || 0;
 
     // prevent behaviour once...
     addEvent(window, "hashchange", (ev)=>{
-        const fc = getBy(tasks, location.hash);
-        if (fc) { fc.focus = true; } else {
-            const hash = getFocused(tasks, false)?.taskId || location.hash || "";
-            if (location.hash?.trim?.() != hash?.trim?.()) { history?.replaceState?.("", "", hash); };
-        };
+        if (processingHashChange) return;
+        processingHashChange = true;
+        try {
+            const fc = getBy(tasks, location.hash);
+            if (fc) { fc.focus = true; } else {
+                const hash = getFocused(tasks, false)?.taskId || location.hash || "";
+                if (location.hash?.trim?.() != hash?.trim?.()) { history?.replaceState?.("", "", hash); };
+            };
+        } finally {
+            processingHashChange = false;
+        }
     }); history?.pushState?.("", "", location.hash = location.hash || "#");
     addEvent(window, "popstate", (ev)=>{
-        ev.preventDefault();
+        if (processingPopState) { ev.preventDefault(); return; }
+        processingPopState = true;
+        try {
+            ev.preventDefault();
 
-        //
-        // hide taskbar before back
-        if (ignoreForward) { ignoreForward = false; } else
-        if (taskEnvAction?.(getFocused(tasks, true) ?? null)) {
-            ignoreForward = true; history?.forward?.();
-            const hash = getFocused(tasks, false)?.taskId || location.hash || "";
-            if (location.hash?.trim?.() != hash?.trim?.()) { ignoreForward = true; history.replaceState("", "", hash); };
-        } else {
-            history?.go?.(initialHistoryCount + 1 - history.length);
+            //
+            // hide taskbar before back
+            if (ignoreForward) { ignoreForward = false; } else
+            if (taskEnvAction?.(getFocused(tasks, true) ?? null)) {
+                ignoreForward = true; history?.forward?.();
+                const hash = getFocused(tasks, false)?.taskId || location.hash || "";
+                if (location.hash?.trim?.() != hash?.trim?.()) { ignoreForward = true; history.replaceState("", "", hash); };
+            } else {
+                history?.go?.(initialHistoryCount + 1 - history.length);
+            }
+        } finally {
+            processingPopState = false;
         }
     });
 
