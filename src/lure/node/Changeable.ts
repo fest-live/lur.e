@@ -165,10 +165,6 @@ class Ch {
         const newEl = this.$getNode(this.boundParent, false);
 
         //
-        console.log(oldVal, newVal);
-        console.log(oldEl, newEl);
-
-        //
         let updated: any = this.#updater?.(newEl, -1, oldEl, op, this.boundParent);
         if (newEl != null) { this.#oldNode = isPrimitive(newVal) ? newEl : null; };
         return updated;
