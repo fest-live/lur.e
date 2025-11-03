@@ -6,7 +6,7 @@
 
 # Interface: ITaskOptions
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:18](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Types.ts#L18)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:18](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Types.ts#L18)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:18](https://g
 optional action: any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:25](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Types.ts#L25)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:25](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Types.ts#L25)
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:25](https://g
 optional active: boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:19](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Types.ts#L19)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:19](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Types.ts#L19)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:19](https://g
 optional focus: boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:20](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Types.ts#L20)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:20](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Types.ts#L20)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:20](https://g
 optional icon: string;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:23](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Types.ts#L23)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:23](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Types.ts#L23)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:23](https://g
 optional order: number;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:21](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Types.ts#L21)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:21](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Types.ts#L21)
 
 ***
 
@@ -66,7 +66,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:21](https://g
 optional payload: any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:24](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Types.ts#L24)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:24](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Types.ts#L24)
 
 ***
 
@@ -76,7 +76,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:24](https://g
 optional render: any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:26](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Types.ts#L26)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:26](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Types.ts#L26)
 
 ***
 
@@ -86,4 +86,4 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:26](https://g
 optional title: string;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:22](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Types.ts#L22)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:22](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Types.ts#L22)

@@ -13,7 +13,7 @@ function handleError(
    message): null;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:162](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/misc/OPFS.ts#L162)
+Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:162](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/misc/OPFS.ts#L162)
 
 ## Parameters
 

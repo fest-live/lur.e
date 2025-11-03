@@ -6,7 +6,7 @@
 
 # Interface: SwitchedParams
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:7](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L7)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:7](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L7)
 
 ## Properties
 
@@ -20,7 +20,7 @@ optional current:
 };
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:8](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L8)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:8](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L8)
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:8](https://github.
 optional mapped: any;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:9](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L9)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:9](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L9)

@@ -10,7 +10,7 @@
 function boundingBoxRef(anchor, options?): any[] | () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:190](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/core/Anchor.ts#L190)
+Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:190](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/core/Anchor.ts#L190)
 
 ## Parameters
 

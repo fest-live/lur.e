@@ -14,7 +14,7 @@ function getFileWriter(
 logger): Promise<any>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:479](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/misc/OPFS.ts#L479)
+Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:479](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/misc/OPFS.ts#L479)
 
 ## Parameters
 

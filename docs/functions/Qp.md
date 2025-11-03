@@ -10,7 +10,7 @@
 function Qp(ref, host): any;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Bindings.ts:38](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Bindings.ts#L38)
+Defined in: [modules/projects/lur.e/src/lure/node/Bindings.ts:38](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Bindings.ts#L38)
 
 ## Parameters
 

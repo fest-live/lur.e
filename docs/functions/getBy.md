@@ -10,7 +10,7 @@
 function getBy(tasks, taskId): undefined | ITask;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Manager.ts:5](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/tasking/Manager.ts#L5)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Manager.ts:5](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Manager.ts#L5)
 
 ## Parameters
 

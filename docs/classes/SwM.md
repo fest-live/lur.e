@@ -6,7 +6,7 @@
 
 # Class: SwM
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:26](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L26)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:26](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L26)
 
 ## Implements
 
@@ -20,7 +20,7 @@ Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:26](https://github
 new SwM(params?, mapped?): SwM;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:32](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L32)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:32](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L32)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:32](https://github
 boundParent: null | Node = null;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:29](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L29)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:29](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L29)
 
 ***
 
@@ -58,7 +58,7 @@ optional current:
 };
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:27](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L27)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:27](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L27)
 
 #### Implementation of
 
@@ -72,7 +72,7 @@ Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:27](https://github
 optional mapped: any;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:28](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L28)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:28](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L28)
 
 #### Implementation of
 
@@ -88,7 +88,7 @@ Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:28](https://github
 get element(): Node;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:42](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L42)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:42](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L42)
 
 ##### Returns
 
@@ -105,7 +105,7 @@ _onUpdate(
    oldVal): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:74](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L74)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:74](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L74)
 
 #### Parameters
 
@@ -133,7 +133,7 @@ Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:74](https://github
 elementForPotentialParent(requestor): Node;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:63](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/node/Switched.ts#L63)
+Defined in: [modules/projects/lur.e/src/lure/node/Switched.ts:63](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Switched.ts#L63)
 
 #### Parameters
 

@@ -10,4 +10,4 @@
 const draggingPointerMap: WeakMap<any, any>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:208](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/extension/core/PointerAPI.ts#L208)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:208](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/core/PointerAPI.ts#L208)
