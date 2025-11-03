@@ -1,32 +1,39 @@
 {
-    "name": "@fest/fl-ui",
+    "name": "@fest/lure",
+    "description": "LURE Reactive DOM Framework API",
     "version": "0.0.0",
+    "private": false,
     "type": "module",
-    "browserslist": [
-        "last 1 chrome version",
-        "last 1 edge version"
-    ],
+    "index": "./dist/lure.js",
+    "exports": {
+        ".": {
+            "import": "./src/index.ts",
+            "require": "./dist/lure.js"
+        }
+    },
     "scripts": {
         "test": "vite --host 0.0.0.0",
         "dev": "vite --host 0.0.0.0",
-        "build": "vite build --config vite.config.js",
+        "watch": "vite build --watch",
+        "build": "vite build --config vite.config.js && npm run docs && npm run docs:md",
         "preview": "vite preview",
-        "build-docs": "typedoc src/index.ts --out ./docs --tsconfig ./tsconfig.json --excludeExternals --excludePrivate --excludeProtected --skipErrorChecking"
+        "docs": "typedoc ./src/index.ts --options ./typedoc.json --out ./docs --tsconfig ./tsconfig.json --excludeExternals --excludePrivate --excludeProtected --skipErrorChecking",
+        "docs:clean": "rm -rf ./docs && typedoc --options ./typedoc.json",
+        "docs:md": "typedoc --options ./typedoc.md.json",
+        "docs:md:clean": "rm -rf ./docs-md && typedoc --options ./typedoc.md.json"
     },
     "devDependencies": {
-        "@danielx/civet": "^0.10.4",
         "@rollup/plugin-terser": "^0.4.4",
         "@rollup/plugin-typescript": "^12.1.2",
-        "cssnano": "^7.0.7",
-        "cssnano-preset-advanced": "^7.0.7",
-        "postcss-preset-env": "^10.2.1",
-        "sass": "^1.90.0",
-        "terser": "^5.41.0",
+        "@types/node": "^22.8.1",
+        "esbuild": "^0.25.0",
+        "eslint": "^9.13.0",
+        "eslint-config-prettier": "^10.0.1",
         "typedoc": "^0.28.5",
-        "typescript": "^5.9.2",
-        "vite": ">=7.1.11",
+        "typedoc-plugin-markdown": "^4.9.0",
+        "typescript": "^5.9.3",
+        "vite": ">=7.1.5",
         "vite-plugin-external": "^6.2.2",
-        "vite-plugin-optimizer": "^1.4.3",
-        "webdav": "^5.8.0"
+        "vite-plugin-optimizer": "^1.4.3"
     }
 }

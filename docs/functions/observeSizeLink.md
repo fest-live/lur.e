@@ -1,0 +1,39 @@
+[**@fest/lure v0.0.0**](../README.md)
+
+***
+
+[@fest/lure](../README.md) / observeSizeLink
+
+# Function: observeSizeLink()
+
+```ts
+function observeSizeLink(
+   element?, 
+   exists?, 
+   box?, 
+   styles?): undefined | () => void;
+```
+
+Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:180](https://github.com/fest-live/lur.e/blob/781476ae72c550bfc6af28f270a3cdcf67217918/src/lure/core/Links.ts#L180)
+
+## Parameters
+
+### element?
+
+`any`
+
+### exists?
+
+`any`
+
+### box?
+
+`any`
+
+### styles?
+
+`any`
+
+## Returns
+
+`undefined` \| () => `void`
