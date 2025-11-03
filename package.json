@@ -32,7 +32,7 @@
         "typedoc": "^0.28.5",
         "typedoc-plugin-markdown": "^4.9.0",
         "typescript": "^5.9.3",
-        "vite": ">=7.1.5",
+        "vite": ">=7.1.12",
         "vite-plugin-external": "^6.2.2",
         "vite-plugin-optimizer": "^1.4.3"
     }
