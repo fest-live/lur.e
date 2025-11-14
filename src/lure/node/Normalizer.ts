@@ -1,6 +1,6 @@
 
 //
-function getIndentColumns(line: string, tabWidth = 4): number {
+export function getIndentColumns(line: string, tabWidth = 4): number {
     let col = 0;
     for (let i = 0; i < line.length; i++) {
         const ch = line[i];
@@ -11,7 +11,8 @@ function getIndentColumns(line: string, tabWidth = 4): number {
     return col;
 }
 
-function stripIndentColumns(line: string, columns: number, tabWidth = 4): string {
+//
+export function stripIndentColumns(line: string, columns: number, tabWidth = 4): string {
     let col = 0, i = 0;
     while (i < line.length && col < columns) {
         const ch = line[i];
@@ -22,19 +23,22 @@ function stripIndentColumns(line: string, columns: number, tabWidth = 4): string
     return line.slice(i);
 }
 
-function pickEOL(s: string): string {
+//
+export function pickEOL(s: string): string {
     if (s.includes('\r\n')) return '\r\n';
     if (s.includes('\r')) return '\r';
     return '\n';
 }
 
-function gcd(a: number, b: number): number {
+//
+export function gcd(a: number, b: number): number {
     a = Math.abs(a); b = Math.abs(b);
     while (b) [a, b] = [b, a % b];
     return a;
 }
 
-function detectIndentStep(
+//
+export function detectIndentStep(
     text: string,
     { ignoreFirstLine = true, tabWidth = 4 } = {}
 ): { min: number; step: number; allEven: boolean; allDiv4: boolean } {
@@ -70,7 +74,8 @@ function detectIndentStep(
     return { min, step, allEven, allDiv4 };
 }
 
-function adjustIndentToGrid(
+//
+export function adjustIndentToGrid(
     line: string,
     step: number,
     mode: 'floor' | 'nearest' | 'ceil' = 'floor',
@@ -95,7 +100,8 @@ function adjustIndentToGrid(
     return line;
 }
 
-function normalizeStartTagWhitespace(
+//
+export function normalizeStartTagWhitespace(
     html: string,
     { scope = 'void-only' as 'void-only' | 'input-only' | 'all' } = {}
 ): string {
@@ -203,7 +209,8 @@ function normalizeStartTagWhitespace(
     return out;
 }
 
-function collapseInterTagWhitespaceSmart(
+//
+export function collapseInterTagWhitespaceSmart(
     html: string,
     { preserveCommentGaps = true } = {}
 ): string {
@@ -301,7 +308,7 @@ export function cleanupInterTagWhitespaceAndIndent(
 }
 
 //
-export const checkInsideTagBlock = (contextParts: string[], ...str: string[]) => {
+export function checkInsideTagBlock(contextParts: string[], ...str: string[]) {
     const current = str?.[0] ?? "";
     const idx = contextParts.indexOf(current);
     // Fallback simple heuristic if index not found

@@ -157,28 +157,37 @@ class Mp {
     get mapper() {
         return (...args) => {
             if (args?.[0] instanceof Node) { return args?.[0]; };
-            if (args?.[1] == null || args?.[1] < 0 || (typeof args?.[1] != "number" || !canBeInteger(args?.[1] as any))) {
-                //return this.#mapCb(args?.[0] as any, args?.[1]);
-                return;
-            }
 
             //
-            if (args?.[0] != null && (typeof args?.[0] == "object" || typeof args?.[0] == "function" || typeof args?.[0] == "symbol")) { // @ts-ignore
-                return this.#reMap.getOrInsert(args?.[0], this.#mapCb(...args));
-            }
+            if (
+                (args?.[1] == null || args?.[1] < 0 || (typeof args?.[1] != "number" || !canBeInteger(args?.[1] as any))) &&
+                (Array.isArray(this.#observable) || ((this.#observable as any) instanceof Set))
+            ) { return; }
+
+            //
+            if (args?.[0] != null && (typeof args?.[0] == "object" || typeof args?.[0] == "function" || typeof args?.[0] == "symbol")) // @ts-ignore
+                { return this.#reMap.getOrInsert(args?.[0], this.#mapCb(...args)); }
 
             // prevalence of Set typed
-            if (args?.[0] != null && this.#observable instanceof Set) { // @ts-ignore
-                return this.#pmMap.getOrInsert(args?.[0], this.#mapCb(...args));
+            if (args?.[0] != null && this.#observable instanceof Set) // @ts-ignore
+                { return this.#pmMap.getOrInsert(args?.[0], this.#mapCb(...args)); }
+
+            // prevalence of Map typed
+            if (args?.[0] != null && this.#observable instanceof Map) {
+                // unique value in map
+                if (typeof args?.[0] == "object" || typeof args?.[0] == "function" || typeof args?.[0] == "symbol") // @ts-ignore
+                    { return this.#reMap.getOrInsert(args?.[0], this.#mapCb(...args)); } else
+                // unique key in map (objects)
+                if (typeof args?.[1] == "object" || typeof args?.[1] == "function" || typeof args?.[1] == "symbol") // @ts-ignore
+                    { return this.#reMap.getOrInsert(args?.[1], this.#mapCb(...args)); } else // @ts-ignore
+                    { return this.#pmMap.getOrInsert(args?.[1], this.#mapCb(...args)); }
             }
 
             // array may has same values twice, no viable solution...
             if (args?.[0] != null) {
-                if (this.#options?.uniquePrimitives && isPrimitive(args?.[0])) { // @ts-ignore
-                    return this.#pmMap.getOrInsert(args?.[0], this.#mapCb(...args));
-                } else {
-                    return this.#mapCb(...args);
-                }
+                if (this.#options?.uniquePrimitives && isPrimitive(args?.[0])) // @ts-ignore
+                    { return this.#pmMap.getOrInsert(args?.[0], this.#mapCb(...args)); } else
+                    { return this.#mapCb(...args); }
             }
         }
     }
@@ -186,12 +195,10 @@ class Mp {
     //
     _onUpdate(newEl, idx, oldEl, op: string | null = "@add") {
         // keep cache clear from garbage (unique primitives mode)
-        if ((op == "@remove" || op == "@set") && isPrimitive(oldEl) && oldEl != newEl && this.#options?.uniquePrimitives) {
-            this.#pmMap.delete(oldEl);
-        }
-        if (Array.isArray(this.#observable) && (this.#options?.removeNotExistsWhenHasPrimitives ? (isHasPrimitives(this.#observable) || isPrimitive(oldEl)) : false) && this.#observable?.length < 1) {
-            removeNotExists(this.boundParent, this.#observable?.map?.((nd, index) => getNode(nd, this.mapper, index, this.boundParent)));
-        }
+        if ((op == "@remove" || op == "@set") && isPrimitive(oldEl) && oldEl != newEl && this.#options?.uniquePrimitives)
+            { this.#pmMap.delete(oldEl); }
+        if (Array.isArray(this.#observable) && (this.#options?.removeNotExistsWhenHasPrimitives ? (isHasPrimitives(this.#observable) || isPrimitive(oldEl)) : false) && this.#observable?.length < 1)
+            { removeNotExists(this.boundParent, this.#observable?.map?.((nd, index) => getNode(nd, this.mapper, index, this.boundParent))); }
         return this.#updater?.(newEl, idx, oldEl, op, this.boundParent);
     }
 
@@ -199,9 +206,8 @@ class Mp {
     *[Symbol.iterator]() {
         let i=0;
         if (this.#observable) {
-            for (let el of this.#observable) {
-                yield this.mapper(el, i++);
-            }
+            for (let el of this.#observable)
+                { yield this.mapper(el, i++); }
         }
         return;
     }
