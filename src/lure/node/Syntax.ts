@@ -255,7 +255,7 @@ export function htmlBuilder({ createElement = null } = {}) {
                     node?.remove?.();
                 } else {
                     const $parent = node?.parentNode;
-                    if (Array.isArray(el)) {
+                    if (Array.isArray(el) || el instanceof Map || el instanceof Set) {
                         replaceNode?.($parent, node, el = M(el, null, $parent));
                     } else
                         if (el != null) {

@@ -23,7 +23,7 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
     }
 
     //
-    const updateChildList = (newEl, idx, oldEl, op: string | null = "@add", boundParent: Node | null = null) => {
+    const updateChildList = (newEl, idx, oldEl, op: string | null, boundParent: Node | null = null) => {
         let doubtfulParent = getNode(newEl ?? oldEl, mapper, idx, isValidParent(boundParent) ?? isValidParent(defaultParent))?.parentElement;
         let element = isValidParent(doubtfulParent) ?? isValidParent(boundParent) ?? isValidParent(defaultParent);
         if (!element) return; if (defaultParent != element) { defaultParent = element; }
@@ -34,7 +34,7 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
         const oldIdx = indexOf(element, oldNode);
 
         //
-        if (element && (["@add", "@set", "@remove"].indexOf(op || "") >= 0 || !op)) {
+        if ((["@add", "@set", "@remove"].indexOf(op || "") >= 0 || !op)) {
             // due splice already removed that index, we need to add +1 to the index in exists children
             if ((newNode == null && oldNode != null) || op == "@remove") { commandBuffer?.push?.([removeChild, [element, oldNode, null, oldIdx >= 0 ? oldIdx : idx]]); } else
             if ((newNode != null && oldNode == null) || op == "@add") { commandBuffer?.push?.([appendChild, [element, newNode, null, idx]]); } else
@@ -49,6 +49,14 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
     return updateChildList;
 }
 
+//
+const asArray = (children)=>{
+    if (children instanceof Map || children instanceof Set) {
+        children = Array.from(children?.values?.());
+    }
+    return children;
+}
+
 // TODO! use handlerMap registry
 export const reflectChildren = (element: HTMLElement | DocumentFragment, children: any[] = [], mapper?: Function) => {
     const $parent = getNode(Array.from(children?.values?.() || [])?.[0], mapper, 0)?.parentElement;
@@ -60,7 +68,7 @@ export const reflectChildren = (element: HTMLElement | DocumentFragment, childre
     children = (children?.[$mapped] ? (children as any)?.children : children) ?? children;
 
     //
-    removeNotExists(element, children?.map?.((nd, index) => getNode(nd, mapper, index, element)));
+    removeNotExists(element, asArray(children)?.map?.((nd, index) => getNode(nd, mapper, index, element)));
     const updater = makeUpdater(element, mapper, true);
     const unsub = observe(children, (...args) => {
         const firstOf = getNode(Array.from(children?.values?.() || [])?.[0], mapper, 0);
@@ -83,7 +91,10 @@ export const reformChildren = (element: HTMLElement | DocumentFragment, children
     children = (children?.[$mapped] ? (children as any)?.children : children) ?? children;
 
     //
-    const cvt = children?.map?.((nd, index) => getNode(nd, mapper, index, element));
+    const keys = Array.from(children?.keys?.() || []);
+    const cvt = asArray(children)?.map?.((nd, index) => getNode(nd, mapper, keys?.[index] ?? index, element));
+
+    //
     removeNotExists(element, cvt); cvt?.forEach?.((nd) => appendChild(element, nd));
     return element;
 }

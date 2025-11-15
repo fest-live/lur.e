@@ -25,8 +25,9 @@ const getMapped = (obj: any)=>{
 
 //
 export const $getBase = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
-    if (el instanceof WeakRef) { el = el.deref() ?? el; }
     if (mapper != null) { return (el = $getBase(mapper?.(el, index), null, -1, requestor)); }
+    if (el instanceof WeakRef || typeof (el as any)?.deref == "function") { el = el.deref(); } // promise unsupported
+    if (el instanceof Promise || typeof (el as any)?.then == "function") { return null; };
     if (isElement(el) && !el?.element) { return el; } else
     if (isElement(el?.element)) { return el; } else
     if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : C(el)); } else
@@ -48,8 +49,9 @@ export const $getLeaf = (el, requestor?: any | null)=>{
 
 //
 export const $getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null) => {
-    if (el instanceof WeakRef) { el = el.deref() ?? el; }
     if (mapper != null) { return (el = getNode(mapper?.(el, index), null, -1, requestor)); }
+    if (el instanceof WeakRef || typeof (el as any)?.deref == "function") { el = el.deref(); } // promise unsupported
+    if (el instanceof Promise || typeof (el as any)?.then == "function") { return null; }
     if (isElement(el) && !el?.element) { return el; } else
     if (isElement(el?.element)) { return isElementValue(el, requestor); } else
     if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : C(el))?.element; } else
@@ -62,7 +64,8 @@ export const $getNode = (el, mapper?: Function | null, index: number = -1, reque
 //
 const __nodeGuard = new WeakSet<any>();
 const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
-    if (el instanceof WeakRef) { el = el.deref() ?? el; }
+    if (el instanceof WeakRef || typeof (el as any)?.deref == "function") { el = el.deref(); }
+    if (el instanceof Promise || typeof (el as any)?.then == "function") { return null; };
     if ((typeof el == "object" || typeof el == "function") && !isElement(el)) {
         if (elMap.has(el)) {
             const obj: any = getMapped(el) ?? $getBase(el, mapper, index, requestor);
@@ -77,7 +80,7 @@ const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?:
 
 //
 const isWeakCompatible = (el: any)=>{
-    return (typeof el == "object" || typeof el == "function") && el != null;
+    return (typeof el == "object" || typeof el == "function" || typeof el == "symbol") && el != null;
 }
 
 // (obj instanceof WeakRef ? obj?.deref?.() : obj)
@@ -95,7 +98,7 @@ export const getNode = (el, mapper?: Function | null, index: number = -1, reques
 //
 const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => {
     if (isElement(child) && child != null && child?.parentNode != parent) {
-        if (index >= 0 && index < parent?.childNodes?.length) {
+        if (Number.isInteger(index) && index >= 0 && index < parent?.childNodes?.length) {
             parent?.insertBefore?.(child, parent?.childNodes?.[index]);
         } else {
             parent?.append?.(child);
@@ -113,10 +116,18 @@ export const appendFix = (parent: any, child: any, index: number = -1) => {
 }
 
 //
+const asArray = (children)=>{
+    if (children instanceof Map || children instanceof Set) {
+        children = Array.from(children?.values?.());
+    }
+    return children;
+}
+
+//
 export const appendArray = (parent: any, children: any[], mapper?: Function | null, index: number = -1) => {
     const len = children?.length ?? 0;
-    if (Array.isArray(unwrap(children))) {
-        const list = children?.map?.((cl, I: number) => getNode(cl, mapper, I, parent))?.filter?.((el) => el != null)
+    if (Array.isArray(unwrap(children)) || children instanceof Map || children instanceof Set) {
+        const list = asArray(children)?.map?.((cl, I: number) => getNode(cl, mapper, I, parent))?.filter?.((el) => el != null)
         const frag = document.createDocumentFragment();
         list?.forEach?.((cl)=>appendFix(frag, cl));
         appendFix(parent, frag, index);
@@ -142,15 +153,16 @@ export const appendChild = (element, cp, mapper?: Function | null, index: number
 
 //
 export const dePhantomNode = (parent, node, index: number = -1)=>{
+    if (!parent) return node;
     if (node?.parentNode == parent && node?.parentNode != null) {
         return node;
     } else
     if (node?.parentNode != parent && !isValidParent(node?.parentNode)) {
-        if (index >= 0 && Array.from(parent?.childNodes || [])?.length > index) {
+        if (Number.isInteger(index) && index >= 0 && Array.from(parent?.childNodes || [])?.length > index) {
             return parent.childNodes?.[index];
         }
     }
-    return null;
+    return node;
 }
 
 //
@@ -175,7 +187,7 @@ export const replaceOrSwap = (parent, oldEl, newEl) => {
 
 // TODO: what exactly to replace, if has (i.e. object itself, not index)
 export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1, old?: any|null) => {
-    if (mapper != null) { cp = mapper?.(cp, index); }
+    if (mapper != null) { cp = mapper?.(cp, index); }; if (!element) element = old?.parentNode;
     const cn = dePhantomNode(element, getNode(old, mapper, index), index);
     if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
     if (cp != null) {
@@ -203,8 +215,10 @@ export const removeChildDirectly = (element, node, _?: Function | null, index: n
 
 //
 export const removeChild = (element, cp, mapper?: Function | null, index: number = -1) => {
+    const $node = getNode(cp, mapper);
+    if (!element) element = $node?.parentNode;
     if (Array.from(element?.childNodes ?? [])?.length < 1) return;
-    const whatToRemove = dePhantomNode(element, getNode(cp, mapper), index);
+    const whatToRemove = dePhantomNode(element, $node, index);
     if (whatToRemove?.parentNode == element) whatToRemove?.remove?.();
     return element;
 }

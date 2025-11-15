@@ -1,4 +1,4 @@
-import { observe } from "fest/object";
+import { observe, makeArrayObservable } from "fest/object";
 import { appendFix, getNode, removeNotExists } from "../context/Utils";
 import { $mapped } from "../core/Binding";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
@@ -11,6 +11,14 @@ interface MappedOptions {
     removeNotExistsWhenHasPrimitives?: boolean;
     boundParent?: Node | null;
     preMap?: boolean;
+}
+
+//
+const asArray = (children)=>{
+    if (children instanceof Map || children instanceof Set) {
+        children = Array.from(children?.values?.());
+    }
+    return children;
 }
 
 //
@@ -31,13 +39,15 @@ class Mp {
     makeUpdater(basisParent: Node | null = null) {
         if (basisParent) {
             this.#internal?.(); this.#internal = null; this.#updater = null;
-            this.#updater ??= makeUpdater(basisParent, this.mapper.bind(this), true);
+            this.#updater ??= makeUpdater(basisParent, this.mapper.bind(this), Array.isArray(this.#observable));
             this.#internal ??= observe?.(this.#observable, this._onUpdate.bind(this));
         }
     }
 
     //
-    get boundParent() { return this.#boundParent; }
+    get boundParent() {
+        return this.#boundParent;
+    }
     set boundParent(value: Node | null) {
         if (value instanceof HTMLElement && isValidParent(value) && value != this.#boundParent) {
             this.#boundParent = value; this.makeUpdater(value); const element = this.element;
@@ -116,7 +126,7 @@ class Mp {
     }
 
     //
-    get children() { return this.#observable; }
+    get children() { return asArray(this.#observable); }
 
     //
     get self(): HTMLElement | DocumentFragment | Text | null {
@@ -158,6 +168,9 @@ class Mp {
         return (...args) => {
             if (args?.[0] instanceof Node) { return args?.[0]; };
 
+            // unsupported
+            if (args?.[0] instanceof Promise || typeof (args?.[0] as any)?.then == "function") { return null; };
+
             //
             if (
                 (args?.[1] == null || args?.[1] < 0 || (typeof args?.[1] != "number" || !canBeInteger(args?.[1] as any))) &&
@@ -197,9 +210,24 @@ class Mp {
         // keep cache clear from garbage (unique primitives mode)
         if ((op == "@remove" || op == "@set") && isPrimitive(oldEl) && oldEl != newEl && this.#options?.uniquePrimitives)
             { this.#pmMap.delete(oldEl); }
-        if (Array.isArray(this.#observable) && (this.#options?.removeNotExistsWhenHasPrimitives ? (isHasPrimitives(this.#observable) || isPrimitive(oldEl)) : false) && this.#observable?.length < 1)
-            { removeNotExists(this.boundParent, this.#observable?.map?.((nd, index) => getNode(nd, this.mapper, index, this.boundParent))); }
-        return this.#updater?.(newEl, idx, oldEl, op, this.boundParent);
+
+        //
+        const __mapped = asArray(this.#observable); const __keys = Array.from(this.#observable?.keys?.() || []);
+        if (Array.isArray(__mapped) && (this.#options?.removeNotExistsWhenHasPrimitives ? (isHasPrimitives(__mapped) || isPrimitive(oldEl)) : false) && __mapped?.length < 1)
+            { removeNotExists(this.boundParent, __mapped?.map?.((nd, index) => getNode(nd, this.mapper, __keys?.[index] ?? index, this.boundParent)) || []); }
+
+        //
+        const byOldEl = getNode(oldEl, this.mapper, idx);
+        const try0 = Array.from(((byOldEl?.parentNode ?? this.boundParent) as any)?.childNodes || [])?.indexOf?.(byOldEl);
+        const try1 = __mapped?.indexOf?.(newEl);
+        const byNewEl = getNode(newEl, this.mapper, idx, this.boundParent);
+
+        //
+        return this.#updater?.(
+            byNewEl, Number.isInteger(idx) ? idx : (try0 < 0 ? try1 : try0),
+            byOldEl,
+            op,
+            this.boundParent);
     }
 
     // generator and iterator

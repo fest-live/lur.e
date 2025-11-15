@@ -81,7 +81,7 @@ class Ch {
     $getNode(requestor?: any, reassignOldNode: boolean | null = true) {
         // TODO: resolve somehow returning this.#valueRef as element...
         const node = isPrimitive(this.#valueRef?.value) ? T(this.#valueRef) : getNode(this.#valueRef?.value, null, -1, requestor);
-        if (node != null && reassignOldNode) { this.#oldNode = (isPrimitive(this.#valueRef?.value) ? node : null); };
+        if (node != null && reassignOldNode) { this.#oldNode = node; };
         return node;
     }
 
@@ -161,12 +161,14 @@ class Ch {
         if (isPrimitive(oldVal) && isPrimitive(newVal)) { return; }
 
         //
-        const oldEl = isPrimitive(oldVal) ? this.#oldNode : this.$getNodeBy(this.boundParent, oldVal);
-        const newEl = this.$getNode(this.boundParent, false);
+        let oldEl = (isPrimitive(oldVal) ? this.#oldNode : this.$getNodeBy(this.boundParent, oldVal));
+        let newEl = this.$getNode(this.boundParent, false);
+        if ((oldEl && !oldEl?.parentNode) || this.#oldNode?.parentNode) { oldEl = this.#oldNode ?? oldEl; };
 
         //
         let updated: any = this.#updater?.(newEl, -1, oldEl, op, this.boundParent);
-        if (newEl != null) { this.#oldNode = isPrimitive(newVal) ? newEl : null; };
+        if (newEl != null && newEl != this.#oldNode) { this.#oldNode = newEl; } else
+        if (newEl == null && oldEl != this.#oldNode) { this.#oldNode = oldEl; };
         return updated;
     }
 }
