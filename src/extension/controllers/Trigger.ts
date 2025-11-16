@@ -25,7 +25,6 @@ export const makeShiftTrigger = (callable, newItem?)=> ((evc)=>{
                 const coord: [number, number] = [evc_l.clientX, evc_l.clientY];
                 const shift: [number, number] = [coord[0] - n_coord[0], coord[1] - n_coord[1]];
                 if (Math.hypot(...shift) > 2) {
-                    newItem.dataset.dragging = "";
                     newItem?.style?.setProperty?.("will-change", "inset, transform, translate, z-index");
 
                     //

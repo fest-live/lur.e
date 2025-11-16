@@ -26,36 +26,258 @@ const mapEntriesFrom = (source: any) => {
     return [];
 };
 
+const ownProp = Object.prototype.hasOwnProperty;
+
+const isPlainObject = (value: any): value is Record<PropertyKey, any>=>{
+    if (!value || typeof value !== "object") return false;
+    if (Array.isArray(value)) return false;
+    return !(value instanceof Map) && !(value instanceof Set);
+};
+
+const identityOf = (value: any, fallback?: any)=>{
+    if (value && typeof value === "object") {
+        if ("id" in value && (value as any).id != null) return (value as any).id;
+        if ("key" in value && (value as any).key != null) return (value as any).key;
+    }
+    return fallback;
+};
+
+const resolveEntryKey = (entryKey: any, value: any, fallback?: any)=>{
+    if (entryKey != null) return entryKey;
+    const identity = identityOf(value);
+    if (identity != null) return identity;
+    return fallback;
+};
+
+const mergePlainObject = (target: Record<PropertyKey, any>, source: Record<PropertyKey, any>)=>{
+    for (const key of Object.keys(source)) {
+        const nextValue = source[key];
+        const currentValue = target[key];
+        if (isPlainObject(currentValue) && isPlainObject(nextValue)) {
+            mergePlainObject(currentValue, nextValue);
+            continue;
+        }
+        if (currentValue !== nextValue) {
+            target[key] = nextValue;
+        }
+    }
+    return target;
+};
+
+//
+export const mergeByExists = <T extends { name: string }>(dataRef: T[], refs: T[]) => {
+    // Build index maps for O(1) lookups
+    const dataMap = new Map<string, { item: T; index: number }>();
+    dataRef.forEach((item, index) => {
+        if (item?.name) dataMap.set(item.name, { item, index });
+    });
+
+    const refsMap = new Map<string, T>();
+    refs.forEach(ref => {
+        if (ref?.name) refsMap.set(ref.name, ref);
+    });
+
+    // Update existing items
+    for (const [name, { index }] of dataMap) {
+        const ref = refsMap.get(name);
+        if (ref) {
+            dataRef[index] = ref;
+        }
+    }
+
+    // Add new items
+    for (const [name, ref] of refsMap) {
+        if (!dataMap.has(name)) {
+            dataRef.push(ref);
+        }
+    }
+
+    // Remove deleted items (iterate backwards to maintain indices)
+    for (let i = dataRef.length - 1; i >= 0; i--) {
+        const item = dataRef[i];
+        if (item?.name && !refsMap.has(item.name)) {
+            dataRef.splice(i, 1);
+        }
+    }
+
+    // sort by name
+    dataRef.sort((a: T, b: T) => a?.name?.localeCompare?.(b?.name ?? ""));
+
+    // return sorted data
+    return dataRef;
+}
+
+const mergeValue = (target: any, source: any)=>{
+    if (target === source) return target;
+    const sourceIsObject = source && typeof source === "object";
+
+    if (target instanceof Map && sourceIsObject) {
+        reloadInto(target, source);
+        return target;
+    }
+
+    if (target instanceof Set && sourceIsObject) {
+        reloadInto(target, source);
+        return target;
+    }
+
+    if (Array.isArray(target) && sourceIsObject) {
+        reloadInto(target, source);
+        return target;
+    }
+
+    if (isPlainObject(target) && isPlainObject(source)) {
+        mergePlainObject(target, source);
+        return target;
+    }
+
+    return source;
+};
+
 export const reloadInto = (items: any|any[]|Set<any>|Map<any, any>, map: any)=>{
     if (!items || !map) return items;
     const entries = mapEntriesFrom(map);
     if (!entries.length) return items;
 
-    // Set: replace contents with map values
     if (items instanceof Set) {
-        items.clear();
-        for (const [, value] of entries) items.add(value);
+        const existingByKey = new Map<any, any>();
+        for (const value of items.values()) {
+            const key = identityOf(value);
+            if (key != null) existingByKey.set(key, value);
+        }
+
+        const usedKeys = new Set<any>();
+        for (const [entryKey, incoming] of entries) {
+            const key = resolveEntryKey(entryKey, incoming);
+            if (key == null) {
+                if (!items.has(incoming)) items.add(incoming);
+                continue;
+            }
+
+            const hasCurrent = existingByKey.has(key);
+            const current = hasCurrent ? existingByKey.get(key) : undefined;
+            if (hasCurrent) {
+                const merged = mergeValue(current, incoming);
+                if (merged !== current) {
+                    items.delete(current);
+                    items.add(merged);
+                    existingByKey.set(key, merged);
+                }
+            } else {
+                items.add(incoming);
+                existingByKey.set(key, incoming);
+            }
+            usedKeys.add(key);
+        }
+
+        if (usedKeys.size) {
+            for (const value of Array.from(items.values())) {
+                const key = identityOf(value);
+                if (key != null && !usedKeys.has(key)) {
+                    items.delete(value);
+                }
+            }
+        }
         return items;
     }
 
-    // Map: replace entries with map entries (keys and values)
     if (items instanceof Map) {
-        items.clear();
-        for (const [k, v] of entries) items.set(k, v);
+        const nextMap = new Map(entries);
+
+        for (const key of Array.from(items.keys())) {
+            if (!nextMap.has(key)) items.delete(key);
+        }
+
+        for (const [key, incoming] of nextMap.entries()) {
+            if (items.has(key)) {
+                const current = items.get(key);
+                const merged = mergeValue(current, incoming);
+                if (merged !== current) items.set(key, merged);
+            } else {
+                items.set(key, incoming);
+            }
+        }
         return items;
     }
 
-    // Array: replace contents with map values
     if (Array.isArray(items)) {
-        items.length = 0;
-        for (const [, v] of entries) items.push(v);
+        const availableIndexes = new Set<number>();
+        const existingByKey = new Map<any, number>();
+        const existingByObject = new WeakMap<object, number>();
+
+        items.forEach((value, index)=>{
+            availableIndexes.add(index);
+            const key = identityOf(value, index);
+            if (key != null && !existingByKey.has(key)) {
+                existingByKey.set(key, index);
+            }
+            if (value && typeof value === "object") {
+                existingByObject.set(value, index);
+            }
+        });
+
+        const takeIndex = (index?: number)=>{
+            if (index == null) return undefined;
+            if (!availableIndexes.has(index)) return undefined;
+            availableIndexes.delete(index);
+            return index;
+        };
+
+        const takeNextAvailable = ()=>{
+            const iterator = availableIndexes.values().next();
+            if (iterator.done) return undefined;
+            const index = iterator.value;
+            availableIndexes.delete(index);
+            return index;
+        };
+
+        let writeIndex = 0;
+        let fallbackIndex = 0;
+
+        for (const [entryKey, incoming] of entries) {
+            const key = resolveEntryKey(entryKey, incoming, fallbackIndex++);
+            let claimedIndex = takeIndex(key != null ? existingByKey.get(key) : undefined);
+
+            if (claimedIndex == null && incoming && typeof incoming === "object") {
+                claimedIndex = takeIndex(existingByObject.get(incoming));
+            }
+
+            if (claimedIndex == null) {
+                claimedIndex = takeNextAvailable();
+            }
+
+            const current = claimedIndex != null ? items[claimedIndex] : undefined;
+            const merged = current !== undefined ? mergeValue(current, incoming) : incoming;
+
+            if (writeIndex < items.length) {
+                if (items[writeIndex] !== merged) items[writeIndex] = merged;
+            } else {
+                items.push(merged);
+            }
+
+            writeIndex++;
+        }
+
+        while (items.length > writeIndex) items.pop();
         return items;
     }
 
-    // Plain object: remove all own props, then assign map entries as props
     if (typeof items === "object") {
-        for (const prop of Object.keys(items)) delete (items as any)[prop];
-        for (const [k, v] of entries) (items as any)[k as any] = v;
+        const nextKeys = new Set(entries.map(([key])=>String(key)));
+        for (const prop of Object.keys(items)) {
+            if (!nextKeys.has(prop)) delete (items as any)[prop];
+        }
+
+        for (const [entryKey, incoming] of entries) {
+            const prop = String(entryKey);
+            if (ownProp.call(items, prop)) {
+                const current = (items as any)[prop];
+                const merged = mergeValue(current, incoming);
+                if (merged !== current) (items as any)[prop] = merged;
+            } else {
+                (items as any)[prop] = incoming;
+            }
+        }
         return items;
     }
 
@@ -89,7 +311,7 @@ export const makeUIState = (storageKey, initialCb, unpackCb, packCb = unwrap, ke
     }
 
     //
-    //setIdleInterval(saveInStorage, saveInterval);
+    setIdleInterval(saveInStorage, saveInterval);
 
     //
     const listening = [
