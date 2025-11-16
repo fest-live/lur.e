@@ -20,11 +20,15 @@ export interface MenuItem {
 export interface CtxMenuDesc {
     items?: MenuItem[][];
     defaultAction?: (initiator: HTMLElement, item: MenuItem, ev: MouseEvent)=>void;
+    buildItems?: (details: { event: MouseEvent; initiator: HTMLElement; trigger: HTMLElement; menu: HTMLElement; ctxMenuDesc: CtxMenuDesc })=>MenuItem[][]|void;
+    onBeforeOpen?: (details: { event: MouseEvent; initiator: HTMLElement; trigger: HTMLElement; menu: HTMLElement; ctxMenuDesc: CtxMenuDesc })=>boolean|void;
+    context?: any;
     openedWith?: {
         event: MouseEvent;
         initiator: HTMLElement;
         element: HTMLElement;
         close: ()=>void;
+        context?: any;
     }|null;
 }
 
@@ -69,6 +73,15 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
         //
         const initiator  = ev?.target ?? triggerElement ?? document.elementFromPoint(ev?.clientX || 0, ev?.clientY || 0) as HTMLElement;
         const visibleRef = getBoundVisibleRef(menuElement);
+        const details = { event: ev, initiator: initiator as HTMLElement, trigger: triggerElement, menu: menuElement, ctxMenuDesc };
+        ctxMenuDesc.context = details;
+        if (ctxMenuDesc?.onBeforeOpen?.(details) === false) {
+            return;
+        }
+        const builtItems = ctxMenuDesc?.buildItems?.(details);
+        if (Array.isArray(builtItems) && builtItems.length) {
+            ctxMenuDesc.items = builtItems;
+        }
 
         //
         if (visibleRef?.value && ev?.type != "contextmenu") {
@@ -96,6 +109,7 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
                 initiator: initiator as HTMLElement,
                 element: menuElement,
                 event: ev,
+                context: ctxMenuDesc?.context,
                 close() {
                     if (visibleRef != null) visibleRef.value = false;
                     ctxMenuDesc.openedWith = null;
