@@ -89,7 +89,7 @@ export const makeUIState = (storageKey, initialCb, unpackCb, packCb = unwrap, ke
     }
 
     //
-    setIdleInterval(saveInStorage, saveInterval);
+    //setIdleInterval(saveInStorage, saveInterval);
 
     //
     const listening = [
