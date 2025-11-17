@@ -29,12 +29,17 @@ const $makePromisePlaceholder = (promised, getNodeCb)=>{
     promised?.then?.((elem)=>{
         // avoid vain (not) replacement
         return Promise.resolve().then(()=>{
+            const element = typeof getNodeCb == "function" ? getNodeCb(elem) : elem;
             if (typeof comment?.replaceWith == "function") {
-                comment?.replaceWith?.(typeof getNodeCb == "function" ? getNodeCb(elem) : elem);
+                if (!comment?.isConnected) return;
+                if (isElement(element)) { comment?.replaceWith?.(element); }
             } else
-            if (comment?.parentNode) {
-                comment?.parentNode?.append?.(typeof getNodeCb == "function" ? getNodeCb(elem) : elem);
+            if (comment?.isConnected && isElement(element)) {
+                comment?.parentNode?.replaceChild?.(comment, element);
             }
+        })?.catch?.(()=>{
+            if (!comment?.isConnected) return;
+            comment?.remove?.();
         });
     });
     return comment;
