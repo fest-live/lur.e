@@ -24,10 +24,28 @@ const getMapped = (obj: any)=>{
 }
 
 //
+const $makePromisePlaceholder = (promised, getNodeCb)=>{
+    const comment = document.createComment(":PROMISE:");
+    promised?.then?.((elem)=>{
+        // avoid vain (not) replacement
+        return Promise.resolve().then(()=>{
+            if (typeof comment?.replaceWith == "function") {
+                comment?.replaceWith?.(typeof getNodeCb == "function" ? getNodeCb(elem) : elem);
+            } else
+            if (comment?.parentNode) {
+                comment?.parentNode?.append?.(typeof getNodeCb == "function" ? getNodeCb(elem) : elem);
+            }
+        });
+    });
+    return comment;
+}
+
+
+//
 export const $getBase = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
     if (mapper != null) { return (el = $getBase(mapper?.(el, index), null, -1, requestor)); }
     if (el instanceof WeakRef || typeof (el as any)?.deref == "function") { el = el.deref(); } // promise unsupported
-    if (el instanceof Promise || typeof (el as any)?.then == "function") { return null; };
+    if (el instanceof Promise || typeof (el as any)?.then == "function") { return $makePromisePlaceholder(el, (nd)=>$getBase(nd, mapper, index, requestor)); };
     if (isElement(el) && !el?.element) { return el; } else
     if (isElement(el?.element)) { return el; } else
     if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : C(el)); } else
@@ -51,7 +69,7 @@ export const $getLeaf = (el, requestor?: any | null)=>{
 export const $getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null) => {
     if (mapper != null) { return (el = getNode(mapper?.(el, index), null, -1, requestor)); }
     if (el instanceof WeakRef || typeof (el as any)?.deref == "function") { el = el.deref(); } // promise unsupported
-    if (el instanceof Promise || typeof (el as any)?.then == "function") { return null; }
+    if (el instanceof Promise || typeof (el as any)?.then == "function") { return $makePromisePlaceholder(el, (nd)=>getNode(nd, mapper, index, requestor)); };
     if (isElement(el) && !el?.element) { return el; } else
     if (isElement(el?.element)) { return isElementValue(el, requestor); } else
     if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : C(el))?.element; } else
@@ -65,7 +83,7 @@ export const $getNode = (el, mapper?: Function | null, index: number = -1, reque
 const __nodeGuard = new WeakSet<any>();
 const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
     if (el instanceof WeakRef || typeof (el as any)?.deref == "function") { el = el.deref(); }
-    if (el instanceof Promise || typeof (el as any)?.then == "function") { return null; };
+    if (el instanceof Promise || typeof (el as any)?.then == "function") { return $makePromisePlaceholder(el, (nd)=>__getNode(nd, mapper, index, requestor)); };
     if ((typeof el == "object" || typeof el == "function") && !isElement(el)) {
         if (elMap.has(el)) {
             const obj: any = getMapped(el) ?? $getBase(el, mapper, index, requestor);
