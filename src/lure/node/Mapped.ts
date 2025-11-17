@@ -1,6 +1,6 @@
-import { observe, makeArrayObservable } from "fest/object";
-import { appendFix, getNode, removeNotExists } from "../context/Utils";
+import { observe } from "fest/object";
 import { $mapped } from "../core/Binding";
+import { getNode, appendFix, removeNotExists } from "../context/Utils";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
 import { canBeInteger, isObservable, isPrimitive, isHasPrimitives } from "fest/core";
 import { isValidParent } from "fest/dom";
