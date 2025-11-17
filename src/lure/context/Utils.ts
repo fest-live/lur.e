@@ -24,12 +24,20 @@ const getMapped = (obj: any)=>{
 }
 
 //
+const $promiseResolvedMap = new WeakMap();
 const $makePromisePlaceholder = (promised, getNodeCb)=>{
+    if ($promiseResolvedMap?.has?.(promised)) {
+        return $promiseResolvedMap?.get?.(promised);
+    }
+
+    //
     const comment = document.createComment(":PROMISE:");
     promised?.then?.((elem)=>{
+        const element = typeof getNodeCb == "function" ? getNodeCb(elem) : elem;
+        $promiseResolvedMap?.set?.(promised, element);
+
         // avoid vain (not) replacement
         return Promise.resolve().then(()=>{
-            const element = typeof getNodeCb == "function" ? getNodeCb(elem) : elem;
             if (typeof comment?.replaceWith == "function") {
                 if (!comment?.isConnected) return;
                 if (isElement(element)) { comment?.replaceWith?.(element); }
@@ -44,7 +52,6 @@ const $makePromisePlaceholder = (promised, getNodeCb)=>{
     });
     return comment;
 }
-
 
 //
 export const $getBase = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
