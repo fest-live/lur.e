@@ -42,7 +42,7 @@ class Ch {
 
             //
             const element = this.element;
-            if (element) { appendFix(this.#boundParent, element); };
+            //if (element) { appendFix(this.#boundParent, element); };
         }
     }
 

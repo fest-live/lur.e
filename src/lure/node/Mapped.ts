@@ -51,7 +51,7 @@ class Mp {
     set boundParent(value: Node | null) {
         if (value instanceof HTMLElement && isValidParent(value) && value != this.#boundParent) {
             this.#boundParent = value; this.makeUpdater(value); const element = this.element;
-            if (element && element instanceof DocumentFragment) { appendFix(this.#boundParent, element); };
+            //if (element && element instanceof DocumentFragment) { appendFix(this.#boundParent, element); };
         }
     }
 

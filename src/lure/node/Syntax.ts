@@ -112,14 +112,18 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
 
             //
             const attributeIsInRegistry = (name: string) => {
-                return attributesEntries?.some?.((pair) => pair[0] == name);
+                return attributesEntries?.some?.((pair) => pair[0] == name) || name?.startsWith?.("ref:") || name == "ref";
             }
 
             // needs by splice or remove, DOM element.attributes is a live collection
             for (const attr of Array.from(el?.attributes || [])) {
-                if (attr.value?.includes?.("#{") && attr.value?.includes?.("}") && attributeIsInRegistry(attr.name as string)) {
-                    el?.removeAttribute?.(attr.name as string);
-                }
+                if ( // relaxed syntax for placeholder, if in registry
+                    (attr.value?.includes?.("#{") && attr.value?.includes?.("}") &&
+                    attributeIsInRegistry(attr.name as string)) ||
+
+                    // stricter check of placeholder, if none in registry
+                    attr.value?.startsWith?.("#{") && attr.value?.endsWith?.("}")
+                ) { el?.removeAttribute?.(attr.name as string); }
             };
         }
 
@@ -258,10 +262,15 @@ export function htmlBuilder({ createElement = null } = {}) {
                     if (Array.isArray(el) || el instanceof Map || el instanceof Set) {
                         replaceNode?.($parent, node, el = M(el, null, $parent));
                     } else
-                        if (el != null) {
-                            replaceNode?.($parent, node, el);
-                        }
+                    if (el != null) {
+                        replaceNode?.($parent, node, el);
+                    }
                 }
+            }
+
+            // remove comment node if it is connected
+            if (node?.isConnected) {
+                node?.remove?.();
             }
         });
 

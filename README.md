@@ -205,6 +205,29 @@ const target = H`<div class="draggable" />` as HTMLElement;
 bindDraggable(target, () => console.log("drag end"));
 ```
 
+### Handling refs and DOM elements
+
+**Flexible handling of refs and DOM elements:**
+- Referenced content is also a DOM element (`Text` node)
+- HTML DOM elements also can be placed as content of other DOM elements
+- `ref(...)` are reactive and will be updated when the referenced content changes
+
+```ts
+import { ref } from "fest/object";
+import { H } from "fest/lure";
+
+// referenced content is also a DOM element (`Text` node)
+const txt = ref("Hello");
+const hookOf = (el: HTMLElement) => { console.log(el); };
+const span = H`<span ref=${hookOf}>${txt}</span>`; // span is a DOM element (`HTMLSpanElement`)
+const button = H`<button>${span}</button>`;
+
+// Regular DOM elements
+const regular = document.createElement("span");
+regular.textContent = "Hello";
+const another = H`<button>${regular}</button>`;
+```
+
 ### Documentation
 
 - Full markdown API reference is generated into `./docs/` by:
