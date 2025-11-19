@@ -118,11 +118,13 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
             // needs by splice or remove, DOM element.attributes is a live collection
             for (const attr of Array.from(el?.attributes || [])) {
                 if ( // relaxed syntax for placeholder, if in registry
-                    (attr.value?.includes?.("#{") && attr.value?.includes?.("}") &&
-                    attributeIsInRegistry(attr.name as string)) ||
+                    (attr.value?.includes?.("#{") && attr.value?.includes?.("}") && attributeIsInRegistry(attr.name as string)) ||
 
                     // stricter check of placeholder, if none in registry
-                    attr.value?.startsWith?.("#{") && attr.value?.endsWith?.("}")
+                    attr.value?.startsWith?.("#{") && attr.value?.endsWith?.("}") ||
+
+                    // if attribute name contains colon, it is a property
+                    attr.name?.includes?.(":") || attr.name?.includes?.("ref:") || attr.name == "ref"
                 ) { el?.removeAttribute?.(attr.name as string); }
             };
         }
@@ -241,6 +243,8 @@ export function htmlBuilder({ createElement = null } = {}) {
 
         //
         let walkedNodes: any[] = [];
+
+        //
         bucket.forEach((nodeSet: any) => {
             const walker: any = nodeSet ? document.createTreeWalker(nodeSet, NodeFilter.SHOW_ALL, null) : null;
             do {
@@ -250,9 +254,9 @@ export function htmlBuilder({ createElement = null } = {}) {
         });
 
         //
-        walkedNodes?.filter((node: any) => node.nodeType == Node.COMMENT_NODE)?.forEach((node: any) => {
-            if (node.nodeValue?.trim()?.includes("o:")) {
-                let el: any = psh[Number(node.nodeValue?.trim()?.slice(2))];
+        walkedNodes?.filter?.((node: any) => node?.nodeType == Node.COMMENT_NODE)?.forEach?.((node: any) => {
+            if (node?.nodeValue?.trim?.()?.includes?.("o:") && Number.isInteger(parseInt(node?.nodeValue?.trim?.()?.slice?.(2) ?? "-1"))) {
+                let el: any = psh?.[parseInt(node?.nodeValue?.trim?.()?.slice?.(2) ?? "-1") ?? -1];
 
                 // make iteratable array and set
                 if (el == null || el === undefined || (typeof el == "string" ? el : null)?.trim?.() == "") {
