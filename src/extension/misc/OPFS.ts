@@ -601,16 +601,13 @@ export const downloadFile = async (file) => {
 //
 export const provide = async (req: string | Request = "", rw = false) => {
     const url: string = (req as Request)?.url ?? req;
-    const path = getDir(url?.replace?.(location.origin, "")?.trim?.()?.startsWith?.("/user/") ? url?.replace?.(/^\/user/g, "")?.trim?.() : url);
-    const fn   = url?.split("/")?.at?.(-1);
+    const cleanUrl = url?.replace?.(location.origin, "")?.trim?.();
 
     //
-    if (!URL.canParse(url) && path?.trim?.()?.startsWith?.("/user")) {
-        const $path = path?.replace?.("/user/", "")?.trim?.();
-        const clean = (($path?.split?.("/") || [$path])?.filter?.((p)=>!!p?.trim?.()) || [""])?.join?.("/") || "";
-        const npt = ((clean && clean != "/") ? "/" + clean + "/" : clean) || "/";
-        const handle = getFileHandle(await resolveRootHandle(null), npt + fn, { create: true });
-        if (rw) { handle?.then?.((h)=>h?.createWritable?.()); }
+    if (cleanUrl?.startsWith?.("/user")) {
+        const path = cleanUrl?.replace?.(/^\/user/g, "")?.trim?.();
+        const handle = getFileHandle(await navigator?.storage?.getDirectory?.(), path, { create: !!rw });
+        if (rw) { return handle?.then?.((h)=>h?.createWritable?.()); }
         return handle?.then?.((h)=>h?.getFile?.());
     } else {
         try {
