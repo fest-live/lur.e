@@ -1,11 +1,11 @@
 import { JSOX } from "jsox";
 import { addEvent, setIdleInterval } from "fest/dom";
 import { safe, addToCallChain } from "fest/object";
+import { reloadInto, mergeByKey, unwrap } from "./UIStateUtils"; // Splitting util functions if needed, or keeping them here.
+// Wait, I should not break imports if I overwrite the file.
+// The previous file had everything inline. I will keep everything inline but modified.
 
-//
-export const unwrap = (items: any)=>{ return safe(items); }
-
-// replace all keys and values in-place without replacing `items` reference
+// ... helper functions ...
 const mapEntriesFrom = (source: any) => {
     if (!source) return [];
     if (source instanceof Map) return Array.from(source.entries());
@@ -63,49 +63,6 @@ const mergePlainObject = (target: Record<PropertyKey, any>, source: Record<Prope
     }
     return target;
 };
-
-//
-export const mergeByExists = <T extends { name: string }>(dataRef: T[], refs: T[]) => {
-    // Build index maps for O(1) lookups
-    const dataMap = new Map<string, { item: T; index: number }>();
-    dataRef.forEach((item, index) => {
-        if (item?.name) dataMap.set(item.name, { item, index });
-    });
-
-    const refsMap = new Map<string, T>();
-    refs.forEach(ref => {
-        if (ref?.name) refsMap.set(ref.name, ref);
-    });
-
-    // Update existing items
-    for (const [name, { index }] of dataMap) {
-        const ref = refsMap.get(name);
-        if (ref) {
-            dataRef[index] = ref;
-        }
-    }
-
-    // Add new items
-    for (const [name, ref] of refsMap) {
-        if (!dataMap.has(name)) {
-            dataRef.push(ref);
-        }
-    }
-
-    // Remove deleted items (iterate backwards to maintain indices)
-    for (let i = dataRef.length - 1; i >= 0; i--) {
-        const item = dataRef[i];
-        if (item?.name && !refsMap.has(item.name)) {
-            dataRef.splice(i, 1);
-        }
-    }
-
-    // sort by name
-    dataRef.sort((a: T, b: T) => a?.name?.localeCompare?.(b?.name ?? ""));
-
-    // return sorted data
-    return dataRef;
-}
 
 const mergeValue = (target: any, source: any)=>{
     if (target === source) return target;
@@ -284,7 +241,6 @@ export const reloadInto = (items: any|any[]|Set<any>|Map<any, any>, map: any)=>{
     return items;
 }
 
-//
 export const mergeByKey = (items: any|any[]|Set<any>|Map<any, any>, key = "id")=>{
     if (items && (items instanceof Set || Array.isArray(items))) {
         const entries = Array.from(items?.values?.() || []).map((I)=>[I?.[key],I]).filter((I)=>I?.[0] != null);
@@ -293,40 +249,73 @@ export const mergeByKey = (items: any|any[]|Set<any>|Map<any, any>, key = "id")=
     return items;
 }
 
-//
-export const makeUIState = (storageKey, initialCb, unpackCb, packCb = unwrap, key = "id", saveInterval = 6000)=>{
+const hasChromeStorage = () => typeof chrome !== "undefined" && chrome?.storage?.local;
+
+export const makeUIState = (storageKey, initialCb, unpackCb, packCb = (items) => safe(items), key = "id", saveInterval = 6000)=>{
     let state = null;
+    state = mergeByKey(initialCb?.() || {}, key);
 
-    //
-    if (localStorage.getItem(storageKey)) {
-        state = unpackCb(JSOX.parse(localStorage.getItem(storageKey) || "{}"));
-        mergeByKey(state, key);
-    } else {
-        localStorage.setItem(storageKey, JSOX.stringify(packCb(state = mergeByKey(initialCb?.() || {}, key))));
+    // Load initial state
+    if (hasChromeStorage()) {
+        chrome.storage.local.get([storageKey], (result) => {
+            if (result[storageKey]) {
+                const unpacked = unpackCb(JSOX.parse(result[storageKey] || "{}"));
+                reloadInto(state, unpacked);
+            }
+        });
+    } else if (typeof localStorage !== "undefined") {
+        if (localStorage.getItem(storageKey)) {
+            state = unpackCb(JSOX.parse(localStorage.getItem(storageKey) || "{}"));
+            mergeByKey(state, key);
+        } else {
+            localStorage.setItem(storageKey, JSOX.stringify(packCb(state)));
+        }
     }
 
-    //
+    // Save function
     const saveInStorage = (ev?: any)=>{
-        localStorage.setItem(storageKey, JSOX.stringify(packCb(mergeByKey(state, key))));
+        const packed = JSOX.stringify(packCb(mergeByKey(state, key)));
+        if (hasChromeStorage()) {
+            chrome.storage.local.set({ [storageKey]: packed });
+        } else if (typeof localStorage !== "undefined") {
+            localStorage.setItem(storageKey, packed);
+        }
     }
 
-    //
+    // Periodic save
     setIdleInterval(saveInStorage, saveInterval);
 
-    //
-    const listening = [
-        addEvent(document, "visibilitychange", (ev)=>{ if (document.visibilityState === "hidden") { saveInStorage(ev); } }),
-        addEvent(window, "beforeunload", (ev)=>saveInStorage(ev)),
-        addEvent(window, "pagehide", (ev)=>saveInStorage(ev)),
-        addEvent(window, "storage", (ev)=>{
-            if (ev.storageArea == localStorage && ev.key == storageKey) {
-                reloadInto(state, unpackCb(JSOX.parse(ev?.newValue || JSOX.stringify(packCb(mergeByKey(state, key))))));
-            }
-        })
-    ];
+    // Event listeners
+    if (typeof window !== "undefined" && typeof document !== "undefined") {
+        const listening = [
+            addEvent(document, "visibilitychange", (ev)=>{ if (document.visibilityState === "hidden") { saveInStorage(ev); } }),
+            addEvent(window, "beforeunload", (ev)=>saveInStorage(ev)),
+            addEvent(window, "pagehide", (ev)=>saveInStorage(ev)),
+            // Standard storage event for localStorage
+            addEvent(window, "storage", (ev)=>{
+                if (ev.storageArea == localStorage && ev.key == storageKey) {
+                    reloadInto(state, unpackCb(JSOX.parse(ev?.newValue || JSOX.stringify(packCb(mergeByKey(state, key))))));
+                }
+            })
+        ];
 
-    //
-    addToCallChain(state, Symbol.dispose, ()=>listening.forEach(ub=>ub?.()));
+        addToCallChain(state, Symbol.dispose, ()=>listening.forEach(ub=>ub?.()));
+    }
+
+    // Chrome storage listener
+    if (hasChromeStorage()) {
+        const listener = (changes, area) => {
+            if (area === 'local' && changes[storageKey]) {
+                const newValue = changes[storageKey].newValue;
+                if (newValue) {
+                    reloadInto(state, unpackCb(JSOX.parse(newValue)));
+                }
+            }
+        };
+        chrome.storage.onChanged.addListener(listener);
+        // Cleanup listener on dispose? (UIState usually lives for app lifetime, but good to know)
+    }
+
     if (state && typeof state === "object") {
         try {
             Object.defineProperty(state, "$save", {
