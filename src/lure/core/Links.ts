@@ -1,6 +1,6 @@
 import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding } from "fest/dom";
 import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref } from "fest/object";
-import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref } from "fest/core";
+import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref, hasValue } from "fest/core";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
 import { setChecked } from "fest/dom";
@@ -215,7 +215,7 @@ export const orientLink = (host?: any|null, exists?: any|null)=>{
     const orient = orientationNumberMap?.[getCorrectOrientation()] || 0;
     const def = Number(orient) || 0;
     const val = isValueRef(exists) ? exists : numberRef(def);
-    if (isObject(val)) val.value = def;
+    if (hasValue(val)) val.value = def;
 
     // !Change orientation? You are seious?!
     //subscribe([exists, "value"], (orient)=>{ // pickup name...
