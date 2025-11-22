@@ -12,11 +12,13 @@ export const $virtual = Symbol.for("@virtual");
 export const $behavior = Symbol.for("@behavior");
 
 //
-export const bindBeh = (element, store, behavior) => {
-    const weak = toRef(element), [name, obj] = store;
+export const bindBeh = (element: any, store: any, behavior: any) => {
+    const weak = toRef(element);
+    const name = store?.[0] ?? store?.name;
+    const value = store?.[1] ?? store?.value;
     if (behavior) {
         const usub = subscribe?.(store, (value, prop, old) => {
-            const valMap = namedStoreMaps.get(name);
+            const valMap = namedStoreMaps?.get?.(name as string);
             behavior?.([value, prop, old], [weak, store, valMap?.get(deref(weak))]);
         });
         addToCallChain(store, Symbol.dispose, usub);
@@ -24,17 +26,17 @@ export const bindBeh = (element, store, behavior) => {
 }
 
 //
-export const bindCtrl = (element, ctrlCb) => {
+export const bindCtrl = (element: any, ctrlCb: any) => {
     const hdl = { "click": ctrlCb, "input": ctrlCb, "change": ctrlCb }; ctrlCb?.({ target: element });
     const unsub = handleListeners?.(element, "addEventListener", hdl);
     addToCallChain(element, Symbol.dispose, unsub); return unsub;
 }
 
 //
-export const reflectControllers = (element, ctrls) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
+export const reflectControllers = (element: any, ctrls: any) => { if (ctrls) for (let ctrl of ctrls) { bindCtrl(element, ctrl); }; return element; }
 
 //
-export const $observeInput = (element, ref?: any|null, prop = "value") => {
+export const $observeInput = (element: any, ref?: any|null, prop: string = "value") => {
     const wel = toRef(element);
     const rf = toRef(ref);
     const ctrlCb = (ev)=>{
@@ -51,7 +53,7 @@ export const $observeInput = (element, ref?: any|null, prop = "value") => {
 }
 
 //
-export const $observeAttribute = (el: HTMLElement, ref?: any|null, prop: string = "") => {
+export const $observeAttribute = (el: any, ref?: any|null, prop: string = "") => {
     const wel = toRef(el); //el?.getAttribute?.(prop)
     const wv = toRef(ref); //el?.getAttribute?.(prop)
     const cb = (mutation)=>{
@@ -74,17 +76,17 @@ export const $observeAttribute = (el: HTMLElement, ref?: any|null, prop: string 
 }
 
 // @ts-ignore // Stable Universal Key Assignation - eg. [S.U.K.A.]
-export const removeFromBank = (el, handler, prop) => { const bank = elMap?.get(el)?.get?.(handler); if (bank) { const old = bank[prop]?.[1]; delete bank[prop]; old?.(); } }
+export const removeFromBank = (el: any, handler: any, prop: any) => { const bank = elMap?.get?.(el)?.get?.(handler); if (bank) { const old = bank[prop]?.[1]; delete bank[prop]; old?.(); } }
 
 //
-export const      addToBank = (el, handler, prop, forLink) => { // @ts-ignore
+export const      addToBank = (el: any, handler: any, prop: any, forLink: any) => { // @ts-ignore
     const bank      = elMap?.getOrInsert?.(el, new WeakMap());
     const handlerMap = bank?.getOrInsert?.(handler, {}) ?? {};
     handlerMap?.[prop]?.[1]?.(); handlerMap[prop] = forLink; return true;
 }
 
 //
-export const hasInBank = (el, handle)=>{
+export const hasInBank = (el: any, handle: any)=>{
     const bank: any = elMap?.get?.(el);
     return !!bank?.has?.(handle);
 }
@@ -129,7 +131,7 @@ export const bindHandler = (element: any, value: any, prop: any, handler: any, s
 }
 
 //
-export const updateInput = (target, state)=>{
+export const updateInput = (target: any, state: any)=>{
     const selector = "input:where([type=\"text\"], [type=\"number\"], [type=\"range\"])";
     const input    = includeSelf(target, "input");
     const name     = (input as HTMLInputElement)?.name || (target as HTMLElement)?.dataset?.name || "";
@@ -166,15 +168,15 @@ export const updateInput = (target, state)=>{
 }
 
 //
-export const bindWith = (el, prop, value, handler, set?, withObserver?: boolean | Function) => { handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver); }
+export const bindWith = (el: any, prop: any, value: any, handler: any, set?: any, withObserver?: boolean | Function) => { handler(el, prop, value); return bindHandler(el, value, prop, handler, set, withObserver); }
 
 //
-export const bindForms  = (fields = document.documentElement, wrapper = ".u2-input", state = {})=>{
+export const bindForms  = (fields: any = document.documentElement, wrapper: string = ".u2-input", state: any = {})=>{
     state ??= makeReactive({});
 
     //
     const wst = new WeakRef(state);
-    const onChange = (ev)=>{
+    const onChange = (ev: any)=>{
         const state = deref(wst); if (!state) return;
         const input  = (ev?.target?.matches?.("input") ? ev?.target : ev?.target?.querySelector?.("input"));
         const target = (ev?.target?.matches?.(wrapper) ? ev?.target : input?.closest?.(wrapper)) ?? input;
@@ -199,7 +201,7 @@ export const bindForms  = (fields = document.documentElement, wrapper = ".u2-inp
 
     //
     const appearHandler = () => requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
-    const observer      = observeBySelector(fields, wrapper, (mutations) => mutations.addedNodes.forEach((target) => requestIdleCallback(() => updateInput(state, target), { timeout: 100 })));
+    const observer      = observeBySelector(fields, wrapper, (mutations: any) => mutations.addedNodes.forEach((target: any) => requestIdleCallback(() => updateInput(state, target), { timeout: 100 })));
     const unsubscribe   = subscribe?.(state, (value, property) => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)));
     requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
 
