@@ -259,7 +259,7 @@ export const makeUIState = (storageKey, initialCb, unpackCb, packCb = (items) =>
     if (hasChromeStorage()) {
         chrome.storage.local.get([storageKey], (result) => {
             if (result[storageKey]) {
-                const unpacked = unpackCb(JSOX.parse(result[storageKey] || "{}"));
+                const unpacked = unpackCb(JSOX.parse(result?.[storageKey] as string || "{}"));
                 reloadInto(state, unpacked);
             }
         });
