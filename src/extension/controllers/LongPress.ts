@@ -10,12 +10,21 @@ const defaultOptions = {
 };
 
 //
+const preventor: [(ev: PointerEvent) => void, AddEventListenerOptions] = [
+    (ev: PointerEvent) => {
+    ev.preventDefault();
+    ev.stopPropagation();
+    ev.stopImmediatePropagation();
+}, { once: true }]
+
+//
 export class LongPressHandler {
     #holder: HTMLElement;
-
+    #preventedPointers: Set<number>;
     //
     constructor(holder,  options: any = {...defaultOptions}, fx?: (ev: PointerEvent) => void) {
         (this.#holder = holder)["@control"] = this;
+        this.#preventedPointers = new Set();
         if (!holder) { throw Error("Element is null..."); }
         if (!options) { options = {...defaultOptions}; }
         const currentClone = {...options};
@@ -70,6 +79,25 @@ export class LongPressHandler {
     }
 
     //
+    private preventFromClicking(self: any, ev: PointerEvent) {
+        if (!this.#preventedPointers.has(ev.pointerId)) {
+            this.#preventedPointers.add(ev.pointerId);
+
+            self?.addEventListener?.("click", ...preventor);
+            self?.addEventListener?.("contextmenu", ...preventor);
+        }
+    }
+
+    //
+    private releasePreventing(self: any, pointerId: number) {
+        if (this.#preventedPointers.has(pointerId)) {
+            this.#preventedPointers.delete(pointerId);
+            self?.removeEventListener?.("click", ...preventor);
+            self?.removeEventListener?.("contextmenu", ...preventor);
+        }
+    }
+
+    //
     private onPointerDown(self: any, ev: PointerEvent, weakRef: WeakRef<HTMLElement>) {
         if (
             !this.isValidTarget(self, ev.target as HTMLElement, weakRef) ||
@@ -78,7 +106,7 @@ export class LongPressHandler {
 
         //
         ev.preventDefault();
-        this.resetAction(self.actionState);
+        this.resetAction(self, self.actionState);
 
         // Initialize state
         const { actionState }  = self;
@@ -87,18 +115,16 @@ export class LongPressHandler {
         actionState.lastCoord  = [...actionState.startCoord];
 
         // Set up cancellation promise
-        const cancelPromise = new Promise<void>((resolve, reject) => {
-            actionState.cancelPromiseResolver = resolve;
-            actionState.cancelPromiseRejector = reject;
-            actionState.cancelCallback = () => {
-                clearTimeout(actionState.timerId!);
-                clearTimeout(actionState.immediateTimerId!);
-                actionState.isReadyForLongPress = false;
-                resolve();
-                this.resetAction(actionState);
-            };
-        });
-
+        const $withResolver = Promise.withResolvers<void>();
+        actionState.cancelPromiseResolver = $withResolver.resolve;
+        actionState.cancelPromiseRejector = $withResolver.reject;
+        actionState.cancelCallback = () => {
+            clearTimeout(actionState.timerId!);
+            clearTimeout(actionState.immediateTimerId!);
+            actionState.isReadyForLongPress = false;
+            $withResolver.resolve();
+            this.resetAction(self, actionState);
+        };
         // Immediate trigger timer
         if (self.options?.mouseImmediate && ev.pointerType === "mouse") {
             self.fx?.(ev);
@@ -113,6 +139,9 @@ export class LongPressHandler {
         // Start timers for long press and immediate actions
         actionState.immediateTimerId = setTimeout(() => {
             if (this.isInPlace(self)) {
+                this.preventFromClicking(self, ev);
+
+                //
                 self.fx?.(ev);
                 actionState.cancelCallback();
             }
@@ -120,10 +149,8 @@ export class LongPressHandler {
 
         // Cancel promise handling
         Promise.race([
-            cancelPromise,
-            new Promise<void>((_, reject) =>
-                setTimeout(() => reject(new Error("Timeout")), 3000)
-            ),
+            $withResolver.promise,
+            new Promise<void>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 3000)),
         ]).catch(console.warn);
     }
 
@@ -133,15 +160,17 @@ export class LongPressHandler {
         if (ev.pointerId !== actionState.pointerId) return;
         actionState.lastCoord = [ev.clientX, ev.clientY];
 
-        if (!this.isInPlace(self)) {
-            actionState.cancelCallback();
-        }
+        //
+        if (!this.isInPlace(self)) { return actionState.cancelCallback(); }
 
+        //
+        this.preventFromClicking(self, ev);
         actionState.startCoord = [ev.clientX, ev.clientY];
     }
 
     //
-    private resetAction(actionState) {
+    private resetAction(self: any, actionState: any) {
+        this.releasePreventing(self, actionState.pointerId);
         actionState.pointerId               = -1;
         actionState.cancelPromiseResolver   = null;
         actionState.cancelPromiseRejector   = null;
@@ -157,10 +186,11 @@ export class LongPressHandler {
 
         if (actionState.isReadyForLongPress && this.isInPlace(self)) {
             self.fx?.(ev);
+            this.preventFromClicking(self, ev);
         }
 
         actionState.cancelCallback();
-        this.resetAction(actionState);
+        this.resetAction(self, actionState);
     }
 
     //
