@@ -53,7 +53,7 @@ const getDirHandle = async (root: FileSystemDirectoryHandle, path: string, creat
 };
 
 //
-const handlers = {
+const handlers: Record<string, (payload: any) => Promise<any>> = {
     //
     mount: async ({ id, handle }: { id: string, handle: FileSystemDirectoryHandle }) => {
         mappedRoots.set(id, handle);
@@ -225,15 +225,18 @@ const handlers = {
 };
 
 //
-self.onmessage = async (e) => {
+self.addEventListener("message", async (e) => {
+    if (!e.data || typeof e.data !== 'object') return;
     const { id, type, payload } = e.data;
+    
     if (handlers[type]) {
         try {
             const result = await handlers[type](payload);
             self.postMessage({ id, result });
         } catch (error: any) {
-            self.postMessage({ id, error: error.message });
+            self.postMessage({ id, error: error?.message || String(error) });
         }
+    } else if (id) {
+        self.postMessage({ id, error: `Unknown operation type: ${type}` });
     }
-};
-
+});

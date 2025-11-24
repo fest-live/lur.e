@@ -18,7 +18,9 @@ const observers = new Map();
 
 //
 if (worker != null) {
-    worker.onmessage = (e) => {
+    const listen = (worker.addEventListener || worker.addListener || ((n: string, h: any) => worker["on"+n] = h)).bind(worker);
+    listen("message", (e: any) => {
+        if (!e.data || typeof e.data !== 'object') return;
         const { id, result, error, type, changes } = e.data;
 
         if (type === "observation") {
@@ -33,7 +35,7 @@ if (worker != null) {
             if (error) reject(new Error(error));
             else resolve(result);
         }
-    };
+    });
 }
 
 //
@@ -41,8 +43,14 @@ const post = (type: string, payload: any = {}, transfer: any[] = []) => {
     return new Promise((resolve, reject) => {
         const id = UUIDv4();
         pending.set(id, { resolve, reject });
-        const transferables = transfer?.filter?.((t)=>(t instanceof File || t instanceof Blob || t instanceof ArrayBuffer || t instanceof DataTransfer || /*t instanceof FileSystemHandle || t instanceof FileSystemDirectoryHandle || t instanceof FileSystemFileHandle ||*/ t instanceof MessagePort));
-        worker.postMessage({ id, type, payload }, transferables?.length ? transferables : undefined);
+        
+        try {
+            const transferables = transfer?.filter?.((t)=>(t instanceof ArrayBuffer || t instanceof MessagePort || (typeof ImageBitmap !== "undefined" && t instanceof ImageBitmap) || (typeof OffscreenCanvas !== "undefined" && t instanceof OffscreenCanvas)));
+            worker.postMessage({ id, type, payload }, transferables?.length ? transferables : undefined);
+        } catch (err) {
+            pending.delete(id);
+            reject(err);
+        }
     });
 };
 
