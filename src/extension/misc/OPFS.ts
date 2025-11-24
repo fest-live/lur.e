@@ -3,27 +3,38 @@ import { makeReactive } from 'fest/object';
 import OPFSWorker from './OPFS.worker?worker';
 
 //
-const worker = typeof Worker != "undefined" ? new OPFSWorker() : self;
+let worker: any = self;
+
+//
+try {
+    worker = !(typeof ServiceWorkerGlobalScope != "undefined" && self instanceof ServiceWorkerGlobalScope) ? (typeof Worker != "undefined" ? new OPFSWorker() : self) : self;
+} catch (e) {
+    worker = self;
+}
+
+//
 const pending = new Map();
 const observers = new Map();
 
 //
-worker.onmessage = (e) => {
-    const { id, result, error, type, changes } = e.data;
+if (worker != null) {
+    worker.onmessage = (e) => {
+        const { id, result, error, type, changes } = e.data;
 
-    if (type === "observation") {
-        const obs = observers.get(id);
-        if (obs) obs(changes);
-        return;
-    }
+        if (type === "observation") {
+            const obs = observers.get(id);
+            if (obs) obs(changes);
+            return;
+        }
 
-    if (id && pending.has(id)) {
-        const { resolve, reject } = pending.get(id);
-        pending.delete(id);
-        if (error) reject(new Error(error));
-        else resolve(result);
-    }
-};
+        if (id && pending.has(id)) {
+            const { resolve, reject } = pending.get(id);
+            pending.delete(id);
+            if (error) reject(new Error(error));
+            else resolve(result);
+        }
+    };
+}
 
 //
 const post = (type: string, payload: any = {}, transfer: any[] = []) => {

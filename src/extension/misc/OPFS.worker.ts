@@ -157,8 +157,8 @@ const handlers = {
                 const observer = new FileSystemObserver((records: any[]) => {
                     const changes = records.map(r => ({
                         type: r.type,
-                        name: r.changedHandle.name,
-                        kind: r.changedHandle.kind,
+                        name: r.changedHandle?.name,
+                        kind: r.changedHandle?.kind,
                         handle: r.changedHandle,
                         path: r.relativePathComponents.join("/")
                     }));
@@ -170,7 +170,7 @@ const handlers = {
                     });
                 });
 
-                observer.observe(handle);
+                observer.observe(handle!);
                 activeObservers.set(id, observer);
                 return true;
             }
