@@ -8,7 +8,7 @@ export * from "./lure/node/Mapped"
 export * from "./lure/node/Changeable"
 export * from "./lure/node/Queried"
 export * from "./lure/node/JSX"
-export { T } from "./lure/context/Utils"
+export { T, replaceChildren, removeChild, appendChild } from "./lure/context/Utils"
 
 //
 export * from "./extension/misc/Glit"
