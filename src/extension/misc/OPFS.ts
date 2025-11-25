@@ -43,7 +43,7 @@ const post = (type: string, payload: any = {}, transfer: any[] = []) => {
     return new Promise((resolve, reject) => {
         const id = UUIDv4();
         pending.set(id, { resolve, reject });
-        
+
         try {
             const transferables = transfer?.filter?.((t)=>(t instanceof ArrayBuffer || t instanceof MessagePort || (typeof ImageBitmap !== "undefined" && t instanceof ImageBitmap) || (typeof OffscreenCanvas !== "undefined" && t instanceof OffscreenCanvas)));
             worker.postMessage({ id, type, payload }, transferables?.length ? transferables : undefined);
@@ -65,6 +65,12 @@ export const getDir = (dest)=>{
 export const imageImportDesc = {
     startIn: "pictures", multiple: false,
     types: [{ description: "wallpaper", accept: { "image/*": [".png", ".gif", ".jpg", ".jpeg", ".webp", ".jxl",] }, }]
+}
+
+//
+export const generalFileImportDesc = {
+    startIn: "documents", multiple: false,
+    types: [{ description: "files", accept: { "application/*": [".txt", ".md", ".html", ".htm", ".css", ".js", ".json", ".csv", ".xml", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".ico", ".mp3", ".wav", ".mp4", ".webm", ".pdf", ".zip", ".rar", ".7z",] }, }]
 }
 
 // "/" default is OPFS root (but may another root), "/user/" is OPFS root by default too, "/assets/" is unknown backend related assets
@@ -632,7 +638,7 @@ export const openImageFilePicker = async ()=>{
 export const downloadFile = async (file) => {
     // as file
     if (file instanceof FileSystemFileHandle) { file = await file.getFile(); }
-    if (typeof file == "string") { file = await provide(file); }; const filename = file.name; if (!filename) return; // @ts-ignore // IE10+
+    if (typeof file == "string") { file = await provide(file); }; const filename = file?.name; if (!filename) return; // @ts-ignore // IE10+
     if ("msSaveOrOpenBlob" in self.navigator) { self.navigator.msSaveOrOpenBlob(file, filename); };
 
     // for directory
@@ -645,7 +651,7 @@ export const downloadFile = async (file) => {
         //
         if (file && dstHandle) {
             // open handle relative to selected directory
-            dstHandle = (await getDirectoryHandle(dstHandle, file.name || "", { create: true })?.catch?.(console.warn.bind(console))) || dstHandle;
+            dstHandle = (await getDirectoryHandle(dstHandle, file?.name || "", { create: true })?.catch?.(console.warn.bind(console))) || dstHandle;
             return await copyFromOneHandlerToAnother(file, dstHandle, {})?.catch?.(console.warn.bind(console));
         }
 
@@ -717,9 +723,6 @@ export const getLeast = (item)=>{
 export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any)=>{
     const fs = await resolveRootHandle(null);
     const path = getDir(dest?.trim?.()?.startsWith?.("/user/") ? dest?.replace?.(/^\/user/g, "")?.trim?.() : dest);
-
-    //
-    if (!path?.trim?.()?.startsWith?.("/user")) return;
     const user = path?.replace?.("/user","")?.trim?.();
 
     //
@@ -759,9 +762,11 @@ export const uploadFile = async (dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-
 
     // @ts-ignore
     const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
-    return showOpenFilePicker(imageImportDesc)?.then?.(async ([handle] = [])=>{
-        const file = await handle?.getFile?.();
-        return dropFile(file, dest, current);
+    return showOpenFilePicker({ ...generalFileImportDesc, multiple: true } as any)?.then?.(async (handles = [])=>{
+        for (const handle of handles) {
+            const file = (handle as any) instanceof File ? (handle as any) : (await (handle as any)?.getFile?.());
+            await dropFile(file, dest, current);
+        }
     });
 }
 
