@@ -7,7 +7,7 @@ const activeObservers = new Map<string, any>(); // FileSystemObserver
 
 //
 const getRoot = async (id: string = "") => {
-    if (id && mappedRoots.has(id)) return mappedRoots.get(id);
+    if (id && mappedRoots.has(id)) return mappedRoots.get(id)!;
     return await navigator.storage.getDirectory();
 };
 
@@ -155,13 +155,16 @@ const handlers: Record<string, (payload: any) => Promise<any>> = {
             if (typeof FileSystemObserver !== "undefined") {
                 // @ts-ignore
                 const observer = new FileSystemObserver((records: any[]) => {
-                    const changes = records.map(r => ({
-                        type: r.type,
-                        name: r.changedHandle?.name,
-                        kind: r.changedHandle?.kind,
-                        handle: r.changedHandle,
-                        path: r.relativePathComponents.join("/")
-                    }));
+                    const changes = records.map(r => {
+                        const name = r.changedHandle?.name || r.relativePathComponents?.at(-1);
+                        return {
+                            type: r.type,
+                            name: name,
+                            kind: r.changedHandle?.kind || (name?.includes(".") ? "file" : "directory"),
+                            handle: r.changedHandle,
+                            path: r.relativePathComponents.join("/")
+                        };
+                    });
 
                     self.postMessage({
                         type: "observation",
@@ -228,7 +231,7 @@ const handlers: Record<string, (payload: any) => Promise<any>> = {
 self.addEventListener("message", async (e) => {
     if (!e.data || typeof e.data !== 'object') return;
     const { id, type, payload } = e.data;
-    
+
     if (handlers[type]) {
         try {
             const result = await handlers[type](payload);

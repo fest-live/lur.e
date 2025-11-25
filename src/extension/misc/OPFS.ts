@@ -425,7 +425,7 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
                 if (!entryMap.has(key)) mapCache.delete(key);
             }
             for (const [key, handle] of entryMap) {
-                if (!mapCache.has(key)) mapCache.set(key, handle);
+                if (!mapCache.has(key as string)) mapCache.set(key as string, handle);
             }
 
             return mapCache;
@@ -440,6 +440,8 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
         // Setup Observer
         observers.set(observationId, (changes: any[]) => {
             for (const change of changes) {
+                if (!change.name) continue;
+
                 if (change.type === "modified" || change.type === "created" || change.type === "appeared") {
                     mapCache.set(change.name, change.handle);
                 } else if (change.type === "deleted" || change.type === "disappeared") {
@@ -707,8 +709,8 @@ export const provide = async (req: string | Request = "", rw = false) => {
                     })
                 }
             });
-        } catch (e: any) { return handleError(logger, 'error', `provide: ${e.message}`); }
-    }
+    } catch (e: any) { return handleError(defaultLogger, 'error', `provide: ${e.message}`); }
+}
 }
 
 //
