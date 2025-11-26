@@ -43,20 +43,38 @@ const normalizeHash = (hash: string | null, withHashCharacter: boolean = true) =
 
 //
 export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|null, withHashCharacter: boolean = true)=>{
-    const locationHash = normalizeHash(normalizeHash(location?.hash, false) || normalizeHash(initial, false) || "", withHashCharacter) || "";
-    const ref = isValueRef(exists) ? exists : stringRef(locationHash); if (isObject(ref)) ref.value ||= locationHash;
+    const locationHash = normalizeHash(normalizeHash(location?.hash || "", false) || normalizeHash(initial || "", false) || "", withHashCharacter) || "";
+
+    //
+    const ref = isValueRef(exists) ? exists : stringRef(locationHash);
+    if (isObject(ref)) ref.value ||= locationHash;
+
+    //
+    let nanoThrottle = 0;
     const evf = (ev) => {
-        const normalizedLocationHash = normalizeHash(location?.hash, false);
-        const newValue = normalizeHash(normalizedLocationHash || normalizeHash(ref.value, false), withHashCharacter) || "";
-        if (ref.value !== newValue) { $avoidTrigger(ref, () => { ref.value = newValue; }); }
+        if (nanoThrottle <= 0) {
+            nanoThrottle = 1;
+            Promise.resolve().then(() => {
+                const normalizedLocationHash = normalizeHash(location?.hash, false);
+                const newValue = normalizeHash(normalizedLocationHash || normalizeHash(ref.value || "", false), withHashCharacter) || "";
+                if (normalizeHash(ref.value, false) !== normalizeHash(newValue, false)) {
+                    ref.value = newValue;
+                }
+            });
+            nanoThrottle = 0;
+        }
     };
+
+    //
     const $val = new WeakRef(ref);
     const usb = subscribe([ref, "value"], (val) => {
-        const newHash = normalizeHash(normalizeHash($getValue($val?.deref?.()) || val, false) || normalizeHash(location.hash, false), withHashCharacter);
+        const newHash = normalizeHash(normalizeHash($getValue($val?.deref?.()) || val, false) || normalizeHash(location?.hash, false), withHashCharacter);
         if (newHash != location.hash) { $avoidTrigger($val?.deref?.(), ()=>{
             location.hash = newHash || location.hash;
         }); }
     });
+
+    //
     addEventListener("popstate", evf);
     addEventListener("hashchange", evf);
     return () => { usb?.();

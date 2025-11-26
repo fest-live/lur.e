@@ -19,6 +19,7 @@ export * from "./extension/misc/Styles"
 export * from "./extension/tasking/Manager"
 export * from "./extension/tasking/Types"
 export * from "./extension/tasking/Tasks"
+export * from "./extension/tasking/BackNavigation"
 
 //
 export * from "./extension/controllers/Draggable"

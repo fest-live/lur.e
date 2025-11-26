@@ -4,6 +4,7 @@ import { visibleRef } from "../../lure/core/Refs";
 
 //
 import { boundingBoxRef, makeInterruptTrigger, withInsetWithPointer } from "./Anchor";
+import { registerContextMenu } from "../tasking/BackNavigation";
 import Q from "../../lure/node/Queried";
 import H from "../../lure/node/Syntax";
 
@@ -131,11 +132,17 @@ export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenu
         }
     }, [ "click", "pointerdown", "scroll" ]);
 
+    // Register with back navigation system
+    const visRef = getBoundVisibleRef(menuElement);
+    const unregisterBack = visRef ? registerContextMenu(menuElement, visRef, () => {
+        ctxMenuDesc?.openedWith?.close?.();
+    }) : null;
+
     //
     const listening = addEvent(triggerElement, "contextmenu", evHandler, {
         composed: true,
     });
-    return ()=>{ untrigger?.(); listening?.(); };
+    return ()=>{ untrigger?.(); listening?.(); unregisterBack?.(); };
 }
 
 // bit same as contextmenu, but different by anchor and trigger (from element drop-down)
@@ -150,9 +157,15 @@ export const dropMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMen
         }
     }, [ "click", "pointerdown", "scroll" ]);
 
+    // Register with back navigation system
+    const visRef = getBoundVisibleRef(menuElement);
+    const unregisterBack = visRef ? registerContextMenu(menuElement, visRef, () => {
+        ctxMenuDesc?.openedWith?.close?.();
+    }) : null;
+
     //
     const listening = addEvent(triggerElement, "click", evHandler, {
         composed: true,
     });
-    return ()=>{ untrigger?.(); listening?.(); };
+    return ()=>{ untrigger?.(); listening?.(); unregisterBack?.(); };
 }
