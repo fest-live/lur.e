@@ -54,6 +54,7 @@ export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|nu
     let processingStateChange = false;
     let nanoThrottle = 0;
     const evf = (ev) => {
+        if (getIgnoreNextPopState()) return;
         if (nanoThrottle <= 0) {
             nanoThrottle = 1;
             setTimeout(() => {
