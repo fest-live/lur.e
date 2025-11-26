@@ -206,7 +206,7 @@ class Mp {
     }
 
     //
-    _onUpdate(newEl, idx, oldEl, op: string | null = "@add") {
+    _onUpdate(newEl, idx, oldEl, op: string | null = "") {
         // keep cache clear from garbage (unique primitives mode)
         if ((op == "@remove" || op == "@set") && isPrimitive(oldEl) && oldEl != newEl && this.#options?.uniquePrimitives)
             { this.#pmMap.delete(oldEl); }
@@ -217,16 +217,16 @@ class Mp {
             { removeNotExists(this.boundParent, __mapped?.map?.((nd, index) => getNode(nd, this.mapper, __keys?.[index] ?? index, this.boundParent)) || []); }
 
         //
-        const byOldEl = getNode(oldEl, this.mapper, idx);
+        const byOldEl = getNode(oldEl, this.mapper, Number.isInteger(idx) ? idx : -1);
         const try0 = Array.from(((byOldEl?.parentNode ?? this.boundParent) as any)?.childNodes || [])?.indexOf?.(byOldEl);
         const try1 = __mapped?.indexOf?.(newEl);
-        const byNewEl = getNode(newEl, this.mapper, idx, this.boundParent);
+        const byNewEl = getNode(newEl, this.mapper, Number.isInteger(idx) ? idx : (try1 < 0 ? idx : try1), this.boundParent);
 
         //
         return this.#updater?.(
             byNewEl, Number.isInteger(idx) ? idx : (try0 < 0 ? try1 : try0),
             byOldEl,
-            op,
+            op || (Array.isArray(this.#observable) ? "@add" : ""),
             this.boundParent);
     }
 
