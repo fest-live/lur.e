@@ -4,6 +4,7 @@ import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive,
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
 import { setChecked } from "fest/dom";
+import { getIgnoreNextPopState, setIgnoreNextPopState } from "../../extension/tasking/BackNavigation";
 
 //
 export const localStorageLinkMap = new Map<string, any>();
@@ -42,7 +43,7 @@ const normalizeHash = (hash: string | null, withHashCharacter: boolean = true) =
 }
 
 //
-export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|null, withHashCharacter: boolean = true)=>{
+export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|null, withHashCharacter: boolean = false)=>{
     const locationHash = normalizeHash(normalizeHash(location?.hash || "", false) || normalizeHash(initial || "", false) || "", withHashCharacter) || "";
 
     //
@@ -50,6 +51,7 @@ export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|nu
     if (isObject(ref)) ref.value ||= locationHash;
 
     //
+    let processingStateChange = false;
     let nanoThrottle = 0;
     const evf = (ev) => {
         if (nanoThrottle <= 0) {
@@ -58,7 +60,11 @@ export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|nu
                 const normalizedLocationHash = normalizeHash(location?.hash, false);
                 const newValue = normalizeHash(normalizedLocationHash || normalizeHash(ref.value || "", false), withHashCharacter) || "";
                 if (normalizeHash(ref.value, false) !== normalizeHash(newValue, false)) {
-                    ref.value = newValue;
+                    if (!processingStateChange) {
+                        processingStateChange = true;
+                        ref.value = newValue;
+                        setTimeout(() => (processingStateChange = false), 0);
+                    }
                 }
                 nanoThrottle = 0;
             }, 0);
@@ -68,10 +74,17 @@ export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|nu
     //
     const $val = new WeakRef(ref);
     const usb = subscribe([ref, "value"], (val) => {
-        const newHash = normalizeHash(normalizeHash($getValue($val?.deref?.()) || val, false) || normalizeHash(location?.hash, false), withHashCharacter);
-        if (newHash != location.hash) { $avoidTrigger($val?.deref?.(), ()=>{
-            location.hash = newHash || location.hash;
-        }); }
+        const newHash = normalizeHash(normalizeHash($getValue($val?.deref?.()) || val, false) || normalizeHash(location?.hash, false), true);
+        if (newHash != location.hash) {
+            $avoidTrigger($val?.deref?.(), () => {
+                if (!processingStateChange) {
+                    setIgnoreNextPopState(true);
+                    //location.hash = `#${(newHash || location.hash)?.replace?.(/^#/, "")?.trim?.()?.replace?.(/^#/, "")?.trim?.() || ""}`;
+                    history.pushState("", "", newHash || location.hash);
+                    setTimeout(() => setIgnoreNextPopState(false), 0);
+                }
+            });
+        }
     });
 
     //

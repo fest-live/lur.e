@@ -24,12 +24,14 @@ const getFromMapped = (mapped: any, value: number|string|null|undefined, request
 
 //
 export class SwM implements SwitchedParams {
+    #stub = document.createComment("");
     current?: { value: string | number; }|null;
     mapped?: any[]|any|Map<any, any>|Set<any>|null;
     boundParent: Node | null = null;
 
     //
     constructor(params?: SwitchedParams|null, mapped?: any[]|any|Map<any, any>|Set<any>|null) {
+        this.#stub = document.createComment("");
         this.current = params?.current ?? { value: -1 };
         this.mapped = params?.mapped ?? mapped ?? [];
 
@@ -40,7 +42,7 @@ export class SwM implements SwitchedParams {
 
     //
     get element(): Node {
-        const element = getFromMapped(this.mapped, this.current?.value ?? -1, this.boundParent);
+        const element = getFromMapped(this.mapped, this.current?.value ?? -1, this.boundParent) ?? this.#stub;
         const theirParent = isValidParent(element?.parentElement) ? element?.parentElement : this.boundParent;
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
@@ -79,7 +81,7 @@ export class SwM implements SwitchedParams {
 
             // Find parent and new/old nodes
             const parent  = getFromMapped(this.mapped, old ?? idx ?? -1)?.parentNode ?? this.boundParent; this.boundParent = parent ?? this.boundParent;
-            const newNode = getFromMapped(this.mapped, idx ?? -1, parent);
+            const newNode = getFromMapped(this.mapped, idx ?? -1, parent) ?? this.#stub;
             const oldNode = getFromMapped(this.mapped, old ?? -1, parent);
 
             // Update DOM nodes accordingly

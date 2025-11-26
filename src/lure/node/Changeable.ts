@@ -2,7 +2,7 @@ import { subscribe } from "fest/object";
 import { appendFix, elMap, getNode, T } from "../context/Utils";
 import { makeUpdater } from "../context/ReflectChildren";
 import { isPrimitive, hasValue } from "fest/core";
-import { isValidParent } from "fest/dom";
+import { indexOf, isValidParent } from "fest/dom";
 import { $mapped } from "../core/Binding";
 
 //
@@ -12,6 +12,7 @@ interface ChangeableOptions {
 
 //
 class Ch {
+    #stub = document.createComment("");
     #valueRef?: { value: any };
     #fragments: DocumentFragment;
     #updater: any = null;
@@ -38,7 +39,10 @@ class Ch {
     set boundParent(value: Node | null) {
         if (value instanceof HTMLElement && isValidParent(value) && value != this.#boundParent) {
             this.#boundParent = value; this.makeUpdater(value);
-            if (this.#oldNode) { this.#oldNode?.parentNode != null && this.#oldNode?.remove?.(); this.#oldNode = null; };
+            if (this.#oldNode) {
+                //this.#oldNode?.parentNode != null && this.#oldNode?.replaceWith?.(this.#stub); this.#oldNode = this.#stub;
+                this.#oldNode?.parentNode != null && this.#oldNode?.remove?.(); this.#oldNode = null;
+            };
 
             //
             const element = this.element;
@@ -48,6 +52,8 @@ class Ch {
 
     //
     constructor(valueRef, mapCb: any = (el) => el, options: Node | null | ChangeableOptions = /*{ removeNotExistsWhenHasPrimitives: true, uniquePrimitives: true, preMap: true } as MappedOptions*/ null) {
+        this.#stub = document.createComment("");
+
         // swap arguments (JSX compatibility)
         if (hasValue(mapCb) && ((typeof valueRef == "function" || typeof valueRef == "object") && !hasValue(valueRef))) {
             [valueRef, mapCb] = [mapCb, valueRef] as [any, any];
@@ -59,6 +65,7 @@ class Ch {
         }
 
         //
+        this.#oldNode = null;//this.#stub;
         this.#valueRef  = valueRef;
         this.#fragments = document.createDocumentFragment();
 
@@ -125,7 +132,7 @@ class Ch {
 
     //
     get self(): HTMLElement | DocumentFragment | Text | null {
-        const existsNode = this.$getNode(this.boundParent);
+        const existsNode = this.$getNode(this.boundParent) ?? this.#stub;
         const theirParent = isValidParent(existsNode?.parentElement) ? existsNode?.parentElement : this.boundParent;
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
@@ -141,7 +148,7 @@ class Ch {
 
     //
     get element(): HTMLElement | DocumentFragment | Text | null {
-        const children = this.$getNode(this.boundParent);
+        const children = this.$getNode(this.boundParent) ?? this.#stub;
         const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
@@ -161,12 +168,12 @@ class Ch {
         if (isPrimitive(oldVal) && isPrimitive(newVal)) { return; }
 
         //
-        let oldEl = (isPrimitive(oldVal) ? this.#oldNode : this.$getNodeBy(this.boundParent, oldVal));
-        let newEl = this.$getNode(this.boundParent, false);
+        let oldEl = (isPrimitive(oldVal) ? this.#oldNode : this.$getNodeBy(this.boundParent, oldVal)); //?? this.#oldNode;
+        let newEl = this.$getNode(this.boundParent, false) ?? this.#stub;
         if ((oldEl && !oldEl?.parentNode) || this.#oldNode?.parentNode) { oldEl = this.#oldNode ?? oldEl; };
 
         //
-        let updated: any = this.#updater?.(newEl, -1, oldEl, op, this.boundParent);
+        let updated: any = this.#updater?.(newEl, indexOf(this.boundParent, oldEl), oldEl, op, this.boundParent);
         if (newEl != null && newEl != this.#oldNode) { this.#oldNode = newEl; } else
         if (newEl == null && oldEl != this.#oldNode) { this.#oldNode = oldEl; };
         return updated;

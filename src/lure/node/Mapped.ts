@@ -31,6 +31,7 @@ class Mp {
     #updater: any = null;
     #internal: any = null;
     #options: MappedOptions = {} as MappedOptions;
+    #stub = document.createComment("");
 
     //
     #boundParent: Node | null = null;
@@ -68,6 +69,7 @@ class Mp {
         }
 
         //
+        this.#stub = document.createComment("");
         this.#reMap = new WeakMap();
         this.#pmMap = new Map<any, any>(); // make 'mapper' compatible with React syntax ('mapper' property instead of function)
         this.#mapCb = (mapCb != null ? (typeof mapCb == "function" ? mapCb : (typeof mapCb == "object" ? mapCb?.mapper : null)) : null) ?? ((el) => el);
@@ -82,10 +84,15 @@ class Mp {
         //
         this.boundParent = isValidParent(this.#options?.boundParent as any) ?? (isValidParent(options as any) ?? null);
         if (!this.boundParent) {
-            if (this.#options.preMap) reformChildren(
-                this.#fragments, this.#observable,
-                this.mapper.bind(this)
-            );
+            if (this.#options.preMap) {
+                reformChildren(
+                    this.#fragments, this.#observable,
+                    this.mapper.bind(this)
+                );
+                if (this.#fragments.childNodes.length === 0) {
+                    this.#fragments.appendChild(this.#stub);
+                }
+            }
         }
     }
 
@@ -149,7 +156,7 @@ class Mp {
 
     //
     get element(): HTMLElement | DocumentFragment | Text | null {
-        const children = this.#fragments?.childElementCount > 0 ? this.#fragments : getNode(this.#observable?.[0], this.mapper.bind(this), 0);
+        const children = this.#fragments?.childNodes?.length > 0 ? this.#fragments : getNode(this.#observable?.[0], this.mapper.bind(this), 0);
         const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
@@ -217,17 +224,36 @@ class Mp {
             { removeNotExists(this.boundParent, __mapped?.map?.((nd, index) => getNode(nd, this.mapper, __keys?.[index] ?? index, this.boundParent)) || []); }
 
         //
+        const isEmpty = !__mapped || __mapped.length === 0;
+
+        // Don't give (rights) to remove last remain element (DOM), and (instead of) replace it just by `#stub`
+        if (op === "@remove" && isEmpty) {
+            const byOldEl = getNode(oldEl, this.mapper, Number.isInteger(idx) ? idx : -1);
+            if (this.#stub.parentNode !== this.boundParent) {
+                if (byOldEl && this.boundParent && byOldEl.parentNode === this.boundParent) {
+                    this.boundParent.replaceChild(this.#stub, byOldEl);
+                } else if (this.boundParent && !this.boundParent.hasChildNodes()) {
+                    this.boundParent.appendChild(this.#stub);
+                }
+            }
+        }
+
+        //
         const byOldEl = getNode(oldEl, this.mapper, Number.isInteger(idx) ? idx : -1);
         const try0 = Array.from(((byOldEl?.parentNode ?? this.boundParent) as any)?.childNodes || [])?.indexOf?.(byOldEl);
         const try1 = __mapped?.indexOf?.(newEl);
         const byNewEl = getNode(newEl, this.mapper, Number.isInteger(idx) ? idx : (try1 < 0 ? idx : try1), this.boundParent);
 
         //
-        return this.#updater?.(
+        const res = this.#updater?.(
             byNewEl, Number.isInteger(idx) ? idx : (try0 < 0 ? try1 : try0),
             byOldEl,
             op || (Array.isArray(this.#observable) ? "@add" : ""),
             this.boundParent);
+
+        //
+        if (!isEmpty && this.#stub.isConnected) { this.#stub.remove(); }
+        return res;
     }
 
     // generator and iterator

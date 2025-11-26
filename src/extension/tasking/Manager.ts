@@ -6,7 +6,7 @@ import {
     closeHighestPriority,
     hasActiveCloseable,
     ClosePriority,
-    ignoreNextPopState,
+    getIgnoreNextPopState,
     setIgnoreNextPopState
 } from "./BackNavigation";
 
@@ -17,8 +17,9 @@ export const getBy = (tasks: ITask[] = [], taskId: ITask|string|any)=>{
 
 //
 export const historyBack = (tasks: ITask[] = [])=>{
+    setIgnoreNextPopState(true);
     history?.back?.(); const lastFocus = getFocused(tasks, false)?.taskId || "";
-    if (location?.hash?.trim?.()?.replace?.(/^#/, "")?.trim?.() != lastFocus?.trim?.()?.replace?.(/^#/, "")?.trim?.()) { history?.replaceState?.("", "", lastFocus); }
+    if (location?.hash?.trim?.()?.replace?.(/^#/, "")?.trim?.() != lastFocus?.trim?.()?.replace?.(/^#/, "")?.trim?.()) { setIgnoreNextPopState(true); history?.replaceState?.("", "", lastFocus); }
     return tasks;
 }
 
@@ -36,11 +37,13 @@ export const registerTask = (task: ITask, onClose?: () => void): (() => void) =>
         id: `task-${task.taskId?.replace?.(/^#/, "") ?? task.taskId}`,
         priority: ClosePriority.TASK,
         group: "task",
-        isActive: () => task.$active === true,
+        isActive: () => task.active === true,
         close: () => {
-            task.$active = false;
+            task.active = false;
             onClose?.();
-            return true;
+            // Return false to allow the back navigation to proceed (updating the URL)
+            // since tasks are typically history-based
+            return false;
         }
     }) as (() => void);
 };
@@ -48,70 +51,53 @@ export const registerTask = (task: ITask, onClose?: () => void): (() => void) =>
 //
 export const navigationEnable = (tasks: ITask[], taskEnvAction?: (task?: ITask|null)=>boolean|void)=>{
     let processingHashChange = false;
-    let processingPopState = false;
-    const initialHistoryCount = history?.length || 0;
 
-    // Initialize centralized back navigation registry (we handle popstate ourselves)
-    /*initBackNavigation({
+    // Initialize centralized back navigation
+    // We don't skip handler anymore, we rely on it
+    initBackNavigation({
         preventDefaultNavigation: false,
-        pushInitialState: false, // we manage state ourselves
-        skipPopstateHandler: true // we handle popstate in this function
-    });*/
+        pushInitialState: false
+    });
 
-    //
-    history?.pushState?.("", "", location.hash = location.hash || "#");
+    // Register a general fallback closeable for taskEnvAction
+    if (taskEnvAction) {
+        registerCloseable({
+            id: "task-env-manager",
+            priority: ClosePriority.VIEW, // Low priority
+            isActive: () => !!getFocused(tasks, true),
+            close: () => {
+                // If taskEnvAction returns true, it handled the close/action
+                // and wants to cancel the back navigation (return true)
+                const focused = getFocused(tasks, true);
+                if (focused && taskEnvAction(focused)) {
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
 
-    // prevent behaviour once...
+    // prevent behavior once...
     addEvent(window, "hashchange", (ev)=>{
-        if (processingHashChange) return;
+        if (processingHashChange || getIgnoreNextPopState()) return;
         processingHashChange = true;
         try {
             const fc = getBy(tasks, location.hash);
             if (fc) { fc.focus = true; } else {
                 const hash = getFocused(tasks, false)?.taskId || location.hash || "";
-                if (location.hash?.trim?.()?.replace?.(/^#/, "")?.trim?.() != hash?.trim?.()?.replace?.(/^#/, "")?.trim?.()) { history?.replaceState?.("", "", hash); };
+                if (location.hash?.trim?.()?.replace?.(/^#/, "")?.trim?.() != hash?.trim?.()?.replace?.(/^#/, "")?.trim?.()) { setIgnoreNextPopState(true); history?.replaceState?.("", "", hash); };
             };
         } finally {
             processingHashChange = false;
         }
     });
 
-    addEvent(window, "popstate", (ev)=>{
-        if (processingPopState) { ev.preventDefault(); return; }
-
-        // Check if BackNavigation already handled this event
-        if (ignoreNextPopState) {
-            setIgnoreNextPopState(false);
-            return;
-        }
-
-        processingPopState = true;
-        try {
-            ev.preventDefault();
-
-            // First, try to close any high-priority elements (context menus, modals, etc.)
-            // These don't change the hash, so we just forward to cancel the back navigation
-            if (hasActiveCloseable()) {
-                const closed = closeHighestPriority();
-                if (closed) {
-                    setIgnoreNextPopState(true);
-                    history?.forward?.();
-                    processingPopState = false;
-                    return;
-                }
-            }
-
-            // Then handle task environment action (sidebar, taskbar, etc.)
-            if (taskEnvAction?.(getFocused(tasks, true) ?? null)) {
-                setIgnoreNextPopState(true);
-                history?.forward?.();
-            } else {
-                history?.go?.(initialHistoryCount + 1 - history.length);
-            }
-        } finally {
-            processingPopState = false;
-        }
-    });
+    // Ensure initial state
+    if (!history.state?.backNav) {
+        setIgnoreNextPopState(true);
+        history?.replaceState?.({ backNav: true, depth: history.length }, "", location.hash || "#");
+        setIgnoreNextPopState(false);
+    }
 
     //
     return tasks;

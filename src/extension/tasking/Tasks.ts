@@ -1,7 +1,8 @@
 import { makeReactive, $triggerLess } from "fest/object";
-import { getBy, getFocused } from "./Manager";
+import { getBy, getFocused, registerTask } from "./Manager";
 import { ITask } from "./Types";
 import { ITaskOptions } from "./Types";
+import { setIgnoreNextPopState } from "./BackNavigation";
 
 //
 export class Task implements ITask {
@@ -10,6 +11,7 @@ export class Task implements ITask {
     payload: any;
     taskId: string;
     list?: ITask[]|null;
+    _unregisterBack?: () => void;
 
     //
     constructor(taskId: string, list?: ITask[]|null, state: ITaskOptions|null = null, payload: any = {}, action?: any) {
@@ -17,7 +19,10 @@ export class Task implements ITask {
         this.list = list; this.payload = payload; Object.assign(this, state);
         this.$action = action ?? (()=>{
             if ((location.hash != this.taskId) && this.taskId) {
-                return history.replaceState("", "", this.taskId || location.hash);
+                setIgnoreNextPopState(true);
+                history.replaceState("", "", this.taskId || location.hash);
+                setIgnoreNextPopState(false);
+                return;
             }
         });
         this.addSelfToList(list, true);
@@ -38,7 +43,9 @@ export class Task implements ITask {
 
         //
         if (doFocus) { this.focus = true; }
-        history.pushState("", "", getFocused(list, false)?.taskId || location.hash);
+        setIgnoreNextPopState(true);
+        history.pushState({ backNav: true }, "", getFocused(list, false)?.taskId || location.hash);
+        setIgnoreNextPopState(false);
         document.dispatchEvent(new CustomEvent("task-focus", { detail: this, bubbles: true, composed: true, cancelable: true }));
 
         //
@@ -59,6 +66,14 @@ export class Task implements ITask {
     set active(activeStatus: boolean) {
         if (this != null && this?.$active != activeStatus) {
             this.$active = activeStatus;
+
+            if (activeStatus) {
+                this._unregisterBack = registerTask(this);
+            } else {
+                this._unregisterBack?.();
+                this._unregisterBack = undefined;
+            }
+
             document.dispatchEvent(new CustomEvent("task-focus", { detail: getFocused(this.list ?? [], false), bubbles: true, composed: true, cancelable: true }));
         }
     }

@@ -33,6 +33,8 @@ export enum ClosePriority {
 
 //
 export interface CloseableEntry {
+    // in general, hashId is getter
+    hashId?: string;
     id: string;
     priority: ClosePriority | number;
     isActive: () => boolean;
@@ -59,6 +61,7 @@ let options: BackNavigationOptions = {};
 // Shared state for coordination between handlers
 export let ignoreNextPopState = false;
 export const setIgnoreNextPopState = (value: boolean) => { ignoreNextPopState = value; };
+export const getIgnoreNextPopState = () => ignoreNextPopState;
 
 //
 const generateId = () => `closeable-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -71,6 +74,9 @@ export const registerCloseable = (
 ): (() => void) => {
     const id = entry.id || generateId();
     const fullEntry: CloseableEntry = Object.assign(entry, { id });//{ ...entry, id };
+    if (fullEntry?.hashId == null) {
+        fullEntry.hashId = id;
+    }
 
     registry.set(id, fullEntry);
 
@@ -109,7 +115,7 @@ export const getActiveCloseable = (): CloseableEntry | null => {
         }
 
         // Check if closeable is active
-        if (!entry?.isActive?.()) continue;
+        if (!(entry?.isActive?.() ?? false)) continue;
 
         // Compare priorities
         if (!highest || entry.priority > highest.priority) {
@@ -147,16 +153,18 @@ export const getActiveCloseables = (): CloseableEntry[] => {
  * Attempt to close the highest priority active closeable
  * @returns true if something was closed, false otherwise
  */
-export const closeHighestPriority = (): boolean => {
+export const closeHighestPriority = (): CloseableEntry | null => {
     const entry = getActiveCloseable();
-    if (!entry) return false;
+    if (!entry) return null;
 
     if (options.debug) {
         console.log("[BackNav] Closing:", entry.id, "priority:", entry.priority);
     }
 
-    const result = entry.close();
-    return result !== false;
+    //
+    registry?.delete?.(entry?.id);
+    const result = entry?.close?.();
+    return result != false ? entry : null;
 };
 
 /**
@@ -167,6 +175,7 @@ export const closeByGroup = (group: string): number => {
 
     for (const entry of registry.values()) {
         if (entry.group === group && entry.isActive()) {
+            registry?.delete?.(entry.id);
             const result = entry.close();
             if (result !== false) closedCount++;
         }
@@ -179,7 +188,7 @@ export const closeByGroup = (group: string): number => {
  * Check if any closeable is currently active
  */
 export const hasActiveCloseable = (): boolean => {
-    return getActiveCloseable() !== null;
+    return getActiveCloseable() != null;
 };
 
 /**
@@ -195,17 +204,19 @@ const handleBackNavigation = (ev: PopStateEvent): boolean => {
     processingBack = true;
 
     try {
-        const closed = closeHighestPriority();
-
+        ignoreNextPopState = true;
+        const closed = closeHighestPriority() ?? null;
         if (closed) {
             // Prevent actual back navigation by going forward
             // This preserves the current URL/hash without modification
             ev.preventDefault?.();
             ignoreNextPopState = true;
             history.forward();
+            ignoreNextPopState = false;
             return true;
         }
 
+        ignoreNextPopState = false;
         return false;
     } finally {
         processingBack = false;
@@ -227,7 +238,9 @@ export const initBackNavigation = (opts: BackNavigationOptions = {}): (() => voi
     // Push initial state to enable back detection
     if (opts.pushInitialState !== false && !opts.skipPopstateHandler) {
         historyDepth = 0;
-        history.pushState({ backNav: true, depth: historyDepth }, "", location.hash);
+        setIgnoreNextPopState(true);
+        history.pushState({ backNav: true, depth: historyDepth }, "", location.hash || "#");
+        setIgnoreNextPopState(false);
     }
 
     let unbind: (() => void) | undefined;

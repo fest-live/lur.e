@@ -24,13 +24,16 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
 
     //
     const updateChildList = (newEl, idx, oldEl, op: string | null, boundParent: Node | null = null) => {
-        let doubtfulParent = getNode(newEl ?? oldEl, mapper, idx, isValidParent(boundParent) ?? isValidParent(defaultParent))?.parentElement;
-        let element = isValidParent(doubtfulParent) ?? isValidParent(boundParent) ?? isValidParent(defaultParent);
+        const $requestor = isValidParent(boundParent) ?? isValidParent(defaultParent);
+        const newNode = getNode(newEl, mapper, idx, $requestor);
+        const oldNode = getNode(oldEl, mapper, idx, $requestor);
+
+        //
+        let doubtfulParent = newNode?.parentElement ?? oldNode?.parentElement;
+        let element = isValidParent(doubtfulParent) ?? $requestor;
         if (!element) return; if (defaultParent != element) { defaultParent = element; }
 
         //
-        const oldNode = getNode(oldEl, mapper, idx);
-        const newNode = getNode(newEl, mapper, idx);
         const oldIdx = indexOf(element, oldNode);
 
         //
