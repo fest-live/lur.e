@@ -54,14 +54,14 @@ export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|nu
     const evf = (ev) => {
         if (nanoThrottle <= 0) {
             nanoThrottle = 1;
-            queueMicrotask(() => {
+            setTimeout(() => {
                 const normalizedLocationHash = normalizeHash(location?.hash, false);
                 const newValue = normalizeHash(normalizedLocationHash || normalizeHash(ref.value || "", false), withHashCharacter) || "";
                 if (normalizeHash(ref.value, false) !== normalizeHash(newValue, false)) {
                     ref.value = newValue;
                 }
                 nanoThrottle = 0;
-            })
+            }, 0);
         }
     };
 
