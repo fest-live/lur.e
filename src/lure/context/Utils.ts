@@ -37,18 +37,20 @@ const $makePromisePlaceholder = (promised, getNodeCb)=>{
         $promiseResolvedMap?.set?.(promised, element);
 
         // avoid vain (not) replacement
-        return Promise.resolve().then(()=>{
-            if (typeof comment?.replaceWith == "function") {
+        queueMicrotask(() => {
+            try {
+                if (typeof comment?.replaceWith == "function") {
+                    if (!comment?.isConnected) return;
+                    if (isElement(element)) { comment?.replaceWith?.(element); }
+                } else
+                    if (comment?.isConnected && isElement(element)) {
+                        comment?.parentNode?.replaceChild?.(comment, element);
+                    }
+            } catch (error) {
                 if (!comment?.isConnected) return;
-                if (isElement(element)) { comment?.replaceWith?.(element); }
-            } else
-            if (comment?.isConnected && isElement(element)) {
-                comment?.parentNode?.replaceChild?.(comment, element);
+                comment?.remove?.();
             }
-        })?.catch?.(()=>{
-            if (!comment?.isConnected) return;
-            comment?.remove?.();
-        });
+        })
     });
     return comment;
 }
