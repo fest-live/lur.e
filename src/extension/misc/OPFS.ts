@@ -833,3 +833,132 @@ export const copyFromOneHandlerToAnother = async (fromHandle: FileSystemDirector
     // We delegate to worker
     return post('copy', { from: fromHandle, to: toHandle }, [fromHandle, toHandle]);
 }
+
+//
+export const handleIncomingEntries = (
+    data: DataTransfer | FileList | File[] | any,
+    destPath: string = "/user/",
+    rootHandle: any = null,
+    onItemHandled?: (file: File, path: string) => void | Promise<void>
+) => {
+    const tasks: Promise<any>[] = [];
+    const items = Array.from(data?.items ?? []);
+    const files = Array.from(data?.files ?? []);
+    const dataArray = Array.isArray(data) ? data : [...((data?.[Symbol.iterator] ? data : [data]))];
+
+    //
+    return Promise.try(async () => {
+        const resolvedRoot = await resolveRootHandle(rootHandle);
+
+        //
+        const processItem = async (item: any) => {
+            // Handle FileSystemHandle (modern drag/drop)
+            let handle: any;
+            if (item.kind === 'file' || item.kind === 'directory') {
+                try {
+                    // @ts-ignore
+                    handle = await item.getAsFileSystemHandle?.();
+                } catch { }
+            }
+
+            if (handle) {
+                if (handle.kind === 'directory') {
+                    const nwd = await getDirectoryHandle(resolvedRoot, destPath + (handle.name || "").trim().replace(/\s+/g, '-'), { create: true });
+                    if (nwd) tasks.push(copyFromOneHandlerToAnother(handle, nwd, { create: true }));
+                } else {
+                    const file = await handle.getFile();
+                    const path = destPath + (file.name || handle.name).trim().replace(/\s+/g, '-');
+                    tasks.push(writeFile(resolvedRoot, path, file).then(() => onItemHandled?.(file, path)));
+                }
+                return;
+            }
+
+            // Handle File object (fallback)
+            if (item.kind === 'file' || item instanceof File) {
+                const file = item instanceof File ? item : item.getAsFile();
+                if (file) {
+                    const path = destPath + (file.name).trim().replace(/\s+/g, '-');
+                    tasks.push(writeFile(resolvedRoot, path, file).then(() => onItemHandled?.(file, path)));
+                }
+                return;
+            }
+        };
+        // 1. Try DataTransfer items
+        if (items?.length > 0) {
+            for (const item of items as any) {
+                await processItem(item);
+            }
+        }
+        // 2. Try Files
+        if (files?.length > 0) {
+            for (const file of files as any) {
+                await processItem(file);
+            }
+        }
+        // 3. Array of Files
+        if (dataArray?.length > 0) {
+            for (const item of dataArray) {
+                await processItem(item);
+            }
+        }
+
+        // 4. Handle text/uri-list
+        const uriList = data?.getData?.("text/uri-list") || data?.getData?.("text/plain");
+        if (uriList && typeof uriList === "string") {
+            const urls = uriList.split(/\r?\n/).filter(Boolean);
+            for (const url of urls) {
+                if (url.startsWith("file://")) continue;
+                // Detect if it's internal /user/ path
+                if (url.startsWith("/user/")) {
+                    const src = url.trim();
+                    // Copy internal
+                    tasks.push(Promise.try(async () => {
+                        const srcHandle = await getHandler(resolvedRoot, src);
+                        if (srcHandle?.handle) {
+                            const name = src.split("/").filter(Boolean).pop();
+                            if (srcHandle.type === 'directory') {
+                                const nwd = await getDirectoryHandle(resolvedRoot, destPath + name, { create: true });
+                                await copyFromOneHandlerToAnother(srcHandle.handle, nwd, { create: true });
+                            } else {
+                                const file = await srcHandle.handle.getFile();
+                                const path = destPath + name;
+                                await writeFile(resolvedRoot, path, file);
+                                onItemHandled?.(file, path);
+                            }
+                        }
+                    }));
+                } else {
+                    // External URL
+                    tasks.push(Promise.try(async () => {
+                        const file = await provide(url);
+                        if (file) {
+                            const path = destPath + file.name;
+                            await writeFile(resolvedRoot, path, file);
+                            onItemHandled?.(file, path);
+                        }
+                    }));
+                }
+            }
+        }
+
+        // 5. Handle ClipboardItems (for async clipboard API)
+        // This is usually passed as an array of ClipboardItem objects, but `data` here might be DataTransfer.
+        // If passed explicitly:
+        if (dataArray?.[0] instanceof ClipboardItem) {
+            for (const item of dataArray) {
+                for (const type of item.types) {
+                    if (type.startsWith("image/") || type.startsWith("text/")) {
+                        const blob = await item.getType(type);
+                        const ext = type.split("/")[1].split("+")[0] || "txt"; // simplified
+                        const file = new File([blob], `clipboard-${Date.now()}.${ext}`, { type });
+                        const path = destPath + file.name;
+                        tasks.push(writeFile(resolvedRoot, path, file).then(() => onItemHandled?.(file, path)));
+                    }
+                }
+            }
+        }
+
+        //
+        await Promise.allSettled(tasks).catch(console.warn.bind(console));
+    });
+}

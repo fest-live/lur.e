@@ -64,17 +64,29 @@ export const bindMenuItemClickHandler = (menuElement: HTMLElement, menuDesc: Ctx
 }
 
 //
-export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctxMenuDesc: CtxMenuDesc, menuElement: HTMLElement = Q("ui-modal[type=\"contextmenu\"]", document.body))=>{
+export const getGlobalContextMenu = (parent: HTMLElement | Document = document) => {
+    let menu = Q("ui-modal[type=\"contextmenu\"]", parent as HTMLElement);
+    if (!menu) {
+        menu = H`<ui-modal type="contextmenu"></ui-modal>`;
+        (parent instanceof Document ? parent.body : parent).append(menu);
+    }
+    return menu as HTMLElement;
+}
+
+//
+export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctxMenuDesc: CtxMenuDesc, menuElement?: HTMLElement)=>{
     return (ev: MouseEvent)=>{ // @ts-ignore
-        if (menuElement?.contains?.(ev?.target) || ev?.target == (menuElement?.element ?? menuElement)) {
+        const menu = menuElement || getGlobalContextMenu();
+        
+        if (menu?.contains?.(ev?.target) || ev?.target == (menu?.element ?? menu)) {
             ev?.preventDefault?.();
             return;
         }
 
         //
         const initiator  = ev?.target ?? triggerElement ?? document.elementFromPoint(ev?.clientX || 0, ev?.clientY || 0) as HTMLElement;
-        const visibleRef = getBoundVisibleRef(menuElement);
-        const details = { event: ev, initiator: initiator as HTMLElement, trigger: triggerElement, menu: menuElement, ctxMenuDesc };
+        const visibleRef = getBoundVisibleRef(menu);
+        const details = { event: ev, initiator: initiator as HTMLElement, trigger: triggerElement, menu: menu, ctxMenuDesc };
         ctxMenuDesc.context = details;
         if (ctxMenuDesc?.onBeforeOpen?.(details) === false) {
             return;
@@ -94,21 +106,21 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
             ev?.stopImmediatePropagation?.();
 
             // TODO: use reactive mapped ctx-menu element
-            menuElement.innerHTML = ''; if (visibleRef != null) visibleRef.value = true;
-            menuElement?.append?.(...(ctxMenuDesc?.items?.map?.((section, sIdx)=>{
+            menu.innerHTML = ''; if (visibleRef != null) visibleRef.value = true;
+            menu?.append?.(...(ctxMenuDesc?.items?.map?.((section, sIdx)=>{
                 const items = section?.map?.((item, iIdx)=>H`<li data-id=${item?.id||""}><ui-icon icon=${item?.icon||""}></ui-icon><span>${item?.label||""}</span></li>`);
                 const separator = (section?.length > 1 && sIdx != ((ctxMenuDesc?.items?.length || 0) - 1)) ? H`<li class="ctx-menu-separator"></li>` : null;
                 return [ ...items, separator ];
             })?.flat?.()?.filter?.((E)=>!!E)||[]));
 
             //
-            const where  = withInsetWithPointer?.(menuElement, placement?.(ev, initiator));
-            const unbind = bindMenuItemClickHandler(menuElement, ctxMenuDesc);
+            const where  = withInsetWithPointer?.(menu, placement?.(ev, initiator));
+            const unbind = bindMenuItemClickHandler(menu, ctxMenuDesc);
 
             //
             if (ctxMenuDesc) ctxMenuDesc.openedWith = {
                 initiator: initiator as HTMLElement,
-                element: menuElement,
+                element: menu,
                 event: ev,
                 context: ctxMenuDesc?.context,
                 close() {
@@ -124,7 +136,7 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
             // @ts-ignore
             if (!ctxMenuDesc._backUnreg && visibleRef) {
                 // @ts-ignore
-                ctxMenuDesc._backUnreg = registerContextMenu(menuElement, visibleRef, () => {
+                ctxMenuDesc._backUnreg = registerContextMenu(menu, visibleRef, () => {
                      ctxMenuDesc?.openedWith?.close?.();
                 });
             }
@@ -133,12 +145,13 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
 }
 
 // use cursor as anchor based on contextmenu
-export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenuDesc, menuElement: HTMLElement = Q("ui-modal[type=\"contextmenu\"]", document.body))=>{
-    const evHandler = makeMenuHandler(triggerElement, (ev)=>[ev?.clientX, ev?.clientY, 200], ctxMenuDesc, menuElement);
-    const untrigger = makeInterruptTrigger?.(menuElement, (ev: MouseEvent)=>{ // @ts-ignore
-        if (!(menuElement?.contains?.(ev?.target) || ev?.target == (menuElement?.element ?? menuElement)) || !ev?.target) {
+export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenuDesc, menuElement?: HTMLElement)=>{
+    const menu = menuElement || getGlobalContextMenu();
+    const evHandler = makeMenuHandler(triggerElement, (ev)=>[ev?.clientX, ev?.clientY, 200], ctxMenuDesc, menu);
+    const untrigger = makeInterruptTrigger?.(menu, (ev: MouseEvent)=>{ // @ts-ignore
+        if (!(menu?.contains?.(ev?.target) || ev?.target == (menu?.element ?? menu)) || !ev?.target) {
             ctxMenuDesc?.openedWith?.close?.();
-            const visibleRef = getBoundVisibleRef(menuElement);
+            const visibleRef = getBoundVisibleRef(menu);
             if (visibleRef != null) visibleRef.value = false;
         }
     }, [ "click", "pointerdown", "scroll" ]);
@@ -157,13 +170,15 @@ export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenu
 }
 
 // bit same as contextmenu, but different by anchor and trigger (from element drop-down)
-export const dropMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenuDesc, menuElement: HTMLElement = Q("ui-modal[type=\"menulist\"]", document.body))=>{
+export const dropMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenuDesc, menuElement?: HTMLElement)=>{
+    const menu = menuElement || Q("ui-modal[type=\"menulist\"]", document.body) || getGlobalContextMenu(); // Fallback for menulist? Or strict? keeping loosely
+    
     const anchorElement = triggerElement; // @ts-ignore
-    const evHandler = makeMenuHandler(triggerElement, (ev)=>boundingBoxRef(anchorElement)?.slice?.(0, 3), ctxMenuDesc, menuElement);
-    const untrigger = makeInterruptTrigger?.(menuElement, (ev: MouseEvent)=>{ // @ts-ignore
-        if (!(menuElement?.contains?.(ev?.target) || ev?.target == (triggerElement?.element ?? triggerElement)) || !ev?.target) {
+    const evHandler = makeMenuHandler(triggerElement, (ev)=>boundingBoxRef(anchorElement)?.slice?.(0, 3), ctxMenuDesc, menu);
+    const untrigger = makeInterruptTrigger?.(menu, (ev: MouseEvent)=>{ // @ts-ignore
+        if (!(menu?.contains?.(ev?.target) || ev?.target == (triggerElement?.element ?? triggerElement)) || !ev?.target) {
             ctxMenuDesc?.openedWith?.close?.();
-            const visibleRef = getBoundVisibleRef(menuElement);
+            const visibleRef = getBoundVisibleRef(menu);
             if (visibleRef != null) visibleRef.value = false;
         }
     }, [ "click", "pointerdown", "scroll" ]);

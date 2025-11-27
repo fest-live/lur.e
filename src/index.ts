@@ -37,6 +37,7 @@ export * from "./extension/core/Anchor"
 export * from "./extension/core/CtxMenu"
 export * from "./extension/core/InputExt"
 export * from "./extension/core/Status"
+export * from "./extension/core/Clipboard"
 
 //
 export * from "./extension/color/ThemeEngine";
