@@ -13,7 +13,7 @@
  * 3. Supports custom close handlers and visibility checks
  */
 
-import { addEvent } from "fest/dom";
+import { addEvent, isElement } from "fest/dom";
 import { booleanRef } from "fest/object";
 
 //
@@ -108,7 +108,7 @@ export const getActiveCloseable = (): CloseableEntry | null => {
         // Check if element still exists (if WeakRef is provided)
         if (entry.element) {
             const el = entry.element.deref();
-            if (!el || !el.isConnected) {
+            if (!el || (isElement(el) ? !el.isConnected : false)) {
                 registry.delete(entry.id);
                 continue;
             }
@@ -162,7 +162,7 @@ export const closeHighestPriority = (): CloseableEntry | null => {
     }
 
     //
-    registry?.delete?.(entry?.id);
+    // registry?.delete?.(entry?.id);
     const result = entry?.close?.();
     return result != false ? entry : null;
 };
@@ -212,7 +212,7 @@ const handleBackNavigation = (ev: PopStateEvent): boolean => {
             ev.preventDefault?.();
             ignoreNextPopState = true;
             history.forward();
-            ignoreNextPopState = false;
+            setTimeout(() => { ignoreNextPopState = false; }, 100);
             return true;
         }
 

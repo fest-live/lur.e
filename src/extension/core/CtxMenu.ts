@@ -115,8 +115,19 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
                     if (visibleRef != null) visibleRef.value = false;
                     ctxMenuDesc.openedWith = null;
                     unbind?.(); where?.();
+                    // @ts-ignore
+                    if (ctxMenuDesc._backUnreg) { ctxMenuDesc._backUnreg(); ctxMenuDesc._backUnreg = null; }
                 }
             };
+
+            // Register with back navigation
+            // @ts-ignore
+            if (!ctxMenuDesc._backUnreg && visibleRef) {
+                // @ts-ignore
+                ctxMenuDesc._backUnreg = registerContextMenu(menuElement, visibleRef, () => {
+                     ctxMenuDesc?.openedWith?.close?.();
+                });
+            }
         }
     };
 }
@@ -133,16 +144,16 @@ export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenu
     }, [ "click", "pointerdown", "scroll" ]);
 
     // Register with back navigation system
-    const visRef = getBoundVisibleRef(menuElement);
+    /*const visRef = getBoundVisibleRef(menuElement);
     const unregisterBack = visRef ? registerContextMenu(menuElement, visRef, () => {
         ctxMenuDesc?.openedWith?.close?.();
-    }) : null;
+    }) : null;*/
 
     //
     const listening = addEvent(triggerElement, "contextmenu", evHandler, {
         composed: true,
     });
-    return ()=>{ untrigger?.(); listening?.(); unregisterBack?.(); };
+    return ()=>{ untrigger?.(); listening?.(); /*unregisterBack?.();*/ };
 }
 
 // bit same as contextmenu, but different by anchor and trigger (from element drop-down)
@@ -158,14 +169,14 @@ export const dropMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMen
     }, [ "click", "pointerdown", "scroll" ]);
 
     // Register with back navigation system
-    const visRef = getBoundVisibleRef(menuElement);
+    /*const visRef = getBoundVisibleRef(menuElement);
     const unregisterBack = visRef ? registerContextMenu(menuElement, visRef, () => {
         ctxMenuDesc?.openedWith?.close?.();
-    }) : null;
+    }) : null;*/
 
     //
     const listening = addEvent(triggerElement, "click", evHandler, {
         composed: true,
     });
-    return ()=>{ untrigger?.(); listening?.(); unregisterBack?.(); };
+    return ()=>{ untrigger?.(); listening?.(); /*unregisterBack?.();*/ };
 }
