@@ -41,4 +41,9 @@ export * from "./extension/core/Status"
 export * from "./extension/core/Clipboard"
 
 //
+export * from "./extension/grid/Interact";
+export * from "./extension/grid/GridBox";
+export * from "./extension/orient/OrientBox";
+
+//
 export * from "./extension/color/ThemeEngine";
