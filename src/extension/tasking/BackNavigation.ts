@@ -15,9 +15,11 @@
 
 import { addEvent, isElement } from "fest/dom";
 import { booleanRef } from "fest/object";
+import { historyState, initHistory, originalForward } from "./History";
 
 //
 export enum ClosePriority {
+// ... existing ...
     CONTEXT_MENU = 100,
     DROPDOWN = 90,
     MODAL = 80,
@@ -37,8 +39,8 @@ export interface CloseableEntry {
     hashId?: string;
     id: string;
     priority: ClosePriority | number;
-    isActive: () => boolean;
-    close: () => boolean | void;
+    isActive: (view?: string) => boolean;
+    close: (view?: string) => boolean | void;
     element?: WeakRef<HTMLElement> | null;
     group?: string;
 }
@@ -101,21 +103,21 @@ export const unregisterCloseable = (id: string): boolean => {
 /**
  * Get the highest priority active closeable
  */
-export const getActiveCloseable = (): CloseableEntry | null => {
+export const getActiveCloseable = (view?: string): CloseableEntry | null => {
     let highest: CloseableEntry | null = null;
 
     for (const entry of registry.values()) {
         // Check if element still exists (if WeakRef is provided)
         if (entry.element) {
             const el = entry.element.deref();
-            if (!el || (isElement(el) ? !el.isConnected : false)) {
+            if (!el /*|| (isElement(el) ? !el.isConnected : false)*/) {
                 registry.delete(entry.id);
                 continue;
             }
         }
 
         // Check if closeable is active
-        if (!(entry?.isActive?.() ?? false)) continue;
+        if (!(entry?.isActive?.(view) ?? false)) continue;
 
         // Compare priorities
         if (!highest || entry.priority > highest.priority) {
@@ -129,19 +131,19 @@ export const getActiveCloseable = (): CloseableEntry | null => {
 /**
  * Get all active closeables sorted by priority (highest first)
  */
-export const getActiveCloseables = (): CloseableEntry[] => {
+export const getActiveCloseables = (view?: string): CloseableEntry[] => {
     const active: CloseableEntry[] = [];
 
     for (const entry of registry.values()) {
         if (entry.element) {
             const el = entry.element.deref();
-            if (!el || !el.isConnected) {
+            if (!el /*|| !el.isConnected*/) {
                 registry.delete(entry.id);
                 continue;
             }
         }
 
-        if (entry.isActive()) {
+        if (entry.isActive(view)) {
             active.push(entry);
         }
     }
@@ -153,8 +155,8 @@ export const getActiveCloseables = (): CloseableEntry[] => {
  * Attempt to close the highest priority active closeable
  * @returns true if something was closed, false otherwise
  */
-export const closeHighestPriority = (): CloseableEntry | null => {
-    const entry = getActiveCloseable();
+export const closeHighestPriority = (view?: string): CloseableEntry | null => {
+    const entry = getActiveCloseable(view);
     if (!entry) return null;
 
     if (options.debug) {
@@ -163,7 +165,7 @@ export const closeHighestPriority = (): CloseableEntry | null => {
 
     //
     // registry?.delete?.(entry?.id);
-    const result = entry?.close?.();
+    const result = entry?.close?.(view);
     return result != false ? entry : null;
 };
 
@@ -187,8 +189,8 @@ export const closeByGroup = (group: string): number => {
 /**
  * Check if any closeable is currently active
  */
-export const hasActiveCloseable = (): boolean => {
-    return getActiveCloseable() != null;
+export const hasActiveCloseable = (view?: string): boolean => {
+    return getActiveCloseable(view) != null;
 };
 
 /**
@@ -200,26 +202,43 @@ const handleBackNavigation = (ev: PopStateEvent): boolean => {
         ignoreNextPopState = false;
         return false;
     }
-
+    if (ev?.state?.action) return false;
     processingBack = true;
 
     try {
         ignoreNextPopState = true;
-        const closed = closeHighestPriority() ?? null;
+
+        // Determine closing view
+        let closingView: string | undefined;
+        // Check if we have history state available and it was a back action
+        if (historyState.entries && (historyState.action === "BACK" || historyState.action === "POP")) {
+             // If we went back, we came from the next index
+             // Note: historyState.index is the *current* index (destination)
+             const prevEntry = historyState.entries[historyState.index + 1];
+             if (prevEntry) {
+                 closingView = prevEntry.view;
+             }
+        }
+
+        const closed = closeHighestPriority(closingView) ?? null;
         if (closed) {
             // Prevent actual back navigation by going forward
             // This preserves the current URL/hash without modification
             ev.preventDefault?.();
             ignoreNextPopState = true;
-            history.forward();
-            setTimeout(() => { ignoreNextPopState = false; }, 100);
+            originalForward?.();
+            setTimeout(() => { ignoreNextPopState = false; }, 0);
+            processingBack = false;
             return true;
         }
 
         ignoreNextPopState = false;
+        processingBack = false;
         return false;
     } finally {
+        ignoreNextPopState = false;
         processingBack = false;
+        return false;
     }
 };
 
@@ -235,23 +254,34 @@ export const initBackNavigation = (opts: BackNavigationOptions = {}): (() => voi
     options = { ...opts };
     navigationInitialized = true;
 
+    // Initialize history wrapper
+    initHistory(location.hash);
+
     // Push initial state to enable back detection
     if (opts.pushInitialState !== false && !opts.skipPopstateHandler) {
         historyDepth = 0;
         setIgnoreNextPopState(true);
-        history.pushState({ backNav: true, depth: historyDepth }, "", location.hash || "#");
+        // Use historyState wrapper compliant push if possible, or manual merge
+        // We'll trust initHistory has set up basic state.
+        // But BackNavigation logic relies on `backNav` property.
+        // Let's merge it properly.
+        const current = history.state || {};
+        const newState = { ...current, backNav: true, depth: historyDepth };
+        history.pushState(newState, "", location.hash || "#");
         setIgnoreNextPopState(false);
     }
 
+    //
     let unbind: (() => void) | undefined;
 
     // Only add popstate handler if not managed externally (e.g., by Manager.ts)
     if (!opts.skipPopstateHandler) {
         const popstateHandler = (ev: PopStateEvent) => {
-            const wasHandled = handleBackNavigation(ev);
-
-            if (!wasHandled && !opts.preventDefaultNavigation) {
-                // Allow normal back navigation
+            if (!ev?.state?.action) {
+                const wasHandled = handleBackNavigation(ev);
+                if (!wasHandled && !opts.preventDefaultNavigation) {
+                    // Allow normal back navigation
+                }
             }
         };
 
@@ -435,4 +465,3 @@ export default {
     createBackNavigableModal,
     ClosePriority
 };
-
