@@ -101,54 +101,33 @@ export const unregisterCloseable = (id: string): boolean => {
 };
 
 /**
- * Get the highest priority active closeable
- */
-export const getActiveCloseable = (view?: string): CloseableEntry | null => {
-    let highest: CloseableEntry | null = null;
-
-    for (const entry of registry.values()) {
-        // Check if element still exists (if WeakRef is provided)
-        if (entry.element) {
-            const el = entry.element.deref();
-            if (!el /*|| (isElement(el) ? !el.isConnected : false)*/) {
-                registry.delete(entry.id);
-                continue;
-            }
-        }
-
-        // Check if closeable is active
-        if (!(entry?.isActive?.(view) ?? false)) continue;
-
-        // Compare priorities
-        if (!highest || entry.priority > highest.priority) {
-            highest = entry;
-        }
-    }
-
-    return highest;
-};
-
-/**
  * Get all active closeables sorted by priority (highest first)
  */
 export const getActiveCloseables = (view?: string): CloseableEntry[] => {
-    const active: CloseableEntry[] = [];
-
-    for (const entry of registry.values()) {
-        if (entry.element) {
-            const el = entry.element.deref();
-            if (!el /*|| !el.isConnected*/) {
-                registry.delete(entry.id);
-                continue;
+    return Array.from(registry.values())
+        .filter((entry) => {
+            // Check if element still exists (if WeakRef is provided)
+            if (entry.element) {
+                const el = entry.element.deref();
+                // If element is gone, remove from registry
+                if (!el) {
+                    registry.delete(entry.id);
+                    return false;
+                }
             }
-        }
 
-        if (entry.isActive(view)) {
-            active.push(entry);
-        }
-    }
+            // Check if closeable is active
+            return entry.isActive(view);
+        })
+        .sort((a, b) => (b.priority as number) - (a.priority as number));
+};
 
-    return active.sort((a, b) => b.priority - a.priority);
+/**
+ * Get the highest priority active closeable
+ */
+export const getActiveCloseable = (view?: string): CloseableEntry | null => {
+    const active = getActiveCloseables(view);
+    return active[0] || null;
 };
 
 /**
@@ -356,7 +335,7 @@ export const registerModal = (
  */
 export const registerSidebar = (
     element: HTMLElement,
-    openedRef: { value: boolean },
+    openedRef: { value: any },
     onClose?: () => void
 ): (() => void) => {
     return registerCloseable({
@@ -364,7 +343,10 @@ export const registerSidebar = (
         priority: ClosePriority.SIDEBAR,
         element: new WeakRef(element),
         group: "sidebar",
-        isActive: () => openedRef.value === true,
+        isActive: () => {
+            const val = openedRef.value;
+            return !!val && String(val) !== "false";
+        },
         close: () => {
             openedRef.value = false;
             onClose?.();
