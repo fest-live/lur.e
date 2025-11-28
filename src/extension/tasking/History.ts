@@ -129,7 +129,7 @@ export const initHistory = (initialView: string = "") => {
             view: view,
             timestamp: Date.now()
         };
-        history.replaceState(mergeState(state), "", location.href);
+        history.replaceState(mergeState(state), "", location.hash);
 
         // Update stack
         historyState.entries[idx] = state;
@@ -233,7 +233,7 @@ export const initHistory = (initialView: string = "") => {
             };
 
             // Inject state but preserve any existing state if present (unlikely if ev.state is null)
-            history.replaceState(mergeState(newState, ev.state), "", location.href);
+            history.replaceState(mergeState(newState, ev.state), "", location.hash);
 
             // Update stack
             historyState.entries = historyState.entries.slice(0, newState.index);
@@ -306,7 +306,7 @@ export const navigate = (view: string, replace: boolean = false) => {
 };
 
 //
-export const historyViewRef = (initialValue: string = "#home", options: { ignoreBack?: boolean, withoutHashPrefix?: boolean } = {}) => {
+export const historyViewRef = (initialValue: string = `#${location.hash?.replace?.(/^#/, "") || "home"}`, options: { ignoreBack?: boolean, withoutHashPrefix?: boolean } = {}) => {
     const internal = makeReactive({ value: initialValue }) as unknown as { value: string };
 
     // Sync from history to ref
