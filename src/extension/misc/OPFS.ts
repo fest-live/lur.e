@@ -7,7 +7,25 @@ let worker: any = self;
 
 //
 try {
-    worker = !(typeof ServiceWorkerGlobalScope != "undefined" && self instanceof ServiceWorkerGlobalScope) ? (typeof Worker != "undefined" ? new OPFSWorker() : self) : self;
+    //
+    if (typeof Worker != "undefined" && !(typeof ServiceWorkerGlobalScope != "undefined" && self instanceof ServiceWorkerGlobalScope)) {
+        try {
+            worker = new OPFSWorker();
+        } catch(e) {
+            // Fallback for environments where module workers are restricted (like some extension contexts without proper CSP)
+            console.warn("OPFSWorker instantiation failed, trying fallback...", e);
+            if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.getURL) {
+                 // Try loading by URL if possible, though 'OPFSWorker' imported via Vite usually handles this.
+                 // If that failed, we might be in an environment where we can't spawn workers easily.
+                 // We will fallback to self, assuming the environment has polyfilled or we accept main thread (but OPFS sync might fail).
+                 worker = self;
+            } else {
+                 worker = self;
+            }
+        }
+    } else {
+        worker = self;
+    }
 } catch (e) {
     worker = self;
 }
@@ -693,24 +711,29 @@ export const provide = async (req: string | Request = "", rw = false) => {
     //
     if (cleanUrl?.startsWith?.("/user")) {
         const path = cleanUrl?.replace?.(/^\/user/g, "")?.trim?.();
-        const handle = getFileHandle(await navigator?.storage?.getDirectory?.(), path, { create: !!rw });
-        if (rw) { return mayNotPromise(handle, (h)=>h?.createWritable?.()); }
-        return mayNotPromise(handle, (h)=>h?.getFile?.());
+        const root = await navigator?.storage?.getDirectory?.();
+        const handle = await getFileHandle(root, path, { create: !!rw });
+
+        if (rw) {
+            return handle?.createWritable?.();
+        }
+        return handle?.getFile?.();
     } else {
         try {
             if (!req) return null;
-            return mayNotPromise(fetch(req), async (r) => {
-                const blob = await mayNotPromise(r?.blob(), (b) => b?.catch?.(console.warn.bind(console)));
-                const lastModified = Date.parse(mayNotPromise(r?.headers?.get?.("Last-Modified"), (h) => h || "") || 0);
-                if (blob) {
-                    return new File([blob], url?.substring(url?.lastIndexOf('/') + 1), {
-                        type: blob?.type,
-                        lastModified
-                    })
-                }
-            });
-    } catch (e: any) { return handleError(defaultLogger, 'error', `provide: ${e.message}`); }
-}
+            const r = await fetch(req);
+            const blob = await r?.blob()?.catch?.(console.warn.bind(console));
+            const lastModifiedHeader = r?.headers?.get?.("Last-Modified");
+            const lastModified = lastModifiedHeader ? Date.parse(lastModifiedHeader) : 0;
+
+            if (blob) {
+                return new File([blob], url?.substring(url?.lastIndexOf('/') + 1), {
+                    type: blob?.type,
+                    lastModified: isNaN(lastModified) ? 0 : lastModified
+                })
+            }
+        } catch (e: any) { return handleError(defaultLogger, 'error', `provide: ${e.message}`); }
+    }
 }
 
 //
