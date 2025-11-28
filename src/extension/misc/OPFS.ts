@@ -4,11 +4,12 @@ import OPFSWorker from './OPFS.worker?worker';
 
 //
 let worker: any = self;
+const isServiceWorker = typeof ServiceWorkerGlobalScope !== "undefined" && self instanceof ServiceWorkerGlobalScope;
 
 //
 try {
     //
-    if (typeof Worker != "undefined" && !(typeof ServiceWorkerGlobalScope != "undefined" && self instanceof ServiceWorkerGlobalScope)) {
+    if (typeof Worker != "undefined" && !isServiceWorker) {
         try {
             worker = new OPFSWorker();
         } catch(e) {
@@ -34,8 +35,124 @@ try {
 const pending = new Map();
 const observers = new Map();
 
+// Direct OPFS handlers for Service Worker context (where postMessage doesn't work as expected)
+const directHandlers: Record<string, (payload: any) => Promise<any>> = {
+    readDirectory: async ({ rootId, path, create }: any) => {
+        try {
+            const root = await navigator.storage.getDirectory();
+            const parts = (path || "").trim().replace(/\/+/g, "/").split("/").filter((p: string) => p);
+            let current = root;
+            for (const part of parts) {
+                current = await current.getDirectoryHandle(part, { create });
+            }
+            const entries: any[] = [];
+            // @ts-ignore
+            for await (const [name, entry] of current.entries()) {
+                entries.push([name, entry]);
+            }
+            return entries;
+        } catch (e) {
+            console.warn("Direct readDirectory error:", e);
+            return [];
+        }
+    },
+
+    readFile: async ({ rootId, path, type }: any) => {
+        try {
+            const root = await navigator.storage.getDirectory();
+            const parts = (path || "").trim().replace(/\/+/g, "/").split("/").filter((p: string) => p);
+            const filename = parts.pop();
+            let dir = root;
+            for (const part of parts) {
+                dir = await dir.getDirectoryHandle(part, { create: false });
+            }
+            const fileHandle = await dir.getFileHandle(filename!, { create: false });
+            const file = await fileHandle.getFile();
+            if (type === "text") return await file.text();
+            if (type === "arrayBuffer") return await file.arrayBuffer();
+            return file;
+        } catch (e) {
+            console.warn("Direct readFile error:", e);
+            return null;
+        }
+    },
+
+    writeFile: async ({ rootId, path, data }: any) => {
+        try {
+            const root = await navigator.storage.getDirectory();
+            const parts = (path || "").trim().replace(/\/+/g, "/").split("/").filter((p: string) => p);
+            const filename = parts.pop();
+            let dir = root;
+            for (const part of parts) {
+                dir = await dir.getDirectoryHandle(part, { create: true });
+            }
+            const fileHandle = await dir.getFileHandle(filename!, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(data);
+            await writable.close();
+            return true;
+        } catch (e) {
+            console.warn("Direct writeFile error:", e);
+            return false;
+        }
+    },
+
+    remove: async ({ rootId, path, recursive }: any) => {
+        try {
+            const root = await navigator.storage.getDirectory();
+            const parts = (path || "").trim().replace(/\/+/g, "/").split("/").filter((p: string) => p);
+            const name = parts.pop();
+            let dir = root;
+            for (const part of parts) {
+                dir = await dir.getDirectoryHandle(part, { create: false });
+            }
+            await dir.removeEntry(name!, { recursive });
+            return true;
+        } catch {
+            return false;
+        }
+    },
+
+    copy: async ({ from, to }: any) => {
+        try {
+            const copyRecursive = async (source: any, dest: any) => {
+                if (source.kind === 'directory') {
+                    for await (const [name, entry] of source.entries()) {
+                        if (entry.kind === 'directory') {
+                            const newDest = await dest.getDirectoryHandle(name, { create: true });
+                            await copyRecursive(entry, newDest);
+                        } else {
+                            const file = await entry.getFile();
+                            const newFile = await dest.getFileHandle(name, { create: true });
+                            const writable = await newFile.createWritable();
+                            await writable.write(file);
+                            await writable.close();
+                        }
+                    }
+                } else {
+                    const file = await source.getFile();
+                    const writable = await dest.createWritable();
+                    await writable.write(file);
+                    await writable.close();
+                }
+            };
+            await copyRecursive(from, to);
+            return true;
+        } catch (e) {
+            console.warn("Direct copy error:", e);
+            return false;
+        }
+    },
+
+    // Placeholder for observe/unobserve (FileSystemObserver not available in all contexts)
+    observe: async () => false,
+    unobserve: async () => true,
+    mount: async () => true,
+    unmount: async () => true
+};
+
 //
-if (worker != null) {
+if (worker != null && !isServiceWorker) {
     const listen = (worker.addEventListener || worker.addListener || ((n: string, h: any) => worker["on"+n] = h)).bind(worker);
     listen("message", (e: any) => {
         if (!e.data || typeof e.data !== 'object') return;
@@ -58,6 +175,11 @@ if (worker != null) {
 
 //
 const post = (type: string, payload: any = {}, transfer: any[] = []) => {
+    // In Service Worker context, execute directly instead of using postMessage
+    if (isServiceWorker && directHandlers[type]) {
+        return directHandlers[type](payload);
+    }
+
     return new Promise((resolve, reject) => {
         const id = UUIDv4();
         pending.set(id, { resolve, reject });
