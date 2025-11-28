@@ -324,7 +324,7 @@ export const makeDragEvents = async (
 };
 
 // shifting - reactive basis
-export const ROOT = document.documentElement;
+export const ROOT = typeof document != "undefined" ? document?.documentElement : null;
 export const bindInteraction = (newItem: HTMLElement, pArgs: any): [any, any] => {
     reflectCell(newItem, pArgs, true);
 
