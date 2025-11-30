@@ -199,8 +199,12 @@ const handleBackNavigation = (ev: PopStateEvent): boolean => {
              }
         }
 
-        const closed = closeHighestPriority(closingView) ?? null;
-        if (closed) {
+        //
+        // try to close the highest priority active closeable
+        const closed = closeHighestPriority(closingView) ?? true;
+
+        // now, in negative, if isn't closed, may be forward back navigation...
+        if (!closed) {
             // Prevent actual back navigation by going forward
             // This preserves the current URL/hash without modification
             ev.preventDefault?.();
