@@ -182,8 +182,8 @@ export const initHistory = (initialView: string = "") => {
         const result = originalPush?.(mergeState(newState, data), unused, url);
 
         // Update stack: wipe forward history
-        historyState.entries = historyState.entries.slice(0, nextIndex);
-        historyState.entries.push(newState);
+        historyState.entries = historyState?.entries?.slice?.(0, nextIndex);
+        historyState.entries?.push?.(newState);
         saveStack();
 
         updateReactiveState("PUSH", newState.view);
