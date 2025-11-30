@@ -1,4 +1,4 @@
-import { RAFBehavior, orientOf, getBoundingOrientRect } from "fest/dom";
+import { RAFBehavior, orientOf, getBoundingOrientRect, setProperty } from "fest/dom";
 import { makeObjectAssignable, makeReactive, subscribe, numberRef } from "fest/object";
 import { LongPressHandler, makeShiftTrigger, E, bindDraggable } from "fest/lure";
 import { convertOrientPxToCX, redirectCell, floorNearest, ceilNearest, roundNearest } from "fest/core";
@@ -248,19 +248,22 @@ export const makeDragEvents = async (
     const correctOffset = (dragging: [any, any]): [number, number] => {
         // compute correct cell with span awareness
         const ctx = computeCellFromBounds() as { inset: [number, number], cell: [number, number] } | null;
-        if (ctx?.cell) { setCell(ctx.cell); }
-        syncInsetVars((ctx?.inset || [0, 0]) as [number, number]);
+        const cell = ctx?.cell;
 
         //
-        setStyleProperty(newItem, "--p-cell-x", currentCell?.[0]?.value || 0);
-        setStyleProperty(newItem, "--p-cell-y", currentCell?.[1]?.value || 0);
-        setStyleProperty(newItem, "--cell-x", currentCell?.[0]?.value || 0);
-        setStyleProperty(newItem, "--cell-y", currentCell?.[1]?.value || 0);
+        if (cell) {
+            syncInsetVars((ctx?.inset || [0, 0]) as [number, number]); setCell(cell);
+            setStyleProperty(newItem, "--p-cell-x", cell?.[0] ?? currentCell?.[0]?.value ?? item?.cell?.[0] ?? 0);
+            setStyleProperty(newItem, "--p-cell-y", cell?.[1] ?? currentCell?.[1]?.value ?? item?.cell?.[1] ?? 0);
+            setStyleProperty(newItem, "--cell-x", cell?.[0] ?? currentCell?.[0]?.value ?? item?.cell?.[0] ?? 0);
+            setStyleProperty(newItem, "--cell-y", cell?.[1] ?? currentCell?.[1]?.value ?? item?.cell?.[1] ?? 0);
+        }
 
         // reset dragging offset
-        try { dragging[0].value = 0, dragging[1].value = 0; } catch(e) {};
-        syncDragStyles?.(true);
-        newItem.setAttribute("data-dragging", "");
+        if (dragging && Array.isArray(dragging)) {
+            try { dragging[0].value = 0, dragging[1].value = 0; } catch (e) { };
+        }
+        syncDragStyles?.(true); newItem?.setAttribute?.("data-dragging", "");
         return [0, 0];
     };
 
@@ -290,11 +293,11 @@ export const makeDragEvents = async (
 
         //
         Promise.allSettled(animations).finally(()=>{
-            delete newItem.dataset.dragging;
-            newItem?.removeAttribute?.("data-dragging");
+            if (dragging && Array.isArray(dragging)) {
+                try { dragging[0].value = 0, dragging[1].value = 0; } catch (e) { };
+            }
 
             //
-            try { dragging[0].value = 0, dragging[1].value = 0; } catch(e) {};
             syncDragStyles?.(true);
 
             //
@@ -304,6 +307,10 @@ export const makeDragEvents = async (
                 setStyleProperty(newItem, "--cell-x", cell?.[0] ?? currentCell?.[0]?.value ?? item?.cell?.[0] ?? 0);
                 setStyleProperty(newItem, "--cell-y", cell?.[1] ?? currentCell?.[1]?.value ?? item?.cell?.[1] ?? 0);
             }
+
+            //
+            newItem?.removeAttribute?.("data-dragging");
+            delete newItem?.dataset?.dragging;
         });
 
         //
@@ -343,23 +350,42 @@ export const bindInteraction = (newItem: HTMLElement, pArgs: any): [any, any] =>
     };
 
     //
-    let dragStyleRaf = 0;
+    let dragStyleRaf = 0, lastRaf: any = null;
     const syncDragStyles = (flush = false): void => {
-        if (flush) applyDragStyles(); else
+        if (flush) {
+            applyDragStyles();
+            dragStyleRaf = 0;
+            if (lastRaf) { cancelAnimationFrame(lastRaf); }
+            lastRaf = null;
+        } else
         if (!dragStyleRaf) {
-            applyDragStyles(); dragStyleRaf = 1;
-            requestAnimationFrame(()=>dragStyleRaf = 0);
+            dragStyleRaf = 1;
+            lastRaf = requestAnimationFrame(() => {
+                applyDragStyles();
+                dragStyleRaf = 0;
+                lastRaf = null;
+            });
         }
     };
 
     //
-    subscribe(dragging?.[0], (val, prop) => { if (prop == "value") syncDragStyles(); });
-    subscribe(dragging?.[1], (val, prop) => { if (prop == "value") syncDragStyles(); });
+    subscribe([dragging?.[0], "value"], (val, prop) => { if (prop == "value") { syncDragStyles(); } });
+    subscribe([dragging?.[1], "value"], (val, prop) => { if (prop == "value") { syncDragStyles(); } });
     syncDragStyles(true);
 
     //
-    subscribe(currentCell?.[0], (idx, prop) => { if (prop == "value") item.cell[0] = idx; });
-    subscribe(currentCell?.[1], (idx, prop) => { if (prop == "value") item.cell[1] = idx; });
+    subscribe([currentCell?.[0], "value"], (val, prop) => {
+        if (prop == "value" && item.cell != null && val != null) {
+            setStyleProperty(newItem, "--cell-x", (item.cell[0] = val) || 0);
+        }
+    });
+
+    //
+    subscribe([currentCell?.[1], "value"], (val, prop) => {
+        if (prop == "value" && item.cell != null && val != null) {
+            setStyleProperty(newItem, "--cell-y", (item.cell[1] = val) || 0);
+        }
+    });
 
     //
     makeDragEvents(newItem, {layout: layout as [number, number], currentCell, dragging, syncDragStyles}, {item, items, list});
