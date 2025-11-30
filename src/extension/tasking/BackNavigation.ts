@@ -302,7 +302,7 @@ export const registerContextMenu = (
         close: () => {
             visibleRef.value = false;
             onClose?.();
-            return true;
+            return false;
         }
     });
 };
@@ -329,7 +329,7 @@ export const registerModal = (
         close: () => {
             onClose?.();
             element?.remove?.();
-            return true;
+            return false;
         }
     });
 };
@@ -354,7 +354,7 @@ export const registerSidebar = (
         close: () => {
             openedRef.value = false;
             onClose?.();
-            return true;
+            return false;
         }
     });
 };
@@ -376,7 +376,7 @@ export const registerOverlay = (
         isActive: isActiveCheck,
         close: () => {
             onClose();
-            return true;
+            return false;
         }
     });
 };

@@ -38,12 +38,12 @@ export const registerTask = (task: ITask, onClose?: () => void): (() => void) =>
         priority: ClosePriority.TASK,
         group: "task",
         isActive: () => task.active === true,
-        close: () => {
+        close: (view?: string) => {
             task.active = false;
-            onClose?.();
+            return onClose?.() ?? false;
             // Return false to allow the back navigation to proceed (updating the URL)
             // since tasks are typically history-based
-            return false;
+            //return false;
         }
     }) as (() => void);
 };
