@@ -263,15 +263,16 @@ export const grabForDrag = (
     const promised = Promise.withResolvers();
     const releaseEvent = [/*agWrapEvent*/((evc)=>{
         if (ex?.pointerId == evc?.pointerId) {
-            if (hm.canceled) return; hm.canceled = true;
-            if (hasParent(evc?.target, em)) {
-                bindings?.forEach?.(binding => binding?.());
-                em?.releaseCapturePointer?.(evc?.pointerId);
+            const elm = em?.element || em;
+            if (hasParent(evc?.target, elm) || evc?.currentTarget?.contains?.(elm) || evc?.target == elm) {
+                if (evc?.type == "pointerup") { clickPrevention(elm, evc?.pointerId); };
 
                 //
-                if (evc?.type == "pointerup") { clickPrevention(em, evc?.pointerId); };
-                em?.dispatchEvent?.(new PointerEventDrag("m-dragend", { ...evc, bubbles: true, holding: hm, event: evc }));
+                elm?.releaseCapturePointer?.(evc?.pointerId);
+                bindings?.forEach?.(binding => binding?.());
                 promised.resolve(result);
+                elm?.dispatchEvent?.(new PointerEventDrag("m-dragend", { ...evc, bubbles: true, holding: hm, event: evc }));
+                ex.pointerId = -1; hm.canceled = true;
             }
         }
     }), {capture: true}];
@@ -281,11 +282,19 @@ export const grabForDrag = (
     if (em?.dispatchEvent?.(new PointerEventDrag("m-dragstart", { ...ex, bubbles: true, holding: hm, event: ex }))) {
         //ex?.capture?.(em);
         em?.setPointerCapture?.(ex?.pointerId);
+
+        //
         bindings = addEvents(em, {
             "pointermove": moveEvent,
             "pointercancel": releaseEvent,
             "pointerup": releaseEvent
         });
+
+        //
+        bindings?.push?.(...addEvents(document.documentElement, {
+            "pointercancel": releaseEvent,
+            "pointerup": releaseEvent
+        }));
     } else { hm.canceled = true; }
 
     //
