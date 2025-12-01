@@ -1,5 +1,5 @@
 import { autoRef } from "fest/object";
-import { addRoot, loadInlineStyle, setAttributesIfNull } from "fest/dom";
+import { addRoot, isElement, loadAsAdopted, loadInlineStyle, setAttributesIfNull } from "fest/dom";
 
 //
 import {
@@ -160,14 +160,98 @@ export function property({attribute, source, name, from}: { attribute?: string|b
 }
 
 //
-export const loadCachedStyles = (bTo, src)=>{
-    const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache)
+const adoptedStyleSheetsCache = new WeakMap<object, CSSStyleSheet[]>();
+const addAdoptedSheetToElement = (bTo: any, sheet: CSSStyleSheet) => {
+    let adoptedSheets = adoptedStyleSheetsCache.get(bTo);
+    if (!adoptedSheets) {
+        adoptedStyleSheetsCache.set(bTo, adoptedSheets = []);
+    }
+    if (sheet && adoptedSheets.indexOf(sheet) < 0) {
+        adoptedSheets.push(sheet);
+    }
+    if (bTo.shadowRoot) {
+        bTo.shadowRoot.adoptedStyleSheets = [...(bTo.shadowRoot.adoptedStyleSheets || []), ...adoptedSheets.filter(s => !bTo.shadowRoot.adoptedStyleSheets?.includes(s))];
+    }
+};
+
+export const loadCachedStyles = (bTo, src) => {
+    if (!src) return null;
+
+    let resolvedSrc = src;
+    if (typeof src == "function") {
+        try {
+            const weak = new WeakRef(bTo);
+            resolvedSrc = src.call(bTo, weak);
+        } catch (e) {
+            console.warn("Error calling styles function:", e);
+            return null;
+        }
+    }
+
+    if (resolvedSrc && typeof CSSStyleSheet != "undefined" && resolvedSrc instanceof CSSStyleSheet) {
+        addAdoptedSheetToElement(bTo, resolvedSrc);
+        return null;
+    }
+
+    if (resolvedSrc instanceof Promise) {
+        resolvedSrc.then((result) => {
+            if (result instanceof CSSStyleSheet) {
+                addAdoptedSheetToElement(bTo, result);
+            } else if (result != null) {
+                loadCachedStyles(bTo, result);
+            }
+        }).catch((e) => {
+            console.warn("Error loading adopted stylesheet:", e);
+        });
+        return null;
+    }
+
+    if (typeof resolvedSrc == "string" || resolvedSrc instanceof Blob || (resolvedSrc as any) instanceof File) {
+        const adopted = loadAsAdopted(resolvedSrc, "ux-layer");
+        if (adopted) {
+            let adoptedSheets = adoptedStyleSheetsCache.get(bTo);
+            if (!adoptedSheets) {
+                adoptedStyleSheetsCache.set(bTo, adoptedSheets = []);
+            }
+            const addAdoptedSheet = (sheet: CSSStyleSheet) => {
+                if (sheet && adoptedSheets.indexOf(sheet) < 0) {
+                    adoptedSheets.push(sheet);
+                }
+                if (bTo.shadowRoot) {
+                    bTo.shadowRoot.adoptedStyleSheets = [...(bTo.shadowRoot.adoptedStyleSheets || []), ...adoptedSheets.filter(s => !bTo.shadowRoot.adoptedStyleSheets?.includes(s))];
+                }
+            };
+            if (adopted instanceof Promise) {
+                adopted.then(addAdoptedSheet).catch((e) => {
+                    console.warn("Error loading adopted stylesheet:", e);
+                });
+                return null;
+            } else {
+                addAdoptedSheet(adopted);
+                return null;
+            }
+        }
+    }
+
+    const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache);
     const cached = source.get(src); let styleElement = cached?.styleElement, vars = cached?.vars;
     if (!cached) {
         const weak = new WeakRef(bTo); let styles = ``, props = [];
-        if (typeof src == "string") { styles = src || "" } else
-        if (typeof src == "function") { const cs = src?.call?.(bTo, weak); styles = typeof cs == "string" ? cs : (cs?.css ?? cs), props = cs?.props ?? props, vars = cs?.vars ?? vars; };
-        source.set(src, { css: styles, props, vars, styleElement: (styleElement = (styles as any) instanceof HTMLStyleElement ? styles : loadInlineStyle(styles, bTo, "ux-layer")) });
+        if (typeof resolvedSrc == "string") {
+            styles = resolvedSrc || "";
+        } else if (typeof resolvedSrc == "object" && resolvedSrc != null) {
+            if (resolvedSrc instanceof HTMLStyleElement) {
+                styleElement = resolvedSrc;
+            } else {
+                styles = typeof (resolvedSrc as any).css == "string" ? (resolvedSrc as any).css : (typeof resolvedSrc == "string" ? resolvedSrc : String(resolvedSrc));
+                props = (resolvedSrc as any)?.props ?? props;
+                vars = (resolvedSrc as any)?.vars ?? vars;
+            }
+        }
+        if (!styleElement && styles) {
+            styleElement = loadInlineStyle(styles, bTo, "ux-layer");
+        }
+        source.set(src, { css: styles, props, vars, styleElement });
     }
     return styleElement;
 }
@@ -198,6 +282,7 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
 
         // TODO: @elementRef()
         styleLibs: HTMLStyleElement[] = [];
+        adoptedStyleSheets: CSSStyleSheet[] = [];
         styleLayers: ()=>string[] = ()=>[];
         render = (weak?: WeakRef<any>) => { return document.createElement("slot"); }
 
@@ -226,9 +311,43 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
         public loadStyleLibrary($module) {
             const root = this.shadowRoot;
             const module = typeof $module == "function" ? $module?.(root) : $module;
-            if (module) {
+            if (module instanceof HTMLStyleElement) {
                 this.styleLibs?.push?.(module);
-                this.#styleElement?.before?.(module);
+                if (this.#styleElement?.isConnected) {
+                    this.#styleElement?.before?.(module);
+                } else {
+                    this.shadowRoot?.prepend?.(module);
+                }
+            } else if (module instanceof CSSStyleSheet) {
+                let adoptedSheets = adoptedStyleSheetsCache.get(this);
+                if (!adoptedSheets) {
+                    adoptedStyleSheetsCache.set(this, adoptedSheets = []);
+                }
+                if (adoptedSheets.indexOf(module) < 0) {
+                    adoptedSheets.push(module);
+                }
+                if (root) {
+                    root.adoptedStyleSheets = [...(root.adoptedStyleSheets || []), ...adoptedSheets.filter(s => !root.adoptedStyleSheets?.includes(s))];
+                }
+            } else {
+                const adopted = loadAsAdopted(module, "ux-layer");
+                let adoptedSheets = adoptedStyleSheetsCache.get(this);
+                if (!adoptedSheets) {
+                    adoptedStyleSheetsCache.set(this, adoptedSheets = []);
+                }
+                const addAdoptedSheet = (sheet: CSSStyleSheet) => {
+                    if (sheet && adoptedSheets.indexOf(sheet) < 0) {
+                        adoptedSheets.push(sheet);
+                    }
+                    if (root) {
+                        root.adoptedStyleSheets = [...(root.adoptedStyleSheets || []), ...adoptedSheets.filter(s => !root.adoptedStyleSheets?.includes(s))];
+                    }
+                };
+                if (adopted instanceof Promise) {
+                    adopted.then(addAdoptedSheet).catch(() => {});
+                } else if (adopted) {
+                    addAdoptedSheet(adopted);
+                }
             }
             return this;
         }
@@ -248,13 +367,23 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
                 this[inRenderKey] = true;
                 if (isNotExtended(this) && shadowRoot) {
                     const rendered = this.render?.call?.(this, weak) ?? document.createElement("slot");
-                    shadowRoot?.append(...[
+                    const styleElement = loadCachedStyles(this, this.styles);
+                    if (styleElement instanceof HTMLStyleElement) {
+                        this.#styleElement = styleElement;
+                    }
+
+                    shadowRoot.append(...[
                         H`<style data-type="ux-layer" prop:innerHTML=${this.$makeLayers()}></style>`,
                         this.#defaultStyle,
                         ...(this.styleLibs.map(x => x.cloneNode?.(true)) || []),
-                        this.#styleElement ??= loadCachedStyles(this, this.styles),
+                        styleElement,
                         rendered
-                    ]?.filter?.(x => (x != null)));
+                    ]?.filter?.(x => (x != null && isElement(x))));
+
+                    const adoptedSheets = adoptedStyleSheetsCache.get(this) || [];
+                    if (adoptedSheets.length > 0) {
+                        shadowRoot.adoptedStyleSheets = [...adoptedSheets.filter(s => !shadowRoot.adoptedStyleSheets?.includes(s)), ...new Set([...(shadowRoot.adoptedStyleSheets || [])])];
+                    }
                 }
 
                 //

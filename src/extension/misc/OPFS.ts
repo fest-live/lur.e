@@ -3,38 +3,60 @@ import { makeReactive } from 'fest/object';
 import OPFSWorker from './OPFS.worker?worker';
 
 //
-let worker: any = self;
+let worker: any = null;
 const isServiceWorker = typeof ServiceWorkerGlobalScope !== "undefined" && self instanceof ServiceWorkerGlobalScope;
-
-//
-try {
-    //
-    if (typeof Worker != "undefined" && !isServiceWorker) {
-        try {
-            worker = new OPFSWorker();
-        } catch(e) {
-            // Fallback for environments where module workers are restricted (like some extension contexts without proper CSP)
-            console.warn("OPFSWorker instantiation failed, trying fallback...", e);
-            if (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.getURL) {
-                 // Try loading by URL if possible, though 'OPFSWorker' imported via Vite usually handles this.
-                 // If that failed, we might be in an environment where we can't spawn workers easily.
-                 // We will fallback to self, assuming the environment has polyfilled or we accept main thread (but OPFS sync might fail).
-                 worker = self;
-            } else {
-                 worker = self;
-            }
-        }
-    } else {
-        worker = self;
-    }
-} catch (e) {
-    worker = self;
-}
 
 //
 const pending = new Map();
 const observers = new Map();
 
+let workerInitPromise: Promise<any> | null = null;
+
+const ensureWorker = (): Promise<any> => {
+    if (workerInitPromise) return workerInitPromise;
+
+    workerInitPromise = new Promise((resolve) => {
+        // In Service Worker context we never instantiate dedicated worker, directHandlers are used instead
+        if (typeof Worker !== "undefined" && !isServiceWorker) {
+            try {
+                const instance: any = new OPFSWorker();
+                const listen = (instance.addEventListener || instance.addListener || ((n: string, h: any) => instance["on"+n] = h)).bind(instance);
+
+                listen("message", (e: any) => {
+                    if (!e.data || typeof e.data !== 'object') return;
+                    const { id, result, error, type, changes } = e.data;
+
+                    if (type === "observation") {
+                        const obs = observers.get(id);
+                        if (obs) obs(changes);
+                        return;
+                    }
+
+                    if (id && pending.has(id)) {
+                        const { resolve: res, reject: rej } = pending.get(id);
+                        pending.delete(id);
+                        if (error) rej(new Error(error));
+                        else res(result);
+                    }
+                });
+
+                worker = instance;
+                resolve(worker);
+            } catch (e) {
+                console.warn("OPFSWorker instantiation failed, falling back to main thread...", e);
+                worker = self;
+                resolve(worker);
+            }
+        } else {
+            worker = self;
+            resolve(worker);
+        }
+    });
+
+    return workerInitPromise;
+};
+
+// Direct OPFS handlers for Service Worker context (where postMessage doesn't work as expected)
 // Direct OPFS handlers for Service Worker context (where postMessage doesn't work as expected)
 const directHandlers: Record<string, (payload: any) => Promise<any>> = {
     readDirectory: async ({ rootId, path, create }: any) => {
@@ -152,28 +174,6 @@ const directHandlers: Record<string, (payload: any) => Promise<any>> = {
 };
 
 //
-if (worker != null && !isServiceWorker) {
-    const listen = (worker.addEventListener || worker.addListener || ((n: string, h: any) => worker["on"+n] = h)).bind(worker);
-    listen("message", (e: any) => {
-        if (!e.data || typeof e.data !== 'object') return;
-        const { id, result, error, type, changes } = e.data;
-
-        if (type === "observation") {
-            const obs = observers.get(id);
-            if (obs) obs(changes);
-            return;
-        }
-
-        if (id && pending.has(id)) {
-            const { resolve, reject } = pending.get(id);
-            pending.delete(id);
-            if (error) reject(new Error(error));
-            else resolve(result);
-        }
-    });
-}
-
-//
 const post = (type: string, payload: any = {}, transfer: any[] = []) => {
     // In Service Worker context, execute directly instead of using postMessage
     if (isServiceWorker && directHandlers[type]) {
@@ -184,13 +184,18 @@ const post = (type: string, payload: any = {}, transfer: any[] = []) => {
         const id = UUIDv4();
         pending.set(id, { resolve, reject });
 
-        try {
-            const transferables = transfer?.filter?.((t)=>(t instanceof ArrayBuffer || t instanceof MessagePort || (typeof ImageBitmap !== "undefined" && t instanceof ImageBitmap) || (typeof OffscreenCanvas !== "undefined" && t instanceof OffscreenCanvas)));
-            worker.postMessage({ id, type, payload }, transferables?.length ? transferables : undefined);
-        } catch (err) {
+        ensureWorker().then((w: any) => {
+            try {
+                const transferables = transfer?.filter?.((t)=>(t instanceof ArrayBuffer || t instanceof MessagePort || (typeof ImageBitmap !== "undefined" && t instanceof ImageBitmap) || (typeof OffscreenCanvas !== "undefined" && t instanceof OffscreenCanvas)));
+                w.postMessage({ id, type, payload }, transferables?.length ? transferables : undefined);
+            } catch (err) {
+                pending.delete(id);
+                reject(err);
+            }
+        }).catch((err) => {
             pending.delete(id);
             reject(err);
-        }
+        });
     });
 };
 
