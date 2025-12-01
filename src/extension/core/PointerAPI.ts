@@ -272,7 +272,7 @@ export const grabForDrag = (
                 bindings?.forEach?.(binding => binding?.());
                 promised.resolve(result);
                 elm?.dispatchEvent?.(new PointerEventDrag("m-dragend", { ...evc, bubbles: true, holding: hm, event: evc }));
-                ex.pointerId = -1; hm.canceled = true;
+                hm.canceled = true; try { ex.pointerId = -1; } catch (_) { /* noop */ }
             }
         }
     }), {capture: true}];
