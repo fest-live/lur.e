@@ -1,4 +1,4 @@
-import { RAFBehavior, orientOf, getBoundingOrientRect, setProperty } from "fest/dom";
+import { RAFBehavior, orientOf, getBoundingOrientRect, setStyleProperty } from "fest/dom";
 import { makeObjectAssignable, makeReactive, subscribe, numberRef } from "fest/object";
 import { LongPressHandler, makeShiftTrigger, E, bindDraggable } from "fest/lure";
 import { convertOrientPxToCX, redirectCell, floorNearest, ceilNearest, roundNearest } from "fest/core";
@@ -33,10 +33,10 @@ import type { GridArgsType as GridArgsType, GridItemType } from "fest/core";
 });
 
 //
-const setStyleProperty = (item, prop, value) => {
-    if (value == null || item?.style?.getPropertyValue?.(prop) === String(value)) { return; }
-    return item?.style?.setProperty?.(prop, value);
-}
+//const setStyleProperty = (item, prop, value) => {
+    /*if (value == null || item?.style?.getPropertyValue?.(prop) === String(value)) { return; }
+    return item?.style?.setProperty?.(prop, value);*/
+//}
 
 //
 //const computed = Symbol("@computed");
