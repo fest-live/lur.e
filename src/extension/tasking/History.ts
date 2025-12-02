@@ -103,7 +103,7 @@ export const initHistory = (initialView: string = "") => {
     const idx = current.index || 0;
 
     // Validate stack against current state
-    if (stack.length === 0 || idx >= stack.length /* || stack[idx]?.view !== (current.view || view) */) {
+    if (stack && (stack?.length === 0 || idx >= stack?.length) /* || stack[idx]?.view !== (current.view || view) */) {
         // If stack is invalid or empty, we try to reconstruct or reset
         // For a new session, we might want to start fresh or trust the stack if it seems plausible
         // But if history.state has an index that doesn't match stack, trust history.state (browser truth)
@@ -112,7 +112,7 @@ export const initHistory = (initialView: string = "") => {
             stack[idx] = {
                 index: idx,
                 depth: history.length,
-                action: current.action || "REPLACE",
+                action: current?.action || "REPLACE",
                 view: view,
                 timestamp: Date.now()
             };
@@ -146,7 +146,7 @@ export const initHistory = (initialView: string = "") => {
         }
     }
 
-    updateReactiveState(getCurrentState().action || "REPLACE", view);
+    updateReactiveState(getCurrentState()?.action || "REPLACE", view);
 
     //
     history.go = (delta = 0) => {
@@ -192,14 +192,14 @@ export const initHistory = (initialView: string = "") => {
 
     history.replaceState = (data: any, unused: string, url?: string | URL | null) => {
         const currentState = getCurrentState();
-        const index = currentState.index || 0;
+        const index = currentState?.index || 0;
 
         const newState: IHistoryState = {
             ...currentState,
             index: index,
             depth: history.length,
             action: "REPLACE",
-            view: url ? String(url) : (currentState.view || ""),
+            view: url ? String(url) : (currentState?.view || ""),
             timestamp: Date.now()
         };
 
@@ -207,9 +207,12 @@ export const initHistory = (initialView: string = "") => {
         const result = originalReplace?.(mergeState(newState, data), unused, url);
 
         // Update stack: replace current
-        historyState.entries[index] = newState;
-        saveStack();
+        if (historyState?.entries) {
+            historyState.entries[index] = newState;
+        }
 
+        //
+        saveStack();
         updateReactiveState("REPLACE", newState.view);
         return result;
     };
