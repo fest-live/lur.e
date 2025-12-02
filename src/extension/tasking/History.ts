@@ -54,7 +54,7 @@ const getCurrentState = (): Partial<IHistoryState> => {
 // Helper to save/load stack
 const saveStack = () => {
     try {
-        sessionStorage.setItem(STACK_KEY, JSON.stringify(historyState.entries));
+        sessionStorage.setItem(STACK_KEY, JSON.stringify(historyState?.entries));
     } catch (e) { }
 };
 
@@ -70,7 +70,7 @@ const loadStack = (): IHistoryState[] => {
 // Helper to merge state
 const mergeState = (newState: any, existingData?: any) => {
     try {
-        const current = existingData !== undefined ? existingData : (history.state || {});
+        const current = existingData !== undefined ? existingData : (history?.state || {});
         if (isPrimitive(current) && current !== null) return { value: current, [STATE_KEY]: newState };
         if (current === null) return { [STATE_KEY]: newState };
         return { ...current, [STATE_KEY]: newState };
@@ -129,10 +129,12 @@ export const initHistory = (initialView: string = "") => {
             view: view,
             timestamp: Date.now()
         };
-        history.replaceState(mergeState(state), "", location.hash);
+        history?.replaceState?.(mergeState(state), "", location.hash);
 
         // Update stack
-        historyState.entries[idx] = state;
+        if (historyState?.entries) {
+            historyState.entries[idx] = state;
+        }
         saveStack();
     } else {
         // Sync reactive state with existing history state
@@ -140,7 +142,7 @@ export const initHistory = (initialView: string = "") => {
         historyState.view = current.view || view;
 
         // Ensure stack matches current
-        if (!historyState.entries[historyState.index]) {
+        if (!historyState?.entries?.[historyState?.index]) {
              historyState.entries[historyState.index] = current as IHistoryState;
              saveStack();
         }
@@ -239,8 +241,8 @@ export const initHistory = (initialView: string = "") => {
             history.replaceState(mergeState(newState, ev.state), "", location.hash);
 
             // Update stack
-            historyState.entries = historyState.entries.slice(0, newState.index);
-            historyState.entries.push(newState);
+            historyState.entries = historyState?.entries?.slice?.(0, newState.index);
+            historyState?.entries?.push?.(newState);
             saveStack();
 
             updateReactiveState("PUSH", newState.view);
@@ -288,8 +290,8 @@ export const navigate = (view: string, replace: boolean = false) => {
     const hash = view.startsWith("#") ? view : `#${view}`;
 
     // Optimization: if replacing, check if we are just going back to previous view
-    if (replace && historyState.index > 0) {
-        const prev = historyState.entries[historyState.index - 1];
+    if (replace && historyState?.index > 0) {
+        const prev = historyState?.entries?.[historyState?.index - 1];
         if (prev && prev.view === hash) {
             // prevent hatching popstate event
             history.back();
@@ -300,11 +302,11 @@ export const navigate = (view: string, replace: boolean = false) => {
     // when doing navigation, stop hatching popstate event
     if (replace) {
         // don't do anything if the current view is the same as the new view
-        if (historyState.entries[historyState.index]?.view !== hash) {
-            history.replaceState(null, "", hash);
+        if (historyState?.entries?.[historyState.index]?.view !== hash) {
+            history?.replaceState?.(null, "", hash);
         }
     } else {
-        history.pushState(null, "", hash);
+        history?.pushState?.(null, "", hash);
     }
 };
 
