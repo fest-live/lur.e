@@ -93,11 +93,39 @@ class UniversalElementHandler {
         const wrap = (ev) => {
             const sel: any = this._selector(target);
             const rot = ev?.currentTarget ?? parent;
-            let tg = (ev?.target ?? this._getSelected(target)) ?? rot;
-            tg = tg?.element ?? tg;
+
+            // Use composedPath() for shadow DOM compatibility
+            let tg: any = null;
+            if (ev?.composedPath && typeof ev.composedPath === 'function') {
+                const path = ev.composedPath();
+                // Find the first element in the composed path that matches our selector or is within our target
+                for (const node of path) {
+                    if (node instanceof HTMLElement || node instanceof Element) {
+                        const nodeEl = (node as any)?.element ?? node;
+                        if (typeof sel == "string") {
+                            if (MOCElement(nodeEl, sel, ev)) {
+                                tg = nodeEl;
+                                break;
+                            }
+                        } else {
+                            if (containsOrSelf(sel, nodeEl, ev)) {
+                                tg = nodeEl;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Fallback to original logic if composedPath didn't find a match
+            if (!tg) {
+                tg = (ev?.target ?? this._getSelected(target)) ?? rot;
+                tg = tg?.element ?? tg;
+            }
+
             if (typeof sel == "string")
-                { if (containsOrSelf(rot, MOCElement(tg, sel))) { cb?.call?.(tg, ev); } } else
-                { if (containsOrSelf(rot, sel) && containsOrSelf(sel, tg)) { cb?.call?.(tg, ev); }
+                { if (containsOrSelf(rot, MOCElement(tg, sel, ev), ev)) { cb?.call?.(tg, ev); } } else
+                { if (containsOrSelf(rot, sel, ev) && containsOrSelf(sel, tg, ev)) { cb?.call?.(tg, ev); }
             }
         };
         parent?.addEventListener?.(eventName, wrap, option);

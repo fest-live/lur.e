@@ -10,39 +10,40 @@ const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-
 const preserveWhitespaceTags = new Set(["PRE", "TEXTAREA", "SCRIPT", "STYLE"]);
 
 //
+const parseIndex = (value: string | any | null): number => {
+    if (typeof value != "string" || !value?.trim?.()) return -1;
+    const match = value.match(/^#{(\d+)}$/);
+    return match ? parseInt(match?.[1] ?? "-1") : -1;
+}
+
+//
 const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>) => {
     if (!el) return el;
     if (el != null) {
         const entriesIdc: [string, number][] = [];
-        const addEntryIfExists = (name: string) => {
-            const idx = Array.from(el?.attributes || []).findIndex((attr) => (attr.name == name && attr.value?.includes?.("#{")));
-            if (idx >= 0) entriesIdc.push([name, idx]);
-        };
-        addEntryIfExists("dataset");
-        addEntryIfExists("style");
-        addEntryIfExists("classList");
-        addEntryIfExists("visible");
-        addEntryIfExists("aria");
-        addEntryIfExists("value");
-        addEntryIfExists("ref");
-
-        //
-        const parseIndex = (value: string) => {
-            return value?.includes?.("#{") ? value?.match?.(/#{(.*?)}/)?.[1] : null;
+        const addEntryIfExists = (name: string): [string, any] => {
+            const attr = Array.from(el?.attributes || []).find((attr) => (attr.name == name && attr.value?.includes?.("#{")));
+            if (attr) {
+                const pair: [string, any] = [name, parseIndex(attr?.value) ?? -1];
+                entriesIdc.push(pair); return pair;
+            }
+            return [name, -1];
         }
 
         //
-        const makeEntries = (startsWith: string[] | string, except: string[] | string)=>{
-            const entries: [string, number][] = [];
+        const specialEntryNames = ["dataset", "style", "classList", "visible", "aria", "value", "ref"];
+        specialEntryNames.forEach((name) => addEntryIfExists(name));
+
+        //
+        const makeEntries = (startsWith: string[] | string, except: string[] | string): [string, any][] => {
+            const entries: [string, any][] = [];
             for (const attr of Array.from(el?.attributes || [])) {
                 // needs review startsWith with "" i.e. attributes itself, just #{}
-
                 const allowedNoPrefix: boolean = (Array.isArray(startsWith) ? startsWith?.some?.((str: string)=>str=="") : (startsWith == ""));
                 const prefix: string = (Array.isArray(startsWith) ? startsWith.find((start) => attr.name?.startsWith?.(start)) : (startsWith = attr.name?.startsWith?.(startsWith) ? startsWith : "") as string) ?? "";
                 const trueAttributeName = attr.name.trim()?.replace?.(prefix, "");
                 const isPlaceholder = attr.value?.includes?.("#{") && attr.value?.includes?.("}");
-                const atbIndex = parseInt(parseIndex(attr.value) ?? "-1") ?? -1;
-
+                const atbIndex = parseIndex(attr?.value);
                 const excepted: boolean = (Array.isArray(except) ? except?.some?.((str: string)=>trueAttributeName?.startsWith?.(str)) : (except == trueAttributeName));
 
                 if (isPlaceholder && ((prefix == "" && allowedNoPrefix) || prefix != "") && atbIndex >= 0 && !excepted) {
@@ -60,7 +61,7 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
                 const prefix: string = (Array.isArray(startsWith) ? startsWith.find((start) => attr.name?.startsWith?.(start)) : (startsWith = attr.name?.startsWith?.(startsWith) ? startsWith : "") as string) ?? "";
                 const trueAttributeName = attr.name.trim()?.replace?.(prefix, "");
                 const isPlaceholder = attr.value?.includes?.("#{") && attr.value?.includes?.("}");
-                const atbIndex = parseInt(parseIndex(attr.value) ?? "-1") ?? -1;
+                const atbIndex = parseIndex(attr?.value) ?? -1;
 
                 const excepted: boolean = (Array.isArray(except) ? except?.some?.((str: string)=>trueAttributeName?.startsWith?.(str)) : (except == trueAttributeName));
                 const isSpecific: boolean = (Array.isArray(specific) ? specific?.some?.((str: string)=>attr.name === str) : (attr.name === specific)) && specific !== "";
@@ -86,22 +87,27 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         //attributesEntries = attributesEntries?.filter?.((pair) => !(propertiesEntries?.some?.((p) => p[0] == pair[0]) || onEntries?.some?.((p) => p[0] == pair[0]) || refEntries?.some?.((p) => p[0] == pair[0]))) ?? [];
 
         //
-        const bindings: any = Object.fromEntries(entriesIdc?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
-        bindings.attributes = Object.fromEntries(attributesEntries?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
-        bindings.properties = Object.fromEntries(propertiesEntries?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
-        bindings.on = Object.fromEntries(onEntries?.map?.((pair) => [pair[0], pair[1]?.map?.((idx: number) => atb?.[idx]).filter((v: any) => v != null)]) ?? []);
+        const bindings: any = Object.fromEntries(entriesIdc?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
+        bindings.attributes = Object.fromEntries(attributesEntries?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
+        bindings.properties = Object.fromEntries(propertiesEntries?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
+        bindings.on = Object.fromEntries(onEntries?.filter?.((pair) => pair[1]?.some?.((idx: number) => idx >= 0))?.map?.((pair) => [pair[0], pair[1]?.map?.((idx: number) => atb?.[idx]).filter((v: any) => v != null)]) ?? []);
 
         //
-        const refIndex = entriesIdc?.findIndex?.((pair) => (pair[0] == "ref"));
-        if (refIndex >= 0) {
+        const refIndex = entriesIdc?.find?.((pair) => (pair[0] == "ref" && pair[1] >= 0))?.[1];
+        if (refIndex != null && refIndex >= 0) {
             const ref = atb?.[refIndex];
             if (typeof ref == "function") { ref?.(el); } else if (ref != null && typeof ref == "object") { ref.value = el; }
         }
 
         //
-        refEntries?.forEach?.((pair) => {
-            const handlers = pair[1]?.map?.((idx: number) => atb?.[idx]).filter((v: any) => v != null);
-            handlers?.forEach?.((ref) => {
+        refEntries?.forEach?.((pair: [string, number[]]) => {
+            const handlers: any[] = pair?.[1]
+                ?.filter?.((idx: number) => idx != null && idx >= 0)
+                ?.map?.((idx: number) => atb?.[idx])
+                ?.filter?.((v: any) => v != null);
+
+            //
+            handlers?.forEach?.((ref: any) => {
                 if (typeof ref == "function") { ref?.(el); } else if (ref != null && typeof ref == "object") { ref.value = el; }
             });
         });

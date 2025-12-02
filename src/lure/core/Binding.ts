@@ -1,5 +1,5 @@
 import { addToCallChain, makeReactive, subscribe } from "fest/object";
-import { handleAttribute, handleProperty, namedStoreMaps, observeAttribute, observeBySelector, includeSelf, setChecked } from "fest/dom";
+import { handleAttribute, handleProperty, namedStoreMaps, observeAttribute, observeBySelector, includeSelf, setChecked, getEventTarget } from "fest/dom";
 import { $getValue, camelToKebab, $set, toRef, deref, isNotEqual, handleListeners, $avoidTrigger } from "fest/core";
 
 //
@@ -178,8 +178,10 @@ export const bindForms  = (fields: any = document.documentElement, wrapper: stri
     const wst = new WeakRef(state);
     const onChange = (ev: any)=>{
         const state = deref(wst); if (!state) return;
-        const input  = (ev?.target?.matches?.("input") ? ev?.target : ev?.target?.querySelector?.("input"));
-        const target = (ev?.target?.matches?.(wrapper) ? ev?.target : input?.closest?.(wrapper)) ?? input;
+        // Use getEventTarget for shadow DOM compatibility
+        const eventTarget = getEventTarget(ev) ?? ev?.target;
+        const input  = (eventTarget?.matches?.("input") ? eventTarget : eventTarget?.querySelector?.("input"));
+        const target = (eventTarget?.matches?.(wrapper) ? eventTarget : input?.closest?.(wrapper)) ?? input;
         const name   = input?.name || target?.name || target?.dataset?.name;
 
         //
