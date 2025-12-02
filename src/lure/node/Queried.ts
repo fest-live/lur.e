@@ -60,7 +60,7 @@ class UniversalElementHandler {
             if (this.direction == "children") { return tg?.matches?.(sel) ? tg : tg?.querySelector?.(sel); }
             if (this.direction == "parent"  ) { return tg?.matches?.(sel) ? tg : tg?.closest?.(sel); }
         }
-        return sel;
+        return tg == ((sel as any)?.element ?? sel) ? ((sel as any)?.element ?? sel) : null;
     }
 
     // if selector isn't string, can't be redirected
@@ -256,11 +256,13 @@ class UniversalElementHandler {
         // can be subscribed
         if (name == $subscribe) {
             if ((this.selector as any)?.includes?.("input") || (this.selector as any)?.matches?.("input")) {
-                return (cb)=>{
+                return (cb) => {
+                    let oldValue = selected?.value;
                     const evt: [any, any] = [
                         (ev)=>{
                             const input = this._getSelected(ev?.target);
-                            cb?.(input?.value, "value", input?.value);
+                            cb?.(input?.value, "value", oldValue);
+                            oldValue = input?.value;
                         }, {passive: true}
                     ];
                     this._addEventListener(target, "change", ...evt)
