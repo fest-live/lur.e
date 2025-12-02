@@ -1,8 +1,8 @@
-[**@fest/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.0.0**](../README.md)
 
 ***
 
-[@fest/lure](../README.md) / SwM
+[@fest-lib/lure](../README.md) / SwM
 
 # Class: SwM
 

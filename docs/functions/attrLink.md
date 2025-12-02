@@ -1,8 +1,8 @@
-[**@fest/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.0.0**](../README.md)
 
 ***
 
-[@fest/lure](../README.md) / attrLink
+[@fest-lib/lure](../README.md) / attrLink
 
 # Function: attrLink()
 

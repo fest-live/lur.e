@@ -1,8 +1,8 @@
-[**@fest/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.0.0**](../README.md)
 
 ***
 
-[@fest/lure](../README.md) / handleError
+[@fest-lib/lure](../README.md) / handleError
 
 # Function: handleError()
 

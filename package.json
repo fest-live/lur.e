@@ -1,5 +1,5 @@
 {
-    "name": "@fest/lure",
+    "name": "@fest-lib/lure",
     "description": "LURE Reactive DOM Framework API",
     "version": "0.0.0",
     "private": false,

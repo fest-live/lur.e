@@ -1,8 +1,8 @@
-[**@fest/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.0.0**](../README.md)
 
 ***
 
-[@fest/lure](../README.md) / openDirectory
+[@fest-lib/lure](../README.md) / openDirectory
 
 # Function: openDirectory()
 

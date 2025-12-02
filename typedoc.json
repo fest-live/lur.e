@@ -12,7 +12,7 @@
   "skipErrorChecking": true,
   "plugin": ["typedoc-plugin-markdown"],
   "theme": "default",
-  "name": "@fest/lure API Documentation",
+  "name": "@fest-lib/lure API Documentation",
   "categorizeByGroup": true,
   "categoryOrder": [
     "LUR-E",

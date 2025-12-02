@@ -1,8 +1,8 @@
-[**@fest/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.0.0**](../README.md)
 
 ***
 
-[@fest/lure](../README.md) / bindHandler
+[@fest-lib/lure](../README.md) / bindHandler
 
 # Function: bindHandler()
 

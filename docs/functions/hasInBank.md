@@ -1,8 +1,8 @@
-[**@fest/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.0.0**](../README.md)
 
 ***
 
-[@fest/lure](../README.md) / hasInBank
+[@fest-lib/lure](../README.md) / hasInBank
 
 # Function: hasInBank()
 

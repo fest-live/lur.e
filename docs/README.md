@@ -1,8 +1,8 @@
-**@fest/lure v0.0.0**
+**@fest-lib/lure v0.0.0**
 
 ***
 
-# @fest/lure v0.0.0
+# @fest-lib/lure v0.0.0
 
 ## Classes
 
