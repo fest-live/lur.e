@@ -1,4 +1,4 @@
-import { observeAttributeBySelector, getStyleRule, handleAttribute, observeAttribute, observeBySelector, containsOrSelf, MOCElement } from "fest/dom";
+import { observeAttributeBySelector, getAdoptedStyleRule, handleAttribute, observeAttribute, observeBySelector, containsOrSelf, MOCElement } from "fest/dom";
 import { bindWith, elMap } from "../core/Binding";
 import { $subscribe } from "fest/object";
 
@@ -147,7 +147,7 @@ class UniversalElementHandler {
             const tg = target?.self ?? target;
             const selector = this._selector(target);
             const basis = (typeof selector == "string" ?
-                getStyleRule(selector, null, "ux-query", tg) :
+                getAdoptedStyleRule(selector, "ux-query", tg) :
                 selected
             );
             if (name == "attributeStyleMap") {
