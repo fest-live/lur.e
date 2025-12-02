@@ -15,7 +15,7 @@ function makeTask(
 action?): refValid<any, Task>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:109](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Tasks.ts#L109)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:124](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L124)
 
 ## Parameters
 
@@ -25,11 +25,11 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:109](https://
 
 ### list?
 
-`null` | [`ITask`](../interfaces/ITask.md)[]
+[`ITask`](../interfaces/ITask.md)[] | `null`
 
 ### state?
 
-`null` | [`ITaskOptions`](../interfaces/ITaskOptions.md)
+[`ITaskOptions`](../interfaces/ITaskOptions.md) | `null`
 
 ### payload?
 

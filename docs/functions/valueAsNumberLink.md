@@ -7,10 +7,10 @@
 # Function: valueAsNumberLink()
 
 ```ts
-function valueAsNumberLink(element?, exists?): undefined | () => void;
+function valueAsNumberLink(element?, exists?): () => void | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:162](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/core/Links.ts#L162)
+Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:194](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/lure/core/Links.ts#L194)
 
 ## Parameters
 
@@ -24,4 +24,4 @@ Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:162](https://github.c
 
 ## Returns
 
-`undefined` \| () => `void`
+() => `void` \| `undefined`

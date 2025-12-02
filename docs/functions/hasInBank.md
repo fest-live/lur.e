@@ -10,7 +10,7 @@
 function hasInBank(el, handle): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Binding.ts:87](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/core/Binding.ts#L87)
+Defined in: [modules/projects/lur.e/src/lure/core/Binding.ts:89](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/lure/core/Binding.ts#L89)
 
 ## Parameters
 

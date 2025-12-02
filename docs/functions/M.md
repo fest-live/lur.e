@@ -13,7 +13,7 @@ function M(
    boundParent?): Mp;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Mapped.ts:211](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Mapped.ts#L211)
+Defined in: [modules/projects/lur.e/src/lure/node/Mapped.ts:271](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/lure/node/Mapped.ts#L271)
 
 ## Parameters
 
@@ -27,7 +27,7 @@ Defined in: [modules/projects/lur.e/src/lure/node/Mapped.ts:211](https://github.
 
 ### boundParent?
 
-`null` | `Node` | `MappedOptions`
+`Node` | `MappedOptions` | `null`
 
 ## Returns
 

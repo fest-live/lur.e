@@ -11,10 +11,10 @@ function attrLink(
    element?, 
    exists?, 
    attribute?, 
-   initial?): undefined | () => void;
+   initial?): () => void | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:94](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/core/Links.ts#L94)
+Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:126](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/lure/core/Links.ts#L126)
 
 ## Parameters
 
@@ -36,4 +36,4 @@ Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:94](https://github.co
 
 ## Returns
 
-`undefined` \| () => `void`
+() => `void` \| `undefined`

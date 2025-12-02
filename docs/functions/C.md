@@ -13,7 +13,7 @@ function C(
    boundParent?): any;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Changeable.ts:175](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/node/Changeable.ts#L175)
+Defined in: [modules/projects/lur.e/src/lure/node/Changeable.ts:184](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/lure/node/Changeable.ts#L184)
 
 ## Parameters
 
@@ -27,7 +27,7 @@ Defined in: [modules/projects/lur.e/src/lure/node/Changeable.ts:175](https://git
 
 ### boundParent?
 
-`null` | `Node` | `ChangeableOptions`
+`Node` | `ChangeableOptions` | `null`
 
 ## Returns
 

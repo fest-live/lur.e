@@ -6,7 +6,7 @@
 
 # Class: ResizeHandler
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:11](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/controllers/Resizable.ts#L11)
+Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:11](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/Resizable.ts#L11)
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:11](h
 new ResizeHandler(holder, options?): ResizeHandler;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:19](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/controllers/Resizable.ts#L19)
+Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:19](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/Resizable.ts#L19)
 
 #### Parameters
 
@@ -44,7 +44,7 @@ limitResize(
    container): any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:26](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/controllers/Resizable.ts#L26)
+Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:26](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/Resizable.ts#L26)
 
 #### Parameters
 
@@ -74,15 +74,15 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:26](h
 
 ```ts
 resizable(options): 
-  | undefined
   | {
   dispose: () => void;
   draggable: any;
   process: (ev, el) => Promise<unknown>;
-};
+}
+  | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:38](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/controllers/Resizable.ts#L38)
+Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:38](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/Resizable.ts#L38)
 
 #### Parameters
 
@@ -92,9 +92,9 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:38](h
 
 #### Returns
 
-  \| `undefined`
   \| \{
   `dispose`: () => `void`;
   `draggable`: `any`;
   `process`: (`ev`, `el`) => `Promise`\<`unknown`\>;
 \}
+  \| `undefined`

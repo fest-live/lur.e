@@ -12,15 +12,15 @@ function bindDraggable(
    onEnd, 
    draggable, 
    shifting): 
-  | undefined
   | {
   dispose: () => void;
   draggable: any;
   process: (ev, el) => Promise<unknown>;
-};
+}
+  | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:296](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/core/PointerAPI.ts#L296)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:305](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L305)
 
 ## Parameters
 
@@ -42,9 +42,9 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:296](https:
 
 ## Returns
 
-  \| `undefined`
   \| \{
   `dispose`: () => `void`;
   `draggable`: `any`;
   `process`: (`ev`, `el`) => `Promise`\<`unknown`\>;
 \}
+  \| `undefined`

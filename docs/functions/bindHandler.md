@@ -13,10 +13,10 @@ function bindHandler(
    prop, 
    handler, 
    set?, 
-   withObserver?): undefined | () => void;
+   withObserver?): () => void | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Binding.ts:93](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/core/Binding.ts#L93)
+Defined in: [modules/projects/lur.e/src/lure/core/Binding.ts:95](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/lure/core/Binding.ts#L95)
 
 ## Parameters
 
@@ -46,4 +46,4 @@ Defined in: [modules/projects/lur.e/src/lure/core/Binding.ts:93](https://github.
 
 ## Returns
 
-`undefined` \| () => `void`
+() => `void` \| `undefined`

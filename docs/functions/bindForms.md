@@ -10,16 +10,16 @@
 function bindForms(
    fields, 
    wrapper, 
-   state): object;
+   state): any;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Binding.ts:172](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/lure/core/Binding.ts#L172)
+Defined in: [modules/projects/lur.e/src/lure/core/Binding.ts:174](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/lure/core/Binding.ts#L174)
 
 ## Parameters
 
 ### fields
 
-`HTMLElement` = `document.documentElement`
+`any` = `document.documentElement`
 
 ### wrapper
 
@@ -27,6 +27,8 @@ Defined in: [modules/projects/lur.e/src/lure/core/Binding.ts:172](https://github
 
 ### state
 
+`any` = `{}`
+
 ## Returns
 
-`object`
+`any`

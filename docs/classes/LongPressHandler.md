@@ -6,7 +6,7 @@
 
 # Class: LongPressHandler
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:13](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/controllers/LongPress.ts#L13)
+Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:21](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/LongPress.ts#L21)
 
 ## Constructors
 
@@ -19,7 +19,7 @@ new LongPressHandler(
    fx?): LongPressHandler;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:17](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/controllers/LongPress.ts#L17)
+Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:25](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/LongPress.ts#L25)
 
 #### Parameters
 
@@ -44,10 +44,10 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:17](h
 ### defaultHandler()
 
 ```ts
-defaultHandler(ev, weakRef): undefined | boolean;
+defaultHandler(ev, weakRef): boolean | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:27](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/controllers/LongPress.ts#L27)
+Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:36](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/LongPress.ts#L36)
 
 #### Parameters
 
@@ -61,7 +61,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:27](h
 
 #### Returns
 
-`undefined` \| `boolean`
+`boolean` \| `undefined`
 
 ***
 
@@ -71,7 +71,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:27](h
 longPress(options, fx?): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:32](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/controllers/LongPress.ts#L32)
+Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:41](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/LongPress.ts#L41)
 
 #### Parameters
 

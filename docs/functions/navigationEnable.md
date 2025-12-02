@@ -10,7 +10,7 @@
 function navigationEnable(tasks, taskEnvAction?): ITask[];
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Manager.ts:22](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/tasking/Manager.ts#L22)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Manager.ts:52](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Manager.ts#L52)
 
 ## Parameters
 

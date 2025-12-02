@@ -10,7 +10,7 @@
 function generateAnchorId(): string;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/AnchorOverlay.ts:3](https://github.com/fest-live/lur.e/blob/8033cbe33e37b11f63de4da332415467e40bf204/src/extension/controllers/AnchorOverlay.ts#L3)
+Defined in: [modules/projects/lur.e/src/extension/controllers/AnchorOverlay.ts:3](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/AnchorOverlay.ts#L3)
 
 ## Returns
 
