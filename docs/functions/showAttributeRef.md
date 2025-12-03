@@ -10,7 +10,7 @@
 function showAttributeRef(attribute): any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:61](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/Anchor.ts#L61)
+Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:61](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Anchor.ts#L61)
 
 ## Parameters
 

@@ -6,7 +6,7 @@
 
 # Class: LongPressHandler
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:21](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/LongPress.ts#L21)
+Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:21](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongPress.ts#L21)
 
 ## Constructors
 
@@ -19,7 +19,7 @@ new LongPressHandler(
    fx?): LongPressHandler;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:25](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/LongPress.ts#L25)
+Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:25](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongPress.ts#L25)
 
 #### Parameters
 
@@ -47,7 +47,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:25](h
 defaultHandler(ev, weakRef): boolean | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:36](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/LongPress.ts#L36)
+Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:36](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongPress.ts#L36)
 
 #### Parameters
 
@@ -71,7 +71,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:36](h
 longPress(options, fx?): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:41](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/controllers/LongPress.ts#L41)
+Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:41](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongPress.ts#L41)
 
 #### Parameters
 

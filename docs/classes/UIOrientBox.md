@@ -6,7 +6,7 @@
 
 # Class: UIOrientBox
 
-Defined in: [modules/projects/lur.e/src/extension/orient/OrientBox.ts:6](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/orient/OrientBox.ts#L6)
+Defined in: [modules/projects/lur.e/src/extension/orient/OrientBox.ts:6](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/orient/OrientBox.ts#L6)
 
 ## Extends
 
@@ -20,7 +20,7 @@ Defined in: [modules/projects/lur.e/src/extension/orient/OrientBox.ts:6](https:/
 new UIOrientBox(name?): UIOrientBox;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/orient/OrientBox.ts:7](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/orient/OrientBox.ts#L7)
+Defined in: [modules/projects/lur.e/src/extension/orient/OrientBox.ts:7](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/orient/OrientBox.ts#L7)
 
 #### Parameters
 
@@ -48,7 +48,7 @@ DOMMixin.constructor
 get elements(): any;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:134](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L134)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:134](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L134)
 
 ##### Returns
 
@@ -70,7 +70,7 @@ DOMMixin.elements
 get name(): string | undefined;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:136](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L136)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:136](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L136)
 
 ##### Returns
 
@@ -92,7 +92,7 @@ DOMMixin.name
 get storage(): WeakMap<any, any> | undefined;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:135](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L135)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:135](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L135)
 
 ##### Returns
 
@@ -112,7 +112,7 @@ DOMMixin.storage
 connect(ws): UIOrientBox;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/orient/OrientBox.ts:10](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/orient/OrientBox.ts#L10)
+Defined in: [modules/projects/lur.e/src/extension/orient/OrientBox.ts:10](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/orient/OrientBox.ts#L10)
 
 #### Parameters
 
@@ -141,7 +141,7 @@ disconnect(
    related): UIOrientBox;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:127](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L127)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:127](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L127)
 
 #### Parameters
 
@@ -175,7 +175,7 @@ DOMMixin.disconnect
 relatedForElement(element): object;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:131](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L131)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:131](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L131)
 
 #### Parameters
 
@@ -219,7 +219,7 @@ DOMMixin.relatedForElement
 storeForElement(element): any;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:130](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L130)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:130](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L130)
 
 #### Parameters
 

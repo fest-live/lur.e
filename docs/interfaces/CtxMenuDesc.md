@@ -6,7 +6,7 @@
 
 # Interface: CtxMenuDesc
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:21](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/CtxMenu.ts#L21)
+Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:21](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L21)
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:21](https://gi
 optional buildItems: (details) => void | MenuItem[][];
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:24](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/CtxMenu.ts#L24)
+Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:24](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L24)
 
 #### Parameters
 
@@ -54,7 +54,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:24](https://gi
 optional context: any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:26](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/CtxMenu.ts#L26)
+Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:26](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L26)
 
 ***
 
@@ -64,7 +64,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:26](https://gi
 optional defaultAction: (initiator, item, ev) => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:23](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/CtxMenu.ts#L23)
+Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:23](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L23)
 
 #### Parameters
 
@@ -92,7 +92,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:23](https://gi
 optional items: MenuItem[][];
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:22](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/CtxMenu.ts#L22)
+Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:22](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L22)
 
 ***
 
@@ -102,7 +102,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:22](https://gi
 optional onBeforeOpen: (details) => boolean | void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:25](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/CtxMenu.ts#L25)
+Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:25](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L25)
 
 #### Parameters
 
@@ -148,4 +148,4 @@ optional openedWith:
   | null;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:27](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/CtxMenu.ts#L27)
+Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:27](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L27)

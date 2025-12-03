@@ -55,7 +55,7 @@ const paddingBoxSize  = (source: HTMLElement, axis: number, inputChange?: any|nu
     subscribe(scroll, (vl: any)=>{ recompute?.(); });
     addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
     addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
-    requestAnimationFrame(()=>{ recompute?.(); });
+    queueMicrotask(()=>{ recompute?.(); });
     return content;
 }
 
@@ -77,7 +77,7 @@ const scrollSize  = (source: HTMLElement, axis: number = 0, inputChange?: any|nu
     subscribe(conRef, (vl: any)=>{ recompute?.(); });
     addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
     addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
-    requestAnimationFrame(()=>{ recompute?.(); });
+    queueMicrotask(()=>{ recompute?.(); });
     return percent;
 }
 

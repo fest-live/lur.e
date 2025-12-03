@@ -103,7 +103,7 @@ export const doAnimate = async (newItem, axis: any = "x", animate = false, signa
 export const reflectCell = async (newItem: HTMLElement, pArgs: GridArgsType, withAnimate = false): Promise<void> => {
     const layout: [number, number] = [(pArgs?.layout as any)?.columns || pArgs?.layout?.[0] || 4, (pArgs?.layout as any)?.rows || pArgs?.layout?.[1] || 8];
     const {item, list, items} = pArgs;
-    await new Promise((r)=>requestAnimationFrame(r));
+    await new Promise((r)=>queueMicrotask(()=>r(true)));
     return subscribe?.(item, (state, property)=>{
         const gridSystem = newItem?.parentElement;
         layout[0] = parseInt(gridSystem?.getAttribute?.("data-grid-columns") || "4") || layout[0];

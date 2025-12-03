@@ -6,7 +6,7 @@
 
 # Class: Task
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:8](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L8)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:8](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L8)
 
 ## Implements
 
@@ -25,7 +25,7 @@ new Task(
    action?): Task;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:17](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L17)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:17](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L17)
 
 #### Parameters
 
@@ -61,7 +61,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:17](https://g
 optional _unregisterBack: () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:14](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L14)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:14](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L14)
 
 #### Returns
 
@@ -75,7 +75,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:14](https://g
 $action: () => boolean | void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:10](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L10)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:10](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L10)
 
 #### Returns
 
@@ -89,7 +89,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:10](https://g
 $active: boolean = false;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:9](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L9)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:9](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L9)
 
 #### Implementation of
 
@@ -103,7 +103,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:9](https://gi
 optional list: ITask[] | null;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:13](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L13)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:13](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L13)
 
 #### Implementation of
 
@@ -117,7 +117,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:13](https://g
 payload: any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:11](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L11)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:11](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L11)
 
 #### Implementation of
 
@@ -131,7 +131,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:11](https://g
 taskId: string;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:12](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L12)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:12](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L12)
 
 #### Implementation of
 
@@ -147,7 +147,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:12](https://g
 get active(): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:56](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L56)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:56](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L56)
 
 ##### Returns
 
@@ -159,7 +159,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:56](https://g
 set active(activeStatus): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:66](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L66)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:66](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L66)
 
 ##### Parameters
 
@@ -185,7 +185,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:66](https://g
 get focus(): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:58](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L58)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:58](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L58)
 
 ##### Returns
 
@@ -197,7 +197,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:58](https://g
 set focus(activeStatus): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:82](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L82)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:82](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L82)
 
 ##### Parameters
 
@@ -223,7 +223,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:82](https://g
 get order(): number;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:57](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L57)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:57](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L57)
 
 ##### Returns
 
@@ -241,7 +241,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:57](https://g
 addSelfToList(list?, doFocus?): ITask;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:32](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L32)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:32](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L32)
 
 #### Parameters
 
@@ -269,7 +269,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:32](https://g
 removeFromList(): Task;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:113](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L113)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:113](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L113)
 
 #### Returns
 
@@ -287,7 +287,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:113](https://
 takeAction(): boolean | void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:108](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/Tasks.ts#L108)
+Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:108](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L108)
 
 #### Returns
 

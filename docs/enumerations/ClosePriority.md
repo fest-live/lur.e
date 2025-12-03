@@ -6,7 +6,7 @@
 
 # Enumeration: ClosePriority
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:21](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L21)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:21](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L21)
 
 ## Enumeration Members
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:21](
 CONTEXT_MENU: 100;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:23](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L23)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:23](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L23)
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:23](
 DEFAULT: 0;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:33](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L33)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:33](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L33)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:33](
 DIALOG: 70;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:26](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L26)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:26](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L26)
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:26](
 DROPDOWN: 90;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:24](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L24)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:24](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L24)
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:24](
 MODAL: 80;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:25](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L25)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:25](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L25)
 
 ***
 
@@ -66,7 +66,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:25](
 OVERLAY: 50;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:28](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L28)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:28](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L28)
 
 ***
 
@@ -76,7 +76,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:28](
 PANEL: 40;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:29](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L29)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:29](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L29)
 
 ***
 
@@ -86,7 +86,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:29](
 SIDEBAR: 60;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:27](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L27)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:27](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L27)
 
 ***
 
@@ -96,7 +96,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:27](
 TASK: 20;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:31](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L31)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:31](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L31)
 
 ***
 
@@ -106,7 +106,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:31](
 TOAST: 30;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:30](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L30)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:30](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L30)
 
 ***
 
@@ -116,4 +116,4 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:30](
 VIEW: 10;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:32](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/tasking/BackNavigation.ts#L32)
+Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:32](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L32)

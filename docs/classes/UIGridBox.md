@@ -6,7 +6,7 @@
 
 # Class: UIGridBox
 
-Defined in: [modules/projects/lur.e/src/extension/grid/GridBox.ts:5](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/grid/GridBox.ts#L5)
+Defined in: [modules/projects/lur.e/src/extension/grid/GridBox.ts:5](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/grid/GridBox.ts#L5)
 
 ## Extends
 
@@ -20,7 +20,7 @@ Defined in: [modules/projects/lur.e/src/extension/grid/GridBox.ts:5](https://git
 new UIGridBox(name?): UIGridBox;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/grid/GridBox.ts:6](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/grid/GridBox.ts#L6)
+Defined in: [modules/projects/lur.e/src/extension/grid/GridBox.ts:6](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/grid/GridBox.ts#L6)
 
 #### Parameters
 
@@ -48,7 +48,7 @@ DOMMixin.constructor
 get elements(): any;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:134](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L134)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:134](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L134)
 
 ##### Returns
 
@@ -70,7 +70,7 @@ DOMMixin.elements
 get name(): string | undefined;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:136](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L136)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:136](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L136)
 
 ##### Returns
 
@@ -90,7 +90,7 @@ Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:136](https://github.com
 get storage(): WeakMap<any, any> | undefined;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:135](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L135)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:135](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L135)
 
 ##### Returns
 
@@ -110,7 +110,7 @@ DOMMixin.storage
 connect(ws): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/grid/GridBox.ts:9](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/grid/GridBox.ts#L9)
+Defined in: [modules/projects/lur.e/src/extension/grid/GridBox.ts:9](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/grid/GridBox.ts#L9)
 
 #### Parameters
 
@@ -139,7 +139,7 @@ disconnect(
    related): UIGridBox;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:127](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L127)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:127](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L127)
 
 #### Parameters
 
@@ -173,7 +173,7 @@ DOMMixin.disconnect
 relatedForElement(element): object;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:131](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L131)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:131](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L131)
 
 #### Parameters
 
@@ -217,7 +217,7 @@ DOMMixin.relatedForElement
 storeForElement(element): any;
 ```
 
-Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:130](https://github.com/fest-live/dom.ts/blob/f3b6f31d65ad2492ce149f3b113044e1f4209407/src/mixin/Mixins.ts#L130)
+Defined in: [modules/projects/dom.ts/src/mixin/Mixins.ts:130](https://github.com/fest-live/dom.ts/blob/983cda32c3c5c867e77e7a9816aea26077dbaaf4/src/mixin/Mixins.ts#L130)
 
 #### Parameters
 

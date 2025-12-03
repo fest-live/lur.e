@@ -84,7 +84,7 @@ export class DragHandler {
         const dragResolve = (dragging)   => {
             const holder = weak?.deref?.() as any;
             holder?.style?.removeProperty?.("will-change");
-            requestAnimationFrame(()=>{
+            queueMicrotask(()=>{
                 holder?.removeAttribute?.("data-dragging");
                 holder?.style?.removeProperty?.("transform");
             });

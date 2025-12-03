@@ -6,7 +6,7 @@
 
 # Class: DecorWith
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:5](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L5)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:5](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L5)
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:5](https://
 new DecorWith(addition): DecorWith;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:9](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L9)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:9](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L9)
 
 #### Parameters
 
@@ -39,7 +39,7 @@ defineProperty(
    desc): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:24](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L24)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:24](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L24)
 
 #### Parameters
 
@@ -67,7 +67,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:24](https:/
 deleteProperty(target, name): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:25](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L25)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:25](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L25)
 
 #### Parameters
 
@@ -91,7 +91,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:25](https:/
 get(target, name): any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:10](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L10)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:10](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L10)
 
 #### Parameters
 
@@ -115,7 +115,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:10](https:/
 getOwnPropertyDescriptor(target, name): TypedPropertyDescriptor<any> | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:19](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L19)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:19](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L19)
 
 #### Parameters
 
@@ -139,7 +139,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:19](https:/
 getPrototypeOf(target): object | null;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:20](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L20)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:20](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L20)
 
 #### Parameters
 
@@ -159,7 +159,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:20](https:/
 isExtensible(target): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:22](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L22)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:22](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L22)
 
 #### Parameters
 
@@ -179,7 +179,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:22](https:/
 ownKeys(target): (string | symbol)[];
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:18](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L18)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:18](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L18)
 
 #### Parameters
 
@@ -199,7 +199,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:18](https:/
 preventExtensions(target): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:23](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L23)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:23](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L23)
 
 #### Parameters
 
@@ -222,7 +222,7 @@ set(
    val): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:11](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L11)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:11](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L11)
 
 #### Parameters
 
@@ -250,7 +250,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:11](https:/
 setPrototypeOf(target, proto): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:21](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/PointerAPI.ts#L21)
+Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:21](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L21)
 
 #### Parameters
 

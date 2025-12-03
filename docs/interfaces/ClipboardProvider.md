@@ -6,7 +6,7 @@
 
 # Interface: ClipboardProvider
 
-Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:4](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/Clipboard.ts#L4)
+Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:4](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Clipboard.ts#L4)
 
 ## Methods
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:4](https://g
 optional onCopy(ev): boolean | void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:5](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/Clipboard.ts#L5)
+Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:5](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Clipboard.ts#L5)
 
 #### Parameters
 
@@ -36,7 +36,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:5](https://g
 optional onCut(ev): boolean | void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:6](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/Clipboard.ts#L6)
+Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:6](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Clipboard.ts#L6)
 
 #### Parameters
 
@@ -56,7 +56,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:6](https://g
 optional onPaste(ev): boolean | void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:7](https://github.com/fest-live/lur.e/blob/211e5159c17466d5ef8d3d0f9ccb52b3f19f48d6/src/extension/core/Clipboard.ts#L7)
+Defined in: [modules/projects/lur.e/src/extension/core/Clipboard.ts:7](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Clipboard.ts#L7)
 
 #### Parameters
 

@@ -45,7 +45,7 @@ export class ResizeHandler {
             holder?.style?.removeProperty?.("will-change");
             //holder?.style?.setProperty("--resize-x", "0");
             //holder?.style?.setProperty("--resize-y", "0");
-            requestAnimationFrame(()=>{
+            queueMicrotask(()=>{
                 holder?.removeAttribute?.("data-resizing");
             });
         };
