@@ -1,5 +1,5 @@
 import { addToCallChain, subscribe, observe } from "fest/object";
-import { isNotEqual } from "fest/core";
+import { isNotEqual, isPrimitive } from "fest/core";
 
 //
 import { bindHandler, bindWith } from "../core/Binding";
@@ -12,10 +12,22 @@ import { setChecked } from "fest/dom";
 // !
 
 //
+const $entries = (obj: any) => {
+    if (isPrimitive(obj)) { return []; }
+    if (Array.isArray(obj)) { return obj.map((item, idx) => [idx, item]); }
+    if (obj instanceof Map) { return Array.from(obj.entries()); }
+    if (obj instanceof Set) { return Array.from(obj.values()); }
+    return Array.from(Object.entries(obj));
+}
+
+//
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     if (!attributes) return element;
     const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
+        $entries(attributes).forEach(([prop, value])=>{
+            handleAttribute(wel?.deref?.(), prop, value);
+        });
         const usub = subscribe(attributes, (value, prop: any)=>{
             handleAttribute(wel?.deref?.(), prop, value);
             bindHandler(wel?.deref?.(), value, prop, handleAttribute, weak, true);
@@ -31,6 +43,9 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
     if (!aria) return element;
     const weak = new WeakRef(aria), wel = new WeakRef(element);
     if (typeof aria == "object" || typeof aria == "function") {
+        $entries(aria).forEach(([prop, value])=>{
+            handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);
+        });
         const usub = subscribe(aria, (value, prop)=>{ // @ts-ignore
             handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
@@ -46,6 +61,9 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
     if (!dataset) return element;
     const weak = new WeakRef(dataset), wel = new WeakRef(element);
     if (typeof dataset == "object" || typeof dataset == "function") {
+        $entries(dataset).forEach(([prop, value])=>{
+            handleDataset(wel?.deref?.(), prop, value);
+        });
         const usub = subscribe(dataset, (value, prop: any)=>{
             handleDataset(wel?.deref?.(), prop, value);
             bindHandler(wel?.deref?.(), value, prop, handleDataset, weak);
@@ -63,6 +81,9 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (typeof styles?.value == "string") { subscribe([styles, "value"], (val) => { element.style.cssText = val; }); } else
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
+        $entries(styles).forEach(([prop, value])=>{
+            handleStyleChange(wel?.deref?.(), prop, value);
+        });
         const usub = subscribe(styles, (value, prop: any)=>{
             handleStyleChange(wel?.deref?.(), prop, value);
             bindHandler(wel?.deref?.(), value, prop, handleStyleChange, weak?.deref?.());
@@ -89,33 +110,39 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     };
 
     //
-    const usubs = [
-        subscribe(properties, (value, prop: any) => {
-            const el = wel.deref();
-            if (el) {
-                if (prop == "checked") {
-                    setChecked(el as HTMLInputElement, value);
-                } else {
-                    bindWith(el, prop, value, handleProperty, weak?.deref?.(), true);
-                }
+    $entries(properties).forEach(([prop, value])=>{
+        handleProperty(wel?.deref?.(), prop, value);
+    });
+
+    //
+    const usub = subscribe(properties, (value, prop: any) => {
+        const el = wel.deref();
+        if (el) {
+            if (prop == "checked") {
+                setChecked(el as HTMLInputElement, value);
+            } else {
+                bindWith(el, prop, value, handleProperty, weak?.deref?.(), true);
             }
-        })
-    ]
+        }
+    });
 
     //
-    const usub = ()=> { usubs?.forEach((usub)=>usub?.()); wel?.deref?.()?.removeEventListener?.("change", onChange);  };
-
-    //
-    addToCallChain(properties, Symbol.dispose, usub);
-    addToCallChain(element, Symbol.dispose, usub);
-
-    // if any input
-    element.addEventListener("change", onChange); return element;
+    addToCallChain(properties, Symbol.dispose, usub); addToCallChain(element, Symbol.dispose, usub); element.addEventListener("change", onChange); return element;
 }
 
 //
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return element; const wel = new WeakRef(element);
+
+    //
+    $entries(classList).forEach(([prop, value]) => {
+        const el = element;
+        if (typeof value == "undefined" || value == null)
+            { if ( el.classList.contains(value)) { el.classList.remove(value); } } else
+            { if (!el.classList.contains(value)) { el.classList.add(value); }
+        }
+    });
+
     const usub = observe(classList, (value: string)=>{
         const el = wel?.deref?.();
         if (el) {
