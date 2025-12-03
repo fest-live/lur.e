@@ -146,8 +146,8 @@ export const clickPrevention = (element, pointerId = 0)=>{
     //
     const rmev = ()=>{
         preventedPointers.delete(pointerId);
-        dce?.forEach?.(e => e?.[0]?.());
-        ece?.forEach?.(e => e?.[0]?.());
+        dce?.forEach?.(unbind => unbind?.());
+        ece?.forEach?.(unbind => unbind?.());
     }
 
     //
@@ -268,9 +268,9 @@ export const grabForDrag = (
                 if (evc?.type == "pointerup") { clickPrevention(elm, evc?.pointerId); };
 
                 //
-                elm?.releaseCapturePointer?.(evc?.pointerId);
+                queueMicrotask(() => promised?.resolve?.(result));
                 bindings?.forEach?.(binding => binding?.());
-                promised.resolve(result);
+                elm?.releaseCapturePointer?.(evc?.pointerId);
                 elm?.dispatchEvent?.(new PointerEventDrag("m-dragend", { ...evc, bubbles: true, holding: hm, event: evc }));
                 hm.canceled = true; try { ex.pointerId = -1; } catch (_) { /* noop */ }
             }
@@ -279,23 +279,26 @@ export const grabForDrag = (
 
     //
     let bindings: any = null;
-    if (em?.dispatchEvent?.(new PointerEventDrag("m-dragstart", { ...ex, bubbles: true, holding: hm, event: ex }))) {
-        //ex?.capture?.(em);
-        em?.setPointerCapture?.(ex?.pointerId);
+    clickPrevention(em, ex?.pointerId);
+    queueMicrotask(() => {
+        if (em?.dispatchEvent?.(new PointerEventDrag("m-dragstart", { ...ex, bubbles: true, holding: hm, event: ex }))) {
+            //ex?.capture?.(em);
+            em?.setPointerCapture?.(ex?.pointerId);
 
-        //
-        bindings = addEvents(em, {
-            "pointermove": moveEvent,
-            "pointercancel": releaseEvent,
-            "pointerup": releaseEvent
-        });
+            //
+            bindings = addEvents(em, {
+                "pointermove": moveEvent,
+                "pointercancel": releaseEvent,
+                "pointerup": releaseEvent
+            });
 
-        //
-        bindings?.push?.(...addEvents(document.documentElement, {
-            "pointercancel": releaseEvent,
-            "pointerup": releaseEvent
-        }));
-    } else { hm.canceled = true; }
+            //
+            bindings?.push?.(...addEvents(document.documentElement, {
+                "pointercancel": releaseEvent,
+                "pointerup": releaseEvent
+            }));
+        } else { hm.canceled = true; }
+    });
 
     //
     return promised?.promise ?? result;
