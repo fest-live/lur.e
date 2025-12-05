@@ -1,5 +1,5 @@
 import { makeReactive, propRef, subscribe } from "fest/object";
-import { addEvent } from "fest/dom";
+import { addEvent, hash } from "fest/dom";
 import { isPrimitive } from "fest/core";
 import { getIgnoreNextPopState, setIgnoreNextPopState } from "./BackNavigation";
 
@@ -45,7 +45,7 @@ export const historyState = makeReactive({
 // Helper to get current state safely
 const getCurrentState = (): Partial<IHistoryState> => {
     try {
-        return history.state?.[STATE_KEY] || {};
+        return history.state?.[STATE_KEY] || historyState?.entries?.[historyState?.index] || {};
     } catch (e) {
         return {};
     }
@@ -192,10 +192,12 @@ export const initHistory = (initialView: string = "") => {
         return result;
     };
 
+    //
     history.replaceState = (data: any, unused: string, url?: string | URL | null) => {
         const currentState = getCurrentState();
         const index = currentState?.index || 0;
 
+        //
         const newState: IHistoryState = {
             ...currentState,
             index: index,
@@ -211,6 +213,7 @@ export const initHistory = (initialView: string = "") => {
         // Update stack: replace current
         if (historyState?.entries) {
             historyState.entries[index] = newState;
+            historyState.entries[historyState.index].view = url ? String(url) : (currentState?.view || "");
         }
 
         //
@@ -302,7 +305,7 @@ export const navigate = (view: string, replace: boolean = false) => {
     // when doing navigation, stop hatching popstate event
     if (replace) {
         // don't do anything if the current view is the same as the new view
-        if (historyState?.entries?.[historyState.index]?.view !== hash) {
+        if (historyState?.entries?.[historyState.index]?.view !== hash || historyState?.entries?.[historyState.index]?.view) {
             history?.replaceState?.(null, "", hash);
         }
     } else {
