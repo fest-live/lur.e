@@ -39,17 +39,14 @@ export const lazyAddEventListener = <E extends Event = Event>(
     if (!hub) {
         const handlers = new Set<AnyHandler>();
         const listener = (ev: Event) => {
-            // Snapshot to avoid iteration issues if handlers mutate during dispatch.
             for (const cb of Array.from(handlers)) {
                 try {
                     cb(ev);
                 } catch (e) {
-                    // Keep the global listener alive even if a handler throws.
                     console.warn(e);
                 }
             }
         };
-
         hubs.set(key, hub = { handlers, listener, options: normalized });
         (target as any).addEventListener(type, listener, normalized);
     }
@@ -71,33 +68,48 @@ export const lazyAddEventListener = <E extends Event = Event>(
 };
 
 type ProxiedStrategy = "closest" | "bubble";
+type When = boolean | "handled";
+
+type ProxiedConfig = {
+    strategy?: ProxiedStrategy;
+    preventDefault?: When;
+    stopPropagation?: When;
+    stopImmediatePropagation?: When;
+};
+
 type ProxiedHub = {
     targets: Map<HTMLElement, Set<AnyHandler>>;
     unbindGlobal: (() => void) | null;
     options: AddEventListenerOptions;
     strategy: ProxiedStrategy;
+    config: ProxiedConfig;
     dispatch: (ev: Event) => void;
 };
 
-const proxiedByTarget = new WeakMap<EventTarget, Map<string, ProxiedHub>>();
+const proxiedByRoot = new WeakMap<EventTarget, Map<string, ProxiedHub>>();
 
 const resolveHTMLElement = (el: any): HTMLElement | null => {
     const resolved = (el as any)?.element ?? el;
     return resolved instanceof HTMLElement ? resolved : null;
 };
 
+const shouldApply = (when: When | undefined, hadMatch: boolean, hadHandled: boolean) => {
+    if (!when) return false;
+    if (when === "handled") return hadHandled;
+    return hadMatch;
+};
+
 /**
- * Creates a proxied event on `root` with exactly one real DOM listener.
- * Then you can register per-element handlers which will be invoked based on event path.
- *
- * - **strategy: "closest"**: fires handlers for the first registered element in the composed path.
- * - **strategy: "bubble"**: fires handlers for every registered element in the composed path.
+ * Proxied events:
+ * - Installs **one** real DOM listener on `root` (per event/options/config), but only after the first element handler registers.
+ * - Routes events to registered element handlers based on the composed path.
+ * - Can conditionally call preventDefault/stop* only when a trigger matches (or when handled).
  */
 export const addProxiedEvent = <E extends Event = Event>(
     root: EventTarget | null | undefined,
     type: string,
     options: AddEventListenerOptions = { capture: true, passive: false },
-    config: { strategy?: ProxiedStrategy } = {}
+    config: ProxiedConfig = {}
 ) => {
     const target = root;
     if (!target || typeof (target as any).addEventListener !== "function") {
@@ -110,11 +122,12 @@ export const addProxiedEvent = <E extends Event = Event>(
     };
     const strategy: ProxiedStrategy = config.strategy ?? "closest";
 
-    const key = `${type}|c:${normalized.capture ? "1" : "0"}|p:${normalized.passive ? "1" : "0"}|s:${strategy}`;
-    let hubs = proxiedByTarget.get(target);
+    const key = `${type}|c:${normalized.capture ? "1" : "0"}|p:${normalized.passive ? "1" : "0"}|s:${strategy}|pd:${String(config.preventDefault ?? "")}|sp:${String(config.stopPropagation ?? "")}|sip:${String(config.stopImmediatePropagation ?? "")}`;
+
+    let hubs = proxiedByRoot.get(target);
     if (!hubs) {
         hubs = new Map();
-        proxiedByTarget.set(target, hubs);
+        proxiedByRoot.set(target, hubs);
     }
 
     let hub = hubs.get(key);
@@ -122,6 +135,18 @@ export const addProxiedEvent = <E extends Event = Event>(
         const targets = new Map<HTMLElement, Set<AnyHandler>>();
 
         const dispatch = (ev: Event) => {
+            let hadMatch = false;
+            let hadHandled = false;
+
+            const callSet = (set: Set<AnyHandler> | undefined) => {
+                if (!set || set.size === 0) return;
+                hadMatch = true;
+                for (const cb of Array.from(set)) {
+                    const r = cb(ev);
+                    if (r) hadHandled = true;
+                }
+            };
+
             const path = (ev as any)?.composedPath?.() as any[] | undefined;
             if (Array.isArray(path)) {
                 if (strategy === "closest") {
@@ -130,44 +155,46 @@ export const addProxiedEvent = <E extends Event = Event>(
                         if (!el) continue;
                         const set = targets.get(el);
                         if (!set) continue;
-                        for (const cb of Array.from(set)) cb(ev);
-                        return;
+                        callSet(set);
+                        break;
                     }
-                    return;
+                } else {
+                    for (const n of path) {
+                        const el = resolveHTMLElement(n);
+                        if (!el) continue;
+                        callSet(targets.get(el));
+                    }
                 }
-
-                // bubble
-                for (const n of path) {
-                    const el = resolveHTMLElement(n);
-                    if (!el) continue;
-                    const set = targets.get(el);
-                    if (!set) continue;
-                    for (const cb of Array.from(set)) cb(ev);
+            } else {
+                let cur = resolveHTMLElement((ev as any)?.target) as HTMLElement | null;
+                while (cur) {
+                    const set = targets.get(cur);
+                    if (set) {
+                        callSet(set);
+                        if (strategy === "closest") break;
+                    }
+                    const r = cur.getRootNode?.() as (ShadowRoot | Document | null);
+                    cur = (cur.parentElement || (r instanceof ShadowRoot ? r.host : null)) as HTMLElement | null;
                 }
-                return;
             }
 
-            // Fallback without composedPath
-            let cur = resolveHTMLElement((ev as any)?.target) as HTMLElement | null;
-            while (cur) {
-                const set = targets.get(cur);
-                if (set) {
-                    for (const cb of Array.from(set)) cb(ev);
-                    if (strategy === "closest") return;
-                }
-                const r = cur.getRootNode?.() as (ShadowRoot | Document | null);
-                cur = (cur.parentElement || (r instanceof ShadowRoot ? r.host : null)) as HTMLElement | null;
-            }
+            if (shouldApply(config.preventDefault, hadMatch, hadHandled)) (ev as any)?.preventDefault?.();
+            if (shouldApply(config.stopImmediatePropagation, hadMatch, hadHandled)) (ev as any)?.stopImmediatePropagation?.();
+            if (shouldApply(config.stopPropagation, hadMatch, hadHandled)) (ev as any)?.stopPropagation?.();
         };
 
-        const unbindGlobal = lazyAddEventListener(target, type, dispatch, normalized);
-        hub = { targets, unbindGlobal, options: normalized, strategy, dispatch };
+        hub = { targets, unbindGlobal: null, options: normalized, strategy, config, dispatch };
         hubs.set(key, hub);
     }
 
     return (element: any, handler: AnyHandler<E>) => {
         const el = resolveHTMLElement(element);
         if (!el) return () => { };
+
+        // Attach the single real DOM listener only when the first trigger registers.
+        if (hub!.targets.size === 0 && !hub!.unbindGlobal) {
+            hub!.unbindGlobal = lazyAddEventListener(target, type, hub!.dispatch, hub!.options);
+        }
 
         let set = hub!.targets.get(el);
         if (!set) {
@@ -177,19 +204,24 @@ export const addProxiedEvent = <E extends Event = Event>(
         set.add(handler as AnyHandler);
 
         return () => {
-            const h = hubs?.get(key);
+            const hubsNow = proxiedByRoot.get(target);
+            const h = hubsNow?.get(key);
             if (!h) return;
+
             const resolved = resolveHTMLElement(element);
             if (!resolved) return;
+
             const s = h.targets.get(resolved);
             if (!s) return;
             s.delete(handler as AnyHandler);
             if (s.size === 0) h.targets.delete(resolved);
+
             if (h.targets.size === 0) {
                 h.unbindGlobal?.();
-                hubs?.delete(key);
+                h.unbindGlobal = null;
+                hubsNow?.delete(key);
+                if (hubsNow && hubsNow.size === 0) proxiedByRoot.delete(target);
             }
-            if (hubs && hubs.size === 0) proxiedByTarget.delete(target);
         };
     };
 };
