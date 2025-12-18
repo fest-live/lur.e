@@ -1,4 +1,5 @@
 import { addEvent } from "fest/dom";
+import { lazyAddEventListener } from "./LazyEvents";
 
 //
 export interface ClipboardProvider {
@@ -85,7 +86,8 @@ export const initGlobalClipboard = () => {
     if (typeof window === "undefined" || initialized) return;
     initialized = true;
 
-    addEvent(window, "copy", (ev: ClipboardEvent) => handleClipboardEvent(ev, "onCopy"));
-    addEvent(window, "cut", (ev: ClipboardEvent) => handleClipboardEvent(ev, "onCut"));
-    addEvent(window, "paste", (ev: ClipboardEvent) => handleClipboardEvent(ev, "onPaste"));
+    // Lazily attach (single shared listener per event type) on first init.
+    lazyAddEventListener(window, "copy", (ev: Event) => handleClipboardEvent(ev as ClipboardEvent, "onCopy"), { capture: false, passive: true });
+    lazyAddEventListener(window, "cut", (ev: Event) => handleClipboardEvent(ev as ClipboardEvent, "onCut"), { capture: false, passive: true });
+    lazyAddEventListener(window, "paste", (ev: Event) => handleClipboardEvent(ev as ClipboardEvent, "onPaste"), { capture: false, passive: false });
 };

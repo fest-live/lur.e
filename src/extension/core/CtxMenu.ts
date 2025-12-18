@@ -1,6 +1,8 @@
 //import { visibleRef, H, Q } from "fest/lure";
 import { addEvent } from "fest/dom";
 import { visibleRef } from "../../lure/core/Refs";
+import { addProxiedEvent } from "./LazyEvents";
+import { bindWhileConnected } from "../misc/Connected";
 
 //
 import { boundingBoxRef, makeInterruptTrigger, withInsetWithPointer } from "./Anchor";
@@ -48,6 +50,12 @@ export const itemClickHandle = (ev: MouseEvent, ctxMenuDesc: CtxMenuDesc)=>{
 //
 const visibleMap = new WeakMap<HTMLElement, RefBool|null>();
 
+//
+// Proxied trigger handling: guarantees ONE real `contextmenu` listener on documentElement.
+const registerCtxMenu = typeof document !== "undefined" && document?.documentElement
+    ? addProxiedEvent<MouseEvent>(document.documentElement, "contextmenu", { capture: true, passive: false }, { strategy: "closest" })
+    : (_el: any, _handler: any) => () => { };
+
 // TODO: visible bindings
 const getBoundVisibleRef = (menuElement: HTMLElement): RefBool|null => {
     if (menuElement == null) return null; // @ts-ignore
@@ -77,8 +85,10 @@ export const getGlobalContextMenu = (parent: HTMLElement | Document = document) 
 export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctxMenuDesc: CtxMenuDesc, menuElement?: HTMLElement)=>{
     return (ev: MouseEvent)=>{ // @ts-ignore
         const menu = menuElement || getGlobalContextMenu();
-        
-        if (menu?.contains?.(ev?.target) || ev?.target == (menu?.element ?? menu)) {
+        const menuAny = menu as any;
+        const targetNode = (ev?.target ?? null) as Node | null;
+
+        if ((targetNode && menuAny?.contains?.(targetNode)) || ev?.target == (menuAny?.element ?? menuAny)) {
             ev?.preventDefault?.();
             return;
         }
@@ -116,6 +126,13 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
             //
             const where  = withInsetWithPointer?.(menu, placement?.(ev, initiator));
             const unbind = bindMenuItemClickHandler(menu, ctxMenuDesc);
+            const untrigger = makeInterruptTrigger?.(menu, (ev: MouseEvent)=>{ // @ts-ignore
+                if (!(menu?.contains?.(ev?.target) || ev?.target == (menuAny?.element ?? menuAny)) || !ev?.target) {
+                    ctxMenuDesc?.openedWith?.close?.();
+                    const visibleRef = getBoundVisibleRef(menu);
+                    if (visibleRef != null) visibleRef.value = false;
+                }
+            }, [ "click", "pointerdown", "scroll" ]);
 
             //
             if (ctxMenuDesc) ctxMenuDesc.openedWith = {
@@ -126,7 +143,7 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
                 close() {
                     if (visibleRef != null) visibleRef.value = false;
                     ctxMenuDesc.openedWith = null;
-                    unbind?.(); where?.();
+                    unbind?.(); where?.(); untrigger?.();
                     // @ts-ignore
                     if (ctxMenuDesc._backUnreg) { ctxMenuDesc._backUnreg(); ctxMenuDesc._backUnreg = null; }
                 }
@@ -146,15 +163,7 @@ export const makeMenuHandler = (triggerElement: HTMLElement, placement: any, ctx
 
 // use cursor as anchor based on contextmenu
 export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenuDesc, menuElement?: HTMLElement)=>{
-    const menu = menuElement || getGlobalContextMenu();
-    const evHandler = makeMenuHandler(triggerElement, (ev)=>[ev?.clientX, ev?.clientY, 200], ctxMenuDesc, menu);
-    const untrigger = makeInterruptTrigger?.(menu, (ev: MouseEvent)=>{ // @ts-ignore
-        if (!(menu?.contains?.(ev?.target) || ev?.target == (menu?.element ?? menu)) || !ev?.target) {
-            ctxMenuDesc?.openedWith?.close?.();
-            const visibleRef = getBoundVisibleRef(menu);
-            if (visibleRef != null) visibleRef.value = false;
-        }
-    }, [ "click", "pointerdown", "scroll" ]);
+    const evHandler = makeMenuHandler(triggerElement, (ev)=>[ev?.clientX, ev?.clientY, 200], ctxMenuDesc, menuElement);
 
     // Register with back navigation system
     /*const visRef = getBoundVisibleRef(menuElement);
@@ -162,17 +171,21 @@ export const ctxMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenu
         ctxMenuDesc?.openedWith?.close?.();
     }) : null;*/
 
-    //
-    const listening = addEvent(triggerElement, "contextmenu", evHandler, {
-        composed: true,
+    // Activate trigger + global listener only when trigger element is actually connected.
+    const unbindConnected = bindWhileConnected(triggerElement, () => {
+        return registerCtxMenu(triggerElement, evHandler as any);
     });
-    return ()=>{ untrigger?.(); listening?.(); /*unregisterBack?.();*/ };
+
+    return () => {
+        unbindConnected?.();
+        /*unregisterBack?.();*/
+    };
 }
 
 // bit same as contextmenu, but different by anchor and trigger (from element drop-down)
 export const dropMenuTrigger = (triggerElement: HTMLElement, ctxMenuDesc: CtxMenuDesc, menuElement?: HTMLElement)=>{
     const menu = menuElement || Q("ui-modal[type=\"menulist\"]", document.body) || getGlobalContextMenu(); // Fallback for menulist? Or strict? keeping loosely
-    
+
     const anchorElement = triggerElement; // @ts-ignore
     const evHandler = makeMenuHandler(triggerElement, (ev)=>boundingBoxRef(anchorElement)?.slice?.(0, 3), ctxMenuDesc, menu);
     const untrigger = makeInterruptTrigger?.(menu, (ev: MouseEvent)=>{ // @ts-ignore

@@ -2,6 +2,7 @@ import { addToCallChain, numberRef, stringRef, booleanRef } from "fest/object";
 import { handleStyleChange, observeContentBox, addEvents, addEvent } from "fest/dom";
 import { bindWith } from "../../lure/core/Binding";
 import { WRef } from "fest/core";
+import { lazyAddEventListener } from "./LazyEvents";
 
 //
 const ROOT = typeof document != "undefined" ? document?.documentElement : null;
@@ -95,10 +96,10 @@ export function makeInterruptTrigger(
     if (!element) return () => { };
     const wr = new WeakRef(ref);
     const close = typeof ref === "function" ? ref : (ev) => { (!(except?.contains?.(ev?.target) || ev?.target == (except?.element ?? except)) || !except) ? $set(wr, "value", false) : false; };
-    const listening = [
-        ...addEvents(element, Object.fromEntries(closeEvents.map(event => [event, close])))
-    ];
-    const dispose = ()=>listening.forEach(ub=>ub?.());
+    const listening = closeEvents.map((event) =>
+        lazyAddEventListener(element, event, close as any, { capture: false, passive: false })
+    );
+    const dispose = () => listening.forEach((ub) => ub?.());
     addToCallChain(ref, Symbol.dispose, dispose);
     return dispose;
 }
