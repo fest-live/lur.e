@@ -31,6 +31,59 @@ const getParentOrShadowRoot = (element: HTMLElement): HTMLElement|ShadowRoot|und
 }
 
 //
+export const observeDisconnect = (element: Element, handleMutation) => {
+    if (!element?.isConnected) {
+        return handleMutation();
+    }
+    const observer = new MutationObserver((mutationList, observer) => {
+        for (const mutation of mutationList) {
+            if (mutation.type == "childList") {
+                if (Array.from(mutation?.removedNodes||[]).some((node)=>(node === element || node?.contains?.(element)))) {
+                    queueMicrotask(()=>handleMutation(mutation));
+                    observer?.disconnect?.();
+                }
+            }
+        }
+    });
+
+    //
+    const parent = getParentOrShadowRoot(element as HTMLElement) ?? document.documentElement;
+    const observed = (parent instanceof HTMLElement ? parent : parent?.host) ?? parent;
+    queueMicrotask(() => observer.observe(observed, {
+        subtree: true,
+        childList: true
+    }));
+}
+
+//
+export const observeConnect = (element: Element, handleMutation) => {
+    if (element?.isConnected) {
+        return handleMutation();
+    }
+    const observer = new MutationObserver((mutationList, observer) => {
+        for (const mutation of mutationList) {
+            if (mutation.type == "childList") {
+                if (Array.from(mutation?.addedNodes||[]).some((node)=>(node === element || node?.contains?.(element)))) {
+                    queueMicrotask(()=>handleMutation(mutation));
+                    observer?.disconnect?.();
+                }
+            }
+        }
+    });
+
+    //
+    const parent = getParentOrShadowRoot(element as HTMLElement) ?? document.documentElement;
+    const observed = (parent instanceof HTMLElement ? parent : parent?.host) ?? parent;
+    queueMicrotask(() => observer.observe(observed, {
+        subtree: true,
+        childList: true
+    }));
+}
+
+//
+const registeredAnchorIds = new WeakMap();
+
+//
 export const appendAsOverlay = (anchor: HTMLElement|null, overlay?: HTMLElement|null, self?: HTMLElement|null) => {
     anchor ??= (self?.children?.[0] as HTMLElement) ?? anchor;
 
@@ -53,29 +106,19 @@ export const appendAsOverlay = (anchor: HTMLElement|null, overlay?: HTMLElement|
     //
     if (anchor == null || overlay == null) { return; }
 
-    //
-    const CSSAnchorId = generateAnchorId();
+    // @ts-ignore
+    const CSSAnchorId = registeredAnchorIds.getOrInsert(anchor, generateAnchorId());
     anchor?.style?.setProperty("position-visibility", `always`);
     anchor?.style?.setProperty("anchor-name", CSSAnchorId);
 
     //
-    const parent = getParentOrShadowRoot(anchor) ?? self;
-    const styled = parent instanceof HTMLElement ? parent : parent?.host;
-
-    //
-    if (parent) {
+    observeConnect(anchor, () => {
+        const parent = getParentOrShadowRoot(anchor) ?? self;
+        const styled = parent instanceof HTMLElement ? parent : parent?.host;
         (styled as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
         (anchor as any)?.after?.(overlay);
-    } else {
-        requestAnimationFrame(()=>{
-            const parent = getParentOrShadowRoot(anchor) ?? self;
-            const styled = parent instanceof HTMLElement ? parent : parent?.host;
-            if (parent) {
-                (styled as HTMLElement)?.style?.setProperty?.("anchor-scope", CSSAnchorId);
-                (anchor as any)?.after?.(overlay);
-            }
-        });
-    }
+        observeDisconnect(parent as Element, () => overlay?.remove?.());
+    });
 
     //
     if (anchor?.matches?.("ui-window-frame")) {
