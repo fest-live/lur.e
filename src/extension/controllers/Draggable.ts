@@ -1,6 +1,6 @@
 import { setStyleProperty, RAFBehavior, ROOT } from "fest/dom";
 import { makeShiftTrigger, doObserve } from "./Trigger";
-import { bindDraggable } from "../core/PointerAPI";
+import { bindDraggable } from "./PointerAPI";
 
 //
 //import {  E  } from "fest/lure";

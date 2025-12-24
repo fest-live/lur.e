@@ -1,5 +1,7 @@
 import { isNotEqual, toRef, unref } from "fest/core";
 import { Q } from "../node/Queried";
+import { addEvent } from "fest/dom";
+import { observeContentBox } from "fest/dom";
 
 //
 export const checkboxCtrl = (ref) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null) { $ref.value = Q(`input[type="radio"], input[type="checkbox"], input:checked`, ev?.target)?.checked ?? $ref?.value; } } }
@@ -14,17 +16,4 @@ export const radioCtrl = (ref, name) => {
         const selector = `input[name="${name}"]:checked`;
         if ($ref) { $ref.value = (ev?.target?.matches?.(selector) ? ev?.target : ev?.target?.querySelector?.(selector))?.value ?? $ref.value; }
     }
-}
-
-//
-export const OOBTrigger = (element, ref, selector?) => {
-    ref = toRef(ref);
-    const ROOT = document.documentElement;
-    const checker = (ev) => {
-        let $ref = unref(ref);
-        const target = selector ? (ev?.target?.matches?.(selector) ? ev?.target : (ev?.target ?? ROOT)?.querySelector?.(selector)) : ev?.target;
-        if (!target || (element != target)) { $ref.value = false; }
-    }
-    const cancel = () => { ROOT.removeEventListener("click", checker); }
-    ROOT.addEventListener("click", checker); return cancel;
 }

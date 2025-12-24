@@ -13,8 +13,7 @@
  * 3. Supports custom close handlers and visibility checks
  */
 
-import { addEvent, isElement } from "fest/dom";
-import { booleanRef } from "fest/object";
+import { addEvent } from "fest/dom";
 import { historyState, initHistory, originalForward } from "./History";
 
 //

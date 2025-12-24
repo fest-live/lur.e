@@ -5,7 +5,7 @@ import { clamp } from "fest/core";
 //
 import { numberRef } from "fest/object";
 import { E } from "../../lure/node/Bindings";
-import { bindDraggable } from "../core/PointerAPI";
+import { bindDraggable } from "./PointerAPI";
 
 //
 export class ResizeHandler {

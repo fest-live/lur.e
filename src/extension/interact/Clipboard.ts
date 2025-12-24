@@ -1,5 +1,4 @@
-import { addEvent } from "fest/dom";
-import { lazyAddEventListener } from "./LazyEvents";
+import { lazyAddEventListener } from "../controllers/LazyEvents";
 
 //
 export interface ClipboardProvider {

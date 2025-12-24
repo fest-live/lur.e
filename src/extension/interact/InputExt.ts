@@ -1,6 +1,6 @@
 import { addEvent, setChecked, handleStyleChange } from "fest/dom";
 import { computed, conditional, numberRef } from "fest/object";
-import { bindDraggable } from "./PointerAPI";
+import { bindDraggable } from "../controllers/PointerAPI";
 
 //
 import { makeShiftTrigger } from "../controllers/Trigger";

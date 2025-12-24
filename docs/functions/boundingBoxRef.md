@@ -2,15 +2,15 @@
 
 ***
 
-[@fest-lib/lure](../README.md) / boundingBoxRef
+[@fest-lib/lure](../README.md) / boundingBoxAnchorRef
 
-# Function: boundingBoxRef()
+# Function: boundingBoxAnchorRef()
 
 ```ts
-function boundingBoxRef(anchor, options?): any[] | () => void;
+function boundingBoxAnchorRef(anchor, options?): any[] | () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:190](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Anchor.ts#L190)
+Defined in: [modules/projects/lur.e/src/extension/binding/BBoxAnchor.ts:4](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/binding/BBoxAnchor.ts#L4)
 
 ## Parameters
 
