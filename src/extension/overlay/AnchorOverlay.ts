@@ -1,4 +1,5 @@
 import { makeAnchorElement } from "../css-ref/CSSAnchor";
+import { bindWithRect, bindScrollbarPosition } from "../space-ref/BBoxAnchor";
 
 //
 export const getParentOrShadowRoot = (element: HTMLElement): HTMLElement|ShadowRoot|undefined => {
@@ -62,9 +63,21 @@ export const observeConnect = (element: Element, handleMutation) => {
 export const appendAsOverlay = (anchor: HTMLElement|null, overlay?: HTMLElement|null, self?: HTMLElement|null, options?: {
     root?: HTMLElement,
     zIndexShift?: number,
-    placement?: "fill" | "bottom" | "top" | "left" | "right" | "center",
+    placement?: "fill" | "bottom" | "top" | "left" | "right" | "center" | "scrollbar-x" | "scrollbar-y",
+    inset?: number,
+    size?: string,
+    transformOrigin?: string,
+    useIntersection?: boolean,
 }) => {
-    const { root = window, zIndexShift = 1, placement = "fill" } = options || {};
+    const {
+        root = window,
+        zIndexShift = 1,
+        placement = "fill",
+        inset = 0,
+        size = "100%",
+        transformOrigin = "50% 50%",
+        useIntersection = false
+    } = options || {};
     anchor ??= (self?.children?.[0] as HTMLElement) ?? anchor;
 
     //
@@ -86,7 +99,33 @@ export const appendAsOverlay = (anchor: HTMLElement|null, overlay?: HTMLElement|
     //
     if (anchor == null || overlay == null) return;
     const anchorBinder = makeAnchorElement(anchor);
-    anchorBinder.connectElement(overlay, { zIndexShift, root, placement });
+
+    // Handle scrollbar-specific placements
+    if (placement === "scrollbar-x") {
+        anchorBinder.connectElement(overlay, {
+            placement: "bottom",
+            zIndexShift,
+            inset,
+            size,
+            transformOrigin
+        });
+    } else if (placement === "scrollbar-y") {
+        anchorBinder.connectElement(overlay, {
+            placement: "right",
+            zIndexShift,
+            inset,
+            size,
+            transformOrigin
+        });
+    } else {
+        anchorBinder.connectElement(overlay, {
+            placement,
+            zIndexShift,
+            inset,
+            size,
+            transformOrigin
+        });
+    }
 
     //
     observeConnect(anchor, () => {
@@ -100,3 +139,92 @@ export const appendAsOverlay = (anchor: HTMLElement|null, overlay?: HTMLElement|
     //
     return anchor;
 }
+
+// Enhanced scrollbar overlay with reactive positioning
+export const appendScrollbarOverlay = (content: HTMLElement, scrollbar: HTMLElement, axis: 'horizontal' | 'vertical', options?: {
+    zIndexShift?: number,
+    autoPosition?: boolean,
+    useIntersection?: boolean,
+    theme?: string,
+}) => {
+    const { zIndexShift = 1, autoPosition = true, useIntersection = false, theme = "default" } = options || {};
+
+    // Set theme class
+    scrollbar.classList.add(`scrollbar-theme-${theme}`);
+    scrollbar.setAttribute("data-axis", axis);
+
+    let cleanupFunctions: (() => void)[] = [];
+
+    if (autoPosition) {
+        // Use enhanced intersection box for precise positioning
+        if (useIntersection) {
+            import("../space-ref/BBoxAnchor").then(({ enhancedIntersectionBoxAnchorRef, bindScrollbarPosition }) => {
+                const intersectionBox = enhancedIntersectionBoxAnchorRef(content, {
+                    root: window,
+                    observeResize: true,
+                    observeMutations: true,
+                    observeIntersection: true
+                });
+
+                // Position scrollbar using reactive bindings
+                cleanupFunctions.push(bindScrollbarPosition(scrollbar, intersectionBox, axis, {
+                    useIntersection: true,
+                    zIndexShift
+                }));
+            });
+        } else {
+            // Use standard bounding box with reactive bindings
+            import("../space-ref/BBoxAnchor").then(({ boundingBoxAnchorRef, bindScrollbarPosition }) => {
+                const bbox = boundingBoxAnchorRef(content, {
+                    observeResize: true,
+                    observeMutations: true
+                });
+
+                // Position scrollbar using reactive bindings
+                cleanupFunctions.push(bindScrollbarPosition(scrollbar, bbox, axis, {
+                    useIntersection: false,
+                    zIndexShift
+                }));
+            });
+        }
+    }
+
+    // Add scrollbar to DOM
+    if (!scrollbar.parentNode) {
+        document.body.appendChild(scrollbar);
+    }
+
+    // Set up removal on content disconnect with cleanup
+    observeDisconnect(content, () => {
+        cleanupFunctions.forEach(cleanup => cleanup());
+        scrollbar.remove();
+    });
+
+    return scrollbar;
+};
+
+// Example usage function for testing reactive scrollbar overlays
+export const createReactiveScrollbarOverlay = (content: HTMLElement, axis: 'horizontal' | 'vertical' = 'vertical') => {
+    // Create scrollbar element
+    const scrollbar = document.createElement('div');
+    scrollbar.className = `reactive-scrollbar reactive-scrollbar-${axis}`;
+    scrollbar.style.background = 'rgba(0,0,0,0.3)';
+    scrollbar.style.borderRadius = '4px';
+    scrollbar.style.position = 'absolute';
+    scrollbar.style.zIndex = '1000';
+
+    if (axis === 'horizontal') {
+        scrollbar.style.height = '8px';
+        scrollbar.style.width = '100px';
+    } else {
+        scrollbar.style.width = '8px';
+        scrollbar.style.height = '100px';
+    }
+
+    // Use reactive positioning
+    return appendScrollbarOverlay(content, scrollbar, axis, {
+        autoPosition: true,
+        useIntersection: true,
+        theme: 'default'
+    });
+};
