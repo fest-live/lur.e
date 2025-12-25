@@ -565,34 +565,34 @@ export {
 
 // Enhanced cell utilities using GridMath (keeping backward compatibility)
 export const clampCell = (cellPos: Vector2D | [number, number], layout: [number, number]): Vector2D => {
-    // Create reactive grid coordinate from input
-    const inputCoord = cellPos instanceof Vector2D
-        ? GridCoordUtils.create(cellPos.y.value, cellPos.x.value)  // Note: y=row, x=col
-        : GridCoordUtils.create(cellPos[1], cellPos[0]);          // [x, y] -> [col, row]
+    // Extract coordinates from input (handles both Vector2D and array formats)
+    let x: number, y: number;
 
-    // Create grid config for validation
-    const config: GridConfig = {
-        rows: numberRef(layout[1]),
-        cols: numberRef(layout[0]),
-        cellWidth: numberRef(1),
-        cellHeight: numberRef(1),
-        gap: numberRef(0),
-        padding: vector2Ref(0, 0)
-    };
-
-    // Clamp coordinate within grid bounds
-    const clampedRow = Math.max(0, Math.min(inputCoord.row.value, layout[1] - 1));
-    const clampedCol = Math.max(0, Math.min(inputCoord.col.value, layout[0] - 1));
-
-    const clampedCoord = GridCoordUtils.create(clampedRow, clampedCol);
-
-    // Validate the coordinate is within grid (reactive check)
-    if (!GridCoordUtils.isValid(clampedCoord, config).value) {
-        // Fallback to origin if invalid
+    if (cellPos instanceof Vector2D) {
+        x = cellPos.x?.value ?? 0;
+        y = cellPos.y?.value ?? 0;
+    } else if (Array.isArray(cellPos) && cellPos.length >= 2) {
+        x = cellPos[0] ?? 0;
+        y = cellPos[1] ?? 0;
+    } else {
+        // Invalid input, return origin
         return vector2Ref(0, 0);
     }
 
-    return vector2Ref(clampedCoord.col.value, clampedCoord.row.value);
+    // Handle NaN/infinite values
+    if (!isFinite(x) || !isFinite(y)) {
+        return vector2Ref(0, 0);
+    }
+
+    // Validate layout
+    const cols = Math.max(1, layout[0] || 1);
+    const rows = Math.max(1, layout[1] || 1);
+
+    // Clamp coordinates to valid grid bounds
+    const clampedX = Math.max(0, Math.min(Math.floor(x), cols - 1));
+    const clampedY = Math.max(0, Math.min(Math.floor(y), rows - 1));
+
+    return vector2Ref(clampedX, clampedY);
 };
 
 // Enhanced grid-aware cell rounding using GridMath

@@ -144,10 +144,10 @@ export class ReactiveMediaQuery {
         this.query = query;
         this.matches = numberRef(0);
 
-        const mediaQuery = window.matchMedia(query);
+        const mediaQuery = window?.matchMedia(query);
         this.matches.value = mediaQuery.matches ? 1 : 0;
 
-        mediaQuery.addEventListener('change', (e) => {
+        mediaQuery?.addEventListener('change', (e) => {
             this.matches.value = e.matches ? 1 : 0;
         });
     }
@@ -165,16 +165,16 @@ export class ReactiveMediaQuery {
 
 // Reactive viewport dimensions
 export class ReactiveViewport {
-    static width: ReturnType<typeof numberRef> = numberRef(window.innerWidth);
-    static height: ReturnType<typeof numberRef> = numberRef(window.innerHeight);
+    static width: ReturnType<typeof numberRef> = numberRef(window?.innerWidth);
+    static height: ReturnType<typeof numberRef> = numberRef(window?.innerHeight);
 
     static init(): void {
         const updateSize = () => {
-            this.width.value = window.innerWidth;
-            this.height.value = window.innerHeight;
+            this.width.value = window?.innerWidth;
+            this.height.value = window?.innerHeight;
         };
 
-        window.addEventListener('resize', updateSize);
+        window?.addEventListener('resize', updateSize);
     }
 
     // Get reactive viewport center

@@ -1,11 +1,12 @@
 import { numberRef, subscribe } from "fest/object";
-import { bindWith } from "fest/lure";
+import { bindWith, bindAnimated, bindTransition, bindSpring, bindMorph } from "fest/lure";
 import {
     Vector2D, vector2Ref, operated,
     addVector2D, subtractVector2D, multiplyVector2D,
     Matrix2D, Matrix3D, Matrix4D
 } from "./index";
 import { handleStyleChange } from "fest/dom";
+import { AnimationOptions, TransitionOptions } from "../extension/css-ref/CSSAnimated";
 
 // CSS Typed OM and Unit Conversion Utilities
 export class CSSUnitConverter {
@@ -193,24 +194,50 @@ export class CSSPosition {
 // CSS Reactive Binding Utilities
 export class CSSBinder {
     // Bind reactive Vector2D to CSS transform
-    static bindTransform(element: HTMLElement, vector: Vector2D): () => void {
+    static bindTransform(
+        element: HTMLElement,
+        vector: Vector2D,
+        animationType: 'instant' | 'animate' | 'transition' | 'spring' = 'instant',
+        options?: AnimationOptions | TransitionOptions
+    ): () => void {
         const transformValue = CSSTransform.translate2D(vector);
-        return bindWith(element, 'transform', transformValue, handleStyleChange) ?? (() => {});
+        const binder = animationType === 'instant' ? bindWith :
+                      animationType === 'animate' ? bindAnimated :
+                      animationType === 'transition' ? bindTransition : bindSpring;
+        return binder(element, 'transform', transformValue, options) ?? (() => {});
     }
 
     // Bind reactive Vector2D to CSS position
-    static bindPosition(element: HTMLElement, vector: Vector2D): () => void {
+    static bindPosition(
+        element: HTMLElement,
+        vector: Vector2D,
+        animationType: 'instant' | 'animate' | 'transition' | 'spring' = 'instant',
+        options?: AnimationOptions | TransitionOptions
+    ): () => void {
         const position = CSSPosition.leftTop(vector);
-        const unsubLeft = bindWith(element, 'left', position.left, handleStyleChange) ?? (() => {});
-        const unsubTop = bindWith(element, 'top', position.top, handleStyleChange) ?? (() => {});
+        const binder = animationType === 'instant' ? bindWith :
+                      animationType === 'animate' ? bindAnimated :
+                      animationType === 'transition' ? bindTransition : bindSpring;
+
+        const unsubLeft = binder(element, 'left', position.left, options) ?? (() => {});
+        const unsubTop = binder(element, 'top', position.top, options) ?? (() => {});
         return () => { unsubLeft?.(); unsubTop?.(); };
     }
 
     // Bind reactive Vector2D to CSS size
-    static bindSize(element: HTMLElement, vector: Vector2D): () => void {
+    static bindSize(
+        element: HTMLElement,
+        vector: Vector2D,
+        animationType: 'instant' | 'animate' | 'transition' | 'spring' = 'instant',
+        options?: AnimationOptions | TransitionOptions
+    ): () => void {
         const size = CSSPosition.size(vector);
-        const unsubWidth = bindWith(element, 'width', size.width, handleStyleChange) ?? (() => {});
-        const unsubHeight = bindWith(element, 'height', size.height, handleStyleChange) ?? (() => {});
+        const binder = animationType === 'instant' ? bindWith :
+                      animationType === 'animate' ? bindAnimated :
+                      animationType === 'transition' ? bindTransition : bindSpring;
+
+        const unsubWidth = binder(element, 'width', size.width, options) ?? (() => {});
+        const unsubHeight = binder(element, 'height', size.height, options) ?? (() => {});
         return () => { unsubWidth?.(); unsubHeight?.(); };
     }
 
@@ -219,24 +246,134 @@ export class CSSBinder {
         element: HTMLElement,
         property: string,
         value: ReturnType<typeof numberRef>,
-        unit: string = 'px'
+        unit: string = 'px',
+        animationType: 'instant' | 'animate' | 'transition' | 'spring' = 'instant',
+        options?: AnimationOptions | TransitionOptions
     ): () => void {
         const cssValue = operated([value], () => `${value.value}${unit}`);
-        return bindWith(element, property, cssValue, handleStyleChange) ?? (() => {});
+        const binder = animationType === 'instant' ? bindWith :
+                      animationType === 'animate' ? bindAnimated :
+                      animationType === 'transition' ? bindTransition : bindSpring;
+        return binder(element, property, cssValue, options) ?? (() => {});
     }
 
     // Bind reactive vector with unit conversion
     static bindVectorWithUnit(
         element: HTMLElement,
         vector: Vector2D,
-        unit: string = 'px'
+        unit: string = 'px',
+        animationType: 'instant' | 'animate' | 'transition' | 'spring' = 'instant',
+        options?: AnimationOptions | TransitionOptions
     ): () => void {
         const cssValue = operated([vector.x, vector.y], () =>
             `${vector.x.value}${unit} ${vector.y.value}${unit}`
         );
-        return bindWith(element, 'transform', cssValue, (el, val) => {
-            el.style.setProperty('transform', `translate(${val})`);
+        const binder = animationType === 'instant' ? bindWith :
+                      animationType === 'animate' ? bindAnimated :
+                      animationType === 'transition' ? bindTransition : bindSpring;
+
+        return binder(element, 'transform', cssValue, {
+            ...options,
+            handler: animationType === 'instant' ? undefined : (el: HTMLElement, val: any) => {
+                el.style.setProperty('transform', `translate(${val})`);
+            }
         }) ?? (() => {});
+    }
+
+    // Enhanced animation methods with morphing support
+    static bindTransformMorph(
+        element: HTMLElement,
+        transformProps: {
+            translate?: Vector2D;
+            scale?: Vector2D | ReturnType<typeof numberRef>;
+            rotate?: ReturnType<typeof numberRef>;
+            skew?: Vector2D;
+        },
+        options: AnimationOptions = {}
+    ): () => void {
+        const transforms: Record<string, any> = {};
+
+        if (transformProps.translate) {
+            transforms.transform = operated(
+                [transformProps.translate.x, transformProps.translate.y],
+                () => `translate(${transformProps.translate!.x.value}px, ${transformProps.translate!.y.value}px)`
+            );
+        }
+
+        if (transformProps.scale) {
+            const scaleStr = transformProps.scale instanceof Vector2D ?
+                operated([transformProps.scale.x, transformProps.scale.y],
+                    () => `scale(${transformProps.scale!.x.value}, ${transformProps.scale!.y.value})`) :
+                operated([transformProps.scale],
+                    () => `scale(${transformProps.scale!.value})`);
+            transforms.transform = transforms.transform ?
+                operated([transforms.transform, scaleStr], (t, s) => `${t} ${s}`) : scaleStr;
+        }
+
+        if (transformProps.rotate) {
+            const rotateStr = operated([transformProps.rotate],
+                () => `rotate(${transformProps.rotate!.value}deg)`);
+            transforms.transform = transforms.transform ?
+                operated([transforms.transform, rotateStr], (t, r) => `${t} ${r}`) : rotateStr;
+        }
+
+        if (transformProps.skew) {
+            const skewStr = operated([transformProps.skew.x, transformProps.skew.y],
+                () => `skew(${transformProps.skew!.x.value}deg, ${transformProps.skew!.y.value}deg)`);
+            transforms.transform = transforms.transform ?
+                operated([transforms.transform, skewStr], (t, s) => `${t} ${s}`) : skewStr;
+        }
+
+        return bindMorph(element, transforms, options);
+    }
+
+    // Bind reactive color with smooth transitions
+    static bindColor(
+        element: HTMLElement,
+        property: string,
+        color: ReturnType<typeof numberRef> | string,
+        animationType: 'instant' | 'animate' | 'transition' = 'transition',
+        options: TransitionOptions = { duration: 300, easing: 'ease-in-out' }
+    ): () => void {
+        const binder = animationType === 'instant' ? bindWith :
+                      animationType === 'animate' ? bindAnimated : bindTransition;
+
+        const colorValue = typeof color === 'string' ? color :
+            operated([color], () => `hsl(${color.value}, 70%, 50%)`);
+
+        return binder(element, property, colorValue, options) ?? (() => {});
+    }
+
+    // Bind reactive opacity with fade effects
+    static bindOpacity(
+        element: HTMLElement,
+        opacity: ReturnType<typeof numberRef>,
+        animationType: 'instant' | 'animate' | 'transition' | 'spring' = 'transition',
+        options: AnimationOptions | TransitionOptions = { duration: 200, easing: 'ease-in-out' }
+    ): () => void {
+        const binder = animationType === 'instant' ? bindWith :
+                      animationType === 'animate' ? bindAnimated :
+                      animationType === 'transition' ? bindTransition : bindSpring;
+
+        return binder(element, 'opacity', opacity, options) ?? (() => {});
+    }
+
+    // Bind reactive border radius with morphing
+    static bindBorderRadius(
+        element: HTMLElement,
+        radius: Vector2D | ReturnType<typeof numberRef>,
+        animationType: 'instant' | 'animate' | 'transition' | 'spring' = 'animate',
+        options: AnimationOptions | TransitionOptions = { duration: 300, easing: 'ease-out' }
+    ): () => void {
+        const binder = animationType === 'instant' ? bindWith :
+                      animationType === 'animate' ? bindAnimated :
+                      animationType === 'transition' ? bindTransition : bindSpring;
+
+        const radiusValue = radius instanceof Vector2D ?
+            operated([radius.x, radius.y], () => `${radius.x.value}px ${radius.y.value}px`) :
+            operated([radius], () => `${radius.value}px`);
+
+        return binder(element, 'border-radius', radiusValue, options) ?? (() => {});
     }
 }
 

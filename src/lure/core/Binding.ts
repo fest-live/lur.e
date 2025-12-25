@@ -1,6 +1,19 @@
 import { addToCallChain, makeReactive, subscribe } from "fest/object";
 import { handleAttribute, handleProperty, namedStoreMaps, observeAttribute, observeBySelector, includeSelf, setChecked, getEventTarget, handleStyleChange } from "fest/dom";
 import { $getValue, camelToKebab, $set, toRef, deref, isNotEqual, handleListeners, $avoidTrigger } from "fest/core";
+import {
+    handleAnimatedStyleChange,
+    handleTransitionStyleChange,
+    handleSpringStyleChange,
+    handleMorphStyleChange,
+    bindAnimatedStyle,
+    AnimationSequence,
+    AnimationPresets,
+    cancelElementAnimations,
+    animatedRef,
+    type AnimationOptions,
+    type TransitionOptions
+} from "../../extension/css-ref/CSSAnimated";
 
 //
 export const elMap  = new WeakMap<any, WeakMap<any, any>>();
@@ -226,6 +239,223 @@ export const bindForms  = (fields: any = document.documentElement, wrapper: stri
     //
     return state;
 }
+
+//
+// ============================================================================
+// Animation-Based Binding Functions
+// ============================================================================
+
+/**
+ * Bind reactive value to element style with Web Animations API
+ * Creates smooth animated transitions between values
+ */
+export const bindAnimated = (
+    element: any,
+    property: any,
+    value: any,
+    options: AnimationOptions = {}
+) => {
+    return bindAnimatedStyle(element, property, value, 'animate', options);
+};
+
+/**
+ * Bind reactive value to element style with CSS transitions
+ * Uses browser's native transition system for efficiency
+ */
+export const bindTransition = (
+    element: any,
+    property: any,
+    value: any,
+    options: TransitionOptions = {}
+) => {
+    return bindAnimatedStyle(element, property, value, 'transition', options);
+};
+
+/**
+ * Bind reactive value to element style with spring physics
+ * Creates natural, bouncy animations
+ */
+export const bindSpring = (
+    element: any,
+    property: any,
+    value: any,
+    options: {
+        stiffness?: number;
+        damping?: number;
+        mass?: number;
+        velocity?: number;
+    } = {}
+) => {
+    return bindAnimatedStyle(element, property, value, 'spring', options as any);
+};
+
+/**
+ * Bind multiple reactive properties with coordinated morphing animation
+ */
+export const bindMorph = (
+    element: any,
+    properties: Record<string, any>,
+    options: AnimationOptions = {}
+) => {
+    return bindAnimatedStyle(element, '', properties, 'morph', options);
+};
+
+/**
+ * Create an animated reactive reference with predefined animation behavior
+ */
+export const createAnimatedRef = animatedRef;
+
+/**
+ * Animation sequence builder for complex multi-stage animations
+ */
+export const createAnimationSequence = () => AnimationSequence.create();
+
+/**
+ * Cancel all active animations for an element
+ */
+export const cancelAnimations = cancelElementAnimations;
+
+/**
+ * Enhanced bindWith that supports animation types
+ * Extends the original bindWith with animation capabilities
+ */
+export const bindWithAnimation = (
+    el: any,
+    prop: any,
+    value: any,
+    animationType: 'instant' | 'animate' | 'transition' | 'spring' = 'instant',
+    animationOptions: AnimationOptions | TransitionOptions = {}
+) => {
+    if (animationType === 'instant') {
+        return bindWith(el, prop, value, handleStyleChange);
+    }
+
+    // For animated bindings, use the specific animation functions
+    const binder = animationType === 'animate' ? bindAnimated :
+                  animationType === 'transition' ? bindTransition :
+                  bindSpring;
+
+    return binder(el, prop, value, animationOptions as any);
+};
+
+/**
+ * Batch bind multiple animated properties with staggered timing
+ */
+export const bindAnimatedBatch = (
+    element: any,
+    bindings: Array<{
+        property: string;
+        value: any;
+        animationType?: 'animate' | 'transition' | 'spring';
+        options?: AnimationOptions | TransitionOptions;
+        delay?: number;
+    }>
+) => {
+    const unbinders: (() => void)[] = [];
+
+    bindings.forEach((binding, index) => {
+        const delay = binding.delay || (index * 50); // Default stagger
+        const options = {
+            ...binding.options,
+            delay: (binding.options?.delay || 0) + delay
+        };
+
+        const unbinder = bindAnimatedStyle(
+            element,
+            binding.property,
+            binding.value,
+            binding.animationType || 'animate',
+            options
+        );
+        unbinders.push(unbinder);
+    });
+
+    return () => unbinders.forEach(unbind => unbind?.());
+};
+
+/**
+ * Preset animated bindings for common UI patterns
+ */
+export const bindPreset = {
+    // Fade in/out animations
+    fade: (element: any, value: any, duration = 200) =>
+        bindAnimated(element, 'opacity', value, { duration, easing: 'ease-in-out' }),
+
+    // Slide animations
+    slideX: (element: any, value: any, duration = 300) =>
+        bindAnimated(element, 'transform', value, { duration, easing: 'ease-out' }),
+
+    slideY: (element: any, value: any, duration = 300) =>
+        bindAnimated(element, 'transform', value, { duration, easing: 'ease-out' }),
+
+    // Scale animations
+    scale: (element: any, value: any, duration = 200) =>
+        bindAnimated(element, 'transform', value, { duration, easing: 'ease-in-out' }),
+
+    // Color transitions
+    color: (element: any, value: any, duration = 300) =>
+        bindTransition(element, 'color', value, { duration, easing: 'ease-in-out' }),
+
+    backgroundColor: (element: any, value: any, duration = 300) =>
+        bindTransition(element, 'background-color', value, { duration, easing: 'ease-in-out' }),
+
+    // Spring-based animations
+    bounce: (element: any, property: string, value: any) =>
+        bindSpring(element, property, value, { stiffness: 200, damping: 15 }),
+
+    // Elastic animations
+    elastic: (element: any, property: string, value: any) =>
+        bindAnimated(element, property, value, AnimationPresets.elastic),
+};
+
+/**
+ * Reactive animation triggers that respond to state changes
+ */
+export const bindConditionalAnimation = (
+    element: any,
+    condition: any,
+    animations: {
+        true?: { property: string; value: any; options?: AnimationOptions }[];
+        false?: { property: string; value: any; options?: AnimationOptions }[];
+    }
+) => {
+    const wel = toRef(element);
+    const wcond = toRef(condition);
+
+    let currentUnbinders: (() => void)[] = [];
+
+    const applyAnimations = (isTrue: boolean) => {
+        // Cancel current animations
+        currentUnbinders.forEach(unbind => unbind?.());
+        currentUnbinders = [];
+
+        const animationSet = isTrue ? animations.true : animations.false;
+        if (animationSet) {
+            animationSet.forEach(anim => {
+                const unbinder = bindAnimated(
+                    deref(wel),
+                    anim.property,
+                    anim.value,
+                    anim.options
+                );
+                currentUnbinders.push(unbinder);
+            });
+        }
+    };
+
+    // Initial state
+    applyAnimations($getValue(deref(wcond)));
+
+    // Subscribe to condition changes
+    const unsubscribe = subscribe(condition, (newValue) => {
+        applyAnimations(!!newValue);
+    });
+
+    return () => {
+        currentUnbinders.forEach(unbind => unbind?.());
+        unsubscribe?.();
+    };
+};
 
 //
 export const withInsetWithPointer = (exists: HTMLElement, pRef: any)=>{
