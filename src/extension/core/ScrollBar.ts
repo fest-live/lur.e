@@ -8,6 +8,15 @@ import { createResponsiveScrollbarConfig } from "../css-ref/ContainerQuery";
 import { ScrollbarGestureHandler } from "../controllers/EnhancedGestures";
 import { ScrollbarThemeManager, ScrollbarTheme } from "./ScrollbarTheme";
 
+// Enhanced reactive math and CSS integration
+import {
+    Vector2D, vector2Ref, operated,
+    addVector2D, multiplyVector2D, subtractVector2D,
+    CSSTransform, CSSPosition, CSSBinder, CSSCalc, CSSUnitUtils
+} from "fest/lure";
+import { ReactiveElementSize } from "../css-ref/Utils";
+import { ReactiveTransform } from "../css-ref/Utils";
+
 // @ts-ignore
 //import styles from "./ScrollBar.scss?inline";
 //const styled  = preloadStyle(styles);
@@ -84,22 +93,35 @@ const scrollSize  = (source: HTMLElement, axis: number = 0, inputChange?: any|nu
     addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
     addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
     queueMicrotask(()=>{ recompute?.(); });
-    return percent;
-}
+        return percent;
+    }
 
-//
-//const sheduler = makeRAFCycle();
-const controlVisible = async (source: HTMLElement, coef: any = null)=>{
-    if (!source) return; const target = asWeak(source), wk = asWeak(coef);
-    const renderCb = ()=>{
-        const tg = target?.deref?.(); if (tg) {
-            const val = wk?.deref?.()?.value || 0, hidden = val < 0.001 || val > 0.999;
-            setProperty(tg, "visibility", hidden ? "collapse" : "visible");
-            setProperty(tg?.querySelector?.("*"), "pointer-events", hidden ? "none" : "auto");
-        }
+    // Enhanced reactive scrollbar sizing with CSS calc integration
+    const reactiveScrollbarSize = (source: HTMLElement, axis: number, contentSize: ReturnType<typeof numberRef>) => {
+        const containerSize = axis === 0
+            ? operated([], () => source.clientWidth)
+            : operated([], () => source.clientHeight);
+
+        return operated([containerSize, contentSize], () => {
+            const ratio = containerSize.value / contentSize.value;
+            const minSize = 20; // Minimum thumb size in pixels
+            return Math.max(minSize, ratio * containerSize.value);
+        });
     };
-    return subscribe(coef, (val: any)=>sheduler.shedule(renderCb))
-}
+
+    //
+    //const sheduler = makeRAFCycle();
+    const controlVisible = async (source: HTMLElement, coef: any = null)=>{
+        if (!source) return; const target = asWeak(source), wk = asWeak(coef);
+        const renderCb = ()=>{
+            const tg = target?.deref?.(); if (tg) {
+                const val = wk?.deref?.()?.value || 0, hidden = val < 0.001 || val > 0.999;
+                setProperty(tg, "visibility", hidden ? "collapse" : "visible");
+                setProperty(tg?.querySelector?.("*"), "pointer-events", hidden ? "none" : "auto");
+            }
+        };
+        return subscribe(coef, (val: any)=>sheduler.shedule(renderCb))
+    }
 
 //
 const animateByTimeline = async (source: HTMLElement, properties = {}, timeline: any = null)=>{
@@ -224,6 +246,15 @@ export class ScrollBar {
     isVisible = numberRef(1);
     isDragging = numberRef(0);
 
+    // Enhanced reactive position and size tracking
+    thumbPosition = vector2Ref(0, 0);
+    thumbSize = vector2Ref(20, 20);
+    containerSize = vector2Ref(0, 0);
+
+    // Reactive transforms and styles
+    thumbTransform = new ReactiveTransform();
+    scrollbarOpacity = numberRef(1);
+
     // Responsive behavior
     responsiveConfig?: any;
     private _unsubscribeAutoHide?: () => void;
@@ -243,6 +274,7 @@ export class ScrollBar {
         this.status      = { delta: 0, scroll: 0, point: 0, pointerId: -1 };
         this.inputChange = inputChange;
 
+        this.initializeReactiveSizing(axis);
         this.initializeSpatialAwareness(axis);
         this.initializeEnhancedTimeline(axis);
         this.initializeResponsiveBehavior();
@@ -264,12 +296,49 @@ export class ScrollBar {
 
         //
         makeInteractive(this.holder, this.content, this.scrollbar, axis, this.status, this.inputChange, this.isDragging);
-        bindWith(this.scrollbar, "--content-size", computed(paddingBoxSize(this.content, axis, this.inputChange), (v)=>`${v||1}px`), handleStyleChange);
-        bindWith(this.scrollbar, "--scroll-size", computed(scrollSize(this.content, axis, this.inputChange), (v)=>`${v||1}px`), handleStyleChange);
+        bindWith(this.scrollbar, "--content-size", CSSUnitUtils.asPx(paddingBoxSize(this.content, axis, this.inputChange)), handleStyleChange);
+        bindWith(this.scrollbar, "--scroll-size", CSSUnitUtils.asPx(scrollSize(this.content, axis, this.inputChange)), handleStyleChange);
 
-        // Bind visibility for auto-hide
-        bindWith(this.scrollbar, "opacity", this.isVisible, handleStyleChange);
+        // Enhanced reactive binding with CSS transforms
+        bindWith(this.scrollbar, "opacity", this.scrollbarOpacity, handleStyleChange);
         bindWith(this.scrollbar, "--is-dragging", this.isDragging, handleStyleChange);
+
+        // Bind reactive thumb transform
+        CSSBinder.bindTransform(this.scrollbar.querySelector('*') as HTMLElement,
+            this.thumbTransform.value);
+    }
+
+    private initializeReactiveSizing(axis: number) {
+        // Create reactive element size trackers
+        const containerSizeTracker = new ReactiveElementSize(this.holder);
+        const contentSizeTracker = new ReactiveElementSize(this.content);
+
+        // Update reactive size properties
+        operated([containerSizeTracker.width, containerSizeTracker.height], () => {
+            this.containerSize.x.value = containerSizeTracker.width.value;
+            this.containerSize.y.value = containerSizeTracker.height.value;
+        });
+
+        // Calculate thumb size reactively
+        const contentSize = axis === 0 ? contentSizeTracker.width : contentSizeTracker.height;
+        const containerSize = axis === 0 ? containerSizeTracker.width : containerSizeTracker.height;
+
+        operated([contentSize, containerSize], () => {
+            const ratio = containerSize.value / contentSize.value;
+            const thumbLength = Math.max(20, ratio * containerSize.value);
+            const thumbThickness = this.responsiveConfig?.getCurrentConfig().thickness || 12;
+
+            if (axis === 0) { // Horizontal
+                this.thumbSize.x.value = thumbLength;
+                this.thumbSize.y.value = thumbThickness;
+            } else { // Vertical
+                this.thumbSize.x.value = thumbThickness;
+                this.thumbSize.y.value = thumbLength;
+            }
+        });
+
+        // Bind reactive thumb size to CSS
+        CSSBinder.bindSize(this.scrollbar.querySelector('*') as HTMLElement, this.thumbSize);
     }
 
     private initializeSpatialAwareness(axis: number) {
@@ -397,11 +466,11 @@ export class ScrollBar {
             const config = getConfig();
             if (!config.autoHide) return;
 
-            this.isVisible.value = 1;
+            this.scrollbarOpacity.value = 1;
             clearTimeout(hideTimeout);
             hideTimeout = window.setTimeout(() => {
                 if (this.isDragging.value === 0) {
-                    this.isVisible.value = 0;
+                    this.scrollbarOpacity.value = 0;
                 }
             }, config.fadeDelay);
         };
@@ -412,7 +481,7 @@ export class ScrollBar {
 
             if (this.isDragging.value === 0) {
                 hideTimeout = window.setTimeout(() => {
-                    this.isVisible.value = 0;
+                    this.scrollbarOpacity.value = 0;
                 }, config.fadeDelay);
             }
         };
@@ -431,7 +500,7 @@ export class ScrollBar {
             addEvent(this.scrollbar, "focus", showScrollbar);
 
             // Initial visibility
-            this.isVisible.value = config.autoHide ? 0 : 1;
+            this.scrollbarOpacity.value = config.autoHide ? 0 : 1;
         };
 
         // Listen to responsive config changes
@@ -579,7 +648,7 @@ export class ScrollBar {
         addEvent(this.scrollbar, "focus", () => {
             this.scrollbar.setAttribute("aria-expanded", "true");
             // Ensure scrollbar is visible when focused
-            this.isVisible.value = 1;
+            this.scrollbarOpacity.value = 1;
         });
 
         addEvent(this.scrollbar, "blur", () => {

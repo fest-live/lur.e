@@ -1,6 +1,7 @@
 import { elementPointerMap } from "fest/lure";
 import { DOMMixin, getCorrectOrientation, orientationNumberMap } from "fest/dom";
 import { numberRef } from "fest/object";
+import { Vector2D, vector2Ref } from "fest/lure";
 
 //
 export class UIOrientBox extends DOMMixin {
@@ -37,13 +38,13 @@ export class UIOrientBox extends DOMMixin {
         });
 
         //
-        const size = [self.clientWidth, self.clientHeight];
+        const size = vector2Ref(self.clientWidth, self.clientHeight);
         const resizeObserver = new ResizeObserver((entries) => {
             for (const entry of entries) {
                 if (entry?.contentBoxSize) {
                     const contentBoxSize = entry?.contentBoxSize?.[0];
-                    size[0] = (contentBoxSize?.inlineSize || size[0] || 0);
-                    size[1] = (contentBoxSize?.blockSize || size[1] || 0);
+                    size.x.value = (contentBoxSize?.inlineSize || size.x.value || 0);
+                    size.y.value = (contentBoxSize?.blockSize || size.y.value || 0);
                 }
             }
         });

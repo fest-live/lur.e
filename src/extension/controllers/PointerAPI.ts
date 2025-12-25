@@ -1,5 +1,6 @@
 import { getBoundingOrientRect, orientOf, addEvent, addEvents, hasParent, removeEvent } from "fest/dom";
 import { cvt_cs_to_os, withCtx } from "fest/core";
+import { Vector2D, vector2Ref } from "fest/lure";
 
 //
 export class DecorWith {
@@ -44,11 +45,13 @@ export const agWrapEvent = (cb)=>{
             client: coord,
             orient: null,
             boundingBox: null,
-            movement: [0, 0]
+            movement: vector2Ref(0, 0)
         });
 
         //
         cache.delta  = [coord[0] - cache.client[0], coord[1] - cache.client[1]];
+        cache.movement.x.value = cache.delta[0];
+        cache.movement.y.value = cache.delta[1];
         cache.orient = null, cache.client = coord;
 
         //
@@ -62,7 +65,7 @@ export const agWrapEvent = (cb)=>{
             //
             get client() { return cache.client; },
             get orient() { return cache.orient ??= cvt_cs_to_os([...(pointer.client || cache.client)] as [number, number], [el?.offsetWidth || 1, el?.offsetHeight || 1], orientOf(ev.target || el) || 0); },
-            get movement() { return [cache.delta[0] || 0, cache.delta[1] || 0]; },
+            get movement() { return [cache.movement.x.value, cache.movement.y.value]; },
             get boundingBox() { return (cache.boundingBox ??= getBoundingOrientRect(ev?.target || el, orientOf(ev.target || el) || 0)); },
 
             //

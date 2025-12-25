@@ -44,7 +44,7 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
     const weak = new WeakRef(aria), wel = new WeakRef(element);
     if (typeof aria == "object" || typeof aria == "function") {
         $entries(aria).forEach(([prop, value])=>{
-            handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);
+            handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value);
         });
         const usub = subscribe(aria, (value, prop)=>{ // @ts-ignore
             handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);

@@ -21,6 +21,7 @@ export * from "./extension/tasking/History"
 //
 export * from "./extension/controllers/Draggable"
 export * from "./extension/controllers/Resizable"
+export * from "./extension/controllers/Selection"
 export * from "./extension/controllers/LongHover"
 export * from "./extension/controllers/LongPress"
 export * from "./extension/controllers/Trigger"
@@ -60,3 +61,6 @@ export * from "./extension/color/ThemeEngine";
 //
 export * from "./extension/space-ref/BBoxAnchor"
 export * from "./extension/space-ref/PointerAnchor"
+
+//
+export * from "./math"

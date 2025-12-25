@@ -5,10 +5,16 @@ import { bindDraggable } from "./PointerAPI";
 //
 //import {  E  } from "fest/lure";
 import { numberRef, subscribe } from "fest/object";
+import { Vector2D, vector2Ref, Rect2D, clampPointToRect, createRect2D } from "fest/lure";
 
 //
 interface DragHandlerOptions {
     handler?: HTMLElement;
+    constraints?: {
+        bounds?: Rect2D;      // Drag within these bounds
+        centerOffset?: Vector2D; // Offset from center for bounds checking
+        snapToGrid?: { size: Vector2D, offset: Vector2D }; // Grid snapping
+    };
 }
 
 //
@@ -17,9 +23,10 @@ const _LOG_ = (...args)=>{ console.log(...args); return args?.[0]; };
 //
 export class DragHandler {
     #holder: HTMLElement;
-    #dragging = [{value: 0}, {value: 0}];
+    #dragging: Vector2D;
     #raf = 0;
-    #pending: [number, number] = [0, 0];
+    #pending: Vector2D;
+    #options?: DragHandlerOptions;
     #subscriptions?: Array<() => void>;
 
     // @ts-ignore
@@ -29,7 +36,9 @@ export class DragHandler {
     constructor(holder, options: DragHandlerOptions) {
         if (!holder) { throw Error("Element is null..."); }
         doObserve(this.#holder = holder, this.#parent);
-        this.#dragging = [numberRef(0, RAFBehavior()), numberRef(0, RAFBehavior())];
+        this.#dragging = vector2Ref(0, 0);
+        this.#pending = vector2Ref(0, 0);
+        this.#options = options;
         setStyleProperty(this.#holder, "--drag-x", 0);
         setStyleProperty(this.#holder, "--drag-y", 0);
         this.#attachObservers();
@@ -38,11 +47,43 @@ export class DragHandler {
 
     //
     #queueFrame(x = 0, y = 0) {
-        this.#pending = [x || 0, y || 0];
+        let constrainedX = x || 0;
+        let constrainedY = y || 0;
+
+        // Apply constraints if specified
+        if (this.#options?.constraints?.bounds) {
+            const bounds = this.#options.constraints.bounds;
+            const centerOffset = this.#options.constraints.centerOffset || vector2Ref(0, 0);
+
+            // Calculate element bounds for constraint checking
+            const elementSize = vector2Ref(this.#holder.offsetWidth, this.#holder.offsetHeight);
+            const elementBounds = createRect2D(constrainedX, constrainedY, elementSize.x, elementSize.y);
+
+            // Apply bounds constraints
+            const constrainedPos = clampPointToRect(
+                new Vector2D(constrainedX + centerOffset.x.value, constrainedY + centerOffset.y.value),
+                bounds
+            );
+
+            constrainedX = constrainedPos.x.value - centerOffset.x.value;
+            constrainedY = constrainedPos.y.value - centerOffset.y.value;
+        }
+
+        // Apply grid snapping if specified
+        if (this.#options?.constraints?.snapToGrid) {
+            const { size: gridSize, offset: gridOffset } = this.#options.constraints.snapToGrid;
+            constrainedX = Math.round((constrainedX - gridOffset.x.value) / gridSize.x.value) * gridSize.x.value + gridOffset.x.value;
+            constrainedY = Math.round((constrainedY - gridOffset.y.value) / gridSize.y.value) * gridSize.y.value + gridOffset.y.value;
+        }
+
+        this.#pending.x.value = constrainedX;
+        this.#pending.y.value = constrainedY;
+
         if (this.#raf) { return; }
         this.#raf = requestAnimationFrame(() => {
             this.#raf = 0;
-            const [dx, dy] = this.#pending;
+            const dx = this.#pending.x.value;
+            const dy = this.#pending.y.value;
 
             //
             //setStyleProperty(this.#holder, "--drag-x", dx || 0);
@@ -61,13 +102,13 @@ export class DragHandler {
         if (this.#subscriptions) { return; }
         const emit = () => {
             this.#queueFrame(
-                this.#dragging?.[0]?.value || 0,
-                this.#dragging?.[1]?.value || 0
+                this.#dragging.x.value,
+                this.#dragging.y.value
             );
         };
         this.#subscriptions = [
-            subscribe(this.#dragging[0], emit),
-            subscribe(this.#dragging[1], emit),
+            subscribe(this.#dragging.x, emit),
+            subscribe(this.#dragging.y, emit),
         ];
         emit();
     }
@@ -91,8 +132,8 @@ export class DragHandler {
 
             //
             const box = /*getBoundingOrientRect(holder) ||*/ holder?.getBoundingClientRect?.();
-            dragging[0].value = 0;
-            dragging[1].value = 0;
+            this.#dragging.x.value = 0;
+            this.#dragging.y.value = 0;
             this.#queueFrame(0, 0);
 
             //
@@ -101,11 +142,13 @@ export class DragHandler {
         }
 
         //
-        return bindDraggable(binding, dragResolve, dragging, ()=>{
+        // Convert Vector2D to array format for bindDraggable compatibility
+        const draggingArray = [this.#dragging.x, this.#dragging.y];
+        return bindDraggable(binding, dragResolve, draggingArray, ()=>{
             const holder = weak?.deref?.() as any;
             holder?.setAttribute?.("data-dragging", "");
             holder?.style?.setProperty("will-change", "inset, translate, transform, opacity, z-index");
-            this.#queueFrame(dragging?.[0]?.value || 0, dragging?.[1]?.value || 0);
+            this.#queueFrame(this.#dragging.x.value, this.#dragging.y.value);
             return [0, 0];
         });
     }

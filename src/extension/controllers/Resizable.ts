@@ -6,11 +6,12 @@ import { clamp } from "fest/core";
 import { numberRef } from "fest/object";
 import { E } from "../../lure/node/Bindings";
 import { bindDraggable } from "./PointerAPI";
+import { Vector2D, vector2Ref } from "fest/lure";
 
 //
 export class ResizeHandler {
     #holder: HTMLElement;
-    #resizing = [{value: 0}, {value: 0}];
+    #resizing: Vector2D;
 
     // @ts-ignore
     get #parent() { return this.#holder.offsetParent ?? this.#holder?.host ?? ROOT; }
@@ -18,14 +19,14 @@ export class ResizeHandler {
     //
     constructor(holder, options?: any) {
         if (!holder) { throw Error("Element is null..."); }
-        doObserve(this.#holder = holder, this.#parent); this.#resizing = [numberRef(0, RAFBehavior()), numberRef(0, RAFBehavior())];
+        doObserve(this.#holder = holder, this.#parent); this.#resizing = vector2Ref(0, 0);
         if (options) this.resizable(options);
     }
 
     //
     limitResize(real, virtual, holder, container) {
-        const widthDiff  = cbw(holder) - (bbw(holder) - (this.#resizing?.[0]?.value || 0));
-        const heightDiff = cbh(holder) - (bbh(holder) - (this.#resizing?.[1]?.value || 0));
+        const widthDiff  = cbw(holder) - (bbw(holder) - (this.#resizing.x.value || 0));
+        const heightDiff = cbh(holder) - (bbh(holder) - (this.#resizing.y.value || 0));
 
         // if relative of un-resized to edge corner max-size
         // discount of dragging offset!
@@ -53,7 +54,7 @@ export class ResizeHandler {
         //
         const binding  = (grabAction)=>handler.addEventListener("pointerdown", makeShiftTrigger((ev)=>grabAction(ev, this.#holder), this.#holder));
         const initDrag = ()=>{
-            const starting = [resizing?.[0]?.value || 0, resizing?.[1]?.value || 0];
+            const starting = [this.#resizing.x.value || 0, this.#resizing.y.value || 0];
             const holder = weak?.deref?.() as any;
             const parent = this.#parent;
             self_w?.deref?.()?.limitResize?.(starting, starting, holder, parent)
@@ -62,13 +63,15 @@ export class ResizeHandler {
         };
 
         //
+        // Convert Vector2D to array format for bindDraggable compatibility
+        const resizingArray = [this.#resizing.x, this.#resizing.y];
         E(this.#holder, { style: {
-            "--resize-x": resizing?.[0],
-            "--resize-y": resizing?.[1]
+            "--resize-x": this.#resizing.x,
+            "--resize-y": this.#resizing.y
         } });
 
         //
-        return bindDraggable(binding, dragResolve, resizing, initDrag);
+        return bindDraggable(binding, dragResolve, resizingArray, initDrag);
     }
 }
 

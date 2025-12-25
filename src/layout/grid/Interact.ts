@@ -1,7 +1,7 @@
 import { RAFBehavior, orientOf, getBoundingOrientRect, setStyleProperty } from "fest/dom";
 import { makeObjectAssignable, makeReactive, subscribe, numberRef } from "fest/object";
-import { LongPressHandler, makeShiftTrigger, E, bindDraggable } from "fest/lure";
-import { convertOrientPxToCX, redirectCell, floorNearest, ceilNearest, roundNearest } from "fest/core";
+import { LongPressHandler, makeShiftTrigger, E, bindDraggable, clampCell, floorCell } from "fest/lure";
+import { convertOrientPxToCX, redirectCell } from "fest/core";
 import type { GridArgsType as GridArgsType, GridItemType } from "fest/core";
 
 //
@@ -97,8 +97,6 @@ export const doAnimate = async (newItem, axis: any = "x", animate = false, signa
     //if (!shifted) { onShift?.[0]?.(); } // commit dragging result
 }
 
-
-
 //
 export const reflectCell = async (newItem: HTMLElement, pArgs: GridArgsType, withAnimate = false): Promise<void> => {
     const layout: [number, number] = [(pArgs?.layout as any)?.columns || pArgs?.layout?.[0] || 4, (pArgs?.layout as any)?.rows || pArgs?.layout?.[1] || 8];
@@ -121,30 +119,6 @@ export const reflectCell = async (newItem: HTMLElement, pArgs: GridArgsType, wit
         }
     });
 }
-
-//
-const clampCell = (CXa: [number, number], layout: [number, number]): [number, number] => [
-    Math.max(Math.min(CXa?.[0], (layout?.[0] || 1)-1), 0),
-    Math.max(Math.min(CXa?.[1], (layout?.[1] || 1)-1), 0)
-];
-
-//
-const floorCell = (CXa: [number, number], N = 1): [number, number] => [
-    floorNearest(CXa?.[0] || 0, N),
-    floorNearest(CXa?.[1] || 0, N)
-];
-
-//
-const ceilCell = (CXa: [number, number], N = 1): [number, number] => [
-    ceilNearest(CXa?.[0] || 0, N),
-    ceilNearest(CXa?.[1] || 0, N)
-];
-
-//
-const roundCell = (CXa: [number, number], N = 1): [number, number] => [
-    roundNearest(CXa?.[0] || 0, N),
-    roundNearest(CXa?.[1] || 0, N)
-];
 
 //
 export const makeDragEvents = async (
@@ -216,9 +190,12 @@ export const makeDragEvents = async (
         const projected = convertOrientPxToCX(inset, args, orient);
         projected[0] -= spanOffset[0];
         projected[1] -= spanOffset[1];
+        const flooredCell = floorCell(projected as [number, number]);
+        const redirectedCell = redirectCell([flooredCell.x.value, flooredCell.y.value], args);
+        const clampedCell = clampCell(redirectedCell, layoutSnapshot as [number, number]);
         return {
             inset: [inset[0] - dragging?.[0]?.value, inset[1] - dragging?.[1]?.value],
-            cell: clampCell(redirectCell(floorCell(projected as [number, number]), args), layoutSnapshot as [number, number])
+            cell: [clampedCell.x.value, clampedCell.y.value] // Convert Vector2D back to array
         } as { inset?: [number, number], cell?: [number, number] };
     };
 
@@ -233,7 +210,9 @@ export const makeDragEvents = async (
     //
     const setCell = (cell: [number, number]): void => {
         const args = {item, items, list, layout, size: [newItem?.clientWidth || 0, newItem?.clientHeight || 0] as [number, number]};
-        cell = clampCell(redirectCell(cell, args as GridArgsType), layout as [number, number]);
+        const redirectedCell = redirectCell(cell, args as GridArgsType);
+        const clampedCell = clampCell(redirectedCell, layout as [number, number]);
+        cell = [clampedCell.x.value, clampedCell.y.value]; // Convert Vector2D back to array
         setCellAxis(cell, 0); setCellAxis(cell, 1);
     };
 

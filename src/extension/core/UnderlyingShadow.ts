@@ -1,5 +1,5 @@
 import { computed, subscribe } from "fest/object";
-import { bindWith } from "fest/lure";
+import { bindWith, CSSUnitUtils } from "fest/lure";
 import { setProperty, handleStyleChange } from "fest/dom";
 import { boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
 import { enhancedIntersectionBoxAnchorRef } from "../space-ref/IntersectionAnchor";
@@ -23,15 +23,7 @@ export interface UnderlyingShadowOptions {
 }
 
 //
-const asPx = (value: any) => {
-    if (typeof value === 'number') {
-        return `${value || 0}px` as string;
-    }
-    if (typeof value === 'string') {
-        return value || '0px';
-    }
-    return computed(value, (v) => `${v || 0}px`);
-}
+// Unit conversion utilities now imported from CSSUnitUtils
 
 //
 export class UnderlyingShadow {
@@ -109,10 +101,10 @@ export class UnderlyingShadow {
 
             // Position based on intersection box
             // anchorBox: [ix, iy, iwidth, iheight, iright, ibottom, ax, ay, awidth, aheight, rx, ry, rwidth, rheight]
-            bindWith(this.shadowContainer, 'left', asPx(this.anchorBox?.[6]), handleStyleChange); // anchor x
-            bindWith(this.shadowContainer, 'top', asPx(this.anchorBox?.[7]), handleStyleChange); // anchor y
-            bindWith(this.shadowContainer, 'width', asPx(this.anchorBox?.[8]), handleStyleChange); // anchor width
-            bindWith(this.shadowContainer, 'height', asPx(this.anchorBox?.[9]), handleStyleChange); // anchor height
+            bindWith(this.shadowContainer, 'left', CSSUnitUtils.asPx(this.anchorBox?.[6]), handleStyleChange); // anchor x
+            bindWith(this.shadowContainer, 'top', CSSUnitUtils.asPx(this.anchorBox?.[7]), handleStyleChange); // anchor y
+            bindWith(this.shadowContainer, 'width', CSSUnitUtils.asPx(this.anchorBox?.[8]), handleStyleChange); // anchor width
+            bindWith(this.shadowContainer, 'height', CSSUnitUtils.asPx(this.anchorBox?.[9]), handleStyleChange); // anchor height
         } else {
             // Use standard bounding box positioning
             this.anchorBox = boundingBoxAnchorRef(this.target as HTMLElement, {
@@ -122,15 +114,15 @@ export class UnderlyingShadow {
 
             // Position based on bounding box
             // anchorBox: [x, y, width, height, right, bottom]
-            bindWith(this.shadowContainer, 'left', asPx(this.anchorBox?.[0]), handleStyleChange);
-            bindWith(this.shadowContainer, 'top', asPx(this.anchorBox?.[1]), handleStyleChange);
-            bindWith(this.shadowContainer, 'width', asPx(this.anchorBox?.[2]), handleStyleChange);
-            bindWith(this.shadowContainer, 'height', asPx(this.anchorBox?.[3]), handleStyleChange);
+            bindWith(this.shadowContainer, 'left', CSSUnitUtils.asPx(this.anchorBox?.[0]), handleStyleChange);
+            bindWith(this.shadowContainer, 'top', CSSUnitUtils.asPx(this.anchorBox?.[1]), handleStyleChange);
+            bindWith(this.shadowContainer, 'width', CSSUnitUtils.asPx(this.anchorBox?.[2]), handleStyleChange);
+            bindWith(this.shadowContainer, 'height', CSSUnitUtils.asPx(this.anchorBox?.[3]), handleStyleChange);
         }
 
         // Apply inset offset
         if (this.options.inset !== 0) {
-            const insetPx = asPx(this.options.inset);
+            const insetPx = CSSUnitUtils.asPx(this.options.inset);
             setProperty(this.shadowContainer, 'left', `calc(var(--left) + ${insetPx})`);
             setProperty(this.shadowContainer, 'top', `calc(var(--top) + ${insetPx})`);
             setProperty(this.shadowContainer, 'width', `calc(var(--width) - ${2 * insetPx})`);
@@ -168,7 +160,7 @@ export class UnderlyingShadow {
             const borderColor = computedStyle.borderColor;
 
             if (borderWidth && borderWidth !== '0px' && borderStyle !== 'none') {
-                this.geometryClone!.style.border = `${asPx(borderWidth)} ${borderStyle} ${borderColor}`;
+                this.geometryClone!.style.border = `${CSSUnitUtils.asPx(borderWidth)} ${borderStyle} ${borderColor}`;
             }
 
             // Clone background for complex shadows
@@ -199,23 +191,23 @@ export class UnderlyingShadow {
 
         if (shadowType === 'drop-shadow') {
             // Use CSS filter drop-shadow (applied to container)
-            const filterValue = `drop-shadow(${asPx(shadowOffsetX || 0)} ${asPx(shadowOffsetY || 0)} ${asPx(shadowBlur || 0)} ${shadowColor})`;
+            const filterValue = `drop-shadow(${CSSUnitUtils.asPx(shadowOffsetX || 0)} ${CSSUnitUtils.asPx(shadowOffsetY || 0)} ${CSSUnitUtils.asPx(shadowBlur || 0)} ${shadowColor})`;
             this.shadowContainer!.style.filter = filterValue;
             this.shadowContainer!.style.opacity = opacity!.toString() || '1';
         } else if (shadowType === 'blur') {
             // Use blur filter with solid shape
-            const filterValue = `blur(${asPx(shadowBlur || 0)})`;
+            const filterValue = `blur(${CSSUnitUtils.asPx(shadowBlur || 0)})`;
             this.shadowElement!.style.filter = filterValue;
             this.shadowElement!.style.opacity = opacity!.toString() || '1';
 
             if (this.geometryClone) {
                 this.geometryClone!.style.backgroundColor = shadowColor!;
-                this.geometryClone!.style.transform = `translate(${asPx(-(shadowOffsetX || 0))}, ${asPx(-(shadowOffsetY || 0))})`;
+                this.geometryClone!.style.transform = `translate(${CSSUnitUtils.asPx(-(shadowOffsetX || 0))}, ${CSSUnitUtils.asPx(-(shadowOffsetY || 0))})`;
             }
 
         } else if (shadowType === 'box-shadow') {
             // Traditional box-shadow (applied to geometry clone)
-            const boxShadowValue = `${asPx(shadowOffsetX || 0)} ${asPx(shadowOffsetY || 0)} ${asPx(shadowBlur || 0)} ${asPx(spreadRadius || 0)} ${shadowColor}`;
+            const boxShadowValue = `${CSSUnitUtils.asPx(shadowOffsetX || 0)} ${CSSUnitUtils.asPx(shadowOffsetY || 0)} ${CSSUnitUtils.asPx(shadowBlur || 0)} ${CSSUnitUtils.asPx(spreadRadius || 0)} ${shadowColor}`;
             this.shadowContainer!.style.boxShadow = boxShadowValue;
             this.shadowContainer!.style.opacity = opacity!.toString() || '1';
         }

@@ -1,10 +1,19 @@
 import { addEvent, setChecked, handleStyleChange } from "fest/dom";
-import { computed, conditional, numberRef } from "fest/object";
+import { computed, conditional, numberRef, subscribe } from "fest/object";
 import { bindDraggable } from "../controllers/PointerAPI";
 
 //
 import { makeShiftTrigger } from "../controllers/Trigger";
 import { bindWith, bindCtrl } from "../../lure/core/Binding";
+
+// Enhanced reactive math and CSS integration
+import {
+    Vector2D, vector2Ref, operated,
+    addVector2D, multiplyVector2D, subtractVector2D,
+    CSSTransform, CSSPosition, CSSBinder, CSSCalc
+} from "fest/lure";
+import { ReactiveElementSize } from "../css-ref/Utils";
+import { ReactiveTransform } from "../css-ref/Utils";
 
 //
 /* ***************************************************************************************** *
@@ -17,12 +26,34 @@ import { bindWith, bindCtrl } from "../../lure/core/Binding";
  * 5. dragging: [dx, dy]             ,                   , # relative from current offset    *
  * ***************************************************************************************** */
 
-//
+// Enhanced reactive utilities with CSS integration
 export const boolDepIconRef = (cnd)=> conditional(cnd, "badge-check", "badge");
+
 export const indicationRef = (ref)=> computed(ref, (v)=>(parseFloat(v) || 0)?.toLocaleString?.('en-US', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 1
 }));
+
+// Reactive input position calculation with CSS integration
+export const reactiveInputPosition = (input: HTMLInputElement, container?: HTMLElement) => {
+    const elementSize = container ? new ReactiveElementSize(container) : null;
+    const value = clampedValueRef(input);
+
+    return operated([value, elementSize?.width || numberRef(100)], () => {
+        const containerWidth = elementSize?.width.value || 100;
+        const percentage = value.value;
+        return percentage * containerWidth;
+    });
+};
+
+// Reactive input handle transform with CSS matrix support
+export const reactiveInputHandleTransform = (input: HTMLInputElement, container?: HTMLElement) => {
+    const position = reactiveInputPosition(input, container);
+    const transform = new ReactiveTransform();
+
+    // Create reactive translate transform
+    return operated([position], () => `translateX(${position.value}px)`);
+};
 
 // currently, unused
 const convertValueToPointer = (input)=>{
@@ -182,10 +213,23 @@ export const dragSlider = (thumb, handler, input)=>{ // @ts-ignore
 
     //
     const dragging = [ numberRef(0), numberRef(0) ];
-    bindWith?.(thumb, "--drag-x", dragging?.[0], handleStyleChange);
-    bindWith?.(handler, "--drag-x", dragging?.[0], handleStyleChange);
-    bindWith?.(handler, "--relate", computed(dragging?.[0], (v)=>convertPointerToValueShift(input, dragging, handler)), handleStyleChange); // "relative"
-    bindWith?.(handler, "--value", clampedValueRef(input), handleStyleChange); // from [0, 1]
+
+    // Enhanced reactive binding with CSS transform matrices
+    const dragTransform = operated([dragging[0]], () => `translateX(${dragging[0].value}px)`);
+    const valuePosition = reactiveInputPosition(input, handler);
+
+    // Bind reactive transforms and values
+    CSSBinder.bindTransform(thumb, dragTransform);
+    CSSBinder.bindTransform(handler, dragTransform);
+
+    // Enhanced reactive value calculations
+    const relativeValue = operated([dragging[0]], (dx) =>
+        convertPointerToValueShift(input, dragging, handler)
+    );
+    const clampedValue = clampedValueRef(input);
+
+    bindWith?.(handler, "--relate", relativeValue, handleStyleChange);
+    bindWith?.(handler, "--value", clampedValue, handleStyleChange);
     const obj = bindDraggable(customTrigger, (dragging)=>{
         thumb?.removeAttribute?.("data-dragging");
         if (usedPointer.id >= 0)

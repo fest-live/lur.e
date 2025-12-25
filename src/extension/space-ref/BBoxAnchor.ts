@@ -1,6 +1,13 @@
 import { addToCallChain, computed, numberRef } from "fest/object";
 import { addEvent, getBoundingOrientRect, handleStyleChange } from "fest/dom";
 import { bindWith } from "fest/lure";
+import {
+    Vector2D, vector2Ref, vectorFromArray,
+    Rect2D, createRect2D, rectCenter, rectContainsPoint, rectIntersects, rectArea,
+    clampPointToRect, pointToRectDistance
+} from "fest/lure";
+import { CSSBinder, CSSUnitUtils } from "fest/lure";
+import { ReactiveElementSize } from "../css-ref/Utils";
 
 //
 export function boundingBoxAnchorRef(anchor: HTMLElement, options?: {
@@ -9,18 +16,33 @@ export function boundingBoxAnchorRef(anchor: HTMLElement, options?: {
     observeMutations?: boolean,
 }) {
     if (!anchor) return () => { };
+
+    // Create reactive vectors for position and size
+    const position = vector2Ref(0, 0); // x, y
+    const size = vector2Ref(0, 0);     // width, height
     const area = [
-        numberRef(0), numberRef(0), numberRef(0), numberRef(0), numberRef(0), numberRef(0)
-    ]
+        position.x, position.y, // x, y
+        size.x, size.y,         // width, height
+        numberRef(0), numberRef(0) // to right, to bottom (computed)
+    ];
+
+    // Reactive rectangle representation
+    const rect: Rect2D = { position, size };
+    const center = rectCenter(rect);
+    const reactiveArea = rectArea(rect);
+
     const { root = anchor?.offsetParent ?? document.documentElement, observeResize = true, observeMutations = false } = options || {};
+
+    // Reactive element size tracker
+    const elementSize = new ReactiveElementSize(anchor);
 
     //
     function updateArea() {
         const rect  = anchor?.getBoundingClientRect?.() ?? {};
-        area[0].value = rect?.left; // x
-        area[1].value = rect?.top;  // y
-        area[2].value = rect?.right - rect?.left; // width
-        area[3].value = rect?.bottom - rect?.top; // height
+        position.x.value = rect?.left; // x
+        position.y.value = rect?.top;  // y
+        size.x.value = rect?.right - rect?.left; // width
+        size.y.value = rect?.bottom - rect?.top; // height
         area[4].value = rect?.right;  // to right
         area[5].value = rect?.bottom; // to bottom
     }
@@ -58,13 +80,38 @@ export function boundingBoxAnchorRef(anchor: HTMLElement, options?: {
     if (destroy) {
         area.forEach(ub=>addToCallChain(ub, Symbol.dispose, destroy));
     }
-    return area;
+
+    // Return enhanced area with vector, rectangle, and CSS operations
+    const enhancedArea = Object.assign(area, {
+        position,       // Vector2D for x, y
+        size,          // Vector2D for width, height
+        rect,          // Rect2D interface
+        center,        // Reactive center point
+        area: reactiveArea, // Reactive area calculation
+        elementSize,   // ReactiveElementSize instance
+
+        // Rectangle operations
+        containsPoint: (point: Vector2D) => rectContainsPoint(rect, point),
+        intersects: (otherRect: Rect2D) => rectIntersects(rect, otherRect),
+        clampPoint: (point: Vector2D) => clampPointToRect(point, rect),
+        distanceToPoint: (point: Vector2D) => pointToRectDistance(point, rect),
+
+        // CSS binding utilities
+        bindPosition: (element: HTMLElement) => CSSBinder.bindPosition(element, position),
+        bindSize: (element: HTMLElement) => CSSBinder.bindSize(element, size),
+        bindCenter: (element: HTMLElement) => CSSBinder.bindPosition(element, center),
+
+        destroy: () => {
+            elementSize.destroy();
+            destroy();
+        }
+    });
+
+    return enhancedArea;
 }
 
 //
-export const asPx = (unit: any) => {
-    return computed(unit, (v) => `${v || 0}px`);
-}
+// Unit conversion utilities now imported from CSSUnitUtils
 
 //
 export const bindWithRect = (anchor: HTMLElement, area: any|null, options?: {
@@ -86,38 +133,38 @@ export const bindWithRect = (anchor: HTMLElement, area: any|null, options?: {
 
     //
     if (options?.placement == "fill") {
-        usb.push(bindWith(anchor, "inset-block-start", asPx(left), handleStyleChange));
-        usb.push(bindWith(anchor, "inset-inline-start", asPx(top), handleStyleChange));
-        usb.push(bindWith(anchor, "inset-block-end", asPx(right), handleStyleChange));
-        usb.push(bindWith(anchor, "inset-inline-end", asPx(bottom), handleStyleChange));
-        usb.push(bindWith(anchor, "inline-size", asPx(width), handleStyleChange));
-        usb.push(bindWith(anchor, "block-size", asPx(height), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-block-start", CSSUnitUtils.asPx(left), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-inline-start", CSSUnitUtils.asPx(top), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-block-end", CSSUnitUtils.asPx(right), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-inline-end", CSSUnitUtils.asPx(bottom), handleStyleChange));
+        usb.push(bindWith(anchor, "inline-size", CSSUnitUtils.asPx(width), handleStyleChange));
+        usb.push(bindWith(anchor, "block-size", CSSUnitUtils.asPx(height), handleStyleChange));
     }
     else if (options?.placement == "bottom") {
-        usb.push(bindWith(anchor, "inset-block-start", asPx(bottom), handleStyleChange));
-        usb.push(bindWith(anchor, "inset-inline-start", asPx(left), handleStyleChange));
-        usb.push(bindWith(anchor, "inline-size", asPx(width), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-block-start", CSSUnitUtils.asPx(bottom), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-inline-start", CSSUnitUtils.asPx(left), handleStyleChange));
+        usb.push(bindWith(anchor, "inline-size", CSSUnitUtils.asPx(width), handleStyleChange));
     }
     else if (options?.placement == "top") {
-        usb.push(bindWith(anchor, "inset-block-end", asPx(top), handleStyleChange));
-        usb.push(bindWith(anchor, "inset-inline-start", asPx(left), handleStyleChange));
-        usb.push(bindWith(anchor, "inline-size", asPx(width), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-block-end", CSSUnitUtils.asPx(top), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-inline-start", CSSUnitUtils.asPx(left), handleStyleChange));
+        usb.push(bindWith(anchor, "inline-size", CSSUnitUtils.asPx(width), handleStyleChange));
     }
     else if (options?.placement == "left") {
-        usb.push(bindWith(anchor, "inset-inline-end", asPx(right), handleStyleChange));
-        usb.push(bindWith(anchor, "inset-block-start", asPx(top), handleStyleChange));
-        usb.push(bindWith(anchor, "block-size", asPx(height), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-inline-end", CSSUnitUtils.asPx(right), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-block-start", CSSUnitUtils.asPx(top), handleStyleChange));
+        usb.push(bindWith(anchor, "block-size", CSSUnitUtils.asPx(height), handleStyleChange));
     }
     else if (options?.placement == "right") {
-        usb.push(bindWith(anchor, "inset-inline-start", asPx(left), handleStyleChange));
-        usb.push(bindWith(anchor, "inset-block-start", asPx(top), handleStyleChange));
-        usb.push(bindWith(anchor, "block-size", asPx(height), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-inline-start", CSSUnitUtils.asPx(left), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-block-start", CSSUnitUtils.asPx(top), handleStyleChange));
+        usb.push(bindWith(anchor, "block-size", CSSUnitUtils.asPx(height), handleStyleChange));
     }
     else if (options?.placement == "center") {
-        usb.push(bindWith(anchor, "inset-inline-start", asPx(left), handleStyleChange));
-        usb.push(bindWith(anchor, "inset-block-start", asPx(top), handleStyleChange));
-        usb.push(bindWith(anchor, "inline-size", asPx(width), handleStyleChange));
-        usb.push(bindWith(anchor, "block-size", asPx(height), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-inline-start", CSSUnitUtils.asPx(left), handleStyleChange));
+        usb.push(bindWith(anchor, "inset-block-start", CSSUnitUtils.asPx(top), handleStyleChange));
+        usb.push(bindWith(anchor, "inline-size", CSSUnitUtils.asPx(width), handleStyleChange));
+        usb.push(bindWith(anchor, "block-size", CSSUnitUtils.asPx(height), handleStyleChange));
     }
     return () => { usb?.forEach?.(ub=>ub?.()); };
 };
@@ -145,27 +192,27 @@ export const bindScrollbarPosition = (scrollbar: HTMLElement, anchorBox: any[]|a
         // Intersection box: [ix, iy, iwidth, iheight, iright, ibottom, ax, ay, awidth, aheight, rx, ry, rwidth, rheight]
         if (axis === 'horizontal') {
             // Position at bottom of intersection area
-            usb.push(bindWith(scrollbar, "left", computed(anchorBox[0], (v) => `${v || 0}px`), handleStyleChange));     // intersection x
-            usb.push(bindWith(scrollbar, "top", computed(anchorBox[5], (v) => `${v || 0}px`), handleStyleChange));     // intersection bottom
-            usb.push(bindWith(scrollbar, "width", computed(anchorBox[2], (v) => `${v || 0}px`), handleStyleChange));  // intersection width
+            usb.push(bindWith(scrollbar, "left", CSSUnitUtils.asPx(anchorBox[0]), handleStyleChange));     // intersection x
+            usb.push(bindWith(scrollbar, "top", CSSUnitUtils.asPx(anchorBox[5]), handleStyleChange));     // intersection bottom
+            usb.push(bindWith(scrollbar, "width", CSSUnitUtils.asPx(anchorBox[2]), handleStyleChange));  // intersection width
         } else {
             // Position at right of intersection area
-            usb.push(bindWith(scrollbar, "left", computed(anchorBox[4], (v) => `${v || 0}px`), handleStyleChange));    // intersection right
-            usb.push(bindWith(scrollbar, "top", computed(anchorBox[1], (v) => `${v || 0}px`), handleStyleChange));     // intersection y
-            usb.push(bindWith(scrollbar, "height", computed(anchorBox[3], (v) => `${v || 0}px`), handleStyleChange)); // intersection height
+            usb.push(bindWith(scrollbar, "left", CSSUnitUtils.asPx(anchorBox[4]), handleStyleChange));    // intersection right
+            usb.push(bindWith(scrollbar, "top", CSSUnitUtils.asPx(anchorBox[1]), handleStyleChange));     // intersection y
+            usb.push(bindWith(scrollbar, "height", CSSUnitUtils.asPx(anchorBox[3]), handleStyleChange)); // intersection height
         }
     } else {
         // Regular bounding box: [x, y, width, height, right, bottom]
         if (axis === 'horizontal') {
             // Position at bottom of content area
-            usb.push(bindWith(scrollbar, "left", computed(anchorBox[0], (v) => `${v || 0}px`), handleStyleChange));     // x
-            usb.push(bindWith(scrollbar, "top", computed(anchorBox[5], (v) => `${v || 0}px`), handleStyleChange));     // bottom
-            usb.push(bindWith(scrollbar, "width", computed(anchorBox[2], (v) => `${v || 0}px`), handleStyleChange));  // width
+            usb.push(bindWith(scrollbar, "left", CSSUnitUtils.asPx(anchorBox[0]), handleStyleChange));     // x
+            usb.push(bindWith(scrollbar, "top", CSSUnitUtils.asPx(anchorBox[5]), handleStyleChange));     // bottom
+            usb.push(bindWith(scrollbar, "width", CSSUnitUtils.asPx(anchorBox[2]), handleStyleChange));  // width
         } else {
             // Position at right of content area
-            usb.push(bindWith(scrollbar, "left", computed(anchorBox[4], (v) => `${v || 0}px`), handleStyleChange));    // right
-            usb.push(bindWith(scrollbar, "top", computed(anchorBox[1], (v) => `${v || 0}px`), handleStyleChange));     // y
-            usb.push(bindWith(scrollbar, "height", computed(anchorBox[3], (v) => `${v || 0}px`), handleStyleChange)); // height
+            usb.push(bindWith(scrollbar, "left", CSSUnitUtils.asPx(anchorBox[4]), handleStyleChange));    // right
+            usb.push(bindWith(scrollbar, "top", CSSUnitUtils.asPx(anchorBox[1]), handleStyleChange));     // y
+            usb.push(bindWith(scrollbar, "height", CSSUnitUtils.asPx(anchorBox[3]), handleStyleChange)); // height
         }
     }
 
