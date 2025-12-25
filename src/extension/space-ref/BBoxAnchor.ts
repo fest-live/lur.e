@@ -12,7 +12,7 @@ export function boundingBoxAnchorRef(anchor: HTMLElement, options?: {
     const area = [
         numberRef(0), numberRef(0), numberRef(0), numberRef(0), numberRef(0), numberRef(0)
     ]
-    const { root = window, observeResize = true, observeMutations = false } = options || {};
+    const { root = anchor?.offsetParent ?? document.documentElement, observeResize = true, observeMutations = false } = options || {};
 
     //
     function updateArea() {
@@ -76,6 +76,11 @@ export const bindWithRect = (anchor: HTMLElement, area: any|null, options?: {
     if (!anchor) return () => { };
 
     //
+    if (area?.connectElement) {
+        return area?.connectElement?.(anchor, options || {});
+    }
+
+    //
     const [left, top, width, height, right, bottom] = area;
     const usb: any[] = [];
 
@@ -118,13 +123,21 @@ export const bindWithRect = (anchor: HTMLElement, area: any|null, options?: {
 };
 
 // Enhanced binding for scrollbar positioning with intersection support
-export const bindScrollbarPosition = (scrollbar: HTMLElement, anchorBox: any[], axis: 'horizontal' | 'vertical', options?: {
+export const bindScrollbarPosition = (scrollbar: HTMLElement, anchorBox: any[]|any, axis: 'horizontal' | 'vertical', options?: {
     useIntersection?: boolean,
     zIndexShift?: number,
 }) => {
     const { useIntersection = false, zIndexShift = 1 } = options || {};
     const usb: any[] = [];
 
+    //
+    if (anchorBox?.connectElement) {
+        return anchorBox?.connectElement?.(scrollbar, Object.assign(options || {}, {
+            placement: axis == "horizontal" ? "bottom" : "right"
+        }));
+    }
+
+    //
     scrollbar.style.position = useIntersection ? 'fixed' : 'absolute';
     scrollbar.style.zIndex = `${zIndexShift}`;
 

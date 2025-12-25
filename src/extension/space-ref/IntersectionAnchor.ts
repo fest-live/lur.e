@@ -3,16 +3,9 @@ import { addEvent, getBoundingOrientRect, handleStyleChange } from "fest/dom";
 import { bindWith } from "fest/lure";
 
 //
-const computeIntersectionRect = (anchor: HTMLElement, root: HTMLElement | Window = window, includeExtendedInfo = false) => {
+const computeIntersectionRect = (anchor: HTMLElement, root: HTMLElement = document.documentElement, includeExtendedInfo = false) => {
     // Get root rectangle (viewport or container)
-    const rootRect = (root instanceof HTMLElement ? (getBoundingOrientRect(root) ?? root?.getBoundingClientRect?.()) : null) ?? {
-        left: 0,
-        top: 0,
-        right: window.innerWidth,
-        bottom: window.innerHeight,
-        width: window.innerWidth,
-        height: window.innerHeight
-    };
+    const rootRect = getBoundingOrientRect(root) ?? root?.getBoundingClientRect?.();
 
     // Get anchor element rectangle
     const anchorRect = getBoundingOrientRect(anchor) ?? anchor?.getBoundingClientRect?.();
@@ -78,7 +71,7 @@ export function intersectionBoxAnchorRef(anchor: HTMLElement, options?: {
     const area = [
         numberRef(0), numberRef(0), numberRef(0), numberRef(0), numberRef(0), numberRef(0)
     ]
-    const { root = window, observeResize = true, observeMutations = true, observeIntersection = true } = options || {};
+    const { root = anchor?.offsetParent ?? document.documentElement, observeResize = true, observeMutations = true, observeIntersection = true } = options || {};
 
     //
     function updateArea(intersectionRect?: any) {
@@ -89,7 +82,7 @@ export function intersectionBoxAnchorRef(anchor: HTMLElement, options?: {
             height: intersectionRect.height,
             right: intersectionRect.right,
             bottom: intersectionRect.bottom
-        } : computeIntersectionRect(anchor, root, false);
+        } : computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, false);
         area[0].value = rect?.left ?? 0; // intersection x
         area[1].value = rect?.top ?? 0;  // intersection y
         area[2].value = rect?.width ?? 0; // intersection width
@@ -114,7 +107,7 @@ export function intersectionBoxAnchorRef(anchor: HTMLElement, options?: {
     if (observeMutations) {
         mutationObs = typeof MutationObserver != "undefined" ? new MutationObserver((mutations) => {
             for (const mutation of mutations) {
-                updateArea(computeIntersectionRect(anchor, root, false));
+                updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, false));
             }
         }) : undefined;
         mutationObs?.observe(anchor, { attributes: true, childList: true, subtree: true });
@@ -137,13 +130,15 @@ export function intersectionBoxAnchorRef(anchor: HTMLElement, options?: {
 
     //
     const listening = [
-        addEvent(root, "scroll", () => updateArea(computeIntersectionRect(anchor, root, false)), { capture: true }),
-        addEvent(window, "resize", () => updateArea(computeIntersectionRect(anchor, root, false))),
-        addEvent(window, "scroll", () => updateArea(computeIntersectionRect(anchor, root, false)), { capture: true })
+        addEvent(root, "scroll", () => updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, false)), { capture: true }),
+        addEvent(window, "resize", () => updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, false))),
+        addEvent(window, "scroll", () => updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, false)), { capture: true })
     ];
 
     //
-    updateArea(computeIntersectionRect(anchor, root, false));
+    updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, false));
+
+    //
     function destroy() {
         listening.forEach(ub=>ub?.());
         resizeObs?.disconnect?.();
@@ -175,9 +170,10 @@ export function enhancedIntersectionBoxAnchorRef(anchor: HTMLElement, options?: 
         numberRef(0), numberRef(0), numberRef(0), numberRef(0)  // root: x, y, width, height
     ];
 
-    const { root = window, observeResize = true, observeMutations = true, observeIntersection = true } = options || {};
+    //
+    const { root = anchor?.offsetParent ?? document.documentElement, observeResize = true, observeMutations = true, observeIntersection = true } = options || {};
 
-
+    //
     function updateArea(intersectionRect?: any) {
         const data = intersectionRect ? {
             intersection: {
@@ -193,7 +189,7 @@ export function enhancedIntersectionBoxAnchorRef(anchor: HTMLElement, options?: 
                 left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight,
                 width: window.innerWidth, height: window.innerHeight
             }
-        } : computeIntersectionRect(anchor, root, true);
+        } : computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, true);
 
         if (!data.anchor) return;
 
@@ -218,7 +214,7 @@ export function enhancedIntersectionBoxAnchorRef(anchor: HTMLElement, options?: 
         area[13].value = data.root.height ?? 0;          // root height
     }
 
-    // Set up observers (same as before)
+    //
     let resizeObs: ResizeObserver | undefined;
     if (observeResize && "ResizeObserver" in window && typeof ResizeObserver != "undefined") {
         resizeObs = typeof ResizeObserver != "undefined" ? new ResizeObserver((entries) => {
@@ -229,16 +225,18 @@ export function enhancedIntersectionBoxAnchorRef(anchor: HTMLElement, options?: 
         resizeObs?.observe(anchor);
     }
 
+    //
     let mutationObs: MutationObserver | undefined;
     if (observeMutations) {
         mutationObs = typeof MutationObserver != "undefined" ? new MutationObserver((mutations) => {
             for (const mutation of mutations) {
-                updateArea(computeIntersectionRect(anchor, root, true).intersection);
+                updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, true).intersection);
             }
         }) : undefined;
         mutationObs?.observe(anchor, { attributes: true, childList: true, subtree: true });
     }
 
+    //
     let intersectionObs: IntersectionObserver | undefined;
     if (observeIntersection) {
         intersectionObs = typeof IntersectionObserver != "undefined" ? new IntersectionObserver((entries) => {
@@ -253,14 +251,17 @@ export function enhancedIntersectionBoxAnchorRef(anchor: HTMLElement, options?: 
         intersectionObs?.observe(anchor);
     }
 
+    //
     const listening = [
-        addEvent(root, "scroll", () => updateArea(computeIntersectionRect(anchor, root, true).intersection), { capture: true }),
-        addEvent(window, "resize", () => updateArea(computeIntersectionRect(anchor, root, true).intersection)),
-        addEvent(window, "scroll", () => updateArea(computeIntersectionRect(anchor, root, true).intersection), { capture: true })
+        addEvent(root, "scroll", () => updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, true).intersection), { capture: true }),
+        addEvent(window, "resize", () => updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, true).intersection)),
+        addEvent(window, "scroll", () => updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, true).intersection), { capture: true })
     ];
 
-    updateArea(computeIntersectionRect(anchor, root, true).intersection);
+    //
+    updateArea(computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, true).intersection);
 
+    //
     function destroy() {
         listening.forEach(ub => ub?.());
         resizeObs?.disconnect?.();
@@ -268,6 +269,7 @@ export function enhancedIntersectionBoxAnchorRef(anchor: HTMLElement, options?: 
         intersectionObs?.disconnect?.();
     }
 
+    //
     if (destroy) {
         area.forEach(ub => addToCallChain(ub, Symbol.dispose, destroy));
     }

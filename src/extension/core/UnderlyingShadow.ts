@@ -3,7 +3,6 @@ import { bindWith } from "fest/lure";
 import { setProperty, handleStyleChange } from "fest/dom";
 import { boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
 import { enhancedIntersectionBoxAnchorRef } from "../space-ref/IntersectionAnchor";
-import { makeAnchorElement } from "../css-ref/CSSAnchor";
 
 //
 export interface UnderlyingShadowOptions {
@@ -21,6 +20,17 @@ export interface UnderlyingShadowOptions {
     cloneGeometry?: boolean;
     updateOnScroll?: boolean;
     updateOnResize?: boolean;
+}
+
+//
+const asPx = (value: any) => {
+    if (typeof value === 'number') {
+        return `${value || 0}px` as string;
+    }
+    if (typeof value === 'string') {
+        return value || '0px';
+    }
+    return computed(value, (v) => `${v || 0}px`);
 }
 
 //
@@ -90,42 +100,41 @@ export class UnderlyingShadow {
     private setupPositioning() {
         if (this.options.useIntersection) {
             // Use intersection-based positioning for more precise placement
-            this.anchorBox = enhancedIntersectionBoxAnchorRef(this.target, {
-                root: window,
+            this.anchorBox = enhancedIntersectionBoxAnchorRef(this.target as HTMLElement, {
+                root: window as any,
                 observeResize: this.options.updateOnResize,
                 observeMutations: true,
                 observeIntersection: true
-            });
+            }) as any[];
 
             // Position based on intersection box
             // anchorBox: [ix, iy, iwidth, iheight, iright, ibottom, ax, ay, awidth, aheight, rx, ry, rwidth, rheight]
-            bindWith(this.shadowContainer, 'left', computed(this.anchorBox?.[6], (v) => `${v || 0}px`), handleStyleChange); // anchor x
-            bindWith(this.shadowContainer, 'top', computed(this.anchorBox?.[7], (v) => `${v || 0}px`), handleStyleChange); // anchor y
-            bindWith(this.shadowContainer, 'width', computed(this.anchorBox?.[8], (v) => `${v || 0}px`), handleStyleChange); // anchor width
-            bindWith(this.shadowContainer, 'height', computed(this.anchorBox?.[9], (v) => `${v || 0}px`), handleStyleChange); // anchor height
-
+            bindWith(this.shadowContainer, 'left', asPx(this.anchorBox?.[6]), handleStyleChange); // anchor x
+            bindWith(this.shadowContainer, 'top', asPx(this.anchorBox?.[7]), handleStyleChange); // anchor y
+            bindWith(this.shadowContainer, 'width', asPx(this.anchorBox?.[8]), handleStyleChange); // anchor width
+            bindWith(this.shadowContainer, 'height', asPx(this.anchorBox?.[9]), handleStyleChange); // anchor height
         } else {
             // Use standard bounding box positioning
-            this.anchorBox = boundingBoxAnchorRef(this.target, {
+            this.anchorBox = boundingBoxAnchorRef(this.target as HTMLElement, {
                 observeResize: this.options.updateOnResize,
                 observeMutations: true
-            });
+            }) as any[];
 
             // Position based on bounding box
             // anchorBox: [x, y, width, height, right, bottom]
-            bindWith(this.shadowContainer, 'left', computed(this.anchorBox?.[0], (v) => `${v || 0}px`), handleStyleChange);
-            bindWith(this.shadowContainer, 'top', computed(this.anchorBox?.[1], (v) => `${v || 0}px`), handleStyleChange);
-            bindWith(this.shadowContainer, 'width', computed(this.anchorBox?.[2], (v) => `${v || 0}px`), handleStyleChange);
-            bindWith(this.shadowContainer, 'height', computed(this.anchorBox?.[3], (v) => `${v || 0}px`), handleStyleChange);
+            bindWith(this.shadowContainer, 'left', asPx(this.anchorBox?.[0]), handleStyleChange);
+            bindWith(this.shadowContainer, 'top', asPx(this.anchorBox?.[1]), handleStyleChange);
+            bindWith(this.shadowContainer, 'width', asPx(this.anchorBox?.[2]), handleStyleChange);
+            bindWith(this.shadowContainer, 'height', asPx(this.anchorBox?.[3]), handleStyleChange);
         }
 
         // Apply inset offset
         if (this.options.inset !== 0) {
-            const insetPx = `${this.options.inset}px`;
+            const insetPx = asPx(this.options.inset);
             setProperty(this.shadowContainer, 'left', `calc(var(--left) + ${insetPx})`);
             setProperty(this.shadowContainer, 'top', `calc(var(--top) + ${insetPx})`);
-            setProperty(this.shadowContainer, 'width', `calc(var(--width) - ${2 * this.options.inset!}px)`);
-            setProperty(this.shadowContainer, 'height', `calc(var(--height) - ${2 * this.options.inset!}px)`);
+            setProperty(this.shadowContainer, 'width', `calc(var(--width) - ${2 * insetPx})`);
+            setProperty(this.shadowContainer, 'height', `calc(var(--height) - ${2 * insetPx})`);
         }
     }
 
@@ -159,7 +168,7 @@ export class UnderlyingShadow {
             const borderColor = computedStyle.borderColor;
 
             if (borderWidth && borderWidth !== '0px' && borderStyle !== 'none') {
-                this.geometryClone!.style.border = `${borderWidth} ${borderStyle} ${borderColor}`;
+                this.geometryClone!.style.border = `${asPx(borderWidth)} ${borderStyle} ${borderColor}`;
             }
 
             // Clone background for complex shadows
@@ -190,39 +199,38 @@ export class UnderlyingShadow {
 
         if (shadowType === 'drop-shadow') {
             // Use CSS filter drop-shadow (applied to container)
-            const filterValue = `drop-shadow(${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px ${shadowColor})`;
-            this.shadowContainer.style.filter = filterValue;
-            this.shadowContainer.style.opacity = opacity!.toString();
-
+            const filterValue = `drop-shadow(${asPx(shadowOffsetX || 0)} ${asPx(shadowOffsetY || 0)} ${asPx(shadowBlur || 0)} ${shadowColor})`;
+            this.shadowContainer!.style.filter = filterValue;
+            this.shadowContainer!.style.opacity = opacity!.toString() || '1';
         } else if (shadowType === 'blur') {
             // Use blur filter with solid shape
-            const filterValue = `blur(${shadowBlur}px)`;
-            this.shadowElement.style.filter = filterValue;
-            this.shadowElement.style.opacity = opacity!.toString();
+            const filterValue = `blur(${asPx(shadowBlur || 0)})`;
+            this.shadowElement!.style.filter = filterValue;
+            this.shadowElement!.style.opacity = opacity!.toString() || '1';
 
             if (this.geometryClone) {
-                this.geometryClone.style.backgroundColor = shadowColor!;
-                this.geometryClone.style.transform = `translate(${-shadowOffsetX}px, ${-shadowOffsetY}px)`;
+                this.geometryClone!.style.backgroundColor = shadowColor!;
+                this.geometryClone!.style.transform = `translate(${asPx(-(shadowOffsetX || 0))}, ${asPx(-(shadowOffsetY || 0))})`;
             }
 
         } else if (shadowType === 'box-shadow') {
             // Traditional box-shadow (applied to geometry clone)
-            const boxShadowValue = `${shadowOffsetX}px ${shadowOffsetY}px ${shadowBlur}px ${spreadRadius}px ${shadowColor}`;
-            this.shadowContainer.style.boxShadow = boxShadowValue;
-            this.shadowContainer.style.opacity = opacity!.toString();
+            const boxShadowValue = `${asPx(shadowOffsetX || 0)} ${asPx(shadowOffsetY || 0)} ${asPx(shadowBlur || 0)} ${asPx(spreadRadius || 0)} ${shadowColor}`;
+            this.shadowContainer!.style.boxShadow = boxShadowValue;
+            this.shadowContainer!.style.opacity = opacity!.toString() || '1';
         }
     }
 
     private attachToDOM() {
         // Find appropriate parent to attach shadow
-        let parent = this.target.parentElement;
+        let parent = this.target!.parentElement;
         if (!parent) {
             // Fallback to body if no parent
             parent = document.body;
         }
 
         // Insert shadow before the target element
-        parent.insertBefore(this.shadowContainer, this.target);
+        parent!.insertBefore(this.shadowContainer!, this.target);
 
         // Set up cleanup when target is removed
         const disconnectObserver = new MutationObserver((mutations) => {
@@ -252,11 +260,11 @@ export class UnderlyingShadow {
     }
 
     setVisible(visible: boolean) {
-        this.shadowContainer.style.display = visible ? 'block' : 'none';
+        this.shadowContainer!.style.display = visible ? 'block' : 'none';
     }
 
     getShadowElement(): HTMLElement {
-        return this.shadowContainer;
+        return this.shadowContainer as HTMLElement;
     }
 
     destroy() {
@@ -264,13 +272,13 @@ export class UnderlyingShadow {
         this.cleanupFunctions.forEach(cleanup => cleanup());
 
         // Remove from DOM
-        if (this.shadowContainer.parentNode) {
-            this.shadowContainer.parentNode.removeChild(this.shadowContainer);
+        if (this.shadowContainer!.parentNode) {
+            this.shadowContainer!.parentNode.removeChild(this.shadowContainer!);
         }
 
         // Cleanup anchor box
         if (this.anchorBox) {
-            this.anchorBox.forEach(anchor => {
+            this.anchorBox!.forEach(anchor => {
                 if (anchor && typeof anchor[Symbol.dispose] === 'function') {
                     anchor[Symbol.dispose]();
                 }

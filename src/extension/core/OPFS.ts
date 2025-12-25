@@ -1,5 +1,7 @@
 import { UUIDv4, Promised } from 'fest/core';
 import { makeReactive } from 'fest/object';
+
+// @ts-ignore
 import OPFSWorker from './OPFS.worker?worker';
 
 //
@@ -672,11 +674,11 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
 
             return complex?.[prop];
         },
-        async ownKeys(target) {
-            const s = await mayNotPromise(statePromise, (s) => s);
-            if (!s) return [];
-            return Array.from(mayNotPromise(s.mapCache.keys(), (keys) => keys));
-        }, getOwnPropertyDescriptor(target, prop) { return { enumerable: true, configurable: true }; }
+
+        // @ts-ignore
+        ownKeys(target) { if (!statePromise) return []; return Array.from(statePromise?.then?.((s) => s?.mapCache?.keys?.()) || []); },
+        // @ts-ignore
+        getOwnPropertyDescriptor(target, prop) { return { enumerable: true, configurable: true }; }
     };
 
     //

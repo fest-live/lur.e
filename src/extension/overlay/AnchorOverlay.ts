@@ -1,5 +1,6 @@
 import { makeAnchorElement } from "../css-ref/CSSAnchor";
-import { bindWithRect, bindScrollbarPosition } from "../space-ref/BBoxAnchor";
+import { bindScrollbarPosition, boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
+import { enhancedIntersectionBoxAnchorRef } from "../space-ref/IntersectionAnchor";
 
 //
 export const getParentOrShadowRoot = (element: HTMLElement): HTMLElement|ShadowRoot|undefined => {
@@ -14,6 +15,8 @@ export const observeDisconnect = (element: Element, handleMutation) => {
     if (!element?.isConnected) {
         return handleMutation();
     }
+
+    //
     const observer = new MutationObserver((mutationList, observer) => {
         for (const mutation of mutationList) {
             if (mutation.type == "childList") {
@@ -39,6 +42,8 @@ export const observeConnect = (element: Element, handleMutation) => {
     if (element?.isConnected) {
         return handleMutation();
     }
+
+    //
     const observer = new MutationObserver((mutationList, observer) => {
         for (const mutation of mutationList) {
             if (mutation.type == "childList") {
@@ -158,34 +163,30 @@ export const appendScrollbarOverlay = (content: HTMLElement, scrollbar: HTMLElem
     if (autoPosition) {
         // Use enhanced intersection box for precise positioning
         if (useIntersection) {
-            import("../space-ref/BBoxAnchor").then(({ enhancedIntersectionBoxAnchorRef, bindScrollbarPosition }) => {
-                const intersectionBox = enhancedIntersectionBoxAnchorRef(content, {
-                    root: window,
-                    observeResize: true,
-                    observeMutations: true,
-                    observeIntersection: true
-                });
+            const intersectionBox: any[] = enhancedIntersectionBoxAnchorRef(content as HTMLElement, {
+                root: window as any,
+                observeResize: true,
+                observeMutations: true,
+                observeIntersection: true
+            }) as any[];
 
-                // Position scrollbar using reactive bindings
-                cleanupFunctions.push(bindScrollbarPosition(scrollbar, intersectionBox, axis, {
-                    useIntersection: true,
-                    zIndexShift
-                }));
-            });
+            // Position scrollbar using reactive bindings
+            cleanupFunctions.push(bindScrollbarPosition(scrollbar, intersectionBox as any[], axis, {
+                useIntersection: true,
+                zIndexShift
+            }));
         } else {
             // Use standard bounding box with reactive bindings
-            import("../space-ref/BBoxAnchor").then(({ boundingBoxAnchorRef, bindScrollbarPosition }) => {
-                const bbox = boundingBoxAnchorRef(content, {
-                    observeResize: true,
-                    observeMutations: true
-                });
+            const box: any[] = boundingBoxAnchorRef(content as HTMLElement, {
+                observeResize: true,
+                observeMutations: true
+            }) as any[];
 
-                // Position scrollbar using reactive bindings
-                cleanupFunctions.push(bindScrollbarPosition(scrollbar, bbox, axis, {
-                    useIntersection: false,
-                    zIndexShift
-                }));
-            });
+            // Position scrollbar using reactive bindings
+            cleanupFunctions.push(bindScrollbarPosition(scrollbar, box, axis, {
+                useIntersection: false,
+                zIndexShift
+            }));
         }
     }
 
@@ -200,6 +201,7 @@ export const appendScrollbarOverlay = (content: HTMLElement, scrollbar: HTMLElem
         scrollbar.remove();
     });
 
+    //
     return scrollbar;
 };
 

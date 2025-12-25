@@ -177,7 +177,7 @@ export class ScrollbarThemeManager {
         };
 
         Object.entries(cssVars).forEach(([prop, value]) => {
-            this.scrollbarElement.style.setProperty(prop, value);
+            this.scrollbarElement.style.setProperty(prop, value || '');
         });
 
         // Apply behavior attributes

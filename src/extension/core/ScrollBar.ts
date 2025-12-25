@@ -1,7 +1,7 @@
 import { subscribe, computed, $trigger, numberRef } from "fest/object";
 import { scrollRef, bindWith, sizeRef } from "fest/lure";
 import { getPadding, setProperty, makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
-import { boundingBoxAnchorRef, intersectionBoxAnchorRef } from "../space-ref/BBoxAnchor";
+import { boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
 import { pointerAnchorRef } from "../space-ref/PointerAnchor";
 import { EnhancedScrollTimeline } from "../css-ref/CSSTimeline";
 import { createResponsiveScrollbarConfig } from "../css-ref/ContainerQuery";
