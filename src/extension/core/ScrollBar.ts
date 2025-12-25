@@ -1,6 +1,12 @@
-import { subscribe, computed, $trigger } from "fest/object";
+import { subscribe, computed, $trigger, numberRef } from "fest/object";
 import { scrollRef, bindWith, sizeRef } from "fest/lure";
-import { getPadding, setProperty, makeRAFCycle, addEvent, removeEvents, addEvents, handleStyleChange } from "fest/dom";
+import { getPadding, setProperty, makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
+import { boundingBoxAnchorRef, intersectionBoxAnchorRef } from "../space-ref/BBoxAnchor";
+import { pointerAnchorRef } from "../space-ref/PointerAnchor";
+import { EnhancedScrollTimeline } from "../css-ref/CSSTimeline";
+import { createResponsiveScrollbarConfig } from "../css-ref/ContainerQuery";
+import { ScrollbarGestureHandler } from "../controllers/EnhancedGestures";
+import { ScrollbarThemeManager, ScrollbarTheme } from "./ScrollbarTheme";
 
 // @ts-ignore
 //import styles from "./ScrollBar.scss?inline";
@@ -121,9 +127,10 @@ try { CSS.registerProperty({ name: "--max-offset", syntax: "<length-percentage>"
 try { CSS.registerProperty({ name: "--max-size", syntax: "<length-percentage>", inherits: true, initialValue: "0px" }); } catch(e) {};
 
 //
-const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {}, inputChange?: any|null) =>{
+const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {}, inputChange?: any|null, draggingState?: any) =>{
     const status_w   = asWeak(status);
     const content_w  = asWeak(content);
+    const dragging_w = asWeak(draggingState);
     const moveScroll = (evc) => {
         const ev     = evc;
         const status = status_w?.deref?.();
@@ -153,6 +160,11 @@ const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {},
             evc?.preventDefault?.();
             status.point = ev[CAXIS[axis]] || 0;
 
+            // Reset dragging state
+            if (dragging_w?.deref?.()) {
+                dragging_w.deref().value = 0;
+            }
+
             // @ts-ignore
             (handler?.element ?? ev.target)?.releasePointerCapture?.(status.pointerId); status.pointerId = -1;
             removeEvents(handler, {
@@ -172,6 +184,11 @@ const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {},
                 //evc?.stopPropagation?.();
                 evc?.preventDefault?.();
                 (handler?.element ?? ev.target)?.setPointerCapture?.(status.pointerId = ev.pointerId || 0);
+
+                // Set dragging state
+                if (dragging_w?.deref?.()) {
+                    dragging_w.deref().value = 1;
+                }
 
                 //
                 status.point  = ev[CAXIS[axis]] || 0;
@@ -196,6 +213,28 @@ export class ScrollBar {
     holder: HTMLElement;
     inputChange: any;
 
+    // Enhanced spatial awareness
+    spatialAnchor?: any[];
+    pointerAnchor?: any[];
+    private _spatialAnchorCleanup?: () => void;
+    private _pointerAnchorCleanup?: () => void;
+    enhancedTimeline?: EnhancedScrollTimeline;
+
+    // Animation and interaction state
+    isVisible = numberRef(1);
+    isDragging = numberRef(0);
+
+    // Responsive behavior
+    responsiveConfig?: any;
+    private _unsubscribeAutoHide?: () => void;
+    private _unsubscribeAccessibility?: () => void;
+
+    // Enhanced gesture handling
+    gestureHandler?: ScrollbarGestureHandler;
+
+    // Theming
+    themeManager?: ScrollbarThemeManager;
+
     //
     constructor({holder, scrollbar, content, inputChange}, axis = 0) {
         this.scrollbar   = scrollbar;
@@ -203,6 +242,14 @@ export class ScrollBar {
         this.content     = content;
         this.status      = { delta: 0, scroll: 0, point: 0, pointerId: -1 };
         this.inputChange = inputChange;
+
+        this.initializeSpatialAwareness(axis);
+        this.initializeEnhancedTimeline(axis);
+        this.initializeResponsiveBehavior();
+        this.initializeGestureHandling(axis);
+        this.initializeTheming();
+        this.setupAutoHideBehavior();
+        this.setupAccessibility();
 
         //
         const currAxis   = axisConfig[axis]; // @ts-ignore
@@ -216,8 +263,398 @@ export class ScrollBar {
             { animateByTimeline(bar, properties, timeline); }
 
         //
-        makeInteractive(this.holder, this.content, this.scrollbar, axis, this.status, this.inputChange);
+        makeInteractive(this.holder, this.content, this.scrollbar, axis, this.status, this.inputChange, this.isDragging);
         bindWith(this.scrollbar, "--content-size", computed(paddingBoxSize(this.content, axis, this.inputChange), (v)=>`${v||1}px`), handleStyleChange);
         bindWith(this.scrollbar, "--scroll-size", computed(scrollSize(this.content, axis, this.inputChange), (v)=>`${v||1}px`), handleStyleChange);
+
+        // Bind visibility for auto-hide
+        bindWith(this.scrollbar, "opacity", this.isVisible, handleStyleChange);
+        bindWith(this.scrollbar, "--is-dragging", this.isDragging, handleStyleChange);
+    }
+
+    private initializeSpatialAwareness(axis: number) {
+        // Use bounding box anchor for spatial positioning
+        const spatialResult = boundingBoxAnchorRef(this.content, {
+            observeResize: true,
+            observeMutations: true
+        });
+        if (Array.isArray(spatialResult)) {
+            this.spatialAnchor = spatialResult;
+        }
+
+        // Use pointer anchor for interaction awareness
+        const pointerResult = pointerAnchorRef(this.holder);
+        if (Array.isArray(pointerResult)) {
+            this.pointerAnchor = pointerResult.slice(0, 2); // x, y coordinates
+            this._pointerAnchorCleanup = pointerResult[2]; // cleanup function
+        }
+
+        // Update scrollbar position based on spatial changes
+        if (this.spatialAnchor) {
+            subscribe(this.spatialAnchor[axis === 0 ? 2 : 3], () => {
+                this.updateSpatialPosition(axis);
+            });
+        }
+    }
+
+    private initializeEnhancedTimeline(axis: number) {
+        // Create enhanced timeline with anchor support
+        this.enhancedTimeline = new EnhancedScrollTimeline(this.content, axis === 0 ? "inline" : "block", {
+            useAnchor: true,
+            anchorElement: this.holder
+        });
+    }
+
+    private initializeResponsiveBehavior() {
+        // Initialize responsive scrollbar configuration
+        this.responsiveConfig = createResponsiveScrollbarConfig(this.holder);
+
+        // Update scrollbar thickness based on responsive config
+        subscribe(this.responsiveConfig.currentConfig, () => {
+            const config = this.responsiveConfig.getCurrentConfig();
+            this.updateScrollbarThickness(config.thickness);
+        });
+
+        // Initial thickness update
+        const initialConfig = this.responsiveConfig.getCurrentConfig();
+        this.updateScrollbarThickness(initialConfig.thickness);
+    }
+
+    private updateScrollbarThickness(thickness: number) {
+        // Update CSS custom property for scrollbar thickness
+        this.scrollbar.style.setProperty("--scrollbar-thickness", `${thickness}px`);
+
+        // Update actual size if needed
+        if (this.scrollbar.style.width && this.scrollbar.style.width.includes("var(--scrollbar-thickness)")) {
+            // Already using CSS variable
+        } else {
+            // Set explicit size
+            this.scrollbar.style.width = `${thickness}px`;
+        }
+    }
+
+    private initializeGestureHandling(axis: number) {
+        // Create enhanced gesture handler for better touch support
+        this.gestureHandler = new ScrollbarGestureHandler(
+            this.scrollbar,
+            this.content,
+            axis === 0 ? 'horizontal' : 'vertical',
+            {
+                enableMomentum: true,
+                momentumDecay: 0.92,
+                minVelocity: 0.1,
+                maxVelocity: 3,
+                touchAction: 'none'
+            }
+        );
+
+        // Override default pointer handling with enhanced gestures
+        // The gesture handler will manage pointer events directly
+        this.gestureHandler.setCallbacks({
+            onStart: (gesture) => {
+                // Set dragging state when gesture starts
+                this.isDragging.value = 1;
+            },
+            onEnd: (gesture) => {
+                // Reset dragging state when gesture ends
+                this.isDragging.value = 0;
+            }
+        });
+    }
+
+    private updateSpatialPosition(axis: number) {
+        if (!this.spatialAnchor || !this.scrollbar) return;
+
+        const [x, y, width, height] = this.spatialAnchor;
+        const scrollbarSize = axis === 0 ? this.scrollbar.offsetWidth : this.scrollbar.offsetHeight;
+        const contentSize = axis === 0 ? width.value : height.value;
+
+        // Position scrollbar based on content size and scroll progress
+        if (axis === 0) {
+            // Horizontal scrollbar positioning
+            this.scrollbar.style.left = `${x.value}px`;
+            this.scrollbar.style.top = `${y.value + height.value}px`;
+            this.scrollbar.style.width = `${width.value}px`;
+        } else {
+            // Vertical scrollbar positioning
+            this.scrollbar.style.left = `${x.value + width.value}px`;
+            this.scrollbar.style.top = `${y.value}px`;
+            this.scrollbar.style.height = `${height.value}px`;
+        }
+    }
+
+    private setupAutoHideBehavior() {
+        let hideTimeout: number;
+        let unsubscribeConfig: (() => void) | undefined;
+
+        const getConfig = () => this.responsiveConfig?.getCurrentConfig() || {
+            showOnHover: true,
+            autoHide: true,
+            fadeDelay: 1500
+        };
+
+        const showScrollbar = () => {
+            const config = getConfig();
+            if (!config.autoHide) return;
+
+            this.isVisible.value = 1;
+            clearTimeout(hideTimeout);
+            hideTimeout = window.setTimeout(() => {
+                if (this.isDragging.value === 0) {
+                    this.isVisible.value = 0;
+                }
+            }, config.fadeDelay);
+        };
+
+        const hideScrollbar = () => {
+            const config = getConfig();
+            if (!config.autoHide) return;
+
+            if (this.isDragging.value === 0) {
+                hideTimeout = window.setTimeout(() => {
+                    this.isVisible.value = 0;
+                }, config.fadeDelay);
+            }
+        };
+
+        const setupEvents = () => {
+            const config = getConfig();
+
+            // Always show on scroll
+            addEvent(this.content, "scroll", showScrollbar, { passive: true });
+
+            if (config.showOnHover) {
+                addEvent(this.scrollbar, "mouseenter", showScrollbar);
+                addEvent(this.scrollbar, "mouseleave", hideScrollbar);
+            }
+
+            addEvent(this.scrollbar, "focus", showScrollbar);
+
+            // Initial visibility
+            this.isVisible.value = config.autoHide ? 0 : 1;
+        };
+
+        // Listen to responsive config changes
+        unsubscribeConfig = subscribe(this.responsiveConfig.currentConfig, () => {
+            // Re-setup events when config changes
+            setupEvents();
+        });
+
+        setupEvents();
+
+        // Store cleanup function
+        this._unsubscribeAutoHide = () => {
+            unsubscribeConfig?.();
+            clearTimeout(hideTimeout);
+            removeEvents(this.content, ["scroll"]);
+            removeEvents(this.scrollbar, ["mouseenter", "mouseleave", "focus"]);
+        };
+    }
+
+    private setupAccessibility() {
+        const axis = this.content.scrollWidth > this.content.clientWidth ? 0 : 1; // 0 = horizontal, 1 = vertical
+        const orientation = axis === 0 ? "horizontal" : "vertical";
+
+        // Ensure content has an ID for ARIA references
+        if (!this.content.id) {
+            this.content.id = `scrollable-content-${Math.random().toString(36).substr(2, 9)}`;
+        }
+
+        // Add comprehensive ARIA attributes
+        this.scrollbar.setAttribute("role", "scrollbar");
+        this.scrollbar.setAttribute("aria-controls", this.content.id);
+        this.scrollbar.setAttribute("aria-orientation", orientation);
+        this.scrollbar.setAttribute("tabindex", "0");
+        this.scrollbar.setAttribute("aria-label", `Scroll ${orientation}`);
+
+        // Add live region for scroll position announcements
+        const liveRegion = document.createElement("div");
+        liveRegion.setAttribute("aria-live", "polite");
+        liveRegion.setAttribute("aria-atomic", "true");
+        liveRegion.style.position = "absolute";
+        liveRegion.style.left = "-10000px";
+        liveRegion.style.width = "1px";
+        liveRegion.style.height = "1px";
+        liveRegion.style.overflow = "hidden";
+        this.scrollbar.appendChild(liveRegion);
+
+        // Update ARIA values based on scroll position
+        const updateAriaValues = () => {
+            const scrollInfo = this.getScrollInfo();
+            if (!scrollInfo) return;
+
+            const percentage = Math.round(scrollInfo.progress * 100);
+            const maxValue = 100;
+            const currentValue = percentage;
+
+            this.scrollbar.setAttribute("aria-valuenow", currentValue.toString());
+            this.scrollbar.setAttribute("aria-valuemin", "0");
+            this.scrollbar.setAttribute("aria-valuemax", maxValue.toString());
+
+            // Update live region for screen readers
+            liveRegion.textContent = `Scrolled ${percentage}% ${orientation}`;
+
+            // Update scrollbar description
+            this.scrollbar.setAttribute("aria-valuetext", `${percentage}% scrolled`);
+        };
+
+        // Initial update
+        updateAriaValues();
+
+        // Subscribe to scroll changes
+        const unsubscribe = subscribe(this.enhancedTimeline?.["progress"] || numberRef(0), updateAriaValues);
+        addEvent(this.content, "scroll", updateAriaValues, { passive: true });
+
+        // Enhanced keyboard navigation with better step sizes and feedback
+        addEvent(this.scrollbar, "keydown", (e: KeyboardEvent) => {
+            let step = 50; // pixels to scroll
+            let action = "";
+
+            switch (e.key) {
+                case "ArrowUp":
+                    if (orientation === "vertical") {
+                        e.preventDefault();
+                        action = "scroll up";
+                        this.content.scrollBy({ top: -step, behavior: "smooth" });
+                    }
+                    break;
+                case "ArrowDown":
+                    if (orientation === "vertical") {
+                        e.preventDefault();
+                        action = "scroll down";
+                        this.content.scrollBy({ top: step, behavior: "smooth" });
+                    }
+                    break;
+                case "ArrowLeft":
+                    if (orientation === "horizontal") {
+                        e.preventDefault();
+                        action = "scroll left";
+                        this.content.scrollBy({ left: -step, behavior: "smooth" });
+                    }
+                    break;
+                case "ArrowRight":
+                    if (orientation === "horizontal") {
+                        e.preventDefault();
+                        action = "scroll right";
+                        this.content.scrollBy({ left: step, behavior: "smooth" });
+                    }
+                    break;
+                case "PageUp":
+                    e.preventDefault();
+                    step = this.content.clientHeight;
+                    action = `page up (${step}px)`;
+                    this.content.scrollBy({ top: -step, behavior: "smooth" });
+                    break;
+                case "PageDown":
+                    e.preventDefault();
+                    step = this.content.clientHeight;
+                    action = `page down (${step}px)`;
+                    this.content.scrollBy({ top: step, behavior: "smooth" });
+                    break;
+                case "Home":
+                    e.preventDefault();
+                    action = "scroll to top";
+                    this.content.scrollTo({ top: 0, behavior: "smooth" });
+                    break;
+                case "End":
+                    e.preventDefault();
+                    action = "scroll to bottom";
+                    this.content.scrollTo({ top: this.content.scrollHeight, behavior: "smooth" });
+                    break;
+                default:
+                    return; // Don't announce anything for unhandled keys
+            }
+
+            // Provide immediate feedback for screen readers
+            if (action) {
+                liveRegion.textContent = action;
+                // Clear after a short delay
+                setTimeout(() => {
+                    liveRegion.textContent = "";
+                }, 1000);
+            }
+        });
+
+        // Focus management
+        addEvent(this.scrollbar, "focus", () => {
+            this.scrollbar.setAttribute("aria-expanded", "true");
+            // Ensure scrollbar is visible when focused
+            this.isVisible.value = 1;
+        });
+
+        addEvent(this.scrollbar, "blur", () => {
+            this.scrollbar.setAttribute("aria-expanded", "false");
+        });
+
+        // Store cleanup function
+        this._unsubscribeAccessibility = () => {
+            unsubscribe?.();
+            removeEvent(this.content, "scroll", updateAriaValues);
+            removeEvent(this.scrollbar, "keydown", () => {});
+            removeEvent(this.scrollbar, "focus", () => {});
+            removeEvent(this.scrollbar, "blur", () => {});
+        };
+    }
+
+    private initializeTheming() {
+        // Initialize theme manager with default theme
+        this.themeManager = new ScrollbarThemeManager(this.scrollbar);
+    }
+
+    // Public theming API
+    setTheme(theme: ScrollbarTheme | keyof typeof import("./ScrollbarTheme").scrollbarThemes) {
+        this.themeManager?.setTheme(theme);
+        return this;
+    }
+
+    updateTheme(updates: Partial<ScrollbarTheme>) {
+        this.themeManager?.updateTheme(updates);
+        return this;
+    }
+
+    getTheme(): ScrollbarTheme | undefined {
+        return this.themeManager?.getCurrentTheme();
+    }
+
+    // Public API for external control
+    scrollTo(progress: number, smooth = true) {
+        this.enhancedTimeline?.scrollTo(progress, smooth);
+    }
+
+    scrollBy(delta: number, smooth = true) {
+        this.enhancedTimeline?.scrollBy(delta, smooth);
+    }
+
+    getScrollInfo() {
+        return this.enhancedTimeline?.getScrollInfo();
+    }
+
+    destroy() {
+        // Cleanup spatial anchors
+        this.spatialAnchor?.forEach(anchor => {
+            if (anchor && typeof anchor[Symbol.dispose] === 'function') {
+                anchor[Symbol.dispose]();
+            }
+        });
+
+        // Cleanup pointer anchor
+        this._pointerAnchorCleanup?.();
+
+        // Cleanup responsive config
+        this.responsiveConfig?.destroy();
+        this._unsubscribeAutoHide?.();
+
+        // Cleanup gesture handler
+        this.gestureHandler?.destroy();
+
+        // Cleanup accessibility
+        this._unsubscribeAccessibility?.();
+
+        // Cleanup theme manager
+        this.themeManager?.destroy();
+
+        // Remove event listeners
+        removeEvents(this.content, ["scroll"]);
+        removeEvents(this.scrollbar, ["mouseenter", "mouseleave", "focus", "keydown"]);
     }
 }

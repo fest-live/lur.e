@@ -1,7 +1,5 @@
 import { isNotEqual, toRef, unref } from "fest/core";
 import { Q } from "../node/Queried";
-import { addEvent } from "fest/dom";
-import { observeContentBox } from "fest/dom";
 
 //
 export const checkboxCtrl = (ref) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null) { $ref.value = Q(`input[type="radio"], input[type="checkbox"], input:checked`, ev?.target)?.checked ?? $ref?.value; } } }
