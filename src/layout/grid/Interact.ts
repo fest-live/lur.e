@@ -1,6 +1,6 @@
 import { RAFBehavior, orientOf, getBoundingOrientRect, setStyleProperty } from "fest/dom";
 import { makeObjectAssignable, makeReactive, subscribe, numberRef } from "fest/object";
-import { LongPressHandler, makeShiftTrigger, E, bindDraggable, clampCell, floorCell } from "fest/lure";
+import { makeShiftTrigger, LongPressHandler, clampCell, floorCell, bindDraggable } from "fest/lure";
 import { convertOrientPxToCX, redirectCell } from "fest/core";
 import type { GridArgsType as GridArgsType, GridItemType } from "fest/core";
 
