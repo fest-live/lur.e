@@ -90,7 +90,7 @@ export const $makeScrollTimeline = (source: HTMLElement & {element?: HTMLElement
 }
 
 //
-export const makeViewTimeline = (source: HTMLElement & {element?: HTMLElement}, axis: "inline" | "block") => {
+export const $makeViewTimeline = (source: HTMLElement & {element?: HTMLElement}, axis: "inline" | "block") => {
     // @ts-ignore
     return new Proxy(new ViewTimeline({ source: source?.element ?? source, axis }), timelineHandler);
 };
@@ -210,7 +210,7 @@ export class EnhancedScrollTimeline {
 
 // Enhanced ViewTimeline with intersection awareness
 export class EnhancedViewTimeline {
-    source: HTMLElement;
+    source: HTMLElement & {element?: HTMLElement};
     axis: "inline" | "block";
     timeline: any;
     intersectionObserver?: IntersectionObserver;
@@ -219,7 +219,8 @@ export class EnhancedViewTimeline {
     rootMargin?: string;
     observerOptions?: IntersectionObserverInit;
 
-    constructor(sourceOrOptions: HTMLElement | { source: HTMLElement, axis: "inline" | "block" }, $options?: {
+    //
+    constructor(sourceOrOptions: HTMLElement & {element?: HTMLElement} | { source: HTMLElement & {element?: HTMLElement}, axis: "inline" | "block" }, $options?: {
         root?: HTMLElement;
         rootMargin?: string;
         threshold?: number[];
@@ -228,10 +229,10 @@ export class EnhancedViewTimeline {
 
         //
         if (sourceOrOptions instanceof HTMLElement) {
-            this.source = sourceOrOptions;
+            this.source = sourceOrOptions as HTMLElement & {element?: HTMLElement};
             this.axis = typeof $options == "string" ? $options as "inline" | "block" : "inline";
         } else {
-            this.source = options?.source;
+            this.source = options?.source as HTMLElement & {element?: HTMLElement};
             this.axis = options?.axis ?? "inline";
             this.threshold = options?.threshold || [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
             this.root = options?.root;
@@ -244,7 +245,18 @@ export class EnhancedViewTimeline {
         }
 
         // @ts-ignore
-        this.timeline = makeViewTimeline(this.source, this.axis);
+        this.timeline = $makeViewTimeline(this.source, this.axis);
+    }
+
+    //
+    get [$extract]() {
+        return this.timeline?.source ?? this.source;
+    }
+
+    //
+    get element() {
+        const $src = this.timeline?.source ?? this.source;
+        return $src?.element ?? $src;
     }
 
     //
