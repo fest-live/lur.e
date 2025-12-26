@@ -3,7 +3,7 @@ import { bindWith, paddingBoxSize, scrollSize } from "fest/lure";
 import { makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
 import { boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
 import { pointerAnchorRef } from "../space-ref/PointerAnchor";
-import { EnhancedScrollTimeline } from "../css-ref/CSSTimeline";
+import { EnhancedScrollTimeline, makeScrollTimeline } from "../css-ref/CSSTimeline";
 import { createResponsiveScrollbarConfig } from "../css-ref/ContainerQuery";
 import { ScrollbarGestureHandler } from "../controllers/EnhancedGestures";
 import { ScrollbarThemeManager, ScrollbarTheme } from "./ScrollbarTheme";
@@ -191,9 +191,9 @@ export class ScrollBar {
         this.status      = { delta: 0, scroll: 0, point: 0, pointerId: -1 };
         this.inputChange = inputChange;
 
+        //
         this.initializeReactiveSizing(axis);
         this.initializeSpatialAwareness(axis);
-        this.initializeEnhancedTimeline(axis);
         this.initializeResponsiveBehavior();
         this.initializeGestureHandling(axis);
         this.initializeTheming();
@@ -202,14 +202,10 @@ export class ScrollBar {
 
         //
         const currAxis   = axisConfig[axis]; // @ts-ignore
-        const bar        = this.scrollbar, source = this.content; bar?.style?.setProperty(...currAxis.cssScrollProperty, "") // @ts-ignore
-        const native = source != null && ((source?.element ?? source) instanceof HTMLElement) && (typeof ScrollTimeline != "undefined"), timeline: any = native ? new ScrollTimeline({ source: (source as any)?.element ?? source, axis: currAxis.tName }) : makeTimeline(source, axis);
+        const bar        = this.scrollbar, source = this?.holder ?? this?.content; bar?.style?.setProperty(...currAxis.cssScrollProperty, "") // @ts-ignore
         const properties = { [currAxis.cssPercentProperty]: [0, 1] };
-
-        //
-        if (native) // @ts-ignore
-            { bar?.animate?.(properties, { ...effectProperty, timeline }); } else
-            { animateByTimeline(bar, properties, timeline); }
+        if (this.enhancedTimeline = makeScrollTimeline(source as HTMLElement & { element?: HTMLElement }, axis === 0 ? "inline" : "block"))
+            { animateByTimeline(bar, properties, this.enhancedTimeline); };
 
         //
         makeInteractive(this.holder, this.content, this.scrollbar, axis, this.status, this.inputChange, this.isDragging);
@@ -281,14 +277,6 @@ export class ScrollBar {
                 this.updateSpatialPosition(axis);
             });
         }
-    }
-
-    private initializeEnhancedTimeline(axis: number) {
-        // Create enhanced timeline with anchor support
-        this.enhancedTimeline = new EnhancedScrollTimeline(this.content, axis === 0 ? "inline" : "block", {
-            useAnchor: true,
-            anchorElement: this.holder
-        });
     }
 
     private initializeResponsiveBehavior() {

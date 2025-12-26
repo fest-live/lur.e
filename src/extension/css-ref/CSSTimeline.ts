@@ -1,7 +1,8 @@
-import { toRef } from "fest/core";
-import { deref, computed, subscribe } from "fest/object";
+import { toRef, type keyType } from "fest/core";
+import { deref, computed, subscribe, $subscribe } from "fest/object";
 import { getPadding } from "fest/dom";
 import { scrollRef, sizeRef } from "fest/lure";
+import { makeAnchorElement } from "./CSSAnchor";
 
 //
 export const $extract = Symbol.for("__extract");
@@ -13,91 +14,153 @@ export const timelineHandler = {
         return target.source;
     },
     get(target, prop, receiver) {
-        if (prop in target) {
-            return target[prop];
+        if (prop in target)  { return Reflect.get(target, prop, receiver ?? target); }
+        if (prop == "value") { return (target?.currentTime ?? 0) / (target?.duration ?? 1); }
+
+        // @ts-ignore
+        if (prop == $subscribe && (target instanceof ScrollTimeline || target instanceof ViewTimeline)) {
+            return (cb: (value: any, prop: keyType) => void, prop?: keyType | null) => {
+                const $cb = ()=> { queueMicrotask(()=> cb((target?.currentTime ?? 0) / (target?.duration ?? 1), "value")); }
+
+                // @ts-ignore
+                if (target instanceof ScrollTimeline) {
+                    target?.source?.addEventListener?.("scroll", $cb);
+                    const $observer = new ResizeObserver((entries)=>entries.forEach((entry)=>$cb?.()));
+                    $observer.observe(target?.source, { box: "content-box" }); target?.source?.addEventListener?.("scroll", $cb);
+                    return ()=>{ $observer.disconnect(); target?.source?.removeEventListener?.("scroll", $cb); }
+                } else // @ts-ignore
+                if (target instanceof ViewTimeline) {
+                    const $observer = new IntersectionObserver((entries)=>entries.forEach((entry)=>$cb?.()), target?.observerOptions ?? { root: target?.source?.offsetParent ?? document.documentElement, rootMargin: "0px", threshold: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0] });
+                    $observer.observe(target?.source); target?.source?.addEventListener?.("scroll", $cb);
+                    return ()=>{ $observer.disconnect(); target?.source?.removeEventListener?.("scroll", $cb); }
+                }
+            }
         }
         if (prop == $extract) { return target; }
         if (prop == $element || prop == "element") { return target.source?.element ?? target.source; }
-        return target.source?.[prop];
+        return Reflect.get(target.source, prop, receiver ?? target.source);
     },
     set(target, prop, value, receiver) {
         if (prop in target) {
-            target[prop] = value;
+            Reflect.set(target, prop, value, receiver ?? target);
         } else
         if (target.source) {
             // @ts-ignore
-            target.source[prop] = value;
+            Reflect.set(target.source, prop, value, receiver ?? target.source);
         }
         return true;
     },
     has(target, prop) {
-        return prop in target || prop in target.source;
+        return Reflect.has(target, prop) || Reflect.has(target.source, prop);
     },
     deleteProperty(target, prop) {
         if (prop in target) {
-            return delete target[prop];
+            return Reflect.deleteProperty(target, prop);
         } else
         if (target.source) {
             // @ts-ignore
-            return delete target.source[prop];
+            return Reflect.deleteProperty(target.source, prop);
         }
         return true;
     },
     ownKeys(target) {
-        return [...Object.keys(target), ...Object.keys(target.source)];
+        return [...Reflect.ownKeys(target), ...Reflect.ownKeys(target.source)];
     },
     getOwnPropertyDescriptor(target, prop) {
-        return { ...Object.getOwnPropertyDescriptor(target, prop), ...Object.getOwnPropertyDescriptor(target.source, prop) };
+        return { ...Reflect.getOwnPropertyDescriptor(target, prop), ...Reflect.getOwnPropertyDescriptor(target.source, prop) };
     },
     getPrototypeOf(target) {
-        return Object.getPrototypeOf(target);
+        return Reflect.getPrototypeOf(target);
     },
     setPrototypeOf(target, proto) {
-        return Object.setPrototypeOf(target, proto);
+        return Reflect.setPrototypeOf(target, proto);
     },
     isExtensible(target) {
-        return Object.isExtensible(target);
+        return Reflect.isExtensible(target);
     },
     preventExtensions(target) {
-        return Object.preventExtensions(target);
+        return Reflect.preventExtensions(target);
     }
 }
 
 //
-export const makeScrollTimeline = (source: HTMLElement, axis: "inline" | "block") => {
+export const $makeScrollTimeline = (source: HTMLElement & {element?: HTMLElement}, axis: "inline" | "block") => {
     // @ts-ignore
     return new Proxy(new ScrollTimeline({ source: source?.element ?? source, axis }), timelineHandler);
 }
 
 //
-export const makeViewTimeline = (source: HTMLElement, axis: "inline" | "block") => {
+export const makeViewTimeline = (source: HTMLElement & {element?: HTMLElement}, axis: "inline" | "block") => {
     // @ts-ignore
     return new Proxy(new ViewTimeline({ source: source?.element ?? source, axis }), timelineHandler);
 };
 
 // Enhanced timeline with anchor positioning and container query support
 export class EnhancedScrollTimeline {
-    source: HTMLElement;
+    source: HTMLElement & {element?: HTMLElement};
     axis: "inline" | "block";
     timeline: any;
     anchor?: any;
 
-    constructor(source: HTMLElement, axis: "inline" | "block", options?: {
+    //
+    constructor(sourceOrOptions: HTMLElement & {element?: HTMLElement} | { source: HTMLElement & {element?: HTMLElement}, axis: "inline" | "block" }, $options?: {
         useAnchor?: boolean;
         anchorElement?: HTMLElement;
-    }) {
-        this.source = source;
-        this.axis = axis;
+    } | ("inline" | "block")) {
+        let options: any = !(sourceOrOptions instanceof HTMLElement) ? sourceOrOptions : {};
+
+        //
+        if (sourceOrOptions instanceof HTMLElement) {
+            this.source = sourceOrOptions;
+            this.axis = typeof $options == "string" ? $options as "inline" | "block" : "inline";
+        } else {
+            this.source = options?.source;
+            this.axis = options?.axis ?? "inline";
+            this.anchor = options?.anchorElement;
+        }
 
         // @ts-ignore
-        this.timeline = makeScrollTimeline(source, axis);
+        this.timeline = $makeScrollTimeline(this.source, this.axis);
 
-        if (options?.useAnchor) {
-            // Import CSSAnchor dynamically to avoid circular dependencies
-            import("./CSSAnchor").then(({ makeAnchorElement }) => {
-                this.anchor = makeAnchorElement(options.anchorElement || source);
-            });
+        // Import CSSAnchor dynamically to avoid circular dependencies
+        if (!(typeof $options == "string") && $options?.useAnchor && !this.anchor) {
+            this.anchor = makeAnchorElement(this.source);
         }
+    }
+
+    //
+    get [$extract]() {
+        return this.timeline?.source ?? this.source;
+    }
+
+    //
+    get [$subscribe]() {
+        return (cb: (value: any, prop: keyType) => void, prop?: keyType | null) => {
+            const $cb = ()=> { queueMicrotask(()=> cb((this.timeline?.currentTime ?? 0) / (this.timeline?.duration ?? 1), "value")); }
+            this.timeline?.addEventListener?.("scroll", $cb);
+            return ()=> this.timeline?.removeEventListener?.("scroll", $cb);
+        }
+    }
+
+    //
+    get element() {
+        const $src = this.timeline?.source ?? this.source;
+        return $src?.element ?? $src;
+    }
+
+    //
+    get value() {
+        return this.progress;
+    }
+
+    //
+    get currentTime() {
+        return this.timeline?.currentTime ?? 0;
+    }
+
+    //
+    get duration() {
+        return this.timeline?.duration ?? 1;
     }
 
     // Get current scroll progress as reactive value (0-1)
@@ -151,62 +214,89 @@ export class EnhancedViewTimeline {
     axis: "inline" | "block";
     timeline: any;
     intersectionObserver?: IntersectionObserver;
+    threshold?: number[];
+    root?: HTMLElement;
+    rootMargin?: string;
+    observerOptions?: IntersectionObserverInit;
 
-    constructor(source: HTMLElement, axis: "inline" | "block", options?: {
+    constructor(sourceOrOptions: HTMLElement | { source: HTMLElement, axis: "inline" | "block" }, $options?: {
         root?: HTMLElement;
         rootMargin?: string;
         threshold?: number[];
-    }) {
-        this.source = source;
-        this.axis = axis;
-
-        // @ts-ignore
-        this.timeline = makeViewTimeline(source, axis);
+    } | ("inline" | "block")) {
+        let options: any = !(sourceOrOptions instanceof HTMLElement) ? sourceOrOptions : {};
 
         //
-        if (options) { this.setupIntersectionObserver(options); }
+        if (sourceOrOptions instanceof HTMLElement) {
+            this.source = sourceOrOptions;
+            this.axis = typeof $options == "string" ? $options as "inline" | "block" : "inline";
+        } else {
+            this.source = options?.source;
+            this.axis = options?.axis ?? "inline";
+            this.threshold = options?.threshold || [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0];
+            this.root = options?.root;
+            this.rootMargin = options?.rootMargin || '0px';
+            this.observerOptions = options ?? {
+                root: this.root,
+                rootMargin: this.rootMargin,
+                threshold: this.threshold
+            };
+        }
+
+        // @ts-ignore
+        this.timeline = makeViewTimeline(this.source, this.axis);
     }
 
-    private setupIntersectionObserver(options: {
-        root?: HTMLElement;
-        rootMargin?: string;
-        threshold?: number[];
-    }) {
-        this.intersectionObserver = new IntersectionObserver(
-            (entries) => {
-                // Enhanced intersection handling
-                entries.forEach(entry => {
-                    this.handleIntersection(entry);
-                });
-            },
-            {
-                root: options.root,
-                rootMargin: options.rootMargin || '0px',
-                threshold: options.threshold || [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-            }
-        );
+    //
+    get value() {
+        return (this.timeline?.currentTime ?? 0) / (this.timeline?.duration ?? 1);
+    }
 
+    //
+    get currentTime() {
+        return this.timeline?.currentTime ?? 0;
+    }
+
+    //
+    get duration() {
+        return this.timeline?.duration ?? 1;
+    }
+
+    //
+    get [$subscribe]() {
+        return (cb: (value: any, prop: keyType) => void, prop?: keyType | null) => {
+            const $cb = ()=> { queueMicrotask(()=> cb((this.timeline?.currentTime ?? 0) / (this.timeline?.duration ?? 1), "value")); }
+            const $observer = new IntersectionObserver((entries)=>entries.forEach((entry)=>$cb?.()));
+            $observer.observe(this.source);
+            return ()=> $observer.disconnect();
+        }
+    }
+
+    private setupIntersectionObserver() {
+        this.intersectionObserver = new IntersectionObserver((entries)=>this.handleIntersection(entries));
         this.intersectionObserver.observe(this.source);
     }
 
-    private handleIntersection(entry: IntersectionObserverEntry) {
-        // Custom intersection handling logic
-        const ratio = entry.intersectionRatio;
-        const rect = entry.boundingClientRect;
+    private handleIntersection(entries: IntersectionObserverEntry[]) {
+        for (const entry of entries) {
+            // Custom intersection handling logic
+            const ratio = entry.intersectionRatio;
+            const rect = entry.boundingClientRect;
 
-        // Update timeline progress based on intersection
-        if (this.axis === 'block') {
-            // Vertical intersection
-            const progress = rect.top < 0 ?
-                Math.abs(rect.top) / (rect.height + window.innerHeight) :
-                1 - (rect.bottom / (rect.height + window.innerHeight));
-            this.updateProgress(Math.max(0, Math.min(1, progress)));
-        } else {
-            // Horizontal intersection
-            const progress = rect.left < 0 ?
-                Math.abs(rect.left) / (rect.width + window.innerWidth) :
-                1 - (rect.right / (rect.width + window.innerWidth));
-            this.updateProgress(Math.max(0, Math.min(1, progress)));
+            // Update timeline progress based on intersection
+            if (this.axis === 'block') {
+                // Vertical intersection
+                const progress = rect.top < 0 ?
+                    Math.abs(rect.top) / (rect.height + window.innerHeight) :
+                    1 - (rect.bottom / (rect.height + window.innerHeight));
+                this.updateProgress(Math.max(0, Math.min(1, progress)));
+            } else {
+                // Horizontal intersection
+                const progress = rect.left < 0 ?
+                    Math.abs(rect.left) / (rect.width + window.innerWidth) :
+                    1 - (rect.right / (rect.width + window.innerWidth));
+                this.updateProgress(Math.max(0, Math.min(1, progress)));
+            }
         }
     }
 
@@ -224,15 +314,22 @@ export class EnhancedViewTimeline {
     }
 
     destroy() {
-        this.intersectionObserver?.disconnect();
+        this.timeline?.disconnect();
     }
 }
 
 //
-export const makeTimeline = (source, axis: number)=>{
+export const makeScrollTimeline = (source: HTMLElement & {element?: HTMLElement}, axis: "inline" | "block") => {
+    // @ts-ignore
+    if (typeof ScrollTimeline != "undefined") {
+        return new EnhancedScrollTimeline({ source: source?.element ?? source, axis: axis as "inline" | "block" });
+    }
+
+    //
     const target   = toRef(source);
     const scroll   = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
     const content  = computed(sizeRef(source, (["inline", "block"] as ["inline", "block"])[axis], "content-box"), (v)=>(v + getPadding(source, (["inline", "block"] as ["inline", "block"])[axis])));
     const percent  = computed (scroll, (vl)=> ((vl || 0) / ((deref(target)?.[['scrollWidth', 'scrollHeight'][axis]] - content?.value) || 1)));
-    subscribe(content,  (vl: any)=>((scroll?.value || 0) / ((deref(target)?.[['scrollWidth', 'scrollHeight'][axis]] - vl) || 1))); return percent;
+    subscribe(content, (vl: any) => ((scroll?.value || 0) / ((deref(target)?.[['scrollWidth', 'scrollHeight'][axis]] - vl) || 1)));
+    return percent;
 }

@@ -6,6 +6,7 @@
 import { numberRef, stringRef, subscribe } from "fest/object";
 import { toRef, deref, $getValue } from "fest/core";
 import { makeRAFCycle, setProperty } from "fest/dom";
+import { $extract } from "./CSSTimeline";
 
 /**
  * Animation configuration options
@@ -462,17 +463,30 @@ export function animatedRef(initialValue: any, animationType: 'animate' | 'trans
 }
 
 //
-export const animateByTimeline = async (source: HTMLElement, properties = {}, timeline: any = null)=>{
-    if (!source) return; const target = toRef(source), wk = toRef(timeline);
-    const  everyCb = ()=>Object.entries(properties).forEach(renderCb);
-    const renderCb = ([name, $v])=>{
+export const effectProperty = { fill: "both", delay: 0, easing: "linear", rangeStart: "cover 0%", rangeEnd: "cover 100%", duration: 1 };
+export const animateByTimeline = async (source: HTMLElement, properties = {}, timeline?: any) => {
+    if (!source || !timeline) return;
+
+    // @ts-ignore
+    if (timeline instanceof ScrollTimeline || timeline instanceof ViewTimeline) {
+        return source?.animate?.(properties, { ...effectProperty as any, timeline: timeline?.[$extract] ?? timeline });
+    }
+
+    //
+    const  target  = toRef(source), wk = toRef(timeline);
+    const renderCb = ([name, $v]) => {
         const tg = deref(target); if (tg) {
             const val = deref(wk)?.value || 0, values = $v as [any, any];
             setProperty(tg, name, (values[0] * (1 - val) + values[1] * val))
         }
     }
-    return subscribe(timeline, (val: any)=>makeRAFCycle().schedule(everyCb))
+
+    //
+    const scheduler = makeRAFCycle();
+    const  everyCb  = ()=>Object.entries(properties)?.forEach?.(renderCb);
+    return subscribe(timeline, (val: any) => scheduler?.schedule?.(everyCb));
 }
+
 
 
 // ============================================================================
