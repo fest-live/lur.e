@@ -1,6 +1,6 @@
 import { addToCallChain, booleanRef, numberRef, stringRef } from "fest/object";
-import { WRef } from "fest/core";
 import { handleByPointer } from "../controllers/Handler";
+import { WRef } from "fest/core";
 
 //
 export const pointerAnchorRef = (root = typeof document != "undefined" ? document?.documentElement : null)=>{

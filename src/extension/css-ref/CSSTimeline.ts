@@ -1,3 +1,8 @@
+import { toRef } from "fest/core";
+import { deref, computed, subscribe } from "fest/object";
+import { getPadding } from "fest/dom";
+import { scrollRef, sizeRef } from "fest/lure";
+
 //
 export const $extract = Symbol.for("__extract");
 export const $element = Symbol.for("__element");
@@ -221,4 +226,13 @@ export class EnhancedViewTimeline {
     destroy() {
         this.intersectionObserver?.disconnect();
     }
+}
+
+//
+export const makeTimeline = (source, axis: number)=>{
+    const target   = toRef(source);
+    const scroll   = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
+    const content  = computed(sizeRef(source, (["inline", "block"] as ["inline", "block"])[axis], "content-box"), (v)=>(v + getPadding(source, (["inline", "block"] as ["inline", "block"])[axis])));
+    const percent  = computed (scroll, (vl)=> ((vl || 0) / ((deref(target)?.[['scrollWidth', 'scrollHeight'][axis]] - content?.value) || 1)));
+    subscribe(content,  (vl: any)=>((scroll?.value || 0) / ((deref(target)?.[['scrollWidth', 'scrollHeight'][axis]] - vl) || 1))); return percent;
 }

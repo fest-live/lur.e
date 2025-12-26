@@ -5,6 +5,7 @@
 
 import { numberRef, stringRef, subscribe } from "fest/object";
 import { toRef, deref, $getValue } from "fest/core";
+import { makeRAFCycle, setProperty } from "fest/dom";
 
 /**
  * Animation configuration options
@@ -459,6 +460,20 @@ export function animatedRef(initialValue: any, animationType: 'animate' | 'trans
 
     return ref;
 }
+
+//
+export const animateByTimeline = async (source: HTMLElement, properties = {}, timeline: any = null)=>{
+    if (!source) return; const target = toRef(source), wk = toRef(timeline);
+    const  everyCb = ()=>Object.entries(properties).forEach(renderCb);
+    const renderCb = ([name, $v])=>{
+        const tg = deref(target); if (tg) {
+            const val = deref(wk)?.value || 0, values = $v as [any, any];
+            setProperty(tg, name, (values[0] * (1 - val) + values[1] * val))
+        }
+    }
+    return subscribe(timeline, (val: any)=>makeRAFCycle().schedule(everyCb))
+}
+
 
 // ============================================================================
 // Export Animation Binding Functions

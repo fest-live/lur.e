@@ -1,9 +1,8 @@
-import { addToCallChain, computed, numberRef } from "fest/object";
-import { addEvent, getBoundingOrientRect, handleStyleChange } from "fest/dom";
-import { bindWith } from "fest/lure";
+import { numberRef, addToCallChain } from "fest/object";
+import { addEvent, handleStyleChange } from "fest/dom";
 import {
-    Vector2D, vector2Ref, vectorFromArray,
-    Rect2D, createRect2D, rectCenter, rectContainsPoint, rectIntersects, rectArea,
+    vector2Ref, bindWith, Vector2D,
+    rectCenter, rectArea, Rect2D, rectContainsPoint, rectIntersects,
     clampPointToRect, pointToRectDistance
 } from "fest/lure";
 import { CSSBinder, CSSUnitUtils } from "fest/lure";

@@ -1,8 +1,28 @@
-import { numberRef, subscribe } from "fest/object";
-import {
-    CSSUnitConverter, CSSTransform, CSSPosition, CSSBinder,
-    CSSCalc, DOMMatrixAdapter, CSSCustomProps
-} from "fest/lure";
+import { numberRef } from "fest/object";
+import { CSSBinder, CSSUnitConverter, CSSTransform, CSSCalc } from "fest/lure";
+
+// generate only random letters, NOT numbers
+export const generateAnchorId = () => {
+    const randLetters = Math.random().toString(36).substring(2, 15).replace(/[0-9]/g, '');
+    return ("--" + randLetters);
+}
+
+//
+export const getComputedZIndex = (element: HTMLElement): number => {
+    if (element?.computedStyleMap) {
+        return Number(element.computedStyleMap().get("z-index")?.toString() || 0) || 0;
+    } else {
+        return Number(getComputedStyle((element as any)?.element ?? element).getPropertyValue("z-index") || 0) || 0;
+    }
+}
+
+//
+export const getExistsZIndex = (element: HTMLElement): number => {
+    if (!element) { return 0; }
+    if ((element as any)?.attributeStyleMap && (element as any).attributeStyleMap.get("z-index") != null) { return Number((element as any).attributeStyleMap.get("z-index")?.value ?? 0) || 0; }
+    if ((element as any)?.style && "zIndex" in (element as any).style && (element as any).style.zIndex != null) { return Number((element as any).style.zIndex || 0) || 0; }
+    return getComputedZIndex(element);
+}
 
 // Enhanced CSS utilities that work with reactive math
 
@@ -261,5 +281,3 @@ export class ReactiveScroll {
         return CSSCalc.divide(scrollPos, numberRef(Math.max(scrollSize, 1)));
     }
 }
-
-// All classes are exported above when declared

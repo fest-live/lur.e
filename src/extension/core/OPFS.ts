@@ -14,7 +14,7 @@ const observers = new Map();
 
 let workerInitPromise: Promise<any> | null = null;
 
-const ensureWorker = (): Promise<any> => {
+export const ensureWorker = (): Promise<any> => {
     if (workerInitPromise) return workerInitPromise;
 
     workerInitPromise = new Promise((resolve) => {
@@ -60,7 +60,7 @@ const ensureWorker = (): Promise<any> => {
 
 // Direct OPFS handlers for Service Worker context (where postMessage doesn't work as expected)
 // Direct OPFS handlers for Service Worker context (where postMessage doesn't work as expected)
-const directHandlers: Record<string, (payload: any) => Promise<any>> = {
+export const directHandlers: Record<string, (payload: any) => Promise<any>> = {
     readDirectory: async ({ rootId, path, create }: any) => {
         try {
             const root = await navigator.storage.getDirectory();
@@ -176,7 +176,7 @@ const directHandlers: Record<string, (payload: any) => Promise<any>> = {
 };
 
 //
-const post = (type: string, payload: any = {}, transfer: any[] = []) => {
+export const post = (type: string, payload: any = {}, transfer: any[] = []) => {
     // In Service Worker context, execute directly instead of using postMessage
     if (isServiceWorker && directHandlers[type]) {
         return directHandlers[type](payload);
@@ -404,7 +404,7 @@ export function getMimeTypeByFilename(filename) {
 }
 
 //
-const hasFileExtension = (path: string) => {
+export const hasFileExtension = (path: string) => {
     return path?.trim?.()?.split?.(".")?.[1]?.trim?.()?.length > 0;
 }
 
@@ -501,7 +501,7 @@ export const directoryCacheMap = new Map<string, DirectoryState>();
 
 
 //
-const mayNotPromise = (pms: any, cb: (pms: any) => any, errCb: (e: any) => any = console.warn.bind(console)) => {
+export const mayNotPromise = (pms: any, cb: (pms: any) => any, errCb: (e: any) => any = console.warn.bind(console)) => {
     if (typeof pms?.then == "function") {
         return pms?.then?.(cb)?.catch?.(errCb);
     } else {

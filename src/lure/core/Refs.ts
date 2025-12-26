@@ -1,8 +1,9 @@
-import { stringRef, autoRef, numberRef, booleanRef, deref, makeReactive, addToCallChain } from "fest/object";
+import { stringRef, autoRef, numberRef, booleanRef, deref, makeReactive, addToCallChain, subscribe, computed, $trigger } from "fest/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink } from "./Links";
-import { handleAttribute } from "fest/dom";
+import { addEvent, getPadding, handleAttribute } from "fest/dom";
 import { elMap } from "./Binding";
 import { isValidObj, WRef } from "fest/core";
+import { operated } from "fest/lure";
 
 //
 export const makeRef = (host?: any, type?: any, link?: any, ...args)=>{
@@ -41,3 +42,49 @@ export const makeWeakRef = (/*host?: any,*/ initial?: any, behavior?: any)=>{
     const obj = deref(initial);
     return isValidObj(obj) ? makeReactive(WRef(obj)) : autoRef(obj, behavior);
 };
+
+//
+export const scrollSize  = (source: HTMLElement, axis: number = 0, inputChange?: any|null)=>{ // @ts-ignore
+    const target  = toRef(source);
+    const compute = (vl: any)=>((deref(target)?.[['scrollWidth', 'scrollHeight'][axis] || 'scrollWidth'] - 1) || 1);
+    const scroll  = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
+    const conRef  = sizeRef(source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
+    const percent = computed(scroll, compute);
+    const recompute = ()=>{ scroll?.[$trigger]?.(); percent?.[$trigger]?.(); }
+
+    //
+    subscribe(conRef, (vl: any)=>{ recompute?.(); });
+    addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
+    addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
+    queueMicrotask(()=>{ recompute?.(); });
+    return percent;
+}
+
+// Enhanced reactive scrollbar sizing with CSS calc integration
+export const reactiveScrollbarSize = (source: HTMLElement, axis: number, contentSize: ReturnType<typeof numberRef>) => {
+    const containerSize = axis === 0
+        ? operated([], () => source.clientWidth)
+        : operated([], () => source.clientHeight);
+
+    return operated([containerSize, contentSize], () => {
+        const ratio = containerSize.value / contentSize.value;
+        const minSize = 20; // Minimum thumb size in pixels
+        return Math.max(minSize, ratio * containerSize.value);
+    });
+};
+
+// All classes are exported above when declared
+export const paddingBoxSize  = (source: HTMLElement, axis: number, inputChange?: any|null)=>{ // @ts-ignore
+    const target  = asWeak(source);
+    const scroll  = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
+    const conRef  = sizeRef(source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
+    const content = computed(conRef, (v: any)=>(v + (getPadding(source, (["inline", "block"] as ["inline", "block"])[axis]) || 0)));
+    const recompute = ()=>{ conRef?.[$trigger]?.(); content?.[$trigger]?.(); }
+
+    //
+    subscribe(scroll, (vl: any)=>{ recompute?.(); });
+    addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
+    addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
+    queueMicrotask(()=>{ recompute?.(); });
+    return content;
+}

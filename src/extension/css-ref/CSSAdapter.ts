@@ -1,12 +1,11 @@
-import { numberRef, subscribe } from "fest/object";
+import { numberRef } from "fest/object";
 import { bindWith, bindAnimated, bindTransition, bindSpring, bindMorph } from "fest/lure";
 import {
-    Vector2D, vector2Ref, operated,
-    addVector2D, subtractVector2D, multiplyVector2D,
-    Matrix2D, Matrix3D, Matrix4D
-} from "./index";
+    Vector2D, operated,
+    Matrix2D, Matrix4D
+} from "../../math/index";
 import { handleStyleChange } from "fest/dom";
-import { AnimationOptions, TransitionOptions } from "../extension/css-ref/CSSAnimated";
+import { AnimationOptions, TransitionOptions } from "./CSSAnimated";
 
 // CSS Typed OM and Unit Conversion Utilities
 export class CSSUnitConverter {

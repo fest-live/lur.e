@@ -6,18 +6,18 @@ const mappedRoots = new Map<string, FileSystemDirectoryHandle>();
 const activeObservers = new Map<string, any>(); // FileSystemObserver
 
 //
-const getRoot = async (id: string = "") => {
+export const getFileSystemRoot = async (id: string = "") => {
     if (id && mappedRoots.has(id)) return mappedRoots.get(id)!;
     return await navigator.storage.getDirectory();
 };
 
 //
-const normalizePath = (path: string) => {
+export const normalizePath = (path: string) => {
     return path?.trim?.()?.replace(/\/+/g, "/") || "/";
 };
 
 //
-const resolveHandle = async (root: FileSystemDirectoryHandle, path: string, create: boolean = false) => {
+export const resolveFileSystemHandle = async (root: FileSystemDirectoryHandle, path: string, create: boolean = false) => {
     const parts = normalizePath(path).split("/").filter(p => p && p !== ".");
     let current: any = root;
 
@@ -43,7 +43,7 @@ const resolveHandle = async (root: FileSystemDirectoryHandle, path: string, crea
 };
 
 //
-const getDirHandle = async (root: FileSystemDirectoryHandle, path: string, create: boolean) => {
+export const getDirHandle = async (root: FileSystemDirectoryHandle, path: string, create: boolean) => {
     const parts = normalizePath(path).split("/").filter(p => p);
     let current = root;
     for (const part of parts) {
@@ -53,7 +53,7 @@ const getDirHandle = async (root: FileSystemDirectoryHandle, path: string, creat
 };
 
 //
-const handlers: Record<string, (payload: any) => Promise<any>> = {
+export const handlers: Record<string, (payload: any) => Promise<any>> = {
     //
     mount: async ({ id, handle }: { id: string, handle: FileSystemDirectoryHandle }) => {
         mappedRoots.set(id, handle);
@@ -69,7 +69,7 @@ const handlers: Record<string, (payload: any) => Promise<any>> = {
     //
     readDirectory: async ({ rootId, path, create }: any) => {
         try {
-            const root = await getRoot(rootId);
+            const root = await getFileSystemRoot(rootId);
             const handle = await getDirHandle(root, path, create);
             const entries: any[] = [];
 
@@ -87,7 +87,7 @@ const handlers: Record<string, (payload: any) => Promise<any>> = {
     //
     readFile: async ({ rootId, path, type }: any) => {
         try {
-            const root = await getRoot(rootId);
+            const root = await getFileSystemRoot(rootId);
             const parts = normalizePath(path).split("/").filter(p => p);
             const filename = parts.pop();
             const dirPath = parts.join("/");
@@ -110,7 +110,7 @@ const handlers: Record<string, (payload: any) => Promise<any>> = {
     //
     writeFile: async ({ rootId, path, data }: any) => {
         try {
-            const root = await getRoot(rootId);
+            const root = await getFileSystemRoot(rootId);
             const parts = normalizePath(path).split("/").filter(p => p);
             const filename = parts.pop();
             const dirPath = parts.join("/");
@@ -130,7 +130,7 @@ const handlers: Record<string, (payload: any) => Promise<any>> = {
     //
     remove: async ({ rootId, path, recursive }: any) => {
         try {
-            const root = await getRoot(rootId);
+            const root = await getFileSystemRoot(rootId);
             const parts = normalizePath(path).split("/").filter(p => p);
             const name = parts.pop();
             const dirPath = parts.join("/");
@@ -148,7 +148,7 @@ const handlers: Record<string, (payload: any) => Promise<any>> = {
         try {
             if (activeObservers.has(id)) return true;
 
-            const root = await getRoot(rootId);
+            const root = await getFileSystemRoot(rootId);
             const handle = await getDirHandle(root, path, false);
 
             // @ts-ignore

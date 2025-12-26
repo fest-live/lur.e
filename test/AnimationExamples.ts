@@ -7,7 +7,7 @@ import {
     bindAnimatedBatch, bindPreset, bindConditionalAnimation,
     createAnimationSequence, cancelAnimations
 } from "fest/lure";
-import { CSSBinder } from "../src/math/CSSAdapter";
+import { CSSBinder } from "../src/extension/css-ref/CSSAdapter";
 
 /**
  * Example 1: Basic Animated Bindings

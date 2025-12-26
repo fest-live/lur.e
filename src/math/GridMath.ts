@@ -1,9 +1,5 @@
-import { numberRef, subscribe } from "fest/object";
-import {
-    Vector2D, vector2Ref, operated,
-    addVector2D, subtractVector2D, multiplyVector2D, divideVector2D,
-    Rect2D, createRect2D, rectContainsPoint, rectIntersects
-} from "./index";
+import { numberRef } from "fest/object";
+import { operated, vector2Ref, Vector2D, addVector2D, Rect2D, createRect2D, } from "./index";
 
 // Grid-specific mathematical types and operations
 

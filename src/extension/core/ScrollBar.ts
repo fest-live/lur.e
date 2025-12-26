@@ -1,6 +1,6 @@
-import { subscribe, computed, $trigger, numberRef } from "fest/object";
-import { scrollRef, bindWith, sizeRef } from "fest/lure";
-import { getPadding, setProperty, makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
+import { subscribe, numberRef } from "fest/object";
+import { bindWith, paddingBoxSize, scrollSize } from "fest/lure";
+import { makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
 import { boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
 import { pointerAnchorRef } from "../space-ref/PointerAnchor";
 import { EnhancedScrollTimeline } from "../css-ref/CSSTimeline";
@@ -9,13 +9,10 @@ import { ScrollbarGestureHandler } from "../controllers/EnhancedGestures";
 import { ScrollbarThemeManager, ScrollbarTheme } from "./ScrollbarTheme";
 
 // Enhanced reactive math and CSS integration
-import {
-    Vector2D, vector2Ref, operated,
-    addVector2D, multiplyVector2D, subtractVector2D,
-    CSSTransform, CSSPosition, CSSBinder, CSSCalc, CSSUnitUtils
-} from "fest/lure";
+import { vector2Ref, operated, CSSBinder, CSSUnitUtils } from "fest/lure";
 import { ReactiveElementSize } from "../css-ref/Utils";
 import { ReactiveTransform } from "../css-ref/Utils";
+import { animateByTimeline } from "../css-ref/CSSAnimated";
 
 // @ts-ignore
 //import styles from "./ScrollBar.scss?inline";
@@ -47,94 +44,14 @@ const stepped  = (count = 100)=>{ return Array.from({ length: count }, (_, i) =>
 const sheduler = makeRAFCycle();
 
 //
-const makeTimeline = (source, axis: number)=>{
-    const target   = asWeak(source);
-    const scroll   = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
-    const content  = computed(sizeRef(source, (["inline", "block"] as ["inline", "block"])[axis], "content-box"), (v)=>(v + getPadding(source, (["inline", "block"] as ["inline", "block"])[axis])));
-    const percent  = computed (scroll, (vl)=> ((vl || 0) / ((target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] - content?.value) || 1)));
-    subscribe(content,  (vl: any)=>((scroll?.value || 0) / ((target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis]] - vl) || 1))); return percent;
-}
-
-//
-const effectProperty = { fill: "both", delay: 0, easing: "linear", rangeStart: "cover 0%", rangeEnd: "cover 100%", duration: 1 };
-
-//
-const paddingBoxSize  = (source: HTMLElement, axis: number, inputChange?: any|null)=>{ // @ts-ignore
-    const target  = asWeak(source);
-    const scroll  = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
-    const conRef  = sizeRef(source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
-    const content = computed(conRef, (v: any)=>(v + (getPadding(source, (["inline", "block"] as ["inline", "block"])[axis]) || 0)));
-    const recompute = ()=>{ conRef?.[$trigger]?.(); content?.[$trigger]?.(); }
-
-    //
-    subscribe(scroll, (vl: any)=>{ recompute?.(); });
-    addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
-    addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
-    queueMicrotask(()=>{ recompute?.(); });
-    return content;
-}
+export const effectProperty = { fill: "both", delay: 0, easing: "linear", rangeStart: "cover 0%", rangeEnd: "cover 100%", duration: 1 };
 
 //
 const _LOG_ = (a)=>{
     console.log(a); return a;
 }
 
-//
-const scrollSize  = (source: HTMLElement, axis: number = 0, inputChange?: any|null)=>{ // @ts-ignore
-    const target  = asWeak(source);
-    const compute = (vl: any)=>((target?.deref?.()?.[['scrollWidth', 'scrollHeight'][axis] || 'scrollWidth'] - 1) || 1);
-    const scroll  = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
-    const conRef  = sizeRef(source, (["inline", "block"] as ["inline", "block"])[axis], "content-box");
-    const percent = computed(scroll, compute);
-    const recompute = ()=>{ scroll?.[$trigger]?.(); percent?.[$trigger]?.(); }
 
-    //
-    subscribe(conRef, (vl: any)=>{ recompute?.(); });
-    addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
-    addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
-    queueMicrotask(()=>{ recompute?.(); });
-        return percent;
-    }
-
-    // Enhanced reactive scrollbar sizing with CSS calc integration
-    const reactiveScrollbarSize = (source: HTMLElement, axis: number, contentSize: ReturnType<typeof numberRef>) => {
-        const containerSize = axis === 0
-            ? operated([], () => source.clientWidth)
-            : operated([], () => source.clientHeight);
-
-        return operated([containerSize, contentSize], () => {
-            const ratio = containerSize.value / contentSize.value;
-            const minSize = 20; // Minimum thumb size in pixels
-            return Math.max(minSize, ratio * containerSize.value);
-        });
-    };
-
-    //
-    //const sheduler = makeRAFCycle();
-    const controlVisible = async (source: HTMLElement, coef: any = null)=>{
-        if (!source) return; const target = asWeak(source), wk = asWeak(coef);
-        const renderCb = ()=>{
-            const tg = target?.deref?.(); if (tg) {
-                const val = wk?.deref?.()?.value || 0, hidden = val < 0.001 || val > 0.999;
-                setProperty(tg, "visibility", hidden ? "collapse" : "visible");
-                setProperty(tg?.querySelector?.("*"), "pointer-events", hidden ? "none" : "auto");
-            }
-        };
-        return subscribe(coef, (val: any)=>sheduler.shedule(renderCb))
-    }
-
-//
-const animateByTimeline = async (source: HTMLElement, properties = {}, timeline: any = null)=>{
-    if (!source) return; const target = asWeak(source), wk = asWeak(timeline);
-    const  everyCb = ()=>Object.entries(properties).forEach(renderCb);
-    const renderCb = ([name, $v])=>{
-        const tg = target?.deref?.(); if (tg) {
-            const val = wk?.deref?.()?.value || 0, values = $v as [any, any];
-            setProperty(tg, name, (values[0] * (1 - val) + values[1] * val))
-        }
-    }
-    return subscribe(timeline, (val: any)=>sheduler.shedule(everyCb))
-}
 
 //
 try { CSS.registerProperty({ name: "--percent-x", syntax: "<number>", inherits: true, initialValue: "0" }); } catch(e) {};
@@ -149,7 +66,7 @@ try { CSS.registerProperty({ name: "--max-offset", syntax: "<length-percentage>"
 try { CSS.registerProperty({ name: "--max-size", syntax: "<length-percentage>", inherits: true, initialValue: "0px" }); } catch(e) {};
 
 //
-const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {}, inputChange?: any|null, draggingState?: any) =>{
+export const makeInteractive = (holder, content, scrollbar, axis = 0, status: any = {}, inputChange?: any|null, draggingState?: any) =>{
     const status_w   = asWeak(status);
     const content_w  = asWeak(content);
     const dragging_w = asWeak(draggingState);

@@ -19,7 +19,7 @@ export * from "./Operations";
 export * from "./GridMath";
 
 // CSS integration and utilities
-export * from "./CSSAdapter";
+export * from "../extension/css-ref/CSSAdapter";
 
 // Advanced utilities for custom reactive computations
 export { operated } from "./Operations";

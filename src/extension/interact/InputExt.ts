@@ -7,11 +7,7 @@ import { makeShiftTrigger } from "../controllers/Trigger";
 import { bindWith, bindCtrl } from "../../lure/core/Binding";
 
 // Enhanced reactive math and CSS integration
-import {
-    Vector2D, vector2Ref, operated,
-    addVector2D, multiplyVector2D, subtractVector2D,
-    CSSTransform, CSSPosition, CSSBinder, CSSCalc
-} from "fest/lure";
+import { operated, CSSBinder } from "fest/lure";
 import { ReactiveElementSize } from "../css-ref/Utils";
 import { ReactiveTransform } from "../css-ref/Utils";
 
@@ -56,7 +52,7 @@ export const reactiveInputHandleTransform = (input: HTMLInputElement, container?
 };
 
 // currently, unused
-const convertValueToPointer = (input)=>{
+export const convertValueToPointer = (input)=>{
     const $cmp = getInputValues(input);
     const [value, min, max] = $cmp;
     if (input?.type == "number" || input?.type == "range") {
@@ -73,7 +69,7 @@ const convertValueToPointer = (input)=>{
 }
 
 // "relative"
-const convertPointerToValueShift = (input, shift, container)=>{
+export const convertPointerToValueShift = (input, shift, container)=>{
     // relative pointer coordinate info [0, 1]
     const dec = (shift?.[0]?.value || 0) / (container?.offsetWidth || 1);
     const $cmp = getInputValues(input), [_, min, max] = $cmp;
@@ -86,7 +82,7 @@ const convertPointerToValueShift = (input, shift, container)=>{
 }
 
 // get correct value for input types
-const correctValue = (input, val)=>{
+export const correctValue = (input, val)=>{
     if (input?.type == "number" || input?.type == "range")
         { return val; } else
     if (input?.type == "checkbox")
@@ -99,7 +95,7 @@ const correctValue = (input, val)=>{
 }
 
 // "absolute"
-const convertPointerToValue = (input, relateFromCorner, container)=>{
+export const convertPointerToValue = (input, relateFromCorner, container)=>{
     const clamped = relateFromCorner / (container?.offsetWidth || 1); // [0, 1]);
     const $cmp = getInputValues(input), [_, min, max] = $cmp;
     const val = clamped * (max - min) + min;
@@ -107,13 +103,13 @@ const convertPointerToValue = (input, relateFromCorner, container)=>{
 }
 
 //
-const getValueWithShift = (input, valueShift)=>{
+export const getValueWithShift = (input, valueShift)=>{
     const $cmp = getInputValues(input);
     return correctValue(input, $cmp?.[0] + valueShift);
 }
 
 //
-const setValue = (input, value)=>{
+export const setInputValue = (input, value)=>{
     const $cmp = getInputValues(input), [_, min, max] = $cmp;
     if (input?.type == "number" || input?.type == "range")
         { if (value != input.valueAsNumber) { input.valueAsNumber = value; input?.dispatchEvent?.(new Event("change", { bubbles: true })); } } else
@@ -128,19 +124,19 @@ const setValue = (input, value)=>{
 
 
 // combined getValueWithShift with setValue
-const setValueByShift = (input, valueShift) => {
-    return setValue(input, getValueWithShift(input, valueShift));
+export const setValueByShift = (input, valueShift) => {
+    return setInputValue(input, getValueWithShift(input, valueShift));
 }
 
 //
-const setValueByPointer = (input, pointer, container)=>{
-    return setValue(input, convertPointerToValue(input, pointer, container));
+export const setValueByPointer = (input, pointer, container)=>{
+    return setInputValue(input, convertPointerToValue(input, pointer, container));
 }
 
 
 
 // TODO: support animation
-const resolveDragging = (input, dragging, container) => {
+export const resolveDragging = (input, dragging, container) => {
     // in case of input is HTMLInputElement
     setValueByShift(input, convertPointerToValueShift(input, dragging, container));
 
@@ -163,12 +159,12 @@ export const getInputValues = (inp): [number, number, number] =>{
 }
 
 //
-const progress = (value, min, max)=>{
+export const progress = (value, min, max)=>{
     return (value - min) / (max - min);
 }
 
 // get into [0, 1]
-const getClampedValue = (inp)=>{
+export const getClampedValue = (inp)=>{
     return progress(...getInputValues(inp));
 }
 
