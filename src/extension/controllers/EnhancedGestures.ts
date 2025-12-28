@@ -1,4 +1,4 @@
-import { numberRef, subscribe } from "fest/object";
+import { numberRef, affected } from "fest/object";
 import { addEvents, removeEvents, addEvent, removeEvent } from "fest/dom";
 
 //

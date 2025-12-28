@@ -1,7 +1,7 @@
 import { deref, isNotEqual, toRef, unref } from "fest/core";
 import { Q } from "../node/Queried";
 import { makeRAFCycle, setProperty } from "fest/dom";
-import { subscribe } from "fest/object";
+import { affected } from "fest/object";
 
 //
 export const checkboxCtrl = (ref) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null) { $ref.value = Q(`input[type="radio"], input[type="checkbox"], input:checked`, ev?.target)?.checked ?? $ref?.value; } } }
@@ -28,5 +28,5 @@ export const controlVisible = (source: HTMLElement, coef: any = null)=>{
             setProperty(tg?.querySelector?.("*"), "pointer-events", hidden ? "none" : "auto");
         }
     };
-    return subscribe(coef, (val: any)=>makeRAFCycle()?.schedule(renderCb))
+    return affected(coef, (val: any)=>makeRAFCycle()?.schedule(renderCb))
 }

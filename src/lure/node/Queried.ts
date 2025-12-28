@@ -1,6 +1,6 @@
-import { observeAttributeBySelector, getAdoptedStyleRule, handleAttribute, observeAttribute, observeBySelector, containsOrSelf, MOCElement } from "fest/dom";
+import { observeAttributeBySelector, getAdoptedStyleRule, handleAttribute, containsOrSelf, MOCElement, observeBySelector, observeAttribute } from "fest/dom";
 import { bindWith, elMap } from "../core/Binding";
-import { $subscribe } from "fest/object";
+import { $affected } from "fest/object";
 
 //
 const existsQueries = new WeakMap<any, Map<string|HTMLElement, any>>();
@@ -282,7 +282,7 @@ class UniversalElementHandler {
         }
 
         // can be subscribed
-        if (name == $subscribe) {
+        if (name == $affected) {
             if ((this.selector as any)?.includes?.("input") || (this.selector as any)?.matches?.("input")) {
                 return (cb) => {
                     let oldValue = selected?.value;

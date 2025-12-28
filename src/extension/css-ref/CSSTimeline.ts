@@ -1,5 +1,5 @@
 import { toRef, type keyType } from "fest/core";
-import { deref, computed, subscribe, $subscribe } from "fest/object";
+import { deref, computed, affected, $affected } from "fest/object";
 import { getPadding } from "fest/dom";
 import { scrollRef, sizeRef } from "fest/lure";
 import { makeAnchorElement } from "./CSSAnchor";
@@ -18,7 +18,7 @@ export const timelineHandler = {
         if (prop == "value") { return (target?.currentTime ?? 0) / (target?.duration ?? 1); }
 
         // @ts-ignore
-        if (prop == $subscribe && (target instanceof ScrollTimeline || target instanceof ViewTimeline)) {
+        if (prop == $affected && (target instanceof ScrollTimeline || target instanceof ViewTimeline)) {
             return (cb: (value: any, prop: keyType) => void, prop?: keyType | null) => {
                 const $cb = ()=> { queueMicrotask(()=> cb((target?.currentTime ?? 0) / (target?.duration ?? 1), "value")); }
 
@@ -134,7 +134,7 @@ export class EnhancedScrollTimeline {
     }
 
     //
-    get [$subscribe]() {
+    get [$affected]() {
         return (cb: (value: any, prop: keyType) => void, prop?: keyType | null) => {
             const $cb = ()=> { queueMicrotask(()=> cb((this.timeline?.currentTime ?? 0) / (this.timeline?.duration ?? 1), "value")); }
             this.timeline?.addEventListener?.("scroll", $cb);
@@ -275,7 +275,7 @@ export class EnhancedViewTimeline {
     }
 
     //
-    get [$subscribe]() {
+    get [$affected]() {
         return (cb: (value: any, prop: keyType) => void, prop?: keyType | null) => {
             const $cb = ()=> { queueMicrotask(()=> cb((this.timeline?.currentTime ?? 0) / (this.timeline?.duration ?? 1), "value")); }
             const $observer = new IntersectionObserver((entries)=>entries.forEach((entry)=>$cb?.()));
@@ -342,6 +342,6 @@ export const makeScrollTimeline = (source: HTMLElement & {element?: HTMLElement}
     const scroll   = scrollRef(source, (["inline", "block"] as ["inline", "block"])[axis]);
     const content  = computed(sizeRef(source, (["inline", "block"] as ["inline", "block"])[axis], "content-box"), (v)=>(v + getPadding(source, (["inline", "block"] as ["inline", "block"])[axis])));
     const percent  = computed (scroll, (vl)=> ((vl || 0) / ((deref(target)?.[['scrollWidth', 'scrollHeight'][axis]] - content?.value) || 1)));
-    subscribe(content, (vl: any) => ((scroll?.value || 0) / ((deref(target)?.[['scrollWidth', 'scrollHeight'][axis]] - vl) || 1)));
+    affected(content, (vl: any) => ((scroll?.value || 0) / ((deref(target)?.[['scrollWidth', 'scrollHeight'][axis]] - vl) || 1)));
     return percent;
 }

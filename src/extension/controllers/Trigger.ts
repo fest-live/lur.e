@@ -1,4 +1,4 @@
-import { doBorderObserve, doContentObserve, addEvents, handleStyleChange, observeContentBox, addEvent } from "fest/dom";
+import { doBorderObserve, doContentObserve, addEvents, handleStyleChange, iterateContentBox, addEvent } from "fest/dom";
 import { addToCallChain, numberRef, stringRef, booleanRef } from "fest/object";
 import { lazyAddEventListener } from "./LazyEvents";
 import { unref } from "fest/core";

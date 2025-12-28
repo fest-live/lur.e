@@ -1,5 +1,5 @@
 import { UUIDv4, Promised } from 'fest/core';
-import { makeReactive } from 'fest/object';
+import { observe } from 'fest/object';
 
 //
 export const getDir = (dest)=>{
@@ -130,7 +130,7 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean} = 
     relPath = relPath?.trim?.()?.startsWith?.("/user/") ? relPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : relPath;
 
     //
-    let mapCache: Map<string, any> = makeReactive(new Map<string, any>()) as Map<string, any>;
+    let mapCache: Map<string, any> = observe(new Map<string, any>()) as Map<string, any>;
     async function updateCache() { // @ts-ignore
         if (!(await dirHandle)) return mapCache;
 

@@ -10,7 +10,7 @@ import {
     addGridItemHoverAnimations,
     gridAnimationPresets
 } from "./Interact";
-import { makeReactive } from "fest/object";
+import { observe } from "fest/object";
 
 /**
  * Example 1: Basic Enhanced Grid Interaction
@@ -310,7 +310,7 @@ export function reactiveGridExample() {
     `;
 
     // Reactive data store
-    const gridData = makeReactive({
+    const gridData = observe({
         items: Array.from({ length: 16 }, (_, i) => ({
             id: i,
             value: Math.floor(Math.random() * 100),

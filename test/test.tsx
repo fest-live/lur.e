@@ -1,5 +1,5 @@
 // @ts-ignore
-import { makeReactive, assign } from "fest/object";
+import { observe, assign } from "fest/object";
 import { defineElement, GLitElement, property, S, E, H, createElement } from "fest/lure";
 
 //
@@ -31,8 +31,8 @@ export class XBlock extends GLitElement() {
 }
 
 //
-const children = makeReactive(["Разруха!"]);//ref("!");
-const style = makeReactive({
+const children = observe(["Разруха!"]);//ref("!");
+const style = observe({
     backgroundColor: "darkred",
     color: "white",
     inlineSize: "100px",

@@ -1,4 +1,4 @@
-import { addToCallChain, observe, ref, subscribe } from "fest/object";
+import { addToCallChain, iterated, ref, affected } from "fest/object";
 
 //
 import getNode, { appendChild, removeNotExists, replaceChildren } from "./Utils";
@@ -73,7 +73,7 @@ export const reflectChildren = (element: HTMLElement | DocumentFragment, childre
     //
     removeNotExists(element, asArray(children)?.map?.((nd, index) => getNode(nd, mapper, index, element)));
     const updater = makeUpdater(element, mapper, true);
-    const unsub = observe(children, (...args) => {
+    const unsub = iterated(children, (...args) => {
         const firstOf = getNode(Array.from(children?.values?.() || [])?.[0], mapper, 0);
         const boundParent = firstOf?.parentElement; // @ts-ignore
         return updater(args?.[0], args?.[1], args?.[2], args?.[3], boundParent);

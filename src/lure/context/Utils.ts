@@ -1,4 +1,4 @@
-import { unwrap, subscribe } from "fest/object";
+import { unwrap, affected } from "fest/object";
 import { $virtual, $mapped } from "../core/Binding";
 import { isElement, isValidParent } from "fest/dom";
 import { hasValue, isNotEqual, isPrimitive } from "fest/core";
@@ -271,8 +271,8 @@ export const T = (ref) => {
     // @ts-ignore
     return tmMap.getOrInsertComputed(ref, () => {
         const element = document.createTextNode(((hasValue(ref) ? ref?.value : ref) ?? "")?.trim?.() ?? "");
-        //subscribe([ref, "value"], (val) => (element.textContent = (val?.innerText ?? val?.textContent ?? val ?? "")?.trim?.() ?? ""));
-        subscribe([ref, "value"], (val) => {
+        //affected([ref, "value"], (val) => (element.textContent = (val?.innerText ?? val?.textContent ?? val ?? "")?.trim?.() ?? ""));
+        affected([ref, "value"], (val) => {
             const untrimmed = "" + (val?.innerText ?? val?.textContent ?? val?.value ?? val ?? "");
             (element.textContent = untrimmed?.trim?.() ?? "");
         });

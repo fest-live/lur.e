@@ -1,5 +1,5 @@
 import { RAFBehavior, orientOf, getBoundingOrientRect, setStyleProperty } from "fest/dom";
-import { makeObjectAssignable, makeReactive, subscribe, numberRef } from "fest/object";
+import { makeObjectAssignable, observe, affected, numberRef } from "fest/object";
 import { makeShiftTrigger, LongPressHandler, clampCell, floorCell, bindDraggable } from "fest/lure";
 import { convertOrientPxToCX, redirectCell } from "fest/core";
 import type { GridArgsType as GridArgsType, GridItemType } from "fest/core";
@@ -102,12 +102,12 @@ export const reflectCell = async (newItem: HTMLElement, pArgs: GridArgsType, wit
     const layout: [number, number] = [(pArgs?.layout as any)?.columns || pArgs?.layout?.[0] || 4, (pArgs?.layout as any)?.rows || pArgs?.layout?.[1] || 8];
     const {item, list, items} = pArgs;
     await new Promise((r)=>queueMicrotask(()=>r(true)));
-    return subscribe?.(item, (state, property)=>{
+    return affected?.(item, (state, property)=>{
         const gridSystem = newItem?.parentElement;
         layout[0] = parseInt(gridSystem?.getAttribute?.("data-grid-columns") || "4") || layout[0];
         layout[1] = parseInt(gridSystem?.getAttribute?.("data-grid-rows") || "8") || layout[1];
         const args = {item, list, items, layout, size: [gridSystem?.clientWidth, gridSystem?.clientHeight]};
-        if (item && !item?.cell) { item.cell = makeObjectAssignable(makeReactive([0, 0])); }; // @ts-ignore
+        if (item && !item?.cell) { item.cell = makeObjectAssignable(observe([0, 0])); }; // @ts-ignore
         if (property == "cell") {
             const nc = redirectCell(item?.cell || [0, 0], args as GridArgsType);
             if (nc[0] != item?.cell?.[0] && item?.cell) { item.cell[0] = nc?.[0]; }
@@ -348,19 +348,19 @@ export const bindInteraction = (newItem: HTMLElement, pArgs: any): [any, any] =>
     };
 
     //
-    subscribe([dragging?.[0], "value"], (val, prop) => { if (prop == "value") { syncDragStyles(); } });
-    subscribe([dragging?.[1], "value"], (val, prop) => { if (prop == "value") { syncDragStyles(); } });
+    affected([dragging?.[0], "value"], (val, prop) => { if (prop == "value") { syncDragStyles(); } });
+    affected([dragging?.[1], "value"], (val, prop) => { if (prop == "value") { syncDragStyles(); } });
     syncDragStyles(true);
 
     //
-    subscribe([currentCell?.[0], "value"], (val, prop) => {
+    affected([currentCell?.[0], "value"], (val, prop) => {
         if (prop == "value" && item.cell != null && val != null) {
             setStyleProperty(newItem, "--cell-x", (item.cell[0] = val) || 0);
         }
     });
 
     //
-    subscribe([currentCell?.[1], "value"], (val, prop) => {
+    affected([currentCell?.[1], "value"], (val, prop) => {
         if (prop == "value" && item.cell != null && val != null) {
             setStyleProperty(newItem, "--cell-y", (item.cell[1] = val) || 0);
         }

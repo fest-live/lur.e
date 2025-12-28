@@ -215,7 +215,7 @@ const isColliding = computed([box1.center, box2.center], () => {
 });
 
 // React to collisions
-subscribe(isColliding, (colliding) => {
+affected(isColliding, (colliding) => {
     if (colliding.value) {
         element1.style.backgroundColor = 'red';
         element2.style.backgroundColor = 'red';
@@ -275,7 +275,7 @@ pos.x.value += 10;
 **Before:**
 ```typescript
 const sum = numberRef(0);
-subscribe([a, b], () => {
+affected([a, b], () => {
     sum.value = a.value + b.value;
 });
 ```

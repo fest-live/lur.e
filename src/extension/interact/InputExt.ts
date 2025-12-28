@@ -1,5 +1,5 @@
 import { addEvent, setChecked, handleStyleChange } from "fest/dom";
-import { computed, conditional, numberRef, subscribe } from "fest/object";
+import { computed, conditional, numberRef, affected } from "fest/object";
 import { bindDraggable } from "../controllers/PointerAPI";
 
 //

@@ -1,4 +1,4 @@
-import { observe } from "fest/object";
+import { iterated } from "fest/object";
 import { $mapped } from "../core/Binding";
 import { getNode, appendFix, removeNotExists } from "../context/Utils";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
@@ -41,7 +41,7 @@ class Mp {
         if (basisParent) {
             this.#internal?.(); this.#internal = null; this.#updater = null;
             this.#updater ??= makeUpdater(basisParent, this.mapper.bind(this), Array.isArray(this.#observable));
-            this.#internal ??= observe?.(this.#observable, this._onUpdate.bind(this));
+            this.#internal ??= iterated?.(this.#observable, this._onUpdate.bind(this));
         }
     }
 

@@ -69,7 +69,7 @@ export function intersectionBoxAnchorRef(anchor: HTMLElement, options?: {
     const area = [
         numberRef(0), numberRef(0), numberRef(0), numberRef(0), numberRef(0), numberRef(0)
     ]
-    const { root = anchor?.offsetParent ?? document.documentElement, observeResize = true, observeMutations = true, observeIntersection = true } = options || {};
+    const { root = anchor?.offsetParent ?? document.documentElement, iterateResize = true, iterateMutations = true, iterateIntersection = true } = options || {};
 
     //
     function updateArea(intersectionRect?: any) {
@@ -169,7 +169,7 @@ export function enhancedIntersectionBoxAnchorRef(anchor: HTMLElement, options?: 
     ];
 
     //
-    const { root = anchor?.offsetParent ?? document.documentElement, observeResize = true, observeMutations = true, observeIntersection = true } = options || {};
+    const { root = anchor?.offsetParent ?? document.documentElement, iterateResize = true, iterateMutations = true, iterateIntersection = true } = options || {};
 
     //
     function updateArea(intersectionRect?: any) {

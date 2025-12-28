@@ -3,7 +3,7 @@
 // And current (to) state
 // Animates when bound with style property, by change value
 
-import { numberRef, stringRef, subscribe } from "fest/object";
+import { numberRef, stringRef, affected } from "fest/object";
 import { toRef, deref, $getValue } from "fest/core";
 import { makeRAFCycle, setProperty } from "fest/dom";
 import { $extract } from "./CSSTimeline";
@@ -339,7 +339,7 @@ export function bindAnimatedStyle(
         handleMorphStyleChange(deref(wel), properties, options);
 
         // Subscribe to changes - for morph, we expect reactiveValue to be an object with reactive properties
-        const unsubscribe = subscribe(reactiveValue, (newValue) => {
+        const unaffected = affected(reactiveValue, (newValue) => {
             handleMorphStyleChange(deref(wel), properties, options);
         });
 
@@ -356,7 +356,7 @@ export function bindAnimatedStyle(
         handler(deref(wel), property, $getValue(deref(wv)), options);
 
         // Subscribe to changes
-        const unsubscribe = subscribe(reactiveValue, (newValue) => {
+        const unaffected = affected(reactiveValue, (newValue) => {
             handler(deref(wel), property, newValue, options);
         });
 
@@ -484,7 +484,7 @@ export const animateByTimeline = async (source: HTMLElement, properties = {}, ti
     //
     const scheduler = makeRAFCycle();
     const  everyCb  = ()=>Object.entries(properties)?.forEach?.(renderCb);
-    return subscribe(timeline, (val: any) => scheduler?.schedule?.(everyCb));
+    return affected(timeline, (val: any) => scheduler?.schedule?.(everyCb));
 }
 
 

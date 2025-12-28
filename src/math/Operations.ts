@@ -1,4 +1,4 @@
-import { numberRef, computed, subscribe } from "fest/object";
+import { numberRef, computed, affected } from "fest/object";
 import { Vector2D, vector2Ref } from "./Point2D";
 import { Vector3D } from "./Point3D";
 import { Vector4D } from "./Point4D";
@@ -377,7 +377,7 @@ export const operated = (args: any[], fn: (...values: any[]) => any) => {
         const allRefs = flattenRefs(args);
 
         // Subscribe to each reactive reference to update the result
-        allRefs.forEach(ref => subscribe(ref, updateResult));
+        allRefs.forEach(ref => affected(ref, updateResult));
 
         return result;
     }
@@ -394,7 +394,7 @@ export const operated = (args: any[], fn: (...values: any[]) => any) => {
     const allRefs = flattenRefs(args);
 
     // Subscribe to each reactive reference to update the result
-    allRefs.forEach(ref => subscribe(ref, updateResult));
+    allRefs.forEach(ref => affected(ref, updateResult));
 
     return currentResult;
 }

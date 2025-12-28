@@ -1,4 +1,4 @@
-import { numberRef, makeReactive } from "fest/object";
+import { numberRef, observe } from "fest/object";
 
 export class Vector2D {
     private _x: ReturnType<typeof numberRef>;

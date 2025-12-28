@@ -3,7 +3,7 @@ import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, ref
 import { reflectControllers, bindWith } from '../core/Binding';
 
 //
-import { subscribe } from "fest/object";
+import { affected } from "fest/object";
 import { Q } from "./Queried";
 import { M } from "./Mapped";
 import { getNode } from "../context/Utils";
@@ -38,7 +38,7 @@ interface Params {
 export const Qp = (ref, host = document.documentElement)=>{
     if (ref?.value == null) { return Q(ref, host); }
     const actual = Q(ref?.value, host);
-    subscribe(ref, (value, prop)=>actual?._updateSelector(value));
+    affected(ref, (value, prop)=>actual?._updateSelector(value));
     return actual;
 }
 

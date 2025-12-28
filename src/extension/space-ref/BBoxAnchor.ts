@@ -30,7 +30,7 @@ export function boundingBoxAnchorRef(anchor: HTMLElement, options?: {
     const center = rectCenter(rect);
     const reactiveArea = rectArea(rect);
 
-    const { root = anchor?.offsetParent ?? document.documentElement, observeResize = true, observeMutations = false } = options || {};
+    const { root = anchor?.offsetParent ?? document.documentElement, iterateResize = true, iterateMutations = false } = options || {};
 
     // Reactive element size tracker
     const elementSize = new ReactiveElementSize(anchor);

@@ -1,4 +1,4 @@
-import { subscribe } from "fest/object";
+import { affected } from "fest/object";
 import { appendFix, elMap, getNode, T } from "../context/Utils";
 import { makeUpdater } from "../context/ReflectChildren";
 import { isPrimitive, hasValue } from "fest/core";
@@ -30,7 +30,7 @@ class Ch {
         if (basisParent) {
             this.#internal?.(); this.#internal = null; this.#updater = null;
             this.#updater ??= makeUpdater(basisParent, null, false);
-            this.#internal ??= subscribe?.([this.#valueRef, "value"], this._onUpdate.bind(this));
+            this.#internal ??= affected?.([this.#valueRef, "value"], this._onUpdate.bind(this));
         }
     }
 

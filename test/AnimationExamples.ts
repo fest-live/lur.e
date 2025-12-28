@@ -1,7 +1,7 @@
 // Animation Binding Examples
 // Demonstrates the new animation-based binding/reference types
 
-import { numberRef, makeReactive } from "fest/object";
+import { numberRef, observe } from "fest/object";
 import {
     bindAnimated, bindTransition, bindSpring, bindMorph,
     bindAnimatedBatch, bindPreset, bindConditionalAnimation,
@@ -66,7 +66,7 @@ export function morphingExample() {
     button.style.padding = '10px 20px';
 
     // Reactive state object
-    const buttonState = makeReactive({
+    const buttonState = observe({
         backgroundColor: 'hsl(200, 70%, 50%)',
         transform: 'scale(1)',
         boxShadow: '0 2px 4px rgba(0,0,0,0.1)'

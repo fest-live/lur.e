@@ -1,5 +1,5 @@
 import { UUIDv4, Promised } from 'fest/core';
-import { makeReactive } from 'fest/object';
+import { observe } from 'fest/object';
 
 // @ts-ignore
 import OPFSWorker from './OPFS.worker?worker';
@@ -548,7 +548,7 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
             return existing;
         }
 
-        const mapCache = makeReactive(new Map<string, any>()) as Map<string, any>;
+        const mapCache = observe(new Map<string, any>()) as Map<string, any>;
         const observationId = UUIDv4();
 
         // Initial Dir Handle (for fallback)

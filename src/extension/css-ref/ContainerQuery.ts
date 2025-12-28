@@ -1,4 +1,4 @@
-import { numberRef, subscribe } from "fest/object";
+import { numberRef, affected } from "fest/object";
 import { addEvent } from "fest/dom";
 
 //
@@ -95,7 +95,7 @@ export class ContainerQueryManager {
     onQueryChange(name: string, callback: (matches: boolean) => void) {
         const stateRef = this.queryStates.get(name);
         if (stateRef) {
-            return subscribe(stateRef, (value) => callback(value === 1));
+            return affected(stateRef, (value) => callback(value === 1));
         }
         return () => {};
     }

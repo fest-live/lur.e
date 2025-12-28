@@ -118,7 +118,7 @@ pos.x.value += 10;
 ```typescript
 // Before: Manual subscription
 const sum = numberRef(0);
-subscribe([a, b], () => { sum.value = a.value + b.value; });
+affected([a, b], () => { sum.value = a.value + b.value; });
 
 // After: Automatic reactivity
 const sum = addRef(a, b);

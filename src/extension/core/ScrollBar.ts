@@ -1,4 +1,4 @@
-import { subscribe, numberRef } from "fest/object";
+import { affected, numberRef } from "fest/object";
 import { bindWith, paddingBoxSize, scrollSize } from "fest/lure";
 import { makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
 import { boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
@@ -273,7 +273,7 @@ export class ScrollBar {
 
         // Update scrollbar position based on spatial changes
         if (this.spatialAnchor) {
-            subscribe(this.spatialAnchor[axis === 0 ? 2 : 3], () => {
+            affected(this.spatialAnchor[axis === 0 ? 2 : 3], () => {
                 this.updateSpatialPosition(axis);
             });
         }
@@ -284,7 +284,7 @@ export class ScrollBar {
         this.responsiveConfig = createResponsiveScrollbarConfig(this.holder);
 
         // Update scrollbar thickness based on responsive config
-        subscribe(this.responsiveConfig.currentConfig, () => {
+        affected(this.responsiveConfig.currentConfig, () => {
             const config = this.responsiveConfig.getCurrentConfig();
             this.updateScrollbarThickness(config.thickness);
         });
@@ -409,7 +409,7 @@ export class ScrollBar {
         };
 
         // Listen to responsive config changes
-        unsubscribeConfig = subscribe(this.responsiveConfig.currentConfig, () => {
+        unsubscribeConfig = affected(this.responsiveConfig.currentConfig, () => {
             // Re-setup events when config changes
             setupEvents();
         });
@@ -476,7 +476,7 @@ export class ScrollBar {
         updateAriaValues();
 
         // Subscribe to scroll changes
-        const unsubscribe = subscribe(this.enhancedTimeline?.["progress"] || numberRef(0), updateAriaValues);
+        const unaffected = affected(this.enhancedTimeline?.["progress"] || numberRef(0), updateAriaValues);
         addEvent(this.content, "scroll", updateAriaValues, { passive: true });
 
         // Enhanced keyboard navigation with better step sizes and feedback
@@ -562,7 +562,7 @@ export class ScrollBar {
 
         // Store cleanup function
         this._unsubscribeAccessibility = () => {
-            unsubscribe?.();
+            unaffected?.();
             removeEvent(this.content, "scroll", updateAriaValues);
             removeEvent(this.scrollbar, "keydown", () => {});
             removeEvent(this.scrollbar, "focus", () => {});

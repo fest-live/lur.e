@@ -1,4 +1,4 @@
-import { stringRef, autoRef, numberRef, booleanRef, deref, makeReactive, addToCallChain, subscribe, computed, $trigger } from "fest/object";
+import { stringRef, autoRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger } from "fest/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink } from "./Links";
 import { addEvent, getPadding, handleAttribute } from "fest/dom";
 import { elMap } from "./Binding";
@@ -40,7 +40,7 @@ export const hashTargetRef = (...args)=>makeRef(null, stringRef, hashTargetLink,
 //
 export const makeWeakRef = (/*host?: any,*/ initial?: any, behavior?: any)=>{
     const obj = deref(initial);
-    return isValidObj(obj) ? makeReactive(WRef(obj)) : autoRef(obj, behavior);
+    return isValidObj(obj) ? observe(WRef(obj)) : autoRef(obj, behavior);
 };
 
 //
@@ -53,7 +53,7 @@ export const scrollSize  = (source: HTMLElement, axis: number = 0, inputChange?:
     const recompute = ()=>{ scroll?.[$trigger]?.(); percent?.[$trigger]?.(); }
 
     //
-    subscribe(conRef, (vl: any)=>{ recompute?.(); });
+    affected(conRef, (vl: any)=>{ recompute?.(); });
     addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
     addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
     queueMicrotask(()=>{ recompute?.(); });
@@ -82,7 +82,7 @@ export const paddingBoxSize  = (source: HTMLElement, axis: number, inputChange?:
     const recompute = ()=>{ conRef?.[$trigger]?.(); content?.[$trigger]?.(); }
 
     //
-    subscribe(scroll, (vl: any)=>{ recompute?.(); });
+    affected(scroll, (vl: any)=>{ recompute?.(); });
     addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
     addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
     queueMicrotask(()=>{ recompute?.(); });

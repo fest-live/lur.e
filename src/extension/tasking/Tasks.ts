@@ -1,4 +1,4 @@
-import { makeReactive, $triggerLess } from "fest/object";
+import { observe, $triggerLess } from "fest/object";
 import { getBy, getFocused, registerTask } from "./Manager";
 import { ITask } from "./Types";
 import { ITaskOptions } from "./Types";
@@ -122,14 +122,14 @@ export class Task implements ITask {
 
 //
 export const makeTask = (taskId: string|Task, list?: ITask[]|null, state: ITaskOptions|null = null, payload: any = {}, action?: any)=>{
-    if (taskId instanceof Task) return makeReactive(taskId);
+    if (taskId instanceof Task) return observe(taskId);
     const task = new Task(taskId, list, state, payload, action);
-    return makeReactive(task);
+    return observe(task);
 }
 
 //
 export const makeTasks = (createCb: any)=>{
-    const tasks = makeReactive([]);
+    const tasks = observe([]);
     const result = createCb(tasks);
     return tasks;
 }

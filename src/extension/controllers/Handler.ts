@@ -1,4 +1,4 @@
-import { addEvent, observeContentBox } from "fest/dom";
+import { addEvent, iterateContentBox } from "fest/dom";
 
 // Legacy style handlers API
 

@@ -1,4 +1,4 @@
-import { addToCallChain, makeReactive, subscribe } from "fest/object";
+import { addToCallChain, observe, affected } from "fest/object";
 import { handleAttribute, handleProperty, namedStoreMaps, observeAttribute, observeBySelector, includeSelf, setChecked, getEventTarget, handleStyleChange } from "fest/dom";
 import { $getValue, camelToKebab, $set, toRef, deref, isNotEqual, handleListeners, $avoidTrigger } from "fest/core";
 import {
@@ -30,7 +30,7 @@ export const bindBeh = (element: any, store: any, behavior: any) => {
     const name = store?.[0] ?? store?.name;
     const value = store?.[1] ?? store?.value;
     if (behavior) {
-        const usub = subscribe?.(store, (value, prop, old) => {
+        const usub = affected?.(store, (value, prop, old) => {
             const valMap = namedStoreMaps?.get?.(name as string);
             behavior?.([value, prop, old], [weak, store, valMap?.get(deref(weak))]);
         });
@@ -115,7 +115,7 @@ export const bindHandler = (element: any, value: any, prop: any, handler: any, s
 
     //
     const wv = toRef(value); handler?.(element, prop, value);
-    const un = subscribe?.([value, "value"], (curr, _, old) => {
+    const un = affected?.([value, "value"], (curr, _, old) => {
         const valueRef = deref(wv);
         const setRef = deref(set);
         const elementRef = deref(wel);
@@ -185,7 +185,7 @@ export const bindWith = (el: any, prop: any, value: any, handler: any, set?: any
 
 //
 export const bindForms  = (fields: any = document.documentElement, wrapper: string = ".u2-input", state: any = {})=>{
-    state ??= makeReactive({});
+    state ??= observe({});
 
     //
     const wst = new WeakRef(state);
@@ -217,7 +217,7 @@ export const bindForms  = (fields: any = document.documentElement, wrapper: stri
     //
     const appearHandler = () => requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
     const observer      = observeBySelector(fields, wrapper, (mutations: any) => mutations.addedNodes.forEach((target: any) => requestIdleCallback(() => updateInput(state, target), { timeout: 100 })));
-    const unsubscribe   = subscribe?.(state, (value, property) => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)));
+    const unsubscribe   = affected?.(state, (value, property) => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)));
     requestIdleCallback(() => fields.querySelectorAll(wrapper).forEach((target) => updateInput(target, state)), { timeout: 100 });
 
     //
@@ -233,7 +233,7 @@ export const bindForms  = (fields: any = document.documentElement, wrapper: stri
         fields?.removeEventListener?.("change", onChange);
         fields?.removeEventListener?.("u2-appear", appearHandler);
         observer?.disconnect?.();
-        unsubscribe?.();
+        unaffected?.();
     });
 
     //
@@ -447,13 +447,13 @@ export const bindConditionalAnimation = (
     applyAnimations($getValue(deref(wcond)));
 
     // Subscribe to condition changes
-    const unsubscribe = subscribe(condition, (newValue) => {
+    const unaffected = affected(condition, (newValue) => {
         applyAnimations(!!newValue);
     });
 
     return () => {
         currentUnbinders.forEach(unbind => unbind?.());
-        unsubscribe?.();
+        unaffected?.();
     };
 };
 
@@ -573,7 +573,7 @@ export const synchronizeInputs = (state, wrapper = ".u2-input", fields = documen
     fields.addEventListener("u2-appear", ()=>requestIdleCallback(()=> fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target)), {timeout: 100}));
 
     // cross-window or frame syncretism
-    subscribe?.(state, (value, property)=>{ fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target)); });
+    affected?.(state, (value, property)=>{ fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target)); });
     requestIdleCallback(()=>{ fields.querySelectorAll(wrapper).forEach((target)=>updateInput(state, target)); }, {timeout: 100});
     observeBySelector(fields, wrapper, (mutations)=>{
         mutations.addedNodes.forEach((target)=>{

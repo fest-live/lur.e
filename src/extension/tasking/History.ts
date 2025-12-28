@@ -1,4 +1,4 @@
-import { makeReactive, propRef, subscribe } from "fest/object";
+import { observe, propRef, affected } from "fest/object";
 import { addEvent, hash } from "fest/dom";
 import { isPrimitive } from "fest/core";
 import { getIgnoreNextPopState, setIgnoreNextPopState } from "./BackNavigation";
@@ -32,7 +32,7 @@ export interface IHistoryManager {
 }
 
 // Global reactive state for history
-export const historyState = makeReactive({
+export const historyState = observe({
     index: 0,
     length: 0,
     action: "MANUAL" as NavigationAction,
@@ -315,13 +315,13 @@ export const navigate = (view: string, replace: boolean = false) => {
 
 //
 export const historyViewRef = (initialValue: string = `#${location.hash?.replace?.(/^#/, "") || "home"}`, options: { ignoreBack?: boolean, withoutHashPrefix?: boolean } = {}) => {
-    const internal = makeReactive({ value: initialValue }) as unknown as { value: string };
+    const internal = observe({ value: initialValue }) as unknown as { value: string };
 
     // Sync from history to ref
     // The historyState acts as a bridge:
     // 1. User Action (Back/Forward) -> Window 'popstate' -> initHistory listener -> historyState -> This Subscription
     // 2. User Action (Hash Change) -> Window 'hashchange' -> initHistory listener -> historyState -> This Subscription
-    subscribe([historyState, "view"], (view: string) => {
+    affected([historyState, "view"], (view: string) => {
         if (options.ignoreBack && historyState.action === "BACK") {
             return;
         }
@@ -338,7 +338,7 @@ export const historyViewRef = (initialValue: string = `#${location.hash?.replace
 
     // Sync from ref to history
     // Application Action (Programmatic) -> ref.value change -> This Subscription -> navigate() -> pushState() -> historyState
-    subscribe([internal, "value"], (val: string) => {
+    affected([internal, "value"], (val: string) => {
         let viewToNavigate = val;
         if (options.withoutHashPrefix && !val.startsWith("#")) {
             viewToNavigate = `#${val}`;

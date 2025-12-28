@@ -4,7 +4,7 @@ import { bindDraggable } from "./PointerAPI";
 
 //
 //import {  E  } from "fest/lure";
-import { numberRef, subscribe } from "fest/object";
+import { numberRef, affected } from "fest/object";
 import { Vector2D, vector2Ref, Rect2D, clampPointToRect, createRect2D } from "fest/lure";
 
 //
@@ -107,8 +107,8 @@ export class DragHandler {
             );
         };
         this.#subscriptions = [
-            subscribe(this.#dragging.x, emit),
-            subscribe(this.#dragging.y, emit),
+            affected(this.#dragging.x, emit),
+            affected(this.#dragging.y, emit),
         ];
         emit();
     }

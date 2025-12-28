@@ -1,5 +1,5 @@
-import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding, addEvent, observeContentBox } from "fest/dom";
-import { makeReactive, booleanRef, numberRef, subscribe, stringRef, ref } from "fest/object";
+import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding, addEvent, iterateContentBox } from "fest/dom";
+import { observe, booleanRef, numberRef, affected, stringRef, ref } from "fest/object";
 import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref, hasValue } from "fest/core";
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
@@ -21,7 +21,7 @@ export const localStorageLink = (existsStorage?: any|null, exists?: any|null, ke
         const def  = (existsStorage ?? localStorage).getItem(key) ?? (initial?.value ?? initial);
         const ref = isValueRef(exists) ? exists : stringRef(def); /*if (typeof ref == "object" || typeof ref == "function")*/ ref.value ??= def;
         const $val = new WeakRef(ref);
-        const unsb = subscribe([ref, "value"], (val) => {
+        const unsb = affected([ref, "value"], (val) => {
             $avoidTrigger($val?.deref?.(), ()=>{
                 (existsStorage ?? localStorage).setItem(key, val);
             });
@@ -74,7 +74,7 @@ export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|nu
 
     //
     const $val = new WeakRef(ref);
-    const usb = subscribe([ref, "value"], (val) => {
+    const usb = affected([ref, "value"], (val) => {
         const newHash = normalizeHash(normalizeHash($getValue($val?.deref?.()) || val, false) || normalizeHash(location?.hash, false), true);
         if (newHash != location.hash) {
             $avoidTrigger($val?.deref?.(), () => {
@@ -151,7 +151,7 @@ export const scrollLink = (element?: any|null, exists?: any|null, axis?: "inline
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (initial?.value ?? initial) }); };
     const def = element?.[axis == "block" ? "scrollTop" : "scrollLeft"];
     const val = isValueRef(exists) ? exists : numberRef(def || 0); if (isObject(val)) val.value ||= (def ?? val.value) || 1; val.value ||= (def ?? val.value) || 0;
-    const usb = subscribe([val, "value"], (v) => { if (Math.abs((axis == "block" ? element?.scrollTop : element?.scrollLeft) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (val?.value ?? val) })});
+    const usb = affected([val, "value"], (v) => { if (Math.abs((axis == "block" ? element?.scrollTop : element?.scrollLeft) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (val?.value ?? val) })});
     const scb = [(ev) => { val.value = (axis == "block" ? wel?.deref?.()?.scrollTop : wel?.deref?.()?.scrollLeft) || 0; }, { passive: true }];
     element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };
 }
@@ -161,7 +161,7 @@ export const checkedLink = (element?: any|null, exists?: any|null) => {
     const def = (!!element?.checked) || false;
     const val = isValueRef(exists) ? exists : booleanRef(def); if (isObject(val)) val.value ??= def;
     const dbf = bindCtrl(element, checkboxCtrl(val));
-    const usb = subscribe([val, "value"], (v) => {
+    const usb = affected([val, "value"], (v) => {
         if (element && element?.checked != v) {
             setChecked(element, v);
         }
@@ -179,7 +179,7 @@ export const valueLink = (element?: any|null, exists?: any|null) => {
     const val = isValueRef(exists) ? exists : stringRef(def); if (isObject(val)) val.value ??= def;
     const dbf = bindCtrl(element, valueCtrl(val));
     const $val = new WeakRef(val);
-    const usb = subscribe([val, "value"], (v) => {
+    const usb = affected([val, "value"], (v) => {
         if (element && isNotEqual(element?.value, (v?.value ?? v))) {
             $avoidTrigger(deref($val), ()=>{
                 element.value = $getValue(deref($val)) ?? $getValue(v);
@@ -199,7 +199,7 @@ export const valueAsNumberLink = (element?: any|null, exists?: any|null) => {
     const def = Number(element?.valueAsNumber) || 0;
     const val = isValueRef(exists) ? exists : numberRef(def); if (isObject(val)) val.value ??= def;
     const dbf = bindCtrl(element, numberCtrl(val));
-    const usb = subscribe([val, "value"], (v) => {
+    const usb = affected([val, "value"], (v) => {
         if (element && (element.type == "range" || element.type == "number") && typeof element?.valueAsNumber == "number" && isNotEqual(element?.valueAsNumber, v)) {
             element.valueAsNumber = Number(v);
             element?.dispatchEvent?.(new Event("change", { bubbles: true }));
@@ -214,7 +214,7 @@ export const observeSizeLink = (element?: any|null, exists?: any|null, box?: any
     if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
 
     //
-    if (!styles) styles = isValueRef(exists) ? exists : makeReactive({}); let obs: any = null;
+    if (!styles) styles = isValueRef(exists) ? exists : observe({}); let obs: any = null;
     (obs = new ResizeObserver((mut) => {
         if (box == "border-box") {
             styles.inlineSize = `${mut[0].borderBoxSize[0].inlineSize}px`;
@@ -250,7 +250,7 @@ export const orientLink = (host?: any|null, exists?: any|null)=>{
     if (hasValue(val)) val.value = def;
 
     // !Change orientation? You are seious?!
-    //subscribe([exists, "value"], (orient)=>{ // pickup name...
+    //affected([exists, "value"], (orient)=>{ // pickup name...
         //screen?.orientation?.lock?.($NAME$?.(orient));
     //});
 

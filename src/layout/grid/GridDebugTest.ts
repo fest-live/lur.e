@@ -2,7 +2,7 @@
 // Use this to identify why cell calculations return 0 or NaN
 
 import { createDebugGrid, createDebugGridItem, bindInteraction, debugComputeCell } from "./Interact";
-import { makeReactive } from "fest/object";
+import { observe } from "fest/object";
 
 export const runGridDebugTest = () => {
     console.log('=== Starting Grid Debug Test ===');
@@ -16,7 +16,7 @@ export const runGridDebugTest = () => {
     grid.appendChild(item);
 
     // Create mock item data (this is what the grid system expects)
-    const mockItem = makeReactive({
+    const mockItem = observe({
         id: 'test-item',
         cell: [1, 1] // Initial cell position
     });
@@ -63,7 +63,7 @@ export const runGridDebugTest = () => {
             item.style.transform = 'translate(50px, 50px)'; // Simulate drag offset
 
             // Test compute cell during "drag"
-            const dragDebug = debugComputeCell(item, [makeReactive(50), makeReactive(50)]);
+            const dragDebug = debugComputeCell(item, [observe(50), observe(50)]);
             console.log('Debug during simulated drag:', dragDebug);
 
         }, 2000);

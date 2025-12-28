@@ -185,8 +185,8 @@ export class ReactiveMediaQuery {
 
 // Reactive viewport dimensions
 export class ReactiveViewport {
-    static width: ReturnType<typeof numberRef> = numberRef(window?.innerWidth);
-    static height: ReturnType<typeof numberRef> = numberRef(window?.innerHeight);
+    static width: ReturnType<typeof numberRef> = numberRef(typeof window != "undefined" ? window?.innerWidth : 0);
+    static height: ReturnType<typeof numberRef> = numberRef(typeof window != "undefined" ? window?.innerHeight : 0);
 
     static init(): void {
         const updateSize = () => {
@@ -194,7 +194,9 @@ export class ReactiveViewport {
             this.height.value = window?.innerHeight;
         };
 
-        window?.addEventListener('resize', updateSize);
+        if (typeof window != "undefined") {
+            window?.addEventListener?.('resize', updateSize);
+        }
     }
 
     // Get reactive viewport center

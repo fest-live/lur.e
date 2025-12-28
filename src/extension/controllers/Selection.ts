@@ -6,7 +6,7 @@ import {
     rectCenter, rectContainsPoint, rectIntersects, rectArea,
     clampPointToRect, pointToRectDistance, addVector2D, subtractVector2D
 } from "fest/lure";
-import { numberRef, subscribe } from "fest/object";
+import { numberRef, affected } from "fest/object";
 
 export interface SelectionOptions {
     target?: HTMLElement;      // Element to attach selection to (default: document.body)

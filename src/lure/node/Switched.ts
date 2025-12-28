@@ -1,4 +1,4 @@
-import { addToCallChain, subscribe, $trigger } from "fest/object";
+import { addToCallChain, affected, $trigger } from "fest/object";
 import { appendFix, getNode, removeChild, replaceOrSwap } from "../context/Utils";
 import { contextify, isNotEqual, inProxy } from "fest/core";
 import { isElement, isValidParent } from "fest/dom";
@@ -36,7 +36,7 @@ export class SwM implements SwitchedParams {
         this.mapped = params?.mapped ?? mapped ?? [];
 
         //
-        const us = subscribe([params?.current, "value"], (newVal, prop, oldVal) => (this as any)._onUpdate(newVal, prop, oldVal));
+        const us = affected([params?.current, "value"], (newVal, prop, oldVal) => (this as any)._onUpdate(newVal, prop, oldVal));
         if (us) addToCallChain(this, Symbol.dispose, us);
     }
 

@@ -1,4 +1,4 @@
-import { addToCallChain, subscribe, observe } from "fest/object";
+import { addToCallChain, affected, iterated } from "fest/object";
 import { isNotEqual, isPrimitive } from "fest/core";
 
 //
@@ -28,7 +28,7 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
         $entries(attributes).forEach(([prop, value])=>{
             handleAttribute(wel?.deref?.(), prop, value);
         });
-        const usub = subscribe(attributes, (value, prop: any)=>{
+        const usub = affected(attributes, (value, prop: any)=>{
             handleAttribute(wel?.deref?.(), prop, value);
             bindHandler(wel?.deref?.(), value, prop, handleAttribute, weak, true);
         });
@@ -46,7 +46,7 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
         $entries(aria).forEach(([prop, value])=>{
             handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value);
         });
-        const usub = subscribe(aria, (value, prop)=>{ // @ts-ignore
+        const usub = affected(aria, (value, prop)=>{ // @ts-ignore
             handleAttribute(wel?.deref?.(), "aria-"+(prop?.toString?.()||prop||""), value, true);
             bindHandler(wel, value, prop, handleAttribute, weak, true);
         });
@@ -64,7 +64,7 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
         $entries(dataset).forEach(([prop, value])=>{
             handleDataset(wel?.deref?.(), prop, value);
         });
-        const usub = subscribe(dataset, (value, prop: any)=>{
+        const usub = affected(dataset, (value, prop: any)=>{
             handleDataset(wel?.deref?.(), prop, value);
             bindHandler(wel?.deref?.(), value, prop, handleDataset, weak);
         });
@@ -78,13 +78,13 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
 export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (!styles) return element;
     if (typeof styles == "string") { element.style.cssText = styles; } else
-    if (typeof styles?.value == "string") { subscribe([styles, "value"], (val) => { element.style.cssText = val; }); } else
+    if (typeof styles?.value == "string") { affected([styles, "value"], (val) => { element.style.cssText = val; }); } else
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
         $entries(styles).forEach(([prop, value])=>{
             handleStyleChange(wel?.deref?.(), prop, value);
         });
-        const usub = subscribe(styles, (value, prop: any)=>{
+        const usub = affected(styles, (value, prop: any)=>{
             handleStyleChange(wel?.deref?.(), prop, value);
             bindHandler(wel?.deref?.(), value, prop, handleStyleChange, weak?.deref?.());
         });
@@ -115,7 +115,7 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     });
 
     //
-    const usub = subscribe(properties, (value, prop: any) => {
+    const usub = affected(properties, (value, prop: any) => {
         const el = wel.deref();
         if (el) {
             if (prop == "checked") {
@@ -143,7 +143,7 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
         }
     });
 
-    const usub = observe(classList, (value: string)=>{
+    const usub = iterated(classList, (value: string)=>{
         const el = wel?.deref?.();
         if (el) {
             if (typeof value == "undefined" || value == null)
