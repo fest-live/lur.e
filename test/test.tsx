@@ -1,6 +1,6 @@
 // @ts-ignore
-import { observe, assign } from "fest/object";
-import { defineElement, GLitElement, property, S, E, H, createElement } from "fest/lure";
+import { iterated, assign } from "fest/object";
+import { defineElement, GLitElement, property, S, E, H } from "fest/lure";
 
 //
 @defineElement("x-block")
@@ -31,8 +31,8 @@ export class XBlock extends GLitElement() {
 }
 
 //
-const children = observe(["Разруха!"]);//ref("!");
-const style = observe({
+const children = iterated(["Разруха!"]);//ref("!");
+const style = iterated({
     backgroundColor: "darkred",
     color: "white",
     inlineSize: "100px",

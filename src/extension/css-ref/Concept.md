@@ -2,9 +2,9 @@
 
 ## CSS Ref
 
-You not able to listen or subscribe to CSS properties directly.
+You not able to listen or affected to CSS properties directly.
 
-It works internally. You NOT able to use `subscribe` to listen to CSS properties.
+It works internally. You NOT able to use `affected` to listen to CSS properties.
 
 ### Primitives CSS Refs
 
@@ -17,8 +17,8 @@ It works internally. You NOT able to use `subscribe` to listen to CSS properties
   - When trying to read, getting `scrollLeft` and `scrollTop` (based) values.
   - Set value doing `scrollTo`...
   - TODO: needs to implement relative set values (like `scrollBy`).
-  - (Thinking about) `"scroll"` event able to subscribe to, but isn't known about view.
-  - (Thinking about) `IntersectionObserver` able to subscribe to, but isn't known about view.
+  - (Thinking about) `"scroll"` event able to affected to, but isn't known about view.
+  - (Thinking about) `IntersectionObserver` able to affected to, but isn't known about view.
 - `CSS Anchor` binding (wrappers)
   - Have own unique anchor ID.
   - Practically always has anchor element source.

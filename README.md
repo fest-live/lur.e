@@ -85,7 +85,7 @@ document.body.append(el as Node);
 - `bindBeh(element, store, behavior)`: Invoke `behavior` on store changes.
 - `bindCtrl(element, ctrlCb)`: Wire common input/change/click listeners.
 - `bindHandler(element, value, prop, handler, set?, withObserver?)`: Generic bridge for refs → DOM.
-- `bindWith(el, prop, value, handler, set?, withObserver?)`: Apply once and subscribe.
+- `bindWith(el, prop, value, handler, set?, withObserver?)`: Apply once and affected.
 - `bindForms(fields?, wrapper?, state?)`: Two-way bind inputs within a container to a reactive `state`.
 - `$observeInput(element, ref?, prop = "value")`: Sync input property to ref.
 - `$observeAttribute(el, ref?, prop)`: Sync attribute to ref.
@@ -131,9 +131,9 @@ box.attr.id = "app2"; // example of reactive wrapper operations
 `M(observable, mapper)` maps a reactive array/set into DOM. Returns a reactive fragment-like node.
 
 ```ts
-import { makeReactive } from "fest/object";
+import { observe } from "fest/object";
 
-const rxItems = makeReactive(["A", "B", "C"]);
+const rxItems = iterated(["A", "B", "C"]);
 const list = H`<ul>${M(rxItems, (x) => H`<li>${x}</li>`)}</ul>`;
 
 // later
@@ -183,8 +183,8 @@ const items = ["A", "B", "C"];
 const listStatic = H`<ul>${items.map(x => H`<li>${x}</li>`)}</ul>`;
 
 // Reactive list: use M(...)
-import { makeReactive } from "fest/object";
-const rxItems = makeReactive(["A", "B", "C"]);
+import { observe } from "fest/object";
+const rxItems = iterated(["A", "B", "C"]);
 const listReactive = H`<ul>${M(rxItems, (x) => H`<li>${x}</li>`)}</ul>`;
 ```
 
