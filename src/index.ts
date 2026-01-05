@@ -57,6 +57,8 @@ export * from "./layout/orient/OrientBox";
 
 //
 export * from "./extension/color/DynamicEngine";
+export * from "./extension/color/StyleRules"
+export * from "./extension/color/ThemeEngine"
 
 //
 export * from "./extension/space-ref/BBoxAnchor"
