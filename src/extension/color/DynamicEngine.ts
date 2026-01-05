@@ -149,7 +149,17 @@ export const pickFromCenter = (holder)=>{
 
 //
 export const dynamicNativeFrame = (root = document.documentElement)=>{
-    const media = root?.querySelector?.('meta[data-theme-color]') ?? root?.querySelector?.('meta[name="theme-color"]');
+    let media = root?.querySelector?.('meta[data-theme-color]') ?? root?.querySelector?.('meta[name="theme-color"]');
+
+    // Create meta element if it doesn't exist
+    if (!media && root == document.documentElement) {
+        media = document.createElement('meta');
+        media.setAttribute('name', 'theme-color');
+        media.setAttribute('data-theme-color', '');
+        media.setAttribute('content', 'transparent');
+        document.head.appendChild(media);
+    }
+
     const color = pickBgColor(window.innerWidth - 64, 10);
     if ((media || window?.[electronAPI]) && root == document.documentElement) {
         media?.setAttribute?.("content", color);
