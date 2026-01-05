@@ -317,11 +317,17 @@ export const navigate = (view: string, replace: boolean = false) => {
 export const historyViewRef = (initialValue: string = `#${location.hash?.replace?.(/^#/, "") || "home"}`, options: { ignoreBack?: boolean, withoutHashPrefix?: boolean } = {}) => {
     const internal = observe({ value: initialValue }) as unknown as { value: string };
 
+    // Prevent circular updates between history and internal value
+    let isUpdatingFromHistory = false;
+    let isUpdatingFromInternal = false;
+
     // Sync from history to ref
     // The historyState acts as a bridge:
     // 1. User Action (Back/Forward) -> Window 'popstate' -> initHistory listener -> historyState -> This Subscription
     // 2. User Action (Hash Change) -> Window 'hashchange' -> initHistory listener -> historyState -> This Subscription
     affected([historyState, "view"], (view: string) => {
+        if (isUpdatingFromInternal) return; // Prevent circular update
+
         if (options.ignoreBack && historyState.action === "BACK") {
             return;
         }
@@ -332,21 +338,27 @@ export const historyViewRef = (initialValue: string = `#${location.hash?.replace
         }
 
         if (internal.value !== nextValue) {
+            isUpdatingFromHistory = true;
             internal.value = nextValue;
+            isUpdatingFromHistory = false;
         }
     });
 
     // Sync from ref to history
     // Application Action (Programmatic) -> ref.value change -> This Subscription -> navigate() -> pushState() -> historyState
     affected([internal, "value"], (val: string) => {
+        if (isUpdatingFromHistory) return; // Prevent circular update
+
         let viewToNavigate = val;
         if (options.withoutHashPrefix && !val.startsWith("#")) {
             viewToNavigate = `#${val}`;
         }
 
         if (historyState.view !== viewToNavigate) {
+            isUpdatingFromInternal = true;
             // This is a programmatic change, so we PUSH
             navigate(viewToNavigate);
+            isUpdatingFromInternal = false;
         }
     });
 
