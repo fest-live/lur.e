@@ -44,6 +44,7 @@ export * from "./extension/interact/Clipboard"
 export * from "./extension/core/OPFS"
 export * from "./extension/core/Status"
 export * from "./extension/core/Renderer"
+export * from "./extension/core/Base64Data"
 
 //
 export * from "./lure/core/Binding"
