@@ -102,7 +102,25 @@ export function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
 
 //
 export function generateName (length = 8) { let r = ''; const l = characters.length; for ( let i = 0; i < length; i++ ) { r += characters.charAt(Math.floor(Math.random() * l)); }; return r; }
-export function defineElement(name: string, options: any|null|undefined = null) { return function(target: any, key: string) { customElements.define(name, target, options); return target; }; }
+export function defineElement(name: string, options: any|null|undefined = null) {
+    return function(target: any, _key?: string) {
+        try {
+            if (typeof customElements === "undefined" || !name) { return target; }
+            const existing = customElements.get(name);
+            if (existing) { return existing; }
+            customElements.define(name, target, options);
+        } catch (e: any) {
+            // If the tag already exists, keep the existing definition.
+            if (e?.name === "NotSupportedError" || /has already been used|already been defined/i.test(e?.message || "")) {
+                return customElements?.get?.(name) ?? target;
+            }
+            throw e;
+        }
+        return target;
+    };
+}
+
+//
 export function property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {}) {
     return function (target: any, key: string) {
 
@@ -277,14 +295,23 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
         #initialized: boolean = false;
 
         //
-        styles?: any;
-        initialAttributes?: any; // you can set initial attributes
+        // IMPORTANT:
+        // Do NOT declare `styles` / `initialAttributes` as class fields here.
+        // In JS, class fields create OWN properties on the instance (initialized in base class),
+        // which would shadow subclass prototype methods like:
+        //   styles() { ... } / get styles() { ... }
+        //   initialAttributes() { ... } / get initialAttributes() { ... }
+        //
+        // Keeping these as prototype getters preserves the old "undefined by default" behavior
+        // and allows subclass "classic method syntax" overrides to work.
+        get styles(): any { return undefined; }
+        get initialAttributes(): any { return undefined; }
 
         // TODO: @elementRef()
         styleLibs: HTMLStyleElement[] = [];
         adoptedStyleSheets: CSSStyleSheet[] = [];
         styleLayers: ()=>string[] = ()=>[];
-        render = (weak?: WeakRef<any>) => { return document.createElement("slot"); }
+        render(weak?: WeakRef<any>) { return document.createElement("slot"); }
 
         // @ts-ignore
         constructor(...args) {
