@@ -1,15 +1,15 @@
 import { UUIDv4, Promised } from 'fest/core';
 import { observe } from 'fest/object';
+import { createQueuedOptimizedWorkerChannel, QueuedWorkerChannel } from 'fest/uniform';
 
-// @ts-ignore
-import OPFSWorker from './OPFS.worker?worker';
+// Import the OPFS worker using Vite's worker syntax
+import OPFSWorker from './OPFS.uniform.worker.ts?worker';
 
 //
-let worker: any = null;
+let workerChannel: any = null;
 const isServiceWorker = typeof ServiceWorkerGlobalScope !== "undefined" && self instanceof ServiceWorkerGlobalScope;
 
 //
-const pending = new Map();
 const observers = new Map();
 
 let workerInitPromise: Promise<any> | null = null;
@@ -17,41 +17,34 @@ let workerInitPromise: Promise<any> | null = null;
 export const ensureWorker = (): Promise<any> => {
     if (workerInitPromise) return workerInitPromise;
 
-    workerInitPromise = new Promise((resolve) => {
+    workerInitPromise = new Promise(async (resolve) => {
         // In Service Worker context we never instantiate dedicated worker, directHandlers are used instead
         if (typeof Worker !== "undefined" && !isServiceWorker) {
             try {
-                const instance: any = new OPFSWorker();
-                const listen = (instance.addEventListener || instance.addListener || ((n: string, h: any) => instance["on"+n] = h)).bind(instance);
-
-                listen("message", (e: any) => {
-                    if (!e.data || typeof e.data !== 'object') return;
-                    const { id, result, error, type, changes } = e.data;
-
-                    if (type === "observation") {
-                        const obs = observers.get(id);
-                        if (obs) obs(changes);
-                        return;
-                    }
-
-                    if (id && pending.has(id)) {
-                        const { resolve: res, reject: rej } = pending.get(id);
-                        pending.delete(id);
-                        if (error) rej(new Error(error));
-                        else res(result);
-                    }
+                // Create basic worker channel first to test
+                const baseChannel = await createWorkerChannel({
+                    name: "opfs-worker",
+                    script: OPFSWorker
                 });
 
-                worker = instance;
-                resolve(worker);
+                // Create queued optimized worker channel using the base channel
+                workerChannel = new QueuedWorkerChannel("opfs-worker", async () => baseChannel, {
+                    timeout: 30000, // 30 second timeout for file operations (file ops can be slow)
+                    retries: 3,
+                    batching: true, // Enable message batching for better performance
+                    compression: false // File operations don't benefit from compression
+                });
+
+                // Resolve immediately - operations will queue until channel is ready
+                resolve(workerChannel);
             } catch (e) {
-                console.warn("OPFSWorker instantiation failed, falling back to main thread...", e);
-                worker = self;
-                resolve(worker);
+                console.warn("OPFSUniformWorker instantiation failed, falling back to main thread...", e);
+                workerChannel = null;
+                resolve(null);
             }
         } else {
-            worker = self;
-            resolve(worker);
+            workerChannel = null;
+            resolve(null);
         }
     });
 
@@ -182,22 +175,23 @@ export const post = (type: string, payload: any = {}, transfer: any[] = []) => {
         return directHandlers[type](payload);
     }
 
-    return new Promise((resolve, reject) => {
-        const id = UUIDv4();
-        pending.set(id, { resolve, reject });
-
-        ensureWorker().then((w: any) => {
-            try {
-                const transferables = transfer?.filter?.((t)=>(t instanceof ArrayBuffer || t instanceof MessagePort || (typeof ImageBitmap !== "undefined" && t instanceof ImageBitmap) || (typeof OffscreenCanvas !== "undefined" && t instanceof OffscreenCanvas)));
-                w.postMessage({ id, type, payload }, transferables?.length ? transferables : undefined);
-            } catch (err) {
-                pending.delete(id);
-                reject(err);
+    return new Promise(async (resolve, reject) => {
+        try {
+            const channel = await ensureWorker();
+            if (!channel) {
+                // Fallback to direct handlers if no worker channel available
+                if (directHandlers[type]) {
+                    return resolve(directHandlers[type](payload));
+                }
+                return reject(new Error('No worker channel available'));
             }
-        }).catch((err) => {
-            pending.delete(id);
+
+            // Use optimized uniform channel API
+            const result = await channel.request(type, payload);
+            resolve(result);
+        } catch (err) {
             reject(err);
-        });
+        }
     });
 };
 
