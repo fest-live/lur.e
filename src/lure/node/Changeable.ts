@@ -182,7 +182,7 @@ class Ch {
 
 //
 export const C = (observable, mapCb?, boundParent: Node | null | ChangeableOptions = null) => {
-    if (observable == null) return null;
+    if (observable == null) return document.createComment(":NULL:");
     if ((typeof observable == "object" || typeof observable == "function") && hasValue(observable)) {
         // @ts-ignore
         return elMap.getOrInsertComputed(observable, () => {

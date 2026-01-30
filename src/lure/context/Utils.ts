@@ -264,9 +264,8 @@ export const removeNotExists = (element, children, mapper?: Function | null) => 
 
 //
 export const T = (ref) => {
-    if (isPrimitive(ref) && ref != null)
-        { return document.createTextNode(ref); }
-    if (ref == null) return;
+    if (isPrimitive(ref) && ref != null) { return document.createTextNode(ref); }
+    if (ref == null) return document.createComment(":NULL:");
 
     // @ts-ignore
     return tmMap.getOrInsertComputed(ref, () => {
