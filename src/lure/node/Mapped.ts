@@ -1,9 +1,10 @@
-import { iterated } from "fest/object";
+import { iterated, ref } from "fest/object";
 import { $mapped } from "../core/Binding";
-import { getNode, appendFix, removeNotExists } from "../context/Utils";
+import { getNode, appendFix, removeNotExists, removeChild, removeChildDirectly, appendChild } from "../context/Utils";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
 import { canBeInteger, isObservable, isPrimitive, isHasPrimitives } from "fest/core";
 import { isValidParent } from "fest/dom";
+import C from "./Changeable";
 
 //
 interface MappedOptions {
@@ -34,6 +35,9 @@ class Mp {
     #stub = document.createComment("");
 
     //
+    #indexMap: Map<any, any> = new Map();
+
+    //
     #boundParent: Node | null = null;
 
     //
@@ -49,6 +53,8 @@ class Mp {
     get boundParent() {
         return this.#boundParent;
     }
+
+    //
     set boundParent(value: Node | null) {
         if (value instanceof HTMLElement && isValidParent(value) && value != this.#boundParent) {
             this.#boundParent = value; this.makeUpdater(value); const element = this.element;
@@ -214,46 +220,20 @@ class Mp {
 
     //
     _onUpdate(newEl, idx, oldEl, op: string | null = "") {
-        // keep cache clear from garbage (unique primitives mode)
-        if ((op == "@remove" || op == "@set") && isPrimitive(oldEl) && oldEl != newEl && this.#options?.uniquePrimitives)
-            { this.#pmMap.delete(oldEl); }
-
         //
-        const __mapped = asArray(this.#observable); const __keys = Array.from(this.#observable?.keys?.() || []);
-        if (Array.isArray(__mapped) && (this.#options?.removeNotExistsWhenHasPrimitives ? (isHasPrimitives(__mapped) || isPrimitive(oldEl)) : false) && __mapped?.length < 1)
-            { removeNotExists(this.boundParent, __mapped?.map?.((nd, index) => getNode(nd, this.mapper, __keys?.[index] ?? index, this.boundParent)) || []); }
-
-        //
-        const isEmpty = !__mapped || __mapped.length === 0;
-
-        // Don't give (rights) to remove last remain element (DOM), and (instead of) replace it just by `#stub`
-        if (op === "@remove" && isEmpty) {
-            const byOldEl = getNode(oldEl, this.mapper, Number.isInteger(idx) ? idx : -1);
-            if (this.#stub.parentNode !== this.boundParent) {
-                if (byOldEl && this.boundParent && byOldEl.parentNode === this.boundParent) {
-                    this.boundParent.replaceChild(this.#stub, byOldEl);
-                } else if (this.boundParent && !this.boundParent.hasChildNodes()) {
-                    this.boundParent.appendChild(this.#stub);
-                }
-            }
+        if (op == "@add" || (newEl != null && oldEl == null)) {
+            const indexRef = ref(this.#observable, idx);
+            const withElement = C(indexRef);
+            this.#indexMap.set(idx, withElement);
+            appendChild(this.boundParent, withElement, null, idx);
         }
 
         //
-        const byOldEl = getNode(oldEl, this.mapper, Number.isInteger(idx) ? idx : -1);
-        const try0 = Array.from(((byOldEl?.parentNode ?? this.boundParent) as any)?.childNodes || [])?.indexOf?.(byOldEl);
-        const try1 = __mapped?.indexOf?.(newEl);
-        const byNewEl = getNode(newEl, this.mapper, Number.isInteger(idx) ? idx : (try1 < 0 ? idx : try1), this.boundParent);
-
-        //
-        const res = this.#updater?.(
-            byNewEl, Number.isInteger(idx) ? idx : (try0 < 0 ? try1 : try0),
-            byOldEl,
-            op || (Array.isArray(this.#observable) ? "@add" : ""),
-            this.boundParent);
-
-        //
-        if (!isEmpty && this.#stub.isConnected) { this.#stub.remove(); }
-        return res;
+        if (op == "@remove" || (newEl == null && oldEl != null)) {
+            const withElement = this.#indexMap.get(idx);
+            if (withElement) { removeChild(this.boundParent, withElement, null, idx); }
+            this.#indexMap.delete(idx);
+        }
     }
 
     // generator and iterator

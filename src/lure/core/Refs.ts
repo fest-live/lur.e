@@ -1,4 +1,4 @@
-import { stringRef, autoRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger } from "fest/object";
+import { stringRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger, ref } from "fest/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink } from "./Links";
 import { addEvent, getPadding, handleAttribute } from "fest/dom";
 import { elMap } from "./Binding";
@@ -11,7 +11,7 @@ export const makeRef = (host?: any, type?: any, link?: any, ...args)=>{
         const exists = elMap?.get?.(host)?.get?.(handleAttribute)?.get?.(args[0])?.[0];
         if (exists) { return exists; };
     }
-    const rf = (type ?? autoRef)?.(null), usub = link?.(host, rf, ...args);
+    const rf = (type ?? ref)?.(null), usub = link?.(host, rf, ...args);
     if (usub && rf) addToCallChain(rf, Symbol.dispose, usub); return rf;
 }
 
@@ -23,7 +23,7 @@ export const valueAsNumberRef = (host?: any, ...args)=>makeRef(host, numberRef, 
 export const localStorageRef = (...args)=>{
     if (localStorageLinkMap.has(args[0])) return localStorageLinkMap.get(args[0])?.[1];
     const link: any = localStorageLink, type: any = stringRef;
-    const rf = (type ?? autoRef)?.(null), pair = link?.(null, rf, ...args);
+    const rf = (type ?? ref)?.(null), pair = link?.(null, rf, ...args);
     const [usub, _] = pair;
     if (usub && rf) addToCallChain(rf, Symbol.dispose, usub);
     /*localStorageLinkMap.set(args[0], pair);*/ return rf;
@@ -40,7 +40,7 @@ export const hashTargetRef = (...args)=>makeRef(null, stringRef, hashTargetLink,
 //
 export const makeWeakRef = (/*host?: any,*/ initial?: any, behavior?: any)=>{
     const obj = deref(initial);
-    return isValidObj(obj) ? observe(WRef(obj)) : autoRef(obj, behavior);
+    return isValidObj(obj) ? observe(WRef(obj)) : ref(obj, behavior);
 };
 
 //

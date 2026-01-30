@@ -1,4 +1,4 @@
-import { autoRef } from "fest/object";
+import { ref } from "fest/object";
 import { addRoot, isElement, loadAsAdopted, loadInlineStyle, setAttributesIfNull } from "fest/dom";
 
 //
@@ -43,7 +43,7 @@ const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
     if (source == "checked") { return checkedRef.bind(null, holder); }
     if (source == "value") { return valueRef.bind(null, holder); }
     if (source == "value-as-number") { return valueAsNumberRef.bind(null, holder); }
-    return autoRef;
+    return ref;
 }
 
 //

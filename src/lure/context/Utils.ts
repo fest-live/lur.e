@@ -66,7 +66,7 @@ export const $getBase = (el, mapper?: Function | null, index: number = -1, reque
     if (typeof el == "object" && el != null) { return getMapped(el); } else
     if (typeof el == "function") { return $getBase(el?.(), mapper, index, requestor); }  // mapped arrays always empties after
     if (isPrimitive(el) && el != null) return T(el);
-    return null;
+    return document.createComment(":NULL:");
 }
 
 //
@@ -90,7 +90,7 @@ export const $getNode = (el, mapper?: Function | null, index: number = -1, reque
     if (typeof el == "object" && el != null) { return getMapped(el); } else
     if (typeof el == "function") { return getNode(el?.(), mapper, index, requestor); } else
     if (isPrimitive(el) && el != null) return T(el);
-    return null;
+    return document.createComment(":NULL:");
 };
 
 //
