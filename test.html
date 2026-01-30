@@ -4,7 +4,7 @@
         <meta charset="UTF-8" />
         <link rel="icon" type="image/svg+xml" href="/vite.svg" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Vite + TS</title>
+        <title>LUR-E Test Suite</title>
 
         <script>
             WeakMap.prototype.getOrInsert ??= function (key, defaultValue) {
@@ -29,9 +29,19 @@
         </script>
 
         <!-- Note: Import map not needed - Vite handles module resolution via vite.config.js -->
+
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body {
+                font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+                font-size: 13px;
+                background: #0d1117;
+                color: #c9d1d9;
+                line-height: 1.6;
+            }
+        </style>
     </head>
     <body>
-        <div id="app"></div>
-        <script type="module" src="./test/test.tsx"></script>
+        <script type="module" src="./test/index.ts"></script>
     </body>
 </html>

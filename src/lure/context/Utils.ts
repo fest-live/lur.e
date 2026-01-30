@@ -94,25 +94,25 @@ export const $getNode = (el, mapper?: Function | null, index: number = -1, reque
 };
 
 //
+const isWeakCompatible = (el: any)=>{
+    return (typeof el == "object" || typeof el == "function" || typeof el == "symbol") && el != null;
+}
+
+//
 const __nodeGuard = new WeakSet<any>();
 const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
     if (el instanceof WeakRef || typeof (el as any)?.deref == "function") { el = el.deref(); }
     if (el instanceof Promise || typeof (el as any)?.then == "function") { return $makePromisePlaceholder(el, (nd)=>__getNode(nd, mapper, index, requestor)); };
-    if ((typeof el == "object" || typeof el == "function") && !isElement(el)) {
+    if (isWeakCompatible(el) && !isElement(el)) {
         if (elMap.has(el)) {
             const obj: any = getMapped(el) ?? $getBase(el, mapper, index, requestor);
             return $getLeaf(obj instanceof WeakRef ? obj?.deref?.() : obj, requestor);
         };
         const $node = $getBase(el, mapper, index, requestor);
-        if (!mapper && $node != null && $node != el && (typeof el == "object" || typeof el == "function") && !isElement(el)) { elMap.set(el, $node); }
+        if (!mapper && $node != null && $node != el && isWeakCompatible(el) && !isElement(el)) { elMap.set(el, $node); }
         return $getLeaf($node, requestor);
     }
     return $getNode(el, mapper, index, requestor);
-}
-
-//
-const isWeakCompatible = (el: any)=>{
-    return (typeof el == "object" || typeof el == "function" || typeof el == "symbol") && el != null;
 }
 
 // (obj instanceof WeakRef ? obj?.deref?.() : obj)

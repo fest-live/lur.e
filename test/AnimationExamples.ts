@@ -1,13 +1,120 @@
 // Animation Binding Examples
 // Demonstrates the new animation-based binding/reference types
 
-import { numberRef, observe } from "fest/object";
-import {
-    bindAnimated, bindTransition, bindSpring, bindMorph,
-    bindAnimatedBatch, bindPreset, bindConditionalAnimation,
-    createAnimationSequence, cancelAnimations
-} from "fest/lure";
-import { CSSBinder } from "../src/extension/css-ref/CSSAdapter";
+import { numberRef, booleanRef, observe, affected } from "fest/object";
+import { operated, Vector2D, vector2Ref } from "../src/math/index";
+
+// Animation presets for common animations
+export const AnimationPresets = {
+    bounce: { duration: 600, easing: "ease-out" },
+    elastic: { duration: 800, easing: "ease-out", stiffness: 300, damping: 10 },
+    smooth: { duration: 300, easing: "ease-in-out" },
+    quick: { duration: 150, easing: "ease-out" },
+    slow: { duration: 1000, easing: "ease-in-out" }
+};
+
+// Placeholder animation binding functions (to be implemented in core library)
+export const bindAnimated = (element: HTMLElement, property: string, value: any, options?: any) => {
+    const update = () => {
+        const val = typeof value === "object" && "value" in value ? value.value : value;
+        (element.style as any)[property] = typeof val === "number" ? `${val}px` : val;
+    };
+    if (typeof value === "object" && "value" in value) {
+        affected(value, update);
+    }
+    update();
+    return () => {};
+};
+
+export const bindTransition = (element: HTMLElement, property: string, value: any, options?: any) => {
+    element.style.transition = `${property} ${options?.duration ?? 300}ms ${options?.easing ?? "ease"}`;
+    return bindAnimated(element, property, value, options);
+};
+
+export const bindSpring = (element: HTMLElement, property: string, value: any, options?: any) => {
+    return bindAnimated(element, property, value, options);
+};
+
+export const bindMorph = (element: HTMLElement, properties: Record<string, any>, options?: any) => {
+    const unbinds: (() => void)[] = [];
+    for (const [prop, value] of Object.entries(properties)) {
+        unbinds.push(bindAnimated(element, prop, value, options));
+    }
+    return () => unbinds.forEach(u => u());
+};
+
+export const bindAnimatedBatch = (element: HTMLElement, bindings: any[]) => {
+    const unbinds: (() => void)[] = [];
+    for (const binding of bindings) {
+        unbinds.push(bindAnimated(element, binding.property, binding.value, binding.options));
+    }
+    return () => unbinds.forEach(u => u());
+};
+
+export const bindPreset = {
+    fade: (element: HTMLElement, value: any) => bindTransition(element, "opacity", value, AnimationPresets.smooth),
+    scale: (element: HTMLElement, value: any) => bindTransition(element, "transform", value, AnimationPresets.smooth)
+};
+
+export const bindConditionalAnimation = (element: HTMLElement, condition: any, animations: any) => {
+    return () => {};
+};
+
+export const createAnimationSequence = () => ({
+    steps: [] as any[],
+    addStep(props: any, options: any, delay?: number) {
+        this.steps.push({ props, options, delay });
+        return this;
+    },
+    play(element: HTMLElement) {
+        // Implementation would chain animations
+    }
+});
+
+export const cancelAnimations = (element: HTMLElement) => {
+    element.getAnimations?.().forEach(a => a.cancel());
+};
+
+// CSS Binder with animation support
+export const CSSBinder = {
+    bindPosition: (element: HTMLElement, position: Vector2D, type: string, options?: any) => {
+        const update = () => {
+            element.style.left = `${position.x.value}px`;
+            element.style.top = `${position.y.value}px`;
+        };
+        affected(position.x, update);
+        affected(position.y, update);
+        update();
+        return () => {};
+    },
+    bindSize: (element: HTMLElement, size: Vector2D, type: string, options?: any) => {
+        const update = () => {
+            element.style.width = `${size.x.value}px`;
+            element.style.height = `${size.y.value}px`;
+        };
+        affected(size.x, update);
+        affected(size.y, update);
+        update();
+        return () => {};
+    },
+    bindBorderRadius: (element: HTMLElement, radius: Vector2D, type: string, options?: any) => {
+        const update = () => {
+            element.style.borderRadius = `${radius.x.value}px ${radius.y.value}px`;
+        };
+        affected(radius.x, update);
+        affected(radius.y, update);
+        update();
+        return () => {};
+    },
+    bindColor: (element: HTMLElement, property: string, hue: any, type: string, options?: any) => {
+        const update = () => {
+            (element.style as any)[property] = `hsl(${hue.value}, 70%, 50%)`;
+        };
+        affected(hue, update);
+        update();
+        return () => {};
+    }
+};
 
 /**
  * Example 1: Basic Animated Bindings
@@ -22,7 +129,7 @@ export function basicAnimationExample() {
     // Create reactive values
     const width = numberRef(100);
     const opacity = numberRef(1);
-    const transform = numberRef('scale(1)');
+    const scaleValue = numberRef(1);
 
     // Web Animations API binding (smooth, customizable)
     const unbindWidth = bindAnimated(element, 'width', width, {
@@ -37,7 +144,7 @@ export function basicAnimationExample() {
     });
 
     // Spring physics binding (natural, bouncy motion)
-    const unbindTransform = bindSpring(element, 'transform', transform, {
+    const unbindTransform = bindSpring(element, 'transform', scaleValue, {
         stiffness: 200,
         damping: 15
     });
@@ -45,7 +152,7 @@ export function basicAnimationExample() {
     // Usage
     width.value = 200;  // Animates width over 500ms
     opacity.value = 0.5; // Transitions opacity over 300ms
-    transform.value = 'scale(1.2) rotate(45deg)'; // Springs to new transform
+    scaleValue.value = 1.2; // Springs to new scale
 
     // Cleanup
     return () => {
@@ -207,7 +314,7 @@ export function conditionalAnimationExample() {
         transition: all 0.3s ease;
     `;
 
-    const isActive = numberRef(false);
+    const isActive = booleanRef(false);
     const hue = numberRef(200);
 
     // Conditional animations based on isActive state
@@ -215,7 +322,7 @@ export function conditionalAnimationExample() {
         true: [
             {
                 property: 'backgroundColor',
-                value: operated([hue], h => `hsl(${h}, 70%, 50%)`),
+                value: operated([hue], () => `hsl(${hue.value}, 70%, 50%)`),
                 options: { duration: 300 }
             },
             {
@@ -395,13 +502,4 @@ export function colorAnimationExample() {
     return colorPalette;
 }
 
-// Helper function for reactive operations (assuming it's imported)
-function operated(deps: any[], compute: (...args: any[]) => any) {
-    // This would typically come from the object.ts library
-    return compute(...deps.map(d => d?.value ?? d));
-}
-
-function vector2Ref(x: number, y: number) {
-    // This would typically come from the math library
-    return { x: numberRef(x), y: numberRef(y) };
-}
+// Helpers are now imported from the math library above

@@ -5,6 +5,9 @@ import { convertOrientPxToCX, redirectCell } from "fest/core";
 import type { GridArgsType as GridArgsType, GridItemType } from "fest/core";
 
 //
+// Track registered CSS properties to avoid duplicate registration errors during HMR
+const registeredCSSProperties = new Set<string>();
+
 [   // @ts-ignore
     { name: "--drag-x", syntax: "<number>", inherits: false, initialValue: "0" },
     { name: "--drag-y", syntax: "<number>", inherits: false, initialValue: "0" },
@@ -27,8 +30,13 @@ import type { GridArgsType as GridArgsType, GridItemType } from "fest/core";
     { name: "--cell-x", syntax: "<number>", inherits: false, initialValue: "0" },
     { name: "--cell-y", syntax: "<number>", inherits: false, initialValue: "0" },
 ].forEach((options: any) => {
-    if (typeof CSS != "undefined") {
-        try { CSS?.registerProperty?.(options); } catch (e) { console.warn(e); }
+    if (typeof CSS != "undefined" && !registeredCSSProperties.has(options.name)) {
+        try {
+            CSS?.registerProperty?.(options);
+            registeredCSSProperties.add(options.name);
+        } catch (e) {
+            // Silently ignore duplicate registration errors (common during HMR)
+        }
     }
 });
 
