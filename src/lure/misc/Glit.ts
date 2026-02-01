@@ -166,9 +166,13 @@ export function property({attribute, source, name, from}: { attribute?: string|b
                     }
                 } else
                 if (typeof stored == "object" || typeof stored == "function") {
-                    if (typeof newValue == 'object' && newValue != null && ((newValue?.value == null && !("value" in newValue)) || typeof newValue?.value == "object" || typeof newValue?.value == "function"))
-                        { Object.assign(stored, newValue?.value ?? newValue); } else
-                        { stored.value = ((typeof newValue == 'object' || typeof newValue == 'function') ? (newValue?.value) : null) ?? newValue; }
+                    try {
+                        if (typeof newValue == 'object' && newValue != null && ((newValue?.value == null && !("value" in newValue)) || typeof newValue?.value == "object" || typeof newValue?.value == "function"))
+                            { Object.assign(stored, newValue?.value ?? newValue); } else
+                            { stored.value = ((typeof newValue == 'object' || typeof newValue == 'function') ? (newValue?.value) : null) ?? newValue; }
+                    } catch (e) {
+                        console.warn("Error setting property value:", e);
+                    }
                 }
             },
             enumerable: true,
