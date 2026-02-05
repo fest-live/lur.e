@@ -1,7 +1,6 @@
 import { ref } from "fest/object";
 import { addRoot, isElement, loadAsAdopted, loadInlineStyle, setAttributesIfNull } from "fest/dom";
 
-//
 import {
     valueAsNumberRef,
     localStorageRef,
@@ -13,46 +12,58 @@ import {
     attrRef
 } from "../../lure/core/Refs";
 
-//
 import { Q } from "../../lure/node/Queried";
 import { E } from "../../lure/node/Bindings";
 import { H } from "../../lure/node/Syntax";
 
 //
-const styleCache    = new Map(), styleElementCache = new WeakMap();
-const propStore     = new WeakMap<object, Map<string, any>>(), CSM = new WeakMap();
-const camelToKebab  = (str ) => { return str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase(); }
-const kebabToCamel  = (str ) => { return str.replace(/-([a-z])/g, (_, char) => char.toUpperCase()); }
-const whenBoxValid  = (name) => { const cb = camelToKebab(name); if (["border-box", "content-box", "device-pixel-content-box"].indexOf(cb) >= 0) return cb; return null; }
-const whenAxisValid = (name) => { const cb = camelToKebab(name); if (cb?.startsWith?.("inline")) { return "inline"; }; if (cb?.startsWith?.("block")) { return "block"; }; return null; }
-const characters    = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-const inRenderKey   = Symbol.for("@render@"), defKeys = Symbol.for("@defKeys@");
-const defaultStyle = typeof document != "undefined" ? document?.createElement?.("style") : null;
-const defineSource  = (source: string|any, holder: any, name?: string|null)=>{
-    if (source == "attr")  { return attrRef.bind(null, holder, name || ""); }
-    if (source == "media") { return matchMediaRef; }
-    if (source == "query")        { return (val)=>Q?.(name || val || "", holder); }
-    if (source == "query-shadow") { return (val)=>Q?.(name || val || "", holder?.shadowRoot ?? holder); }
-    if (source == "localStorage") { return localStorageRef; }
-    if (source == "inline-size") { return sizeRef.bind(null, holder, "inline", whenBoxValid(name) || "border-box"); }
-    if (source == "content-box") { return sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "content-box"); }
-    if (source == "block-size") { return sizeRef.bind(null, holder, "block", whenBoxValid(name) || "border-box"); }
-    if (source == "border-box") { return sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "border-box"); }
-    if (source == "scroll") { return scrollRef.bind(null, holder, whenAxisValid(name) || "inline"); }
-    if (source == "device-pixel-content-box") { sizeRef.bind(null, holder, whenAxisValid(name) || "inline", "device-pixel-content-box"); }
-    if (source == "checked") { return checkedRef.bind(null, holder); }
-    if (source == "value") { return valueRef.bind(null, holder); }
-    if (source == "value-as-number") { return valueAsNumberRef.bind(null, holder); }
-    return ref;
-}
+const styleCache = new Map();
+const styleElementCache = new WeakMap();
+const propStore = new WeakMap<object, Map<string, any>>();
+const CSM = new WeakMap<WeakKey | HTMLElement, any>();
 
-//
+const camelToKebab = (str: string) => str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+const kebabToCamel = (str: string) => str.replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+const whenBoxValid = (name: string) => {
+    const cb = camelToKebab(name);
+    if (["border-box", "content-box", "device-pixel-content-box"].indexOf(cb) >= 0) return cb;
+    return null;
+};
+const whenAxisValid = (name: string) => {
+    const cb = camelToKebab(name);
+    if (cb?.startsWith?.("inline")) return "inline";
+    if (cb?.startsWith?.("block")) return "block";
+    return null;
+};
+
+const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+const inRenderKey = Symbol.for("@render@");
+const defKeys = Symbol.for("@defKeys@");
+const defaultStyle = typeof document != "undefined" ? document?.createElement?.("style") : null;
+
+const defineSource = (source: string | any, holder: any, name?: string | null) => {
+    if (source == "attr") return attrRef.bind(null, holder, name || "");
+    if (source == "media") return matchMediaRef;
+    if (source == "query") return (val: string) => Q?.(name || val || "", holder);
+    if (source == "query-shadow") return (val: string) => Q?.(name || val || "", holder?.shadowRoot ?? holder);
+    if (source == "localStorage") return localStorageRef;
+    if (source == "inline-size") return sizeRef.bind(null, holder, "inline", whenBoxValid(name!) || "border-box");
+    if (source == "content-box") return sizeRef.bind(null, holder, whenAxisValid(name!) || "inline", "content-box");
+    if (source == "block-size") return sizeRef.bind(null, holder, "block", whenBoxValid(name!) || "border-box");
+    if (source == "border-box") return sizeRef.bind(null, holder, whenAxisValid(name!) || "inline", "border-box");
+    if (source == "scroll") return scrollRef.bind(null, holder, whenAxisValid(name!) || "inline");
+    if (source == "device-pixel-content-box") return sizeRef.bind(null, holder, whenAxisValid(name!) || "inline", "device-pixel-content-box");
+    if (source == "checked") return checkedRef.bind(null, holder);
+    if (source == "value") return valueRef.bind(null, holder);
+    if (source == "value-as-number") return valueAsNumberRef.bind(null, holder);
+    return ref;
+};
+
 if (defaultStyle) {
     typeof document != "undefined" ? document.querySelector?.("head")?.appendChild?.(defaultStyle) : null;
 }
 
-//
-const getDef = (source?: string|any|null): any =>{
+const getDef = (source?: string | any | null): any => {
     if (source == "query") return "input";
     if (source == "query-shadow") return "input";
     if (source == "media") return false;
@@ -68,51 +79,129 @@ const getDef = (source?: string|any|null): any =>{
     if (source == "value") return "";
     if (source == "value-as-number") return 0;
     return null;
-}
+};
 
-//
 if (defaultStyle) {
     defaultStyle.innerHTML = `@layer ux-preload {
         :host { display: none; }
-    }`
+    }`;
 }
 
-//
-export function withProperties<T extends { new(...args: any[]): {} }>(ctr: T) {
-    const $init = (ctr?.prototype ?? ctr)?.$init ?? (ctr as any)?.$init;
+// ============================================
+// ТИПЫ ДЛЯ WEB COMPONENTS LIFECYCLE
+// ============================================
 
-    //
-    (ctr?.prototype ?? ctr).$init ??= function (...args) {
-        const self = this; $init?.call?.(self, ...args);
+/**
+ * Интерфейс lifecycle callbacks для Custom Elements
+ */
+export interface CustomElementLifecycle {
+    connectedCallback?(): this|void|undefined;
+    disconnectedCallback?(): this|void|undefined;
+    adoptedCallback?(): this|void|undefined;
+    attributeChangedCallback?(name: string, oldValue: string | null, newValue: string | null): this|void|undefined;
+}
 
-        //
-        const defs = self?.[defKeys] ?? ctr?.prototype?.[defKeys] ?? ctr?.[defKeys];
+/**
+ * Статические свойства Custom Element
+ */
+export interface CustomElementStatic {
+    observedAttributes?: string[];
+    formAssociated?: boolean;
+}
+
+/**
+ * Базовый интерфейс для Custom Element с lifecycle
+ */
+export interface CustomElementBase extends HTMLElement, CustomElementLifecycle {}
+
+/**
+ * Интерфейс для расширенных свойств GLitElement
+ */
+export interface GLitElementInstance extends CustomElementLifecycle {
+    styles?: any;
+    initialAttributes?: Record<string, any> | (() => Record<string, any>);
+    styleLibs: HTMLStyleElement[];
+    adoptedStyleSheets: CSSStyleSheet[];
+    styleLayers(): string[];
+    render(weak?: WeakRef<any>): HTMLElement | DocumentFragment | Node;
+    onInitialize(weak?: WeakRef<any>): this|void|undefined;
+    onRender(weak?: WeakRef<any>): this|void|undefined;
+    loadStyleLibrary(module: any): this|void|undefined;
+    createShadowRoot(): ShadowRoot;
+    $init?(): void;
+}
+
+/**
+ * Тип конструктора для HTMLElement и его наследников с поддержкой lifecycle
+ */
+export type HTMLElementConstructor<T extends HTMLElement = HTMLElement> = {
+    new(...args: any[]): T & CustomElementLifecycle;
+    prototype: T & CustomElementLifecycle;
+} & CustomElementStatic;
+
+/**
+ * Тип для результата GLitElement - конструктор с полной поддержкой lifecycle
+ */
+export type GLitElementConstructor<T extends HTMLElement = HTMLElement> = {
+    new(...args: any[]): T & GLitElementInstance;
+    prototype: T & GLitElementInstance;
+} & CustomElementStatic;
+
+/**
+ * Тип для класса, который можно расширять
+ */
+export type GLitElementClass<T extends HTMLElement = HTMLElement> = 
+    GLitElementConstructor<T> & {
+        new(...args: any[]): T & GLitElementInstance & CustomElementLifecycle;
+    };
+
+// ============================================
+// ДЕКОРАТОРЫ И УТИЛИТЫ
+// ============================================
+
+export function withProperties<T extends HTMLElementConstructor>(ctr: T): T {
+    const proto = ctr.prototype as any;
+    const $init = proto.$init;
+
+    proto.$init = function (this: any, ...args: any[]) {
+        $init?.call?.(this, ...args);
+
+        const defs = this?.[defKeys] ?? proto?.[defKeys];
         if (defs != null) {
             Object.entries(defs).forEach(([key, def]) => {
-                const exists = self[key];
-                if (def != null) { Object.defineProperty(self, key, def as any); };
-                self[key] = exists || self[key];
+                const exists = this[key];
+                if (def != null) {
+                    Object.defineProperty(this, key, def as PropertyDescriptor);
+                }
+                this[key] = exists || this[key];
             });
-        };
+        }
 
-        //
-        return self;
-    }; return ctr;
+        return this;
+    };
+
+    return ctr;
 }
 
-//
-export function generateName (length = 8) { let r = ''; const l = characters.length; for ( let i = 0; i < length; i++ ) { r += characters.charAt(Math.floor(Math.random() * l)); }; return r; }
-export function defineElement(name: string, options: any|null|undefined = null) {
-    return function(target: any, _key?: string) {
+export function generateName(length = 8) {
+    let r = '';
+    const l = characters.length;
+    for (let i = 0; i < length; i++) {
+        r += characters.charAt(Math.floor(Math.random() * l));
+    }
+    return r;
+}
+
+export function defineElement(name: string, options?: ElementDefinitionOptions) {
+    return function <T extends HTMLElementConstructor>(target: T, _key?: string): T {
         try {
-            if (typeof customElements === "undefined" || !name) { return target; }
+            if (typeof customElements === "undefined" || !name) return target;
             const existing = customElements.get(name);
-            if (existing) { return existing; }
-            customElements.define(name, target, options);
+            if (existing) return existing as unknown as T;
+            customElements.define(name, target as unknown as CustomElementConstructor, options);
         } catch (e: any) {
-            // If the tag already exists, keep the existing definition.
             if (e?.name === "NotSupportedError" || /has already been used|already been defined/i.test(e?.message || "")) {
-                return customElements?.get?.(name) ?? target;
+                return (customElements?.get?.(name) ?? target) as T;
             }
             throw e;
         }
@@ -120,56 +209,75 @@ export function defineElement(name: string, options: any|null|undefined = null) 
     };
 }
 
-//
-export function property({attribute, source, name, from}: { attribute?: string|boolean, source?: string|any, name?: string|null, from?: any|null } = {}) {
+export interface PropertyOptions {
+    attribute?: string | boolean;
+    source?: string | any;
+    name?: string | null;
+    from?: any | null;
+}
+
+export function property(options: PropertyOptions = {}) {
+    const { attribute, source, name, from } = options;
+
     return function (target: any, key: string) {
+        const attrName = typeof attribute == "string" ? attribute : (name ?? key);
 
-        //
-        if ((attribute ??= name ?? key) != null) {
-            if (!target.observedAttributes) { target.observedAttributes = []; };
-            const atn = typeof attribute == "string" ? attribute : (name ?? key);
-            if (target.observedAttributes.indexOf(atn) < 0) target.observedAttributes.push(atn);
-        };
+        if (attribute !== false && attrName != null) {
+            const ctor = target.constructor;
+            if (!ctor.observedAttributes) {
+                ctor.observedAttributes = [];
+            }
+            if (ctor.observedAttributes.indexOf(attrName) < 0) {
+                ctor.observedAttributes.push(attrName);
+            }
+        }
 
-        //
         if (!target[defKeys]) target[defKeys] = {};
-        target[defKeys][key] = {
-            get() {
-                const ROOT = this;
-                const inRender = ROOT[inRenderKey], sourceTarget = !from ? ROOT :(from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT));
 
-                //
-                let store = propStore.get(ROOT), stored = store?.get?.(key);
+        target[defKeys][key] = {
+            get(this: any) {
+                const ROOT = this;
+                const inRender = ROOT[inRenderKey];
+                const sourceTarget = !from ? ROOT : (from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT));
+
+                let store = propStore.get(ROOT);
+                let stored = store?.get?.(key);
+
                 if (stored == null && source != null) {
-                    if (!store) { propStore.set(ROOT, store = new Map()); }
+                    if (!store) {
+                        propStore.set(ROOT, store = new Map());
+                    }
                     if (!store?.has?.(key)) {
-                        //if (source == "attr" && !inRender) store?.set?.(key, autoRef(getDef(source)));
                         store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source)));
                     }
                 }
 
-                //
                 if (inRender) return stored;
-                if (stored?.element instanceof HTMLElement) { return stored?.element; };
+                if (stored?.element instanceof HTMLElement) return stored?.element;
                 return ((typeof stored == "object" || typeof stored == "function") && (stored?.value != null || "value" in stored)) ? stored?.value : stored;
             },
-            set(newValue: any) {
+            set(this: any, newValue: any) {
                 const ROOT = this;
                 const sourceTarget = !from ? ROOT : (from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT));
 
-                //
-                let store = propStore.get(ROOT), stored = store?.get?.(key);
+                let store = propStore.get(ROOT);
+                let stored = store?.get?.(key);
+
                 if (stored == null && source != null) {
-                    if (!store) { propStore.set(ROOT, store = new Map()); }
-                    if (!store?.has?.(key)) {
-                        store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.((((typeof newValue == 'object' || typeof newValue == 'function') ? (newValue?.value) : null) ?? newValue) ?? getDef(source)));
+                    if (!store) {
+                        propStore.set(ROOT, store = new Map());
                     }
-                } else
-                if (typeof stored == "object" || typeof stored == "function") {
+                    if (!store?.has?.(key)) {
+                        const initialValue = (((typeof newValue == 'object' || typeof newValue == 'function') ? (newValue?.value) : null) ?? newValue) ?? getDef(source);
+                        store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(initialValue));
+                    }
+                } else if (typeof stored == "object" || typeof stored == "function") {
                     try {
-                        if (typeof newValue == 'object' && newValue != null && ((newValue?.value == null && !("value" in newValue)) || typeof newValue?.value == "object" || typeof newValue?.value == "function"))
-                            { Object.assign(stored, newValue?.value ?? newValue); } else
-                            { stored.value = ((typeof newValue == 'object' || typeof newValue == 'function') ? (newValue?.value) : null) ?? newValue; }
+                        if (typeof newValue == 'object' && newValue != null && ((newValue?.value == null && !("value" in newValue)) || typeof newValue?.value == "object" || typeof newValue?.value == "function")) {
+                            Object.assign(stored, newValue?.value ?? newValue);
+                        } else {
+                            stored.value = ((typeof newValue == 'object' || typeof newValue == 'function') ? (newValue?.value) : null) ?? newValue;
+                        }
                     } catch (e) {
                         console.warn("Error setting property value:", e);
                     }
@@ -177,12 +285,16 @@ export function property({attribute, source, name, from}: { attribute?: string|b
             },
             enumerable: true,
             configurable: true,
-        }
-    }
+        };
+    };
 }
 
-//
+// ============================================
+// СТИЛИ
+// ============================================
+
 const adoptedStyleSheetsCache = new WeakMap<object, CSSStyleSheet[]>();
+
 const addAdoptedSheetToElement = (bTo: any, sheet: CSSStyleSheet) => {
     let adoptedSheets = adoptedStyleSheetsCache.get(bTo);
     if (!adoptedSheets) {
@@ -192,11 +304,14 @@ const addAdoptedSheetToElement = (bTo: any, sheet: CSSStyleSheet) => {
         adoptedSheets.push(sheet);
     }
     if (bTo.shadowRoot) {
-        bTo.shadowRoot.adoptedStyleSheets = [...(bTo.shadowRoot.adoptedStyleSheets || []), ...adoptedSheets.filter(s => !bTo.shadowRoot.adoptedStyleSheets?.includes(s))];
+        bTo.shadowRoot.adoptedStyleSheets = [
+            ...(bTo.shadowRoot.adoptedStyleSheets || []),
+            ...adoptedSheets.filter((s: CSSStyleSheet) => !bTo.shadowRoot.adoptedStyleSheets?.includes(s))
+        ];
     }
 };
 
-export const loadCachedStyles = (bTo, src) => {
+export const loadCachedStyles = (bTo: any, src: any): HTMLStyleElement | null => {
     if (!src) return null;
 
     let resolvedSrc = src;
@@ -216,13 +331,13 @@ export const loadCachedStyles = (bTo, src) => {
     }
 
     if (resolvedSrc instanceof Promise) {
-        resolvedSrc.then((result) => {
+        resolvedSrc.then((result: any) => {
             if (result instanceof CSSStyleSheet) {
                 addAdoptedSheetToElement(bTo, result);
             } else if (result != null) {
                 loadCachedStyles(bTo, result);
             }
-        }).catch((e) => {
+        }).catch((e: any) => {
             console.warn("Error loading adopted stylesheet:", e);
         });
         return null;
@@ -236,15 +351,18 @@ export const loadCachedStyles = (bTo, src) => {
                 adoptedStyleSheetsCache.set(bTo, adoptedSheets = []);
             }
             const addAdoptedSheet = (sheet: CSSStyleSheet) => {
-                if (sheet && adoptedSheets.indexOf(sheet) < 0) {
-                    adoptedSheets.push(sheet);
+                if (sheet && adoptedSheets!.indexOf(sheet) < 0) {
+                    adoptedSheets!.push(sheet);
                 }
                 if (bTo.shadowRoot) {
-                    bTo.shadowRoot.adoptedStyleSheets = [...(bTo.shadowRoot.adoptedStyleSheets || []), ...adoptedSheets.filter(s => !bTo.shadowRoot.adoptedStyleSheets?.includes(s))];
+                    bTo.shadowRoot.adoptedStyleSheets = [
+                        ...(bTo.shadowRoot.adoptedStyleSheets || []),
+                        ...adoptedSheets!.filter((s: CSSStyleSheet) => !bTo.shadowRoot.adoptedStyleSheets?.includes(s))
+                    ];
                 }
             };
             if (adopted instanceof Promise) {
-                adopted.then(addAdoptedSheet).catch((e) => {
+                adopted.then(addAdoptedSheet).catch((e: any) => {
                     console.warn("Error loading adopted stylesheet:", e);
                 });
                 return null;
@@ -256,9 +374,14 @@ export const loadCachedStyles = (bTo, src) => {
     }
 
     const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache);
-    const cached = source.get(src); let styleElement = cached?.styleElement, vars = cached?.vars;
+    const cached = source.get(src);
+    let styleElement = cached?.styleElement;
+    let vars = cached?.vars;
+
     if (!cached) {
-        const weak = new WeakRef(bTo); let styles = ``, props = [];
+        let styles = ``;
+        let props: any[] = [];
+
         if (typeof resolvedSrc == "string") {
             styles = resolvedSrc || "";
         } else if (typeof resolvedSrc == "object" && resolvedSrc != null) {
@@ -270,78 +393,153 @@ export const loadCachedStyles = (bTo, src) => {
                 vars = (resolvedSrc as any)?.vars ?? vars;
             }
         }
+
         if (!styleElement && styles) {
             styleElement = loadInlineStyle(styles, bTo, "ux-layer");
         }
+
         source.set(src, { css: styles, props, vars, styleElement });
     }
-    return styleElement;
-}
 
-//
-export const isNotExtended = (el: HTMLElement)=>{
+    return styleElement;
+};
+
+export const isNotExtended = (el: HTMLElement): boolean => {
     return !(
         (el instanceof HTMLDivElement) ||
         (el instanceof HTMLImageElement) ||
         (el instanceof HTMLVideoElement) ||
-        (el instanceof HTMLCanvasElement)) &&
-        !(el?.hasAttribute?.("is") || el?.getAttribute?.("is") != null);
-}
+        (el instanceof HTMLCanvasElement)
+    ) && !(el?.hasAttribute?.("is") || el?.getAttribute?.("is") != null);
+};
 
-//
 export const customElement = defineElement;
-export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(derivate: (any extends T ? any : T) = HTMLElement) => {
-    // @ts-ignore // !experimental `getOrInsert` feature!
-    return CSM.getOrInsertComputed(derivate, ()=>withProperties(class EX extends derivate {
-        #shadowDOM?: any|null;
+
+// ============================================
+// ГЛАВНАЯ ФУНКЦИЯ GLitElement
+// ============================================
+
+/**
+ * GLitElement: Создаёт базовый класс для кастомных элементов с расширенными возможностями.
+ * Поддерживает все lifecycle callbacks Web Components.
+ * 
+ * @param derivate - Базовый класс для расширения (по умолчанию HTMLElement).
+ * @returns Конструктор расширенного класса с полной поддержкой lifecycle.
+ * 
+ * @example
+ * ```typescript
+ * // Базовое использование
+ * class MyElement extends GLitElement() {
+ *     connectedCallback() {
+ *         super.connectedCallback();
+ *         console.log('Connected!');
+ *     }
+ *     
+ *     render() {
+ *         return H`<div>Hello</div>`;
+ *     }
+ * }
+ * 
+ * // С наследованием от другого элемента
+ * class MyButton extends GLitElement(HTMLButtonElement) {
+ *     static observedAttributes = ['disabled'];
+ *     
+ *     attributeChangedCallback(name, oldVal, newVal) {
+ *         console.log(`${name} changed from ${oldVal} to ${newVal}`);
+ *     }
+ * }
+ * 
+ * // С декоратором
+ * @defineElement('my-element')
+ * class MyElement extends GLitElement() {
+ *     @property({ source: 'attr', name: 'value' })
+ *     value: string = '';
+ *     
+ *     disconnectedCallback() {
+ *         console.log('Disconnected!');
+ *     }
+ * }
+ * ```
+ */
+export function GLitElement<T extends HTMLElement = HTMLElement>(
+    derivate?: HTMLElementConstructor<T>
+): GLitElementClass<T> {
+    const Base = (derivate ?? HTMLElement) as HTMLElementConstructor<T>;
+
+    // Проверяем кэш
+    const cached = CSM.get(Base);
+    if (cached) return cached as GLitElementClass<T>;
+
+    /**
+     * Внутренний класс с полной реализацией lifecycle
+     */
+    abstract class GLitElementImpl extends (Base as unknown as new (...args: any[]) => HTMLElement & CustomElementLifecycle) implements GLitElementInstance {
+        #shadowDOM?: ShadowRoot | null;
         #styleElement?: HTMLStyleElement;
         #defaultStyle?: HTMLStyleElement;
         #initialized: boolean = false;
 
-        //
-        // IMPORTANT:
-        // Do NOT declare `styles` / `initialAttributes` as class fields here.
-        // In JS, class fields create OWN properties on the instance (initialized in base class),
-        // which would shadow subclass prototype methods like:
-        //   styles() { ... } / get styles() { ... }
-        //   initialAttributes() { ... } / get initialAttributes() { ... }
-        //
-        // Keeping these as prototype getters preserves the old "undefined by default" behavior
-        // and allows subclass "classic method syntax" overrides to work.
-        get styles(): any { return undefined; }
-        get initialAttributes(): any { return undefined; }
-
-        // TODO: @elementRef()
         styleLibs: HTMLStyleElement[] = [];
         adoptedStyleSheets: CSSStyleSheet[] = [];
-        styleLayers: ()=>string[] = ()=>[];
-        render(weak?: WeakRef<any>) { return document.createElement("slot"); }
 
-        // @ts-ignore
-        constructor(...args) {
-            super();
+        // Геттеры для переопределения в подклассах
+        get styles(): any { return undefined; }
+        get initialAttributes(): Record<string, any> | (() => Record<string, any>) | undefined { return undefined; }
+
+        styleLayers(): string[] { return []; }
+
+        render(_weak?: WeakRef<any>): HTMLElement | DocumentFragment | Node {
+            return document.createElement("slot");
+        }
+
+        constructor(...args: any[]) {
+            super(...args);
             if (isNotExtended(this)) {
-                const shadowRoot  = addRoot(this.shadowRoot ?? this.createShadowRoot?.() ?? this.attachShadow({ mode: "open" }));
-                const defStyle    = (this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
+                const shadowRoot = addRoot(
+                    this.shadowRoot ?? 
+                    (this as any).createShadowRoot?.() ?? 
+                    this.attachShadow({ mode: "open" })
+                );
+                const defStyle = (this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
                 const layersStyle = shadowRoot.querySelector(`style[data-type="ux-layer"]`);
-                if (layersStyle) { layersStyle.after(defStyle); } else { shadowRoot.prepend(defStyle); }
+                if (layersStyle) {
+                    layersStyle.after(defStyle);
+                } else {
+                    shadowRoot.prepend(defStyle);
+                }
             }
             this.styleLibs ??= [];
         }
 
-        //
-        protected $makeLayers() { return `@layer ${["ux-preload", "ux-layer", ...(this.styleLayers?.call?.(this) ?? [])].join?.(",") ?? ""};`; }
-        protected $init?: ()=>void;
+        protected $makeLayers(): string {
+            return `@layer ${["ux-preload", "ux-layer", ...(this.styleLayers?.() ?? [])].join?.(",") ?? ""};`;
+        }
 
-        //
-        protected onInitialize(weak?: WeakRef<any>) { return this; }
-        protected onRender(weak?: WeakRef<any>) { return this; }
-        protected getProperty(key: string) { const current = this[inRenderKey]; this[inRenderKey] = true; const cp = this[key]; this[inRenderKey] = current; if (!current) { delete this[inRenderKey]; } return cp; }
+        $init?(): void;
 
-        //
-        public loadStyleLibrary($module) {
+        onInitialize(_weak?: WeakRef<any>): this {
+            return this;
+        }
+
+        onRender(_weak?: WeakRef<any>): this {
+            return this;
+        }
+
+        protected getProperty(key: string): any {
+            const current = (this as any)[inRenderKey];
+            (this as any)[inRenderKey] = true;
+            const cp = (this as any)[key];
+            (this as any)[inRenderKey] = current;
+            if (!current) {
+                delete (this as any)[inRenderKey];
+            }
+            return cp;
+        }
+
+        loadStyleLibrary($module: any): this {
             const root = this.shadowRoot;
             const module = typeof $module == "function" ? $module?.(root) : $module;
+
             if (module instanceof HTMLStyleElement) {
                 this.styleLibs?.push?.(module);
                 if (this.#styleElement?.isConnected) {
@@ -358,7 +556,10 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
                     adoptedSheets.push(module);
                 }
                 if (root) {
-                    root.adoptedStyleSheets = [...(root.adoptedStyleSheets || []), ...adoptedSheets.filter(s => !root.adoptedStyleSheets?.includes(s))];
+                    root.adoptedStyleSheets = [
+                        ...(root.adoptedStyleSheets || []),
+                        ...adoptedSheets.filter((s: CSSStyleSheet) => !root.adoptedStyleSheets?.includes(s))
+                    ];
                 }
             } else {
                 const adopted = loadAsAdopted(module, "ux-layer");
@@ -367,61 +568,149 @@ export const GLitElement = <T extends typeof HTMLElement = typeof HTMLElement>(d
                     adoptedStyleSheetsCache.set(this, adoptedSheets = []);
                 }
                 const addAdoptedSheet = (sheet: CSSStyleSheet) => {
-                    if (sheet && adoptedSheets.indexOf(sheet) < 0) {
-                        adoptedSheets.push(sheet);
+                    if (sheet && adoptedSheets!.indexOf(sheet) < 0) {
+                        adoptedSheets!.push(sheet);
                     }
                     if (root) {
-                        root.adoptedStyleSheets = [...(root.adoptedStyleSheets || []), ...adoptedSheets.filter(s => !root.adoptedStyleSheets?.includes(s))];
+                        root.adoptedStyleSheets = [
+                            ...(root.adoptedStyleSheets || []),
+                            ...adoptedSheets!.filter((s: CSSStyleSheet) => !root.adoptedStyleSheets?.includes(s))
+                        ];
                     }
                 };
                 if (adopted instanceof Promise) {
-                    adopted.then(addAdoptedSheet).catch(() => {});
+                    adopted.then(addAdoptedSheet).catch(() => { });
                 } else if (adopted) {
                     addAdoptedSheet(adopted);
                 }
             }
             return this;
         }
-        public createShadowRoot() { return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as any; }
-        public connectedCallback() {
+
+        createShadowRoot(): ShadowRoot {
+            return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as ShadowRoot;
+        }
+
+        // ============================================
+        // LIFECYCLE CALLBACKS
+        // ============================================
+
+        /**
+         * Вызывается когда элемент добавлен в DOM
+         */
+        connectedCallback(): void {
+            // Вызываем родительский метод если есть
+            if (super.connectedCallback) {
+                super.connectedCallback();
+            }
+
             const weak = new WeakRef(this);
+
             if (!this.#initialized) {
                 this.#initialized = true;
-                const shadowRoot = isNotExtended(this) ? (this.createShadowRoot?.() ?? this.shadowRoot ?? this.attachShadow({ mode: "open" })) : this.shadowRoot;
+                const shadowRoot = isNotExtended(this)
+                    ? (this.createShadowRoot?.() ?? this.shadowRoot ?? this.attachShadow({ mode: "open" }))
+                    : this.shadowRoot;
 
-                //
-                withProperties<any>(this).$init?.call?.(this);
-                setAttributesIfNull(this, (typeof this.initialAttributes == "function") ? this.initialAttributes?.call?.(this) : this.initialAttributes);
+                // Инициализация свойств
+                const ctor = this.constructor as any;
+                if (typeof ctor.$init === 'function') {
+                    ctor.$init.call(this);
+                } else if (typeof (this as any).$init === 'function') {
+                    (this as any).$init();
+                }
+
+                // Установка атрибутов
+                const attrs = typeof this.initialAttributes == "function"
+                    ? (this.initialAttributes as () => Record<string, any>)()
+                    : this.initialAttributes;
+                setAttributesIfNull(this, attrs);
+
                 this.onInitialize?.call(this, weak);
 
-                //! currenrly, `this.styleLibs` will not appear when rendering (not supported)
-                this[inRenderKey] = true;
+                (this as any)[inRenderKey] = true;
+
                 if (isNotExtended(this) && shadowRoot) {
                     const rendered = this.render?.call?.(this, weak) ?? document.createElement("slot");
                     const styleElement = loadCachedStyles(this, this.styles);
+
                     if (styleElement instanceof HTMLStyleElement) {
                         this.#styleElement = styleElement;
                     }
 
-                    shadowRoot.append(...[
+                    const elements = [
                         H`<style data-type="ux-layer" prop:innerHTML=${this.$makeLayers()}></style>`,
                         this.#defaultStyle,
                         ...(this.styleLibs.map(x => x.cloneNode?.(true)) || []),
                         styleElement,
                         rendered
-                    ]?.filter?.(x => (x != null && isElement(x))));
+                    ].filter((x): x is Node => x != null && (isElement(x) as unknown as boolean));
+
+                    shadowRoot.append(...elements);
 
                     const adoptedSheets = adoptedStyleSheetsCache.get(this) || [];
                     if (adoptedSheets.length > 0) {
-                        shadowRoot.adoptedStyleSheets = [...adoptedSheets.filter(s => !shadowRoot.adoptedStyleSheets?.includes(s)), ...new Set([...(shadowRoot.adoptedStyleSheets || [])])];
+                        shadowRoot.adoptedStyleSheets = [
+                            ...adoptedSheets.filter((s: CSSStyleSheet) => !shadowRoot.adoptedStyleSheets?.includes(s)),
+                            ...new Set([...(shadowRoot.adoptedStyleSheets || [])])
+                        ];
                     }
                 }
 
-                //
                 this.onRender?.call?.(this, weak);
-                delete this[inRenderKey];
+                delete (this as any)[inRenderKey];
             }
-            return this;
         }
-    }));
+
+        /**
+         * Вызывается когда элемент удалён из DOM
+         */
+        disconnectedCallback(): void {
+            if (super.disconnectedCallback) {
+                super.disconnectedCallback();
+            }
+        }
+
+        /**
+         * Вызывается когда элемент перемещён в новый документ
+         */
+        adoptedCallback(): void {
+            if (super.adoptedCallback) {
+                super.adoptedCallback();
+            }
+        }
+
+        /**
+         * Вызывается когда наблюдаемый атрибут изменился
+         */
+        attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
+            if (super.attributeChangedCallback) {
+                super.attributeChangedCallback(name, oldValue, newValue);
+            }
+        }
+    }
+
+    // Применяем withProperties и кэшируем
+    const result = withProperties(GLitElementImpl as unknown as HTMLElementConstructor<T & GLitElementInstance>);
+    CSM.set(Base, result);
+
+    return result as unknown as GLitElementClass<T>;
 }
+
+// ============================================
+// ДОПОЛНИТЕЛЬНЫЕ ТИПЫ ДЛЯ УДОБСТВА
+// ============================================
+
+/**
+ * Тип для использования в декораторах классов
+ */
+export type GLitElementDecorated<T extends HTMLElement = HTMLElement> = 
+    InstanceType<GLitElementClass<T>>;
+
+/**
+ * Хелпер для типизации observedAttributes
+ */
+export type ObservedAttributes<T extends string[]> = {
+    observedAttributes: T;
+    attributeChangedCallback(name: T[number], oldValue: string | null, newValue: string | null): void;
+};
