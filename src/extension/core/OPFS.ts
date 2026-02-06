@@ -1,6 +1,6 @@
 import { UUIDv4, Promised } from 'fest/core';
 import { observe } from 'fest/object';
-import { createQueuedOptimizedWorkerChannel, QueuedWorkerChannel } from 'fest/uniform';
+import { createWorkerChannel, createQueuedOptimizedWorkerChannel, QueuedWorkerChannel } from 'fest/uniform';
 
 // Import the OPFS worker using Vite's worker syntax
 import OPFSWorker from './OPFS.uniform.worker.ts?worker';

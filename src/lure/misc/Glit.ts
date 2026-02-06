@@ -166,15 +166,25 @@ export function withProperties<T extends HTMLElementConstructor>(ctr: T): T {
     proto.$init = function (this: any, ...args: any[]) {
         $init?.call?.(this, ...args);
 
-        const defs = this?.[defKeys] ?? proto?.[defKeys];
-        if (defs != null) {
-            Object.entries(defs).forEach(([key, def]) => {
-                const exists = this[key];
-                if (def != null) {
-                    Object.defineProperty(this, key, def as PropertyDescriptor);
+        // Collect defKeys from entire prototype chain (child-first, skip duplicates)
+        const allDefs: Record<string, any> = {};
+        let p: any = Object.getPrototypeOf(this);
+        while (p) {
+            if (Object.hasOwn(p, defKeys)) {
+                const defs = p[defKeys];
+                for (const k of Object.keys(defs)) {
+                    if (!(k in allDefs)) allDefs[k] = defs[k];
                 }
-                this[key] = exists || this[key];
-            });
+            }
+            p = Object.getPrototypeOf(p);
+        }
+
+        for (const [key, def] of Object.entries(allDefs)) {
+            const exists = this[key];
+            if (def != null) {
+                Object.defineProperty(this, key, def as PropertyDescriptor);
+            }
+            this[key] = exists || this[key];
         }
 
         return this;
@@ -232,7 +242,7 @@ export function property(options: PropertyOptions = {}) {
             }
         }
 
-        if (!target[defKeys]) target[defKeys] = {};
+        if (!Object.hasOwn(target, defKeys)) target[defKeys] = {};
 
         target[defKeys][key] = {
             get(this: any) {
