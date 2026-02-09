@@ -160,20 +160,19 @@ export type GLitElementClass<T extends HTMLElement = HTMLElement> =
 // ============================================
 
 export function withProperties<T extends HTMLElementConstructor>(ctr: T): T {
-    const proto = ctr.prototype as any;
-    const $init = proto.$init;
-
-    proto.$init = function (this: any, ...args: any[]) {
-        $init?.call?.(this, ...args);
+    const proto = ctr.prototype as any ?? Object.getPrototypeOf(ctr) ?? ctr;
+    const $prev = (proto as any)?.$init ?? (ctr as any)?.$init;
+    (proto as any).$init = function (this: any, ...args: any[]) {
+        $prev?.call?.(this, ...args);
 
         // Collect defKeys from entire prototype chain (child-first, skip duplicates)
         const allDefs: Record<string, any> = {};
-        let p: any = Object.getPrototypeOf(this);
+        let p: any = Object.getPrototypeOf(this) ?? this;
         while (p) {
             if (Object.hasOwn(p, defKeys)) {
-                const defs = p[defKeys];
+                const defs = Object.assign({}, Object.getOwnPropertyDescriptors(p), p[defKeys] ?? {});
                 for (const k of Object.keys(defs)) {
-                    if (!(k in allDefs)) allDefs[k] = defs[k];
+                    if (!(k in allDefs)) { allDefs[k] = defs[k]; };
                 }
             }
             p = Object.getPrototypeOf(p);
@@ -184,7 +183,7 @@ export function withProperties<T extends HTMLElementConstructor>(ctr: T): T {
             if (def != null) {
                 Object.defineProperty(this, key, def as PropertyDescriptor);
             }
-            this[key] = exists || this[key];
+            try { this[key] = exists || this[key]; } catch (e) {}
         }
 
         return this;
@@ -624,11 +623,8 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
 
                 // Инициализация свойств
                 const ctor = this.constructor as any;
-                if (typeof ctor.$init === 'function') {
-                    ctor.$init.call(this);
-                } else if (typeof (this as any).$init === 'function') {
-                    (this as any).$init();
-                }
+                const init = (this as any).$init ?? (ctor as any).prototype?.$init;
+                if (typeof init === "function") init.call(this);
 
                 // Установка атрибутов
                 const attrs = typeof this.initialAttributes == "function"
@@ -703,6 +699,7 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
     // Применяем withProperties и кэшируем
     const result = withProperties(GLitElementImpl as unknown as HTMLElementConstructor<T & GLitElementInstance>);
     CSM.set(Base, result);
+    console.log("result", result);
 
     return result as unknown as GLitElementClass<T>;
 }
