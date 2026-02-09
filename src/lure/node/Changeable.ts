@@ -69,7 +69,7 @@ class Ch {
         //
         this.#mapCb = (mapCb != null ? (typeof mapCb == "function" ? mapCb : (typeof mapCb == "object" ? mapCb?.mapper : null)) : null) ?? ((el) => el);
         this.#oldNode = null;//this.#stub;
-        this.#valueRef  = valueRef;
+        this.#valueRef  = (!hasValue(valueRef) ? mapCb?.(valueRef, -1) : valueRef) ?? valueRef;
         this.#fragments = document.createDocumentFragment();
 
         //
@@ -184,17 +184,32 @@ class Ch {
 }
 
 //
+const isWeakCompatible = (key: any) => { 
+    return (typeof key == "object" || typeof key == "function" || typeof key == "symbol") && key != null;
+}
+
+//
 export const C = (observable, mapCb?, boundParent: Node | null | ChangeableOptions = null) => {
     if (observable instanceof HTMLElement) { return Q(observable); }
     if (observable == null) return document.createComment(":NULL:");
-    if (observable != null && (typeof observable == "object" || typeof observable == "function") && hasValue(observable)) {
-        // @ts-ignore
-        return elMap.getOrInsertComputed(observable, () => {
-            return new Ch(observable, mapCb, boundParent);
-        });
+    const checkable = (typeof mapCb == "function" ? mapCb(observable, -1) : observable) ?? observable;
+    if (isPrimitive(checkable)) { return T(checkable); }
+
+    //
+    if (checkable != null && hasValue(checkable)) {
+        if (isPrimitive(checkable?.value)) {
+            return checkable?.value != null ? T(checkable) : document.createComment(":NULL:");
+        } else
+        if (typeof checkable == "object" || typeof checkable == "function") {
+            // @ts-ignore
+            return elMap.getOrInsertComputed(isWeakCompatible(observable) ? observable : checkable, () => {
+                return new Ch(observable, mapCb, boundParent);
+            });
+        }
     }
-    if (mapCb) { return getNode(mapCb(observable), null, -1, boundParent); }
-    return T(observable);
+
+    //
+    return getNode(checkable, null, -1, boundParent);
 };
 
 //

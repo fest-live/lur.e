@@ -63,7 +63,7 @@ export const $getBase = (el, mapper?: Function | null, index: number = -1, reque
     if (el instanceof Promise || typeof (el as any)?.then == "function") { return $makePromisePlaceholder(el, (nd)=>$getBase(nd, mapper, index, requestor)); };
     if (isElement(el) && !el?.element) { return el; } else
     if (isElement(el?.element)) { return el; } else
-    if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : C(el)); } else
+    if (hasValue(el)) { return ((el instanceof HTMLElement) ? Q : C)(el); } else
     if (typeof el == "object" && el != null) { return getMapped(el); } else
     if (typeof el == "function") { return $getBase(el?.(), mapper, index, requestor); }  // mapped arrays always empties after
     if (isPrimitive(el) && el != null) return T(el);
@@ -87,7 +87,7 @@ export const $getNode = (el, mapper?: Function | null, index: number = -1, reque
     if (el instanceof Promise || typeof (el as any)?.then == "function") { return $makePromisePlaceholder(el, (nd)=>getNode(nd, mapper, index, requestor)); };
     if (isElement(el) && !el?.element) { return el; } else
     if (isElement(el?.element)) { return isElementValue(el, requestor); } else
-    if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : ((el instanceof HTMLElement) ? Q : C)(el))?.element; } else
+    if (hasValue(el)) { return ((el instanceof HTMLElement) ? Q : C)(el)?.element; } else
     if (typeof el == "object" && el != null) { return getMapped(el); } else
     if (typeof el == "function") { return getNode(el?.(), mapper, index, requestor); } else
     if (isPrimitive(el) && el != null) return T(el);
