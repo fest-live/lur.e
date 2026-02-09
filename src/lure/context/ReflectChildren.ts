@@ -37,15 +37,15 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
         const oldIdx = indexOf(element, oldNode);
 
         //
-        if ((["@add", "@set", "@remove"].indexOf(op || "") >= 0 || !op)) {
+        if ((["@add", "@set", "@delete"].indexOf(op || "") >= 0 || !op)) {
             // due splice already removed that index, we need to add +1 to the index in exists children
-            if ((newNode == null && oldNode != null) || op == "@remove") { commandBuffer?.push?.([removeChild, [element, oldNode, null, oldIdx >= 0 ? oldIdx : idx]]); } else
+            if ((newNode == null && oldNode != null) || op == "@delete") { commandBuffer?.push?.([removeChild, [element, oldNode, null, oldIdx >= 0 ? oldIdx : idx]]); } else
             if ((newNode != null && oldNode == null) || op == "@add") { commandBuffer?.push?.([appendChild, [element, newNode, null, idx]]); } else
             if ((newNode != null && oldNode != null) || op == "@set") { commandBuffer?.push?.([replaceChildren, [element, newNode, null, oldIdx >= 0 ? oldIdx : idx, oldNode]]); }; // TODO: add support for oldNode in replace method
         }
 
         //
-        if ((op && op != "@get" && ["@add", "@set", "@remove"].indexOf(op) >= 0) || (!op && !isArray)) { merge?.(); }
+        if ((op && op != "@get" && ["@add", "@set", "@delete"].indexOf(op) >= 0) || (!op && !isArray)) { merge?.(); }
     }
 
     //

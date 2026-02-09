@@ -3,6 +3,7 @@ import { $virtual, $mapped } from "../core/Binding";
 import { isElement, isValidParent } from "fest/dom";
 import { hasValue, isNotEqual, isPrimitive } from "fest/core";
 import C from "../node/Changeable";
+import Q from "../node/Queried";
 
 //
 export const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
@@ -86,7 +87,7 @@ export const $getNode = (el, mapper?: Function | null, index: number = -1, reque
     if (el instanceof Promise || typeof (el as any)?.then == "function") { return $makePromisePlaceholder(el, (nd)=>getNode(nd, mapper, index, requestor)); };
     if (isElement(el) && !el?.element) { return el; } else
     if (isElement(el?.element)) { return isElementValue(el, requestor); } else
-    if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : C(el))?.element; } else
+    if (hasValue(el)) { return (isPrimitive(el?.value) && el?.value != null ? T(el) : ((el instanceof HTMLElement) ? Q : C)(el))?.element; } else
     if (typeof el == "object" && el != null) { return getMapped(el); } else
     if (typeof el == "function") { return getNode(el?.(), mapper, index, requestor); } else
     if (isPrimitive(el) && el != null) return T(el);

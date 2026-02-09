@@ -179,6 +179,9 @@ class Mp {
     //
     get mapper() {
         return (...args) => {
+            if (args?.[0] == null) { return null; }
+
+            //
             if (args?.[0] instanceof Node) { return args?.[0]; };
 
             // unsupported
@@ -222,14 +225,18 @@ class Mp {
     _onUpdate(newEl, idx, oldEl, op: string | null = "") {
         //
         if (op == "@add" || (newEl != null && oldEl == null)) {
+            if (this.#indexMap.has(idx)) { return; }
             const indexRef = ref(this.#observable, idx);
-            const withElement = C(indexRef);
+            const withElement = C(indexRef, (...args) => {
+                if (args?.[1] == null || args?.[1] < 0) { args[1] = idx ?? args?.[1]; };
+                return this.mapper(...args);
+            });
             this.#indexMap.set(idx, withElement);
             appendChild(this.boundParent, withElement, null, idx);
         }
 
         //
-        if (op == "@remove" || (newEl == null && oldEl != null)) {
+        if (op == "@delete" || (newEl == null && oldEl != null)) {
             const withElement = this.#indexMap.get(idx);
             if (withElement) { removeChild(this.boundParent, withElement, null, idx); }
             this.#indexMap.delete(idx);

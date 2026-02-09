@@ -196,10 +196,10 @@ export const post = (type: string, payload: any = {}, transfer: any[] = []) => {
 };
 
 //
-export const getDir = (dest)=>{
+export const getDir = (dest) => {
     if (typeof dest != "string") return dest; dest = dest?.trim?.() || dest;
     if (!dest?.endsWith?.("/")) { dest = dest?.trim?.()?.split?.("/")?.slice(0, -1)?.join?.("/")?.trim?.() || dest; };
-    const p1 = !dest?.trim()?.endsWith("/") ? (dest+"/") : dest; return (!p1?.startsWith("/") ? ("/"+p1) : p1);
+    const p1 = !dest?.trim()?.endsWith("/") ? (dest + "/") : dest; return (!p1?.startsWith("/") ? ("/" + p1) : p1);
 }
 
 //
@@ -216,16 +216,16 @@ export const generalFileImportDesc = {
 
 // "/" default is OPFS root (but may another root), "/user/" is OPFS root by default too, "/assets/" is unknown backend related assets
 export const mappedRoots = new Map<string, () => Promise<any>>([
-    ["/", async ()=> ((await navigator?.storage?.getDirectory?.())) ],
-    ["/user/", async ()=> (await navigator?.storage?.getDirectory?.()) ],
-    ["/assets/", async ()=>{console.warn("Backend related API not implemented!"); return null;}],
+    ["/", async () => ((await navigator?.storage?.getDirectory?.()))],
+    ["/user/", async () => (await navigator?.storage?.getDirectory?.())],
+    ["/assets/", async () => { console.warn("Backend related API not implemented!"); return null; }],
 ]);
 
 //
 export const currentHandleMap = new Map<string, any>()
 
 //
-export const mountAsRoot = async (forId: string, copyFromInternal?: boolean)=>{
+export const mountAsRoot = async (forId: string, copyFromInternal?: boolean) => {
     const cleanId = forId?.trim?.()?.replace?.(/^\//, "")?.trim?.()?.split?.("/")?.filter?.(p => !!p?.trim?.())?.at?.(0);
 
     // @ts-ignore
@@ -237,7 +237,8 @@ export const mountAsRoot = async (forId: string, copyFromInternal?: boolean)=>{
     //
     if (rootHandle && cleanId && typeof cleanId == "string") { currentHandleMap?.set?.(cleanId, rootHandle); };
     if (rootHandle && typeof localStorage != "undefined") {
-        localStorage?.setItem?.("opfs.mounted", JSON.stringify([...JSON.parse(localStorage?.getItem?.("opfs.mounted") || "[]"), cleanId])); };
+        localStorage?.setItem?.("opfs.mounted", JSON.stringify([...JSON.parse(localStorage?.getItem?.("opfs.mounted") || "[]"), cleanId]));
+    };
 
     //
     if (rootHandle) {
@@ -256,9 +257,9 @@ export const mountAsRoot = async (forId: string, copyFromInternal?: boolean)=>{
 }
 
 //
-export const unmountAsRoot = async (forId: string)=>{
+export const unmountAsRoot = async (forId: string) => {
     if (typeof localStorage != "undefined") {
-        localStorage?.setItem?.("opfs.mounted", JSON.stringify(JSON.parse(localStorage?.getItem?.("opfs.mounted") || "[]").filter((id: string)=>id != forId)));
+        localStorage?.setItem?.("opfs.mounted", JSON.stringify(JSON.parse(localStorage?.getItem?.("opfs.mounted") || "[]").filter((id: string) => id != forId)));
     }
     // Sync to worker
     post('unmount', { id: forId });
@@ -346,7 +347,7 @@ export function normalizePath(basePath: string = "", relPath: string): string {
 }
 
 // Enhanced path resolution that combines root mapping and relative path handling
-export async function resolvePath(rootHandle: any, relPath: string, basePath: string = ""): Promise<{rootHandle: any, resolvedPath: string}> {
+export async function resolvePath(rootHandle: any, relPath: string, basePath: string = ""): Promise<{ rootHandle: any, resolvedPath: string }> {
     // First normalize the relative path
     const normalizedRelPath = normalizePath(basePath, relPath);
 
@@ -410,7 +411,7 @@ export async function getDirectoryHandle(rootHandle, relPath, { create = false, 
         const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
             resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
 
-        const parts = cleanPath.split('/').filter((p)=>(!!p?.trim?.()));
+        const parts = cleanPath.split('/').filter((p) => (!!p?.trim?.()));
         if (parts.length > 0 && hasFileExtension(parts[parts.length - 1]?.trim?.())) { parts?.pop?.(); };
 
         // Fallback to direct access if we need to return a Handle
@@ -441,7 +442,7 @@ export async function getFileHandle(rootHandle, relPath, { create = false, baseP
         if (parts?.length == 0) return null;
 
         const filePath = parts.length > 0 ? parts[parts.length - 1]?.trim?.()?.replace?.(/\s+/g, '-') : '';
-        const dirName  = parts.length > 1 ? parts?.slice(0, -1)?.join?.('/')?.trim?.()?.replace?.(/\s+/g, '-') : '';
+        const dirName = parts.length > 1 ? parts?.slice(0, -1)?.join?.('/')?.trim?.()?.replace?.(/\s+/g, '-') : '';
 
         if (cleanPath?.trim?.()?.endsWith?.("/")) { return null; };
 
@@ -452,7 +453,7 @@ export async function getFileHandle(rootHandle, relPath, { create = false, baseP
 }
 
 //
-export async function getHandler(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
+export async function getHandler(rootHandle, relPath, options: { basePath?: string } = {}, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
         const type = detectTypeByRelPath(resolvedPath);
@@ -468,7 +469,7 @@ export async function getHandler(rootHandle, relPath, options: {basePath?: strin
 }
 
 //
-export async function createHandler(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
+export async function createHandler(rootHandle, relPath, options: { basePath?: string } = {}, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
         const type = detectTypeByRelPath(resolvedPath);
@@ -509,62 +510,74 @@ export const mayNotPromise = (pms: any, cb: (pms: any) => any, errCb: (e: any) =
 }
 
 //
-export function openDirectory(rootHandle, relPath, options: {create: boolean, basePath?: string} = {create: false}, logger = defaultLogger) {
-    //
-    let cacheKey: string = "";
-    let state: DirectoryState | undefined;
+export function openDirectory(
+    rootHandle,
+    relPath,
+    options: { create: boolean; basePath?: string } = { create: false },
+    logger = defaultLogger
+) {
+    let cacheKey = "";
 
-    //
+    // ВАЖНО: синхронно доступная ссылка на reactive-map
+    // (изначально пустая, потом будет заменена на shared mapCache из state)
+    let localMapCache: Map<string, any> = observe(new Map<string, any>()) as any;
+
     const pathPromise = (async () => {
         try {
-            const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-            cacheKey = `${resolvedRootHandle?.name || 'root'}:${resolvedPath}`;
+            const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(
+                rootHandle,
+                relPath,
+                options?.basePath || ""
+            );
+            cacheKey = `${resolvedRootHandle?.name || "root"}:${resolvedPath}`;
             return { rootHandle: resolvedRootHandle, resolvedPath };
-        } catch (e: any) {
+        } catch {
             return { rootHandle: null, resolvedPath: "" };
         }
     })();
 
-    // Initialize or Retrieve State
-    // We need to await pathPromise to get cacheKey, but openDirectory returns sync-like proxy.
-    // So we use a lazy initialization inside the proxy, but checking cacheMap requires key.
-    // This is tricky. We'll use a temporary holder that resolves to the shared state.
-
-    // Actually, we can just start the async process and update the proxy's internal reference.
-
-    //
-    const statePromise = pathPromise.then(async ({ rootHandle, resolvedPath }) => {
+    const statePromise: Promise<DirectoryState | null> = pathPromise.then(async ({ rootHandle, resolvedPath }) => {
         if (!resolvedPath) return null;
 
-        let existing = directoryCacheMap.get(cacheKey);
+        const existing = directoryCacheMap.get(cacheKey);
         if (existing) {
             existing.refCount++;
+            // синхронно переключаем proxy на shared map
+            localMapCache = existing.mapCache;
             return existing;
         }
 
         const mapCache = observe(new Map<string, any>()) as Map<string, any>;
-        const observationId = UUIDv4();
+        localMapCache = mapCache;
 
-        // Initial Dir Handle (for fallback)
+        const observationId = UUIDv4();
         const dirHandlePromise = getDirectoryHandle(rootHandle, resolvedPath, options, logger);
 
         const updateCache = async () => {
-            const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-                resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+            const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/")
+                ? resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.()
+                : resolvedPath;
 
-            // Use Worker for listing
-            const entries: any = await post('readDirectory', {
-                rootId: "",
-                path: cleanPath,
-                create: options.create
-            }, rootHandle ? [rootHandle] : []);
+            const entries: any = await post(
+                "readDirectory",
+                {
+                    rootId: "",
+                    path: cleanPath,
+                    create: options.create,
+                },
+                rootHandle ? [rootHandle] : []
+            );
 
             if (!entries) return mapCache;
 
             const entryMap = new Map(entries);
+
+            // remove deleted
             for (const key of mapCache.keys()) {
                 if (!entryMap.has(key)) mapCache.delete(key);
             }
+
+            // add new
             for (const [key, handle] of entryMap) {
                 if (!mapCache.has(key as string)) mapCache.set(key as string, handle);
             }
@@ -573,15 +586,14 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
         };
 
         const cleanup = () => {
-            post('unobserve', { id: observationId });
+            post("unobserve", { id: observationId });
             observers.delete(observationId);
             directoryCacheMap.delete(cacheKey);
         };
 
-        // Setup Observer
         observers.set(observationId, (changes: any[]) => {
             for (const change of changes) {
-                if (!change.name) continue;
+                if (!change?.name) continue;
 
                 if (change.type === "modified" || change.type === "created" || change.type === "appeared") {
                     mapCache.set(change.name, change.handle);
@@ -591,16 +603,21 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
             }
         });
 
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-                resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/")
+            ? resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.()
+            : resolvedPath;
 
-        post('observe', {
-            rootId: "",
-            path: cleanPath,
-            id: observationId
-        }, rootHandle ? [rootHandle] : []);
+        post(
+            "observe",
+            {
+                rootId: "",
+                path: cleanPath,
+                id: observationId,
+            },
+            rootHandle ? [rootHandle] : []
+        );
 
-        // Initial Load
+        // initial load (fire and forget)
         updateCache();
 
         const newState: DirectoryState = {
@@ -610,11 +627,17 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
             observationId,
             refCount: 1,
             cleanup,
-            updateCache
+            updateCache,
         };
 
         directoryCacheMap.set(cacheKey, newState);
-        return newState;
+
+        const entries: any = await Promise.all(await Array.fromAsync((await dirHandlePromise)?.entries?.() ?? []));
+        for (const [name, handle] of entries) {
+            if (!mapCache.has(name)) mapCache.set(name, handle);
+        }
+
+        return { ...newState, mapCache };
     });
 
     //
@@ -622,66 +645,98 @@ export function openDirectory(rootHandle, relPath, options: {create: boolean, ba
     const dispose = () => {
         if (disposed) return;
         disposed = true;
-        mayNotPromise(statePromise, (s) => {
-            if (s) {
+        statePromise
+            .then((s) => {
+                if (!s) return;
                 s.refCount--;
-                if (s.refCount <= 0) {
-                    s.cleanup();
-                }
-            }
-        });
-    };
-
-    const handler: ProxyHandler<any> = {
-        get(target, prop, receiver) {
-            const withState = Promised(statePromise);
-            if (prop == 'dispose') return dispose;
-
-            // Access shared state
-            if (prop == 'getMap') return () => {
-                return mayNotPromise(withState, (s) => s?.mapCache);
-            };
-
-            if (prop == 'refresh') return () => {
-                 return mayNotPromise(withState, (s) => { s?.updateCache(); return pxy; });
-            };
-
-            // Helpers that use mapCache
-            if (prop == 'entries') return () => mayNotPromise(withState, (s) => s?.mapCache.entries());
-            if (prop == 'keys') return () => mayNotPromise(withState, (s) => s?.mapCache.keys());
-            if (prop == 'values') return () => mayNotPromise(withState, (s) => s?.mapCache.values());
-
-            if (["then", "catch", "finally"].includes(prop as string)) {
-                return (typeof withState?.[prop as string] == "function" ? withState?.[prop as string]?.bind?.(withState) : withState?.[prop as string]);
-            }
-
-            // Fallback to dirHandle props or mapCache methods
-            const complex = Promised(Promise.try?.(async ()=>{
-                const s = await mayNotPromise(statePromise, (s) => s);
-                if (!s) return null;
-                // Try map first?
-                if (s.mapCache[prop] != null) return s.mapCache[prop];
-                // Try dirHandle
-                const dh = await s.dirHandle;
-                return dh?.[prop];
-            }));
-
-            return complex?.[prop];
-        },
-
-        // @ts-ignore
-        ownKeys(target) { if (!statePromise) return []; return Array.from(statePromise?.then?.((s) => s?.mapCache?.keys?.()) || []); },
-        // @ts-ignore
-        getOwnPropertyDescriptor(target, prop) { return { enumerable: true, configurable: true }; }
+                if (s.refCount <= 0) s.cleanup();
+            })
+            .catch(console.warn);
     };
 
     //
-    const fx: any = function(){}, pxy = new Proxy(fx, handler);
+    const handler: ProxyHandler<any> = {
+        get(_target, prop) {
+            // 0) Часто вызываемые системные/инспекционные штуки — НЕ трогаем вообще
+            // иначе легко словить рекурсию/лавину
+            if (
+                prop === Symbol.toStringTag ||
+                prop === Symbol.iterator ||
+                prop === "toString" ||
+                prop === "valueOf" ||
+                prop === "inspect" ||
+                prop === "constructor" ||
+                prop === "__proto__" ||
+                prop === "prototype"
+            ) {
+                return undefined;
+            }
+
+            if (prop === "dispose") return dispose;
+
+            // синхронно отдаём реактивный Map (как в backup)
+            if (prop === "getMap") return () => localMapCache;
+
+            // map-like методы (синхронно!)
+            if (prop === "entries") return () => localMapCache.entries();
+            if (prop === "keys") return () => localMapCache.keys();
+            if (prop === "values") return () => localMapCache.values();
+            if (prop === Symbol.iterator) return () => localMapCache[Symbol.iterator]();
+
+            // часто нужно
+            if (prop === "size") return localMapCache.size;
+            if (prop === "has") return (k: string) => localMapCache.has(k);
+            if (prop === "get") return (k: string) => localMapCache.get(k);
+
+            // удобные методы
+            if (prop === "entries") return () => localMapCache.entries();
+            if (prop === "keys") return () => localMapCache.keys();
+            if (prop === "values") return () => localMapCache.values();
+
+            //
+            if (prop === "refresh") {
+                return () =>
+                    statePromise
+                        .then((s) => s?.updateCache?.())
+                        .then(() => pxy);
+            }
+
+            // Promise-like: чтобы можно было await openDirectory(...)
+            if (prop === "then" || prop === "catch" || prop === "finally") {
+                // делаем proxy awaitable
+                const p = statePromise.then(() => true);
+                // @ts-ignore
+                return p[prop].bind(p);
+            }
+
+            // Остальное: попробуем прокинуть на dirHandle (когда готово)
+            return (...args: any[]) =>
+                statePromise.then(async (s) => {
+                    if (!s) return undefined;
+                    const dh = await s.dirHandle;
+                    const v = dh?.[prop];
+                    if (typeof v === "function") return v.apply(dh, args);
+                    return v;
+                });
+        },
+
+        // ВАЖНО: ownKeys должен быть синхронным
+        ownKeys() {
+            return Array.from(localMapCache.keys());
+        },
+
+        getOwnPropertyDescriptor() {
+            return { enumerable: true, configurable: true };
+        },
+    };
+
+    const fx: any = function () { };
+    const pxy = new Proxy(fx, handler);
     return pxy;
 }
 
 //
-export async function readFile(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
+export async function readFile(rootHandle, relPath, options: { basePath?: string } = {}, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
         const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
@@ -694,7 +749,7 @@ export async function readFile(rootHandle, relPath, options: {basePath?: string}
 }
 
 //
-export async function readAsObjectURL(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
+export async function readAsObjectURL(rootHandle, relPath, options: { basePath?: string } = {}, logger = defaultLogger) {
     try {
         const file: any = await readFile(rootHandle, relPath, options, logger);
         return file ? URL.createObjectURL(file) : null;
@@ -702,7 +757,7 @@ export async function readAsObjectURL(rootHandle, relPath, options: {basePath?: 
 }
 
 //
-export async function readFileUTF8(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
+export async function readFileUTF8(rootHandle, relPath, options: { basePath?: string } = {}, logger = defaultLogger) {
     try {
         const file: any = await readFile(rootHandle, relPath, options, logger);
         if (!file) return "";
@@ -720,19 +775,19 @@ export async function writeFile(rootHandle, relPath, data, logger = defaultLogge
         return await copyFromOneHandlerToAnother(data, dstHandle, {})?.catch?.(console.warn.bind(console));
     } else
 
-    //
-    try {
-        const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, "");
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+        //
+        try {
+            const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, "");
+            const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
+                resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
 
-        await post('writeFile', { rootId: "", path: cleanPath, data }, resolvedRoot ? [resolvedRoot] : []);
-        return true;
-    } catch (e: any) { return handleError(logger, 'error', `writeFile: ${e.message}`); }
+            await post('writeFile', { rootId: "", path: cleanPath, data }, resolvedRoot ? [resolvedRoot] : []);
+            return true;
+        } catch (e: any) { return handleError(logger, 'error', `writeFile: ${e.message}`); }
 }
 
 //
-export async function getFileWriter(rootHandle, relPath, options: {create?: boolean, basePath?: string} = { create: true }, logger = defaultLogger) {
+export async function getFileWriter(rootHandle, relPath, options: { create?: boolean, basePath?: string } = { create: true }, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRootHandle, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
         return (await getFileHandle(resolvedRootHandle, resolvedPath, options, logger))?.createWritable?.();
@@ -744,7 +799,7 @@ export async function getFileWriter(rootHandle, relPath, options: {create?: bool
 
 
 //
-export async function removeFile(rootHandle, relPath, options: {recursive?: boolean, basePath?: string} = { recursive: true }, logger = defaultLogger) {
+export async function removeFile(rootHandle, relPath, options: { recursive?: boolean, basePath?: string } = { recursive: true }, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
         const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
@@ -756,7 +811,7 @@ export async function removeFile(rootHandle, relPath, options: {recursive?: bool
 }
 
 //
-export async function removeDirectory(rootHandle, relPath, options: {recursive?: boolean, basePath?: string} = { recursive: true }, logger = defaultLogger) {
+export async function removeDirectory(rootHandle, relPath, options: { recursive?: boolean, basePath?: string } = { recursive: true }, logger = defaultLogger) {
     try {
         // Reuse logic from removeFile as worker distinguishes via path handling or just removeEntry
         return removeFile(rootHandle, relPath, options, logger);
@@ -764,14 +819,14 @@ export async function removeDirectory(rootHandle, relPath, options: {recursive?:
 }
 
 //
-export async function remove(rootHandle, relPath, options: {basePath?: string} = {}, logger = defaultLogger) {
+export async function remove(rootHandle, relPath, options: { basePath?: string } = {}, logger = defaultLogger) {
     try {
         return removeFile(rootHandle, relPath, { recursive: true, ...options }, logger);
     } catch (e: any) { return handleError(logger, 'error', `remove: ${e.message}`); }
 }
 
 //
-export const openImageFilePicker = async ()=>{
+export const openImageFilePicker = async () => {
     const $e = "showOpenFilePicker"; // @ts-ignore
     const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
     return showOpenFilePicker(imageImportDesc);
@@ -807,7 +862,7 @@ export const downloadFile = async (file) => {
         showOpenFilePicker: self?.showOpenFilePicker?.bind?.(window), // @ts-ignore
         showSaveFilePicker: self?.showSaveFilePicker?.bind?.(window), // @ts-ignore
     })) // @ts-ignore
-    : import(/* @vite-ignore */ "fest/polyfill/showOpenFilePicker.mjs"));
+        : import(/* @vite-ignore */ "fest/polyfill/showOpenFilePicker.mjs"));
 
     // @ts-ignore
     if (window?.showSaveFilePicker) { // @ts-ignore
@@ -817,7 +872,7 @@ export const downloadFile = async (file) => {
         await writableFileStream?.close?.()?.catch?.(console.warn.bind(console));
     } else {
         const a = document.createElement("a");
-        try { a.href = URL.createObjectURL(file); } catch(e) { console.warn(e); };
+        try { a.href = URL.createObjectURL(file); } catch (e) { console.warn(e); };
         a.download = filename; document.body.appendChild(a); a.click();
         setTimeout(function () {
             document.body.removeChild(a);
@@ -860,7 +915,7 @@ export const provide = async (req: string | Request = "", rw = false) => {
 }
 
 //
-export const getLeast = (item)=>{
+export const getLeast = (item) => {
     if (item?.types?.length > 0) {
         return item?.getType?.(Array.from(item?.types || [])?.at?.(-1));
     }
@@ -868,10 +923,10 @@ export const getLeast = (item)=>{
 }
 
 //
-export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any)=>{
+export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any) => {
     const fs = await resolveRootHandle(null);
     const path = getDir(dest?.trim?.()?.startsWith?.("/user/") ? dest?.replace?.(/^\/user/g, "")?.trim?.() : dest);
-    const user = path?.replace?.("/user","")?.trim?.();
+    const user = path?.replace?.("/user", "")?.trim?.();
 
     //
     file = file instanceof File ? file : (new File([file], UUIDv4() + "." + (file?.type?.split?.("/")?.[1] || "tmp")))
@@ -886,7 +941,7 @@ export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g
 }
 
 //
-export const uploadDirectory = async (dest = "/user/", id: any = null)=>{
+export const uploadDirectory = async (dest = "/user/", id: any = null) => {
     dest = dest?.trim?.()?.startsWith?.("/user/") ? dest?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : dest;
     if (!globalThis.showDirectoryPicker) {
         return;
@@ -905,12 +960,12 @@ export const uploadDirectory = async (dest = "/user/", id: any = null)=>{
 }
 
 //
-export const uploadFile = async (dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any)=>{
+export const uploadFile = async (dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any) => {
     const $e = "showOpenFilePicker"; dest = dest?.trim?.()?.startsWith?.("/user/") ? dest?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : dest;
 
     // @ts-ignore
     const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
-    return showOpenFilePicker({ ...generalFileImportDesc, multiple: true } as any)?.then?.(async (handles = [])=>{
+    return showOpenFilePicker({ ...generalFileImportDesc, multiple: true } as any)?.then?.(async (handles = []) => {
         for (const handle of handles) {
             const file = (handle as any) instanceof File ? (handle as any) : (await (handle as any)?.getFile?.());
             await dropFile(file, dest, current);
@@ -951,20 +1006,20 @@ export const attachFile = (transfer, file, path = "") => {
         if (path) { transfer?.items?.add?.(path, "text/plain"); };
         transfer?.setData?.("text/uri-list", url);
         transfer?.setData?.("DownloadURL", file?.type + ":" + file?.name + ":" + url);
-    } catch(e) {}
+    } catch (e) { }
 }
 
 //
-export const dropAsTempFile = async (data: any)=>{
-    const items   = (data)?.items;
-    const item    = items?.[0];
-    const isImage = item?.types?.find?.((n)=>n?.startsWith?.("image/"));
-    const blob    = await (data?.files?.[0] ?? ((isImage ? item?.getType?.(isImage) : null) || getLeast(item)));
+export const dropAsTempFile = async (data: any) => {
+    const items = (data)?.items;
+    const item = items?.[0];
+    const isImage = item?.types?.find?.((n) => n?.startsWith?.("image/"));
+    const blob = await (data?.files?.[0] ?? ((isImage ? item?.getType?.(isImage) : null) || getLeast(item)));
     return dropFile(blob, "/user/temp/"?.trim?.()?.replace?.(/\s+/g, '-'));
 }
 
 //
-export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", options: {basePath?: string} = {}, logger = defaultLogger) => {
+export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", options: { basePath?: string } = {}, logger = defaultLogger) => {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
         const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?

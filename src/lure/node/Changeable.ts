@@ -1,9 +1,10 @@
 import { affected } from "fest/object";
-import { appendFix, elMap, getNode, T } from "../context/Utils";
+import { appendFix, elMap, getNode, Ps, T } from "../context/Utils";
 import { makeUpdater } from "../context/ReflectChildren";
 import { isPrimitive, hasValue } from "fest/core";
 import { indexOf, isValidParent } from "fest/dom";
 import { $mapped } from "../core/Binding";
+import Q from "./Queried";
 
 //
 interface ChangeableOptions {
@@ -20,6 +21,7 @@ class Ch {
     #updating: boolean = false;
     #options: ChangeableOptions = {} as ChangeableOptions;
     #oldNode: any; // in case, if '.value' is primitive, and can't be reused by maps
+    #mapCb: any = null;
     //#reMap: WeakMap<any, any>; // reuse same object from value
 
     //
@@ -65,6 +67,7 @@ class Ch {
         }
 
         //
+        this.#mapCb = (mapCb != null ? (typeof mapCb == "function" ? mapCb : (typeof mapCb == "object" ? mapCb?.mapper : null)) : null) ?? ((el) => el);
         this.#oldNode = null;//this.#stub;
         this.#valueRef  = valueRef;
         this.#fragments = document.createDocumentFragment();
@@ -80,14 +83,14 @@ class Ch {
 
     //
     $getNodeBy(requestor?: any, value?: any) {
-        const node = isPrimitive(hasValue(value) ? value?.value : value) ? T(value) : getNode(value, null, -1, requestor);
+        const node = isPrimitive(hasValue(value) ? value?.value : value) ? T(value) : getNode(value, (value == requestor) ? null : this.#mapCb, -1, requestor);
         return node;
     }
 
     //
     $getNode(requestor?: any, reassignOldNode: boolean | null = true) {
         // TODO: resolve somehow returning this.#valueRef as element...
-        const node = isPrimitive(this.#valueRef?.value) ? T(this.#valueRef) : getNode(this.#valueRef?.value, null, -1, requestor);
+        const node = isPrimitive(this.#valueRef?.value) ? T(this.#valueRef) : getNode(this.#valueRef?.value, (requestor == this.#valueRef?.value) ? null : this.#mapCb, -1, requestor);
         if (node != null && reassignOldNode) { this.#oldNode = node; };
         return node;
     }
@@ -182,13 +185,15 @@ class Ch {
 
 //
 export const C = (observable, mapCb?, boundParent: Node | null | ChangeableOptions = null) => {
+    if (observable instanceof HTMLElement) { return Q(observable); }
     if (observable == null) return document.createComment(":NULL:");
-    if ((typeof observable == "object" || typeof observable == "function") && hasValue(observable)) {
+    if (observable != null && (typeof observable == "object" || typeof observable == "function") && hasValue(observable)) {
         // @ts-ignore
         return elMap.getOrInsertComputed(observable, () => {
             return new Ch(observable, mapCb, boundParent);
         });
     }
+    if (mapCb) { return getNode(mapCb(observable), null, -1, boundParent); }
     return T(observable);
 };
 
