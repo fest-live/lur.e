@@ -46,7 +46,7 @@ export class CSSUnitConverter {
                 const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
                 return `${pixels / rootFontSize}rem`;
             case '%':
-                return `${(pixels / window.innerWidth) * 100}%`;
+                return `${(pixels / globalThis.innerWidth) * 100}%`;
             default:
                 return `${pixels}px`;
         }
@@ -82,13 +82,13 @@ export class CSSUnitConverter {
                 pixels = value * rootFontSize;
                 break;
             case '%':
-                pixels = (value / 100) * window.innerWidth;
+                pixels = (value / 100) * globalThis.innerWidth;
                 break;
             case 'vw':
-                pixels = (value / 100) * window.innerWidth;
+                pixels = (value / 100) * globalThis.innerWidth;
                 break;
             case 'vh':
-                pixels = (value / 100) * window.innerHeight;
+                pixels = (value / 100) * globalThis.innerHeight;
                 break;
             default:
                 pixels = value;
@@ -105,11 +105,11 @@ export class CSSUnitConverter {
                 const rootFontSize = parseFloat(getComputedStyle(document.documentElement).fontSize);
                 return pixels / rootFontSize;
             case '%':
-                return (pixels / window.innerWidth) * 100;
+                return (pixels / globalThis.innerWidth) * 100;
             case 'vw':
-                return (pixels / window.innerWidth) * 100;
+                return (pixels / globalThis.innerWidth) * 100;
             case 'vh':
-                return (pixels / window.innerHeight) * 100;
+                return (pixels / globalThis.innerHeight) * 100;
             default:
                 return pixels;
         }

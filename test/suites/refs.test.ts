@@ -280,7 +280,7 @@ export function runRefsTests(TestRunner: typeof TestRunnerType) {
     TestRunner.setCategory("4.11 hashTargetRef");
 
     // Save original hash
-    const originalHash = window.location.hash;
+    const originalHash = globalThis.location.hash;
 
     // Create hashTargetRef
     const hashRef = hashTargetRef();
@@ -294,7 +294,7 @@ export function runRefsTests(TestRunner: typeof TestRunnerType) {
     }
 
     // Restore original hash
-    window.location.hash = originalHash;
+    globalThis.location.hash = originalHash;
 
     // =========================================================================
     // Section 4.12: makeRef (Generic Factory)

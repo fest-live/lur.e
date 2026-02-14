@@ -160,7 +160,7 @@ export const dynamicNativeFrame = (root = document.documentElement)=>{
         document.head.appendChild(media);
     }
 
-    const color = pickBgColor(window.innerWidth - 64, 10);
+    const color = pickBgColor(globalThis.innerWidth - 64, 10);
     if ((media || window?.[electronAPI]) && root == document.documentElement) {
         media?.setAttribute?.("content", color);
     }

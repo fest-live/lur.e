@@ -368,7 +368,7 @@ export const downloadFile = async (file) => {
         a.download = filename; document.body.appendChild(a); a.click();
         setTimeout(function () {
             document.body.removeChild(a);
-            window.URL.revokeObjectURL(a.href);
+            globalThis.URL.revokeObjectURL(a.href);
         }, 0);
     }
 }

@@ -184,8 +184,8 @@ export function enhancedIntersectionBoxAnchorRef(anchor: HTMLElement, options?: 
             },
             anchor: getBoundingOrientRect(anchor) ?? anchor?.getBoundingClientRect?.(),
             root: (root instanceof HTMLElement ? (getBoundingOrientRect(root) ?? root?.getBoundingClientRect?.()) : null) ?? {
-                left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight,
-                width: window.innerWidth, height: window.innerHeight
+                left: 0, top: 0, right: globalThis.innerWidth, bottom: globalThis.innerHeight,
+                width: globalThis.innerWidth, height: globalThis.innerHeight
             }
         } : computeIntersectionRect(anchor as HTMLElement, root as HTMLElement, true);
 

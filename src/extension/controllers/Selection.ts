@@ -46,7 +46,7 @@ export class SelectionController {
         this.options = {
             target: document.body,
             minSize: vector2Ref(10, 10),
-            maxSize: vector2Ref(window.innerWidth, window.innerHeight),
+            maxSize: vector2Ref(globalThis.innerWidth, globalThis.innerHeight),
             showHandles: true,
             style: {
                 border: '2px solid #007acc',

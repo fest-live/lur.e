@@ -373,7 +373,7 @@ export class ScrollBar {
 
             this.scrollbarOpacity.value = 1;
             clearTimeout(hideTimeout);
-            hideTimeout = window.setTimeout(() => {
+            hideTimeout = globalThis.setTimeout(() => {
                 if (this.isDragging.value === 0) {
                     this.scrollbarOpacity.value = 0;
                 }
@@ -385,7 +385,7 @@ export class ScrollBar {
             if (!config.autoHide) return;
 
             if (this.isDragging.value === 0) {
-                hideTimeout = window.setTimeout(() => {
+                hideTimeout = globalThis.setTimeout(() => {
                     this.scrollbarOpacity.value = 0;
                 }, config.fadeDelay);
             }

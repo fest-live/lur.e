@@ -85,7 +85,7 @@ export class CSSAnchor {
         size = "100%",
     }) {
         // Use container query to determine positioning strategy
-        const mediaQuery = window.matchMedia ? window.matchMedia(containerQuery) : null;
+        const mediaQuery = globalThis.matchMedia ? globalThis.matchMedia(containerQuery) : null;
         const updatePosition = () => {
             const canUseAnchor = CSS.supports && CSS.supports("anchor-name", this.anchorId);
             const useModern = canUseAnchor && mediaQuery?.matches;
@@ -107,7 +107,7 @@ export class CSSAnchor {
                     connect.style.setProperty("left", `${sourceRect.left + inset}px`);
                     connect.style.setProperty("width", size);
                 } else if (fallbackPlacement === "top") {
-                    connect.style.setProperty("bottom", `${window.innerHeight - sourceRect.top + inset}px`);
+                    connect.style.setProperty("bottom", `${globalThis.innerHeight - sourceRect.top + inset}px`);
                     connect.style.setProperty("left", `${sourceRect.left + inset}px`);
                     connect.style.setProperty("width", size);
                 } else if (fallbackPlacement === "right") {
@@ -116,7 +116,7 @@ export class CSSAnchor {
                     connect.style.setProperty("height", size);
                 } else if (fallbackPlacement === "left") {
                     connect.style.setProperty("top", `${sourceRect.top + inset}px`);
-                    connect.style.setProperty("right", `${window.innerWidth - sourceRect.left + inset}px`);
+                    connect.style.setProperty("right", `${globalThis.innerWidth - sourceRect.left + inset}px`);
                     connect.style.setProperty("height", size);
                 }
             }

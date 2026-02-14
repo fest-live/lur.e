@@ -45,7 +45,7 @@ export class ContainerQueryManager {
     }
 
     addQuery(name: string, query: string) {
-        const mediaQuery = window.matchMedia(query);
+        const mediaQuery = globalThis.matchMedia(query);
         this.queries.set(name, mediaQuery);
         this.queryStates.set(name, numberRef(mediaQuery.matches ? 1 : 0));
 

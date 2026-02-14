@@ -382,8 +382,8 @@ export class ReactiveResizableEnhanced {
         );
 
         this.maxSize = vector2Ref(
-            options.maxSize?.[0] || window.innerWidth,
-            options.maxSize?.[1] || window.innerHeight
+            options.maxSize?.[0] || globalThis.innerWidth,
+            options.maxSize?.[1] || globalThis.innerHeight
         );
 
         this.aspectRatio = options.aspectRatio ? numberRef(options.aspectRatio) : null;
@@ -559,8 +559,8 @@ export class ReactiveGridSystem {
 
     // Center the grid on a specific point
     centerOn(point: Vector2D) {
-        const centerX = window.innerWidth / 2;
-        const centerY = window.innerHeight / 2;
+        const centerX = globalThis.innerWidth / 2;
+        const centerY = globalThis.innerHeight / 2;
 
         this.pan.x.value = centerX - point.x.value;
         this.pan.y.value = centerY - point.y.value;
@@ -691,12 +691,12 @@ export class ReactiveSpatialManager {
 
     constructor() {
         // Reactive viewport bounds
-        this.viewport = createRect2D(0, 0, window.innerWidth, window.innerHeight);
+        this.viewport = createRect2D(0, 0, globalThis.innerWidth, globalThis.innerHeight);
 
         // Update viewport on resize
-        window.addEventListener('resize', () => {
-            this.viewport.size.x.value = window.innerWidth;
-            this.viewport.size.y.value = window.innerHeight;
+        globalThis.addEventListener('resize', () => {
+            this.viewport.size.x.value = globalThis.innerWidth;
+            this.viewport.size.y.value = globalThis.innerHeight;
         });
     }
 

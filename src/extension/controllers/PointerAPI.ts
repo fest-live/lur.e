@@ -116,8 +116,8 @@ class PointerEdge {
     //
     get left() { const current = Math.abs(this.pointer[0] - 0) < 10; return (this.results.left = current); }
     get top () { const current = Math.abs(this.pointer[1] - 0) < 10; return (this.results.top  = current); }
-    get right () { const current = Math.abs(this.pointer[0] - window.innerWidth)  < 10; return (this.results.right  = current); }
-    get bottom() { const current = Math.abs(this.pointer[1] - window.innerHeight) < 10; return (this.results.bottom = current); }
+    get right () { const current = Math.abs(this.pointer[0] - globalThis.innerWidth)  < 10; return (this.results.right  = current); }
+    get bottom() { const current = Math.abs(this.pointer[1] - globalThis.innerHeight) < 10; return (this.results.bottom = current); }
 }
 
 //

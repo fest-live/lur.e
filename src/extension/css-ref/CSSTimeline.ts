@@ -299,14 +299,14 @@ export class EnhancedViewTimeline {
             if (this.axis === 'block') {
                 // Vertical intersection
                 const progress = rect.top < 0 ?
-                    Math.abs(rect.top) / (rect.height + window.innerHeight) :
-                    1 - (rect.bottom / (rect.height + window.innerHeight));
+                    Math.abs(rect.top) / (rect.height + globalThis.innerHeight) :
+                    1 - (rect.bottom / (rect.height + globalThis.innerHeight));
                 this.updateProgress(Math.max(0, Math.min(1, progress)));
             } else {
                 // Horizontal intersection
                 const progress = rect.left < 0 ?
-                    Math.abs(rect.left) / (rect.width + window.innerWidth) :
-                    1 - (rect.right / (rect.width + window.innerWidth));
+                    Math.abs(rect.left) / (rect.width + globalThis.innerWidth) :
+                    1 - (rect.right / (rect.width + globalThis.innerWidth));
                 this.updateProgress(Math.max(0, Math.min(1, progress)));
             }
         }
