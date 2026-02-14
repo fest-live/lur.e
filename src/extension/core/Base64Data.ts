@@ -73,6 +73,36 @@ export type StringToBinaryOptions = {
     maxBytes?: number;
 };
 
+export type DataAssetInput = File | Blob | string | URL;
+export type DataAssetSource = "file" | "blob" | "data-url" | "base64" | "url" | "uri" | "text";
+
+export type DataAsset = {
+    hash: string;
+    name: string;
+    type: string;
+    size: number;
+    source: DataAssetSource;
+    file: File;
+};
+
+export type NormalizeDataAssetOptions = {
+    mimeType?: string;
+    /**
+     * Prefix for generated hash-based filenames.
+     */
+    namePrefix?: string;
+    /**
+     * Optional explicit filename override.
+     */
+    filename?: string;
+    /**
+     * When true, keep input File name instead of hash-name.
+     */
+    preserveFileName?: boolean;
+    uriComponent?: boolean;
+    maxBytes?: number;
+};
+
 const DEFAULT_MIME = "application/octet-stream";
 
 const DATA_URL_RE = /^data:(?<mime>[^;,]+)?(?<params>(?:;[^,]*)*?),(?<data>[\s\S]*)$/i;
@@ -232,6 +262,140 @@ function looksLikeBase64(s: string): { isBase64: boolean; alphabet: Base64Alphab
     // Not perfect; good enough for "try base64 decode"
     if (cleaned.length < 8) return { isBase64: false, alphabet };
     return { isBase64: true, alphabet };
+}
+
+function canParseUrl(value: string): boolean {
+    try {
+        if (typeof URL === "undefined") return false;
+        if (typeof (URL as any).canParse === "function") return (URL as any).canParse(value);
+        // Fallback for environments without URL.canParse
+        new URL(value);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+function extensionByMimeType(mimeType: string): string {
+    const t = (mimeType || "").toLowerCase().split(";")[0].trim();
+    if (!t) return "bin";
+
+    const mapped: Record<string, string> = {
+        "text/plain": "txt",
+        "text/markdown": "md",
+        "text/html": "html",
+        "application/json": "json",
+        "application/xml": "xml",
+        "image/jpeg": "jpg",
+        "image/png": "png",
+        "image/webp": "webp",
+        "image/gif": "gif",
+        "image/svg+xml": "svg",
+        "application/pdf": "pdf",
+    };
+    if (mapped[t]) return mapped[t];
+
+    const slashIdx = t.indexOf("/");
+    if (slashIdx <= 0 || slashIdx >= t.length - 1) return "bin";
+    let subtype = t.slice(slashIdx + 1);
+    if (subtype.includes("+")) subtype = subtype.split("+")[0];
+    if (subtype.includes(".")) subtype = subtype.split(".").pop() || subtype;
+    return subtype || "bin";
+}
+
+function fallbackHashHex(bytes: Uint8Array): string {
+    // Non-cryptographic fallback only for environments without SubtleCrypto.
+    let h = 2166136261;
+    for (let i = 0; i < bytes.length; i++) {
+        h ^= bytes[i];
+        h = Math.imul(h, 16777619);
+    }
+    return (h >>> 0).toString(16).padStart(8, "0").repeat(8);
+}
+
+async function sha256Hex(bytes: Uint8Array): Promise<string> {
+    try {
+        const subtle = (globalThis.crypto as Crypto | undefined)?.subtle;
+        if (!subtle) return fallbackHashHex(bytes);
+        const digest = await subtle.digest("SHA-256", bytes);
+        const out = new Uint8Array(digest);
+        return Array.from(out, (b) => b.toString(16).padStart(2, "0")).join("");
+    } catch {
+        return fallbackHashHex(bytes);
+    }
+}
+
+export function isBase64Like(input: string): boolean {
+    return looksLikeBase64(input).isBase64;
+}
+
+export async function normalizeDataAsset(input: DataAssetInput, options: NormalizeDataAssetOptions = {}): Promise<DataAsset> {
+    const maxBytes = options.maxBytes ?? 50 * 1024 * 1024;
+    const namePrefix = (options.namePrefix || "asset").trim() || "asset";
+    const preserveFileName = options.preserveFileName ?? false;
+
+    let source: DataAssetSource = "text";
+    let blob: Blob;
+    let incomingFile: File | null = null;
+
+    if (input instanceof File) {
+        source = "file";
+        incomingFile = input;
+        blob = options.mimeType && options.mimeType !== input.type
+            ? new Blob([await input.arrayBuffer()], { type: options.mimeType })
+            : input;
+    } else if (input instanceof Blob) {
+        source = "blob";
+        blob = options.mimeType && options.mimeType !== input.type
+            ? new Blob([await input.arrayBuffer()], { type: options.mimeType })
+            : input;
+    } else {
+        const raw = (input instanceof URL ? input.toString() : String(input ?? "")).trim();
+        const parsed = parseDataUrl(raw);
+        const decodedUri = options.uriComponent ? tryDecodeURIComponent(raw) : (likelyUriComponent(raw) ? tryDecodeURIComponent(raw) : raw);
+
+        if (parsed) {
+            source = "data-url";
+        } else if (canParseUrl(raw)) {
+            source = "url";
+        } else if (isBase64Like(raw)) {
+            source = "base64";
+        } else if (decodedUri !== raw && (parseDataUrl(decodedUri) || isBase64Like(decodedUri) || canParseUrl(decodedUri))) {
+            source = "uri";
+        } else {
+            source = "text";
+        }
+
+        const stringSource = source === "uri" ? decodedUri : raw;
+        blob = await stringToBlob(stringSource, {
+            mimeType: options.mimeType,
+            uriComponent: options.uriComponent,
+            isBase64: source === "base64" ? true : undefined,
+            maxBytes,
+        });
+    }
+
+    const bytes = await blobToBytes(blob);
+    if (bytes.byteLength > maxBytes) throw new Error(`Data too large: ${bytes.byteLength} bytes`);
+
+    const hash = await sha256Hex(bytes);
+    const mimeType = (options.mimeType || blob.type || DEFAULT_MIME).trim() || DEFAULT_MIME;
+    const extension = extensionByMimeType(mimeType);
+    const hashedName = options.filename || `${namePrefix}-${hash.slice(0, 16)}.${extension}`;
+    const finalName = preserveFileName && incomingFile?.name ? incomingFile.name : hashedName;
+
+    const file = incomingFile && preserveFileName && !options.mimeType
+        ? incomingFile
+        : new File([blob], finalName, { type: mimeType });
+
+    return {
+        hash,
+        name: file.name,
+        type: file.type || mimeType,
+        size: file.size,
+        source,
+        file,
+    };
 }
 
 export async function stringToBlobOrFile(input: string, options: StringToBinaryOptions = {}): Promise<Blob | File> {

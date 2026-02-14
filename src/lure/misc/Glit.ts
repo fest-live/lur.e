@@ -353,7 +353,7 @@ export const loadCachedStyles = (bTo: any, src: any): HTMLStyleElement | null =>
     }
 
     if (typeof resolvedSrc == "string" || resolvedSrc instanceof Blob || (resolvedSrc as any) instanceof File) {
-        const adopted = loadAsAdopted(resolvedSrc, "ux-layer");
+        const adopted = loadAsAdopted(resolvedSrc, "");
         if (adopted) {
             let adoptedSheets = adoptedStyleSheetsCache.get(bTo);
             if (!adoptedSheets) {
