@@ -1,28 +1,69 @@
 {
-    "include": ["./src/**/*.ts", "./test/**/*.ts", "test/test.tsx"],
-    "exclude": ["./dist/**/*", "./externals/**/*"],
+    "include": [
+        "./src/**/*.ts",
+        "./test/**/*.ts",
+        "test/test.tsx"
+    ],
+    "exclude": [
+        "./dist/**/*",
+        "./externals/**/*",
+        "./src/**/*.js",
+        "./src/**/*.jsx"
+    ],
     "compilerOptions": {
         "outDir": "./dist/",
         "paths": {
-            "@phosphor-icons/core/assets/*": ["./node_modules/@phosphor-icons/core/assets/*"],
-            "fonts/*": ["../../shared/assets/fonts/*"],
-            "fest/*": ["../../shared/fest/*"],
-            "fest/cdnImport": ["../../cdnImport.mjs"],
-            "fest/dom": ["../dom.ts/src/index.ts"],
-            "fest/lure": ["../lur.e/src/index.ts"],
-            "fest/object": ["../object.ts/src/index.ts"],
-            "fest/fl-ui": ["../fl.ui/src/index.ts"],
-            "fest/ui": ["../fl.ui/src/index.ts"],
-            "fest/uniform": ["../uniform.ts/src/index.ts"],
-            "fest/theme": ["../theme.core/src/index.ts"],
-            "fest/core": ["../core.ts/src/index.ts"],
-            "fest/polyfill/*": ["../../shared/fest/polyfill/*"],
-            "polyfill/*": ["../../shared/fest/polyfill/*"]
+            "@phosphor-icons/core/assets/*": [
+                "./node_modules/@phosphor-icons/core/assets/*"
+            ],
+            "fonts/*": [
+                "../../shared/assets/fonts/*"
+            ],
+            "fest/*": [
+                "../../shared/fest/*"
+            ],
+            "fest/cdnImport": [
+                "../../cdnImport.mjs"
+            ],
+            "fest/dom": [
+                "../dom.ts/src/index.ts"
+            ],
+            "fest/lure": [
+                "../lur.e/src/index.ts"
+            ],
+            "fest/object": [
+                "../object.ts/src/index.ts"
+            ],
+            "fest/fl-ui": [
+                "../fl.ui/src/index.ts"
+            ],
+            "fest/ui": [
+                "../fl.ui/src/index.ts"
+            ],
+            "fest/uniform": [
+                "../uniform.ts/src/index.ts"
+            ],
+            "fest/theme": [
+                "../theme.core/src/index.ts"
+            ],
+            "fest/core": [
+                "../core.ts/src/index.ts"
+            ],
+            "fest/polyfill/*": [
+                "../../shared/fest/polyfill/*"
+            ],
+            "polyfill/*": [
+                "../../shared/fest/polyfill/*"
+            ]
         },
         "target": "ESNext",
         "module": "ESNext",
         "moduleResolution": "bundler",
-        "lib": ["ESNext", "DOM", "WebWorker"],
+        "lib": [
+            "ESNext",
+            "DOM",
+            "WebWorker"
+        ],
         "jsx": "preserve",
         "jsxFactory": "createElement",
         "jsxFragmentFactory": "Fragment",
@@ -41,7 +82,13 @@
         "inlineSources": true,
         "inlineSourceMap": true,
         "sourceMap": false,
-        "typeRoots": ["plugins/global.d.ts"],
-        "experimentalDecorators": true
-    }
+        "typeRoots": [
+            "plugins/global.d.ts"
+        ],
+        "experimentalDecorators": true,
+        "noEmit": true,
+        "noEmitOnError": true,
+        "noEmitHelpers": true
+    },
+    "compileOnSave": false
 }
