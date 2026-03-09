@@ -1,4 +1,4 @@
-import { UUIDv4, Promised } from 'fest/core';
+import { UUIDv4, Promised, stripUserScopePrefix, userPathCandidates } from 'fest/core';
 import { observe } from 'fest/object';
 import { createWorkerChannel, createQueuedOptimizedWorkerChannel, QueuedWorkerChannel } from 'fest/uniform';
 
@@ -486,21 +486,6 @@ export const hasFileExtension = (path: string) => {
     return path?.trim?.()?.split?.(".")?.[1]?.trim?.()?.length > 0;
 }
 
-// Normalize "/user" scope to OPFS root-relative path.
-// Examples:
-// "/user" -> "/"
-// "/user/styles/a.css" -> "/styles/a.css"
-// "/styles/a.css" -> "/styles/a.css"
-export const stripUserScopePrefix = (input: any): string => {
-    const value = String(input ?? "").trim();
-    if (!value) return "/";
-    if (value === "/user") return "/";
-    if (value.startsWith("/user/")) {
-        const stripped = value.slice("/user".length);
-        return stripped || "/";
-    }
-    return value;
-}
 
 //
 export async function getDirectoryHandle(rootHandle, relPath, { create = false, basePath = "" } = {}, logger = defaultLogger) {
@@ -871,8 +856,8 @@ export async function writeFile(rootHandle, relPath, data, logger = defaultLogge
             const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, "");
             const cleanPath = stripUserScopePrefix(resolvedPath);
 
-            await post('writeFile', { rootId: "", path: cleanPath, data }, resolvedRoot ? [resolvedRoot] : []);
-            return true;
+            const result = await post('writeFile', { rootId: "", path: cleanPath, data }, resolvedRoot ? [resolvedRoot] : []);
+            return result !== false;
         } catch (e: any) { return handleError(logger, 'error', `writeFile: ${e.message}`); }
 }
 
@@ -892,10 +877,13 @@ export async function getFileWriter(rootHandle, relPath, options: { create?: boo
 export async function removeFile(rootHandle, relPath, options: { recursive?: boolean, basePath?: string } = { recursive: true }, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const cleanPath = stripUserScopePrefix(resolvedPath);
-
-        await post('remove', { rootId: "", path: cleanPath, recursive: options.recursive }, resolvedRoot ? [resolvedRoot] : []);
-        return true;
+        const candidates = userPathCandidates(resolvedPath);
+        let lastResult: any = false;
+        for (const candidate of candidates) {
+            lastResult = await post('remove', { rootId: "", path: candidate, recursive: options.recursive }, resolvedRoot ? [resolvedRoot] : []);
+            if (lastResult !== false) return true;
+        }
+        return lastResult !== false;
     } catch (e: any) { return handleError(logger, 'error', `removeFile: ${e.message}`); }
 }
 
@@ -972,35 +960,52 @@ export const downloadFile = async (file) => {
 
 //
 export const provide = async (req: string | Request = "", rw = false) => {
-    const url: string = (req as Request)?.url ?? req;
-    const cleanUrl = url?.replace?.(location.origin, "")?.trim?.();
+    const requestUrl = (typeof req === "string" ? req : ((req as Request)?.url || "")).trim();
+    if (!requestUrl) return null;
+
+    let pathname = requestUrl;
+    try {
+        pathname = new URL(requestUrl, location?.origin || self?.location?.origin || "http://localhost").pathname || requestUrl;
+    } catch {}
+    const cleanPath = pathname?.trim?.() || "/";
 
     //
-    if (cleanUrl?.startsWith?.("/user")) {
-        const path = stripUserScopePrefix(cleanUrl);
+    if (cleanPath?.startsWith?.("/user")) {
+        const path = stripUserScopePrefix(cleanPath);
         const root = await navigator?.storage?.getDirectory?.();
-        const handle = await getFileHandle(root, path, { create: !!rw });
-
-        if (rw) {
-            return handle?.createWritable?.();
-        }
+        if (!root) return null;
+        const handle = await getFileHandle(root, path, { create: !!rw }).catch(() => null);
+        if (!handle) return null;
+        if (rw) return handle?.createWritable?.();
         return handle?.getFile?.();
-    } else {
-        try {
-            if (!req) return null;
-            const r = await fetch(req);
-            const blob = await r?.blob()?.catch?.(console.warn.bind(console));
-            const lastModifiedHeader = r?.headers?.get?.("Last-Modified");
-            const lastModified = lastModifiedHeader ? Date.parse(lastModifiedHeader) : 0;
-
-            if (blob) {
-                return new File([blob], url?.substring(url?.lastIndexOf('/') + 1), {
-                    type: blob?.type,
-                    lastModified: isNaN(lastModified) ? 0 : lastModified
-                })
-            }
-        } catch (e: any) { return handleError(defaultLogger, 'error', `provide: ${e.message}`); }
     }
+
+    //
+    if (rw) {
+        // Non-user scopes are treated as read-only for provide().
+        return null;
+    }
+
+    //
+    try {
+        const baseOrigin = String(location?.origin || self?.location?.origin || "").trim();
+        const fetchTarget = cleanPath.startsWith("/")
+            ? new URL(cleanPath, baseOrigin || "http://localhost").toString()
+            : requestUrl;
+        const r = await fetch(fetchTarget);
+        const blob = await r?.blob()?.catch?.(console.warn.bind(console));
+        const lastModifiedHeader = r?.headers?.get?.("Last-Modified");
+        const lastModified = lastModifiedHeader ? Date.parse(lastModifiedHeader) : 0;
+
+        if (blob) {
+            const fallbackName = cleanPath?.substring?.(cleanPath?.lastIndexOf?.("/") + 1) || "resource";
+            return new File([blob], fallbackName, {
+                type: blob?.type,
+                lastModified: isNaN(lastModified) ? 0 : lastModified
+            });
+        }
+    } catch (e: any) { return handleError(defaultLogger, 'error', `provide: ${e.message}`); }
+    return null;
 }
 
 //

@@ -375,33 +375,42 @@ export const downloadFile = async (file) => {
 
 //
 export const provide = async (req: string | Request = "", rw = false) => {
-    const url: string = (req as Request)?.url ?? req;
-    const path = getDir(url?.replace?.(location.origin, "")?.trim?.()?.startsWith?.("/user/") ? url?.replace?.(/^\/user/g, "")?.trim?.() : url);
-    const fn   = url?.split("/")?.at?.(-1);
+    const requestUrl = (typeof req === "string" ? req : ((req as Request)?.url || "")).trim();
+    if (!requestUrl) return null;
 
-    //
-    if (!URL.canParse(url) && path?.trim?.()?.startsWith?.("/user")) {
-        const $path = path?.replace?.("/user/", "")?.trim?.();
-        const clean = (($path?.split?.("/") || [$path])?.filter?.((p)=>!!p?.trim?.()) || [""])?.join?.("/") || "";
-        const npt = ((clean && clean != "/") ? "/" + clean + "/" : clean) || "/";
-        const handle = getFileHandle(await navigator?.storage?.getDirectory?.(), npt + fn, { create: true });
-        if (rw) { handle?.then?.((h)=>h?.createWritable?.()); }
-        return handle?.then?.((h)=>h?.getFile?.());
-    } else {
-        try {
-            if (!req) return null;
-            return fetch(req)?.then?.(async (r) => {
-                const blob = await r?.blob()?.catch?.(console.warn.bind(console));
-                const lastModified = Date.parse(r?.headers?.get?.("Last-Modified") || "") || 0;
-                if (blob) {
-                    return new File([blob], url?.substring(url?.lastIndexOf('/') + 1), {
-                        type: blob?.type,
-                        lastModified
-                    })
-                }
-            })?.catch?.(console.warn.bind(console));
-        } catch (e: any) { console.warn(e); }
+    let pathname = requestUrl;
+    try {
+        pathname = new URL(requestUrl, location?.origin || self?.location?.origin || "http://localhost").pathname || requestUrl;
+    } catch {}
+
+    const cleanPath = pathname?.trim?.() || "/";
+    if (cleanPath === "/user" || cleanPath.startsWith("/user/")) {
+        const root = await navigator?.storage?.getDirectory?.();
+        if (!root) return null;
+        const opfsPath = (cleanPath === "/user" ? "/" : cleanPath.replace(/^\/user\b/, "")) || "/";
+        const handle = await getFileHandle(root, opfsPath, { create: !!rw }).catch(() => null);
+        if (!handle) return null;
+        if (rw) return handle?.createWritable?.();
+        return handle?.getFile?.();
     }
+
+    if (rw) return null;
+    try {
+        const baseOrigin = String(location?.origin || self?.location?.origin || "").trim();
+        const fetchTarget = cleanPath.startsWith("/")
+            ? new URL(cleanPath, baseOrigin || "http://localhost").toString()
+            : requestUrl;
+        const r = await fetch(fetchTarget);
+        const blob = await r?.blob()?.catch?.(console.warn.bind(console));
+        const lastModified = Date.parse(r?.headers?.get?.("Last-Modified") || "") || 0;
+        if (blob) {
+            const fallbackName = cleanPath?.substring?.(cleanPath?.lastIndexOf?.("/") + 1) || "resource";
+            return new File([blob], fallbackName, {
+                type: blob?.type,
+                lastModified
+            });
+        }
+    } catch (e: any) { console.warn(e); }
     return null;
 }
 
