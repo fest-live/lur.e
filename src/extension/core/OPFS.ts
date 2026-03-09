@@ -8,11 +8,66 @@ import OPFSWorker from './OPFS.uniform.worker.ts?worker';
 //
 let workerChannel: any = null;
 const isServiceWorker = typeof ServiceWorkerGlobalScope !== "undefined" && self instanceof ServiceWorkerGlobalScope;
+const SW_BRIDGE_CHANNEL_NAME = "opfs-sw-bridge-v1";
 
 //
 const observers = new Map();
 
 let workerInitPromise: Promise<any> | null = null;
+let swBridgeChannel: BroadcastChannel | null = null;
+let swBridgeRequestCounter = 0;
+
+const ensureSwBridgeChannel = (): BroadcastChannel | null => {
+    if (!isServiceWorker) return null;
+    if (swBridgeChannel) return swBridgeChannel;
+    try {
+        if (typeof BroadcastChannel === "undefined") return null;
+        swBridgeChannel = new BroadcastChannel(SW_BRIDGE_CHANNEL_NAME);
+        return swBridgeChannel;
+    } catch {
+        return null;
+    }
+};
+
+const postViaSwBridge = (type: string, payload: any = {}, timeoutMs = 2500): Promise<any> => {
+    const channel = ensureSwBridgeChannel();
+    if (!channel) {
+        return Promise.reject(new Error("SW OPFS bridge is unavailable"));
+    }
+
+    const requestId = `sw-opfs-${Date.now()}-${++swBridgeRequestCounter}`;
+    return new Promise((resolve, reject) => {
+        let timeoutId: ReturnType<typeof setTimeout> | null = null;
+
+        const onMessage = (event: MessageEvent) => {
+            const data = event?.data || {};
+            if (!data || typeof data !== "object") return;
+            if (data?.type !== "opfs-sw-response") return;
+            if (String(data?.requestId || "") !== requestId) return;
+
+            channel.removeEventListener("message", onMessage);
+            if (timeoutId) clearTimeout(timeoutId);
+            if (data?.ok) {
+                resolve(data?.result);
+            } else {
+                reject(new Error(String(data?.error || "Unknown bridge error")));
+            }
+        };
+
+        channel.addEventListener("message", onMessage);
+        timeoutId = setTimeout(() => {
+            channel.removeEventListener("message", onMessage);
+            reject(new Error("SW OPFS bridge timeout"));
+        }, timeoutMs);
+
+        channel.postMessage({
+            type: "opfs-sw-request",
+            requestId,
+            action: type,
+            payload
+        });
+    });
+};
 
 export const ensureWorker = (): Promise<any> => {
     if (workerInitPromise) return workerInitPromise;
@@ -172,7 +227,7 @@ export const directHandlers: Record<string, (payload: any) => Promise<any>> = {
 export const post = (type: string, payload: any = {}, transfer: any[] = []) => {
     // In Service Worker context, execute directly instead of using postMessage
     if (isServiceWorker && directHandlers[type]) {
-        return directHandlers[type](payload);
+        return postViaSwBridge(type, payload).catch(() => directHandlers[type](payload));
     }
 
     return new Promise(async (resolve, reject) => {

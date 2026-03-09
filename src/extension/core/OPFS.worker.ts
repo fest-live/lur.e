@@ -227,6 +227,55 @@ export const handlers: Record<string, (payload: any) => Promise<any>> = {
     }
 };
 
+const SW_BRIDGE_CHANNEL_NAME = "opfs-sw-bridge-v1";
+let swBridgeChannel: BroadcastChannel | null = null;
+
+try {
+    if (typeof BroadcastChannel !== "undefined") {
+        swBridgeChannel = new BroadcastChannel(SW_BRIDGE_CHANNEL_NAME);
+        swBridgeChannel.onmessage = async (event: MessageEvent) => {
+            const data = event?.data || {};
+            if (!data || typeof data !== "object") return;
+            if (data?.type !== "opfs-sw-request") return;
+
+            const requestId = String(data?.requestId || "");
+            const action = String(data?.action || "");
+            const payload = data?.payload;
+            if (!requestId || !action) return;
+
+            const handler = handlers[action];
+            if (!handler) {
+                swBridgeChannel?.postMessage?.({
+                    type: "opfs-sw-response",
+                    requestId,
+                    ok: false,
+                    error: `Unknown operation type: ${action}`
+                });
+                return;
+            }
+
+            try {
+                const result = await handler(payload);
+                swBridgeChannel?.postMessage?.({
+                    type: "opfs-sw-response",
+                    requestId,
+                    ok: true,
+                    result
+                });
+            } catch (error: any) {
+                swBridgeChannel?.postMessage?.({
+                    type: "opfs-sw-response",
+                    requestId,
+                    ok: false,
+                    error: error?.message || String(error)
+                });
+            }
+        };
+    }
+} catch {
+    swBridgeChannel = null;
+}
+
 //
 self.addEventListener("message", async (e) => {
     if (!e.data || typeof e.data !== 'object') return;
