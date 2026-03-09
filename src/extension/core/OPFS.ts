@@ -242,9 +242,37 @@ export const post = (type: string, payload: any = {}, transfer: any[] = []) => {
             }
 
             // Use optimized uniform channel API
-            const result = await channel.request(type, payload);
+            let result: any;
+            try {
+                result = await channel.request(type, payload);
+            } catch (requestError) {
+                // Worker channel may exist but handler registration can fail at runtime.
+                // Fall back to direct handlers to keep OPFS operations functional.
+                if (directHandlers[type]) {
+                    return resolve(directHandlers[type](payload));
+                }
+                throw requestError;
+            }
+
+            // Some worker handlers return `false` on failure instead of throwing.
+            // For mutating operations we should treat it as a failure signal and retry direct path.
+            if (
+                result === false &&
+                (type === "writeFile" || type === "remove" || type === "copy")
+            ) {
+                if (directHandlers[type]) {
+                    return resolve(directHandlers[type](payload));
+                }
+            }
             resolve(result);
         } catch (err) {
+            if (directHandlers[type]) {
+                try {
+                    return resolve(directHandlers[type](payload));
+                } catch (fallbackError) {
+                    return reject(fallbackError);
+                }
+            }
             reject(err);
         }
     });
@@ -458,13 +486,27 @@ export const hasFileExtension = (path: string) => {
     return path?.trim?.()?.split?.(".")?.[1]?.trim?.()?.length > 0;
 }
 
+// Normalize "/user" scope to OPFS root-relative path.
+// Examples:
+// "/user" -> "/"
+// "/user/styles/a.css" -> "/styles/a.css"
+// "/styles/a.css" -> "/styles/a.css"
+export const stripUserScopePrefix = (input: any): string => {
+    const value = String(input ?? "").trim();
+    if (!value) return "/";
+    if (value === "/user") return "/";
+    if (value.startsWith("/user/")) {
+        const stripped = value.slice("/user".length);
+        return stripped || "/";
+    }
+    return value;
+}
+
 //
 export async function getDirectoryHandle(rootHandle, relPath, { create = false, basePath = "" } = {}, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, basePath);
-        // Remove /user/ prefix
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+        const cleanPath = stripUserScopePrefix(resolvedPath);
 
         const parts = cleanPath.split('/').filter((p) => (!!p?.trim?.()));
         if (parts.length > 0 && hasFileExtension(parts[parts.length - 1]?.trim?.())) { parts?.pop?.(); };
@@ -490,8 +532,7 @@ export async function getDirectoryHandle(rootHandle, relPath, { create = false, 
 export async function getFileHandle(rootHandle, relPath, { create = false, basePath = "" } = {}, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, basePath);
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+        const cleanPath = stripUserScopePrefix(resolvedPath);
 
         const parts = cleanPath.split('/').filter((d) => (!!d?.trim?.()));
         if (parts?.length == 0) return null;
@@ -609,9 +650,7 @@ export function openDirectory(
         const dirHandlePromise = getDirectoryHandle(rootHandle, resolvedPath, options, logger);
 
         const updateCache = async () => {
-            const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/")
-                ? resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.()
-                : resolvedPath;
+            const cleanPath = stripUserScopePrefix(resolvedPath);
 
             const entries: any = await post(
                 "readDirectory",
@@ -658,9 +697,7 @@ export function openDirectory(
             }
         });
 
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/")
-            ? resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.()
-            : resolvedPath;
+        const cleanPath = stripUserScopePrefix(resolvedPath);
 
         post(
             "observe",
@@ -794,8 +831,7 @@ export function openDirectory(
 export async function readFile(rootHandle, relPath, options: { basePath?: string } = {}, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+        const cleanPath = stripUserScopePrefix(resolvedPath);
 
         // Use Worker
         const file = await post('readFile', { rootId: "", path: cleanPath, type: "blob" }, resolvedRoot ? [resolvedRoot] : []);
@@ -833,8 +869,7 @@ export async function writeFile(rootHandle, relPath, data, logger = defaultLogge
         //
         try {
             const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, "");
-            const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-                resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+            const cleanPath = stripUserScopePrefix(resolvedPath);
 
             await post('writeFile', { rootId: "", path: cleanPath, data }, resolvedRoot ? [resolvedRoot] : []);
             return true;
@@ -857,8 +892,7 @@ export async function getFileWriter(rootHandle, relPath, options: { create?: boo
 export async function removeFile(rootHandle, relPath, options: { recursive?: boolean, basePath?: string } = { recursive: true }, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+        const cleanPath = stripUserScopePrefix(resolvedPath);
 
         await post('remove', { rootId: "", path: cleanPath, recursive: options.recursive }, resolvedRoot ? [resolvedRoot] : []);
         return true;
@@ -943,7 +977,7 @@ export const provide = async (req: string | Request = "", rw = false) => {
 
     //
     if (cleanUrl?.startsWith?.("/user")) {
-        const path = cleanUrl?.replace?.(/^\/user/g, "")?.trim?.();
+        const path = stripUserScopePrefix(cleanUrl);
         const root = await navigator?.storage?.getDirectory?.();
         const handle = await getFileHandle(root, path, { create: !!rw });
 
@@ -980,7 +1014,7 @@ export const getLeast = (item) => {
 //
 export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any) => {
     const fs = await resolveRootHandle(null);
-    const path = getDir(dest?.trim?.()?.startsWith?.("/user/") ? dest?.replace?.(/^\/user/g, "")?.trim?.() : dest);
+    const path = getDir(stripUserScopePrefix(dest));
     const user = path?.replace?.("/user", "")?.trim?.();
 
     //
@@ -997,7 +1031,7 @@ export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g
 
 //
 export const uploadDirectory = async (dest = "/user/", id: any = null) => {
-    dest = dest?.trim?.()?.startsWith?.("/user/") ? dest?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : dest;
+    dest = stripUserScopePrefix(dest);
     if (!globalThis.showDirectoryPicker) {
         return;
     }
@@ -1016,7 +1050,7 @@ export const uploadDirectory = async (dest = "/user/", id: any = null) => {
 
 //
 export const uploadFile = async (dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any) => {
-    const $e = "showOpenFilePicker"; dest = dest?.trim?.()?.startsWith?.("/user/") ? dest?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : dest;
+    const $e = "showOpenFilePicker"; dest = stripUserScopePrefix(dest);
 
     // @ts-ignore
     const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
@@ -1077,8 +1111,7 @@ export const dropAsTempFile = async (data: any) => {
 export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", options: { basePath?: string } = {}, logger = defaultLogger) => {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const cleanPath = resolvedPath?.trim?.()?.startsWith?.("/user/") ?
-            resolvedPath?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : resolvedPath;
+        const cleanPath = stripUserScopePrefix(resolvedPath);
 
         await post('remove', { rootId: "", path: cleanPath, recursive: true }, resolvedRoot ? [resolvedRoot] : []);
     } catch (e: any) { return handleError(logger, 'error', `clearAllInDirectory: ${e.message}`); }
