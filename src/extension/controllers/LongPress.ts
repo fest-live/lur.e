@@ -10,12 +10,14 @@ const defaultOptions = {
 };
 
 //
+/** Suppress the synthetic click after long-press without blocking other listeners on the same target. */
 const preventor: [(ev: PointerEvent) => void, AddEventListenerOptions] = [
     (ev: PointerEvent) => {
-    ev.preventDefault();
-    ev.stopPropagation();
-    ev.stopImmediatePropagation();
-}, { once: true }]
+        ev.preventDefault();
+        ev.stopPropagation();
+    },
+    { once: true },
+];
 
 //
 export class LongPressHandler {
