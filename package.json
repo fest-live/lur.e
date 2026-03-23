@@ -1,21 +1,58 @@
 {
     "name": "@fest-lib/lure",
-    "description": "LURE Reactive DOM Framework API",
-    "version": "0.0.0",
-    "private": false,
+    "description": "LURE reactive DOM framework (fest-lib)",
+    "version": "0.1.0",
+    "license": "MIT",
     "type": "module",
-    "index": "./dist/lure.js",
+    "sideEffects": true,
+    "engines": {
+        "node": ">=20"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/fest-live/lur.e.git"
+    },
+    "bugs": {
+        "url": "https://github.com/fest-live/lur.e/issues"
+    },
+    "homepage": "https://github.com/fest-live/lur.e#readme",
+    "keywords": [
+        "fest",
+        "fest-lib",
+        "reactive",
+        "dom",
+        "ui",
+        "typescript"
+    ],
+    "files": [
+        "dist",
+        "LICENSE"
+    ],
+    "main": "./dist/lure.js",
+    "module": "./dist/lure.js",
     "exports": {
         ".": {
-            "import": "./src/index.ts",
-            "require": "./dist/lure.js"
-        }
+            "import": "./dist/lure.js",
+            "default": "./dist/lure.js"
+        },
+        "./package.json": "./package.json"
+    },
+    "peerDependencies": {
+        "@fest-lib/core": "^0.1.0",
+        "@fest-lib/dom": "^0.1.0",
+        "@fest-lib/object": "^0.1.0",
+        "@fest-lib/uniform": "^0.1.0"
     },
     "scripts": {
         "test": "vite --host 0.0.0.0",
         "dev": "vite --host 0.0.0.0",
         "watch": "vite build --watch",
         "build": "vite build --config vite.config.js && npm run docs && npm run docs:md",
+        "build:publish": "FEST_NPM_IMPORTS=1 vite build --config vite.config.js",
+        "prepack": "npm run build:publish",
         "preview": "vite preview",
         "docs": "typedoc ./src/index.ts --options ./typedoc.json --out ./docs --tsconfig ./tsconfig.json --excludeExternals --excludePrivate --excludeProtected --skipErrorChecking",
         "docs:clean": "rm -rf ./docs && typedoc --options ./typedoc.json",
