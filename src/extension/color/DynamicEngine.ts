@@ -1,6 +1,13 @@
 import { addEvent, fixedClientZoom } from "fest/dom";
 import { stringRef } from "fest/object";
 
+const runWhenIdle = (cb: IdleRequestCallback, timeout = 100) => {
+    if (typeof globalThis.requestIdleCallback === "function") {
+        return globalThis.requestIdleCallback(cb, { timeout });
+    }
+    return setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 0 } as IdleDeadline), 0);
+};
+
 //
 export const electronAPI = "electronBridge";
 
@@ -96,15 +103,15 @@ const tacp = (color: string)=>{
 
 //
 const setIdleInterval = (cb, timeout = 1000, ...args)=>{
-    requestIdleCallback(async ()=>{
+    runWhenIdle(async ()=>{
         if (!cb || (typeof cb != "function")) return;
         while (true) { // @ts-ignore
             await Promise.try(cb, ...args);
             await new Promise((r)=>setTimeout(r, timeout));
-            await new Promise((r)=>requestIdleCallback(r, {timeout: 100}));
+            await new Promise((r)=>runWhenIdle(r, 100));
             await new Promise((r)=>requestAnimationFrame(r));
         }
-    }, {timeout: 1000});
+    }, 1000);
 }
 
 //
@@ -184,11 +191,11 @@ export const dynamicTheme = (ROOT = document.documentElement)=>{
     }
 
     //
-    addEvent(ROOT, "u2-appear", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(ROOT, "u2-hidden", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(ROOT, "u2-theme-change", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(window, "load", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(document, "visibilitychange", ()=>requestIdleCallback(updater, {timeout: 100}));
+    addEvent(ROOT, "u2-appear", ()=>runWhenIdle(updater, 100));
+    addEvent(ROOT, "u2-hidden", ()=>runWhenIdle(updater, 100));
+    addEvent(ROOT, "u2-theme-change", ()=>runWhenIdle(updater, 100));
+    addEvent(window, "load", ()=>runWhenIdle(updater, 100));
+    addEvent(document, "visibilitychange", ()=>runWhenIdle(updater, 100));
     setIdleInterval(updater, 500);
 }
 
@@ -202,11 +209,11 @@ export const currentColorFromPointRef = (x, y, ROOT = document.documentElement, 
     }
 
     //
-    addEvent(ROOT, "u2-appear", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(ROOT, "u2-hidden", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(ROOT, "u2-theme-change", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(window, "load", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(document, "visibilitychange", ()=>requestIdleCallback(updater, {timeout: 100}));
+    addEvent(ROOT, "u2-appear", ()=>runWhenIdle(updater, 100));
+    addEvent(ROOT, "u2-hidden", ()=>runWhenIdle(updater, 100));
+    addEvent(ROOT, "u2-theme-change", ()=>runWhenIdle(updater, 100));
+    addEvent(window, "load", ()=>runWhenIdle(updater, 100));
+    addEvent(document, "visibilitychange", ()=>runWhenIdle(updater, 100));
     setIdleInterval(updater, timeout);
     return rfc;
 }
@@ -221,11 +228,11 @@ export const currentColorFromCenterRef = (element: HTMLElement, ROOT = document.
     }
 
     //
-    addEvent(ROOT, "u2-appear", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(ROOT, "u2-hidden", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(ROOT, "u2-theme-change", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(window, "load", ()=>requestIdleCallback(updater, {timeout: 100}));
-    addEvent(document, "visibilitychange", ()=>requestIdleCallback(updater, {timeout: 100}));
+    addEvent(ROOT, "u2-appear", ()=>runWhenIdle(updater, 100));
+    addEvent(ROOT, "u2-hidden", ()=>runWhenIdle(updater, 100));
+    addEvent(ROOT, "u2-theme-change", ()=>runWhenIdle(updater, 100));
+    addEvent(window, "load", ()=>runWhenIdle(updater, 100));
+    addEvent(document, "visibilitychange", ()=>runWhenIdle(updater, 100));
     setIdleInterval(updater, timeout);
     return rfc;
 }

@@ -38,6 +38,13 @@ import {
 // предполагается, что класс уже существует в проекте
 import { DoubleWeakMap } from "fest/object"; // <-- путь подстрой под себя
 
+const runWhenIdle = (cb: IdleRequestCallback, timeout = 100) => {
+    if (typeof globalThis.requestIdleCallback === "function") {
+        return globalThis.requestIdleCallback(cb, { timeout });
+    }
+    return setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 0 } as IdleDeadline), 0);
+};
+
 // ============================================================================
 // Bank storage (pair-keyed)
 // ============================================================================
@@ -326,14 +333,14 @@ export const bindForms = (
     };
 
     const appearHandler = () =>
-        requestIdleCallback(
+        runWhenIdle(
             () => fields.querySelectorAll(wrapper).forEach((target: any) => updateInput(target, state)),
-            { timeout: 100 }
+            100
         );
 
     const observer = observeBySelector(fields, wrapper, (mutations: any) =>
         mutations.addedNodes.forEach((target: any) =>
-            requestIdleCallback(() => updateInput(state, target), { timeout: 100 })
+            runWhenIdle(() => updateInput(state, target), 100)
         )
     );
 
@@ -341,9 +348,9 @@ export const bindForms = (
         fields.querySelectorAll(wrapper).forEach((target: any) => updateInput(target, state))
     );
 
-    requestIdleCallback(
+    runWhenIdle(
         () => fields.querySelectorAll(wrapper).forEach((target: any) => updateInput(target, state)),
-        { timeout: 100 }
+        100
     );
 
     fields.addEventListener("input", onChange);
