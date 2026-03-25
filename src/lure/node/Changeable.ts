@@ -85,7 +85,7 @@ class Ch {
     //
     $getNodeBy(requestor?: any, value?: any) {
         const node = isPrimitive(hasValue(value) ? value?.value : value) ? (this.#T ??= T(value)) : getNode(value, (value == requestor) ? null : this.#mapCb, -1, requestor);
-        if (this.#T != null && (isPrimitive(value) || hasValue(value))) { this.#T.textContent = "" + (value?.value ?? (isPrimitive(value) ? value : null)); }
+        if (this.#T != null && (isPrimitive(value) || hasValue(value))) { this.#T.textContent = "" + (value?.value ?? (isPrimitive(value) ? value : (""))); }
         return node;
     }
 
@@ -93,7 +93,7 @@ class Ch {
     $getNode(requestor?: any, reassignOldNode: boolean | null = true) {
         // TODO: resolve somehow returning this.#valueRef as element...
         const node = isPrimitive(this.#valueRef?.value) ? (this.#T ??= T(this.#valueRef)) : getNode(this.#valueRef?.value, (requestor == this.#valueRef?.value) ? null : this.#mapCb, -1, requestor);
-        if (this.#T != null && (isPrimitive(this.#valueRef) || hasValue(this.#valueRef))) { this.#T.textContent = "" + (this.#valueRef?.value ?? (isPrimitive(this.#valueRef) ? this.#valueRef : null)); }
+        if (this.#T != null && (isPrimitive(this.#valueRef) || hasValue(this.#valueRef))) { this.#T.textContent = "" + (isPrimitive(this.#valueRef) ? this.#valueRef : (this.#valueRef?.value ?? "")); }
         if (node != null && reassignOldNode) { this.#oldNode = node; };
         return node;
     }

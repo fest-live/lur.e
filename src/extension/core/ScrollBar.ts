@@ -479,6 +479,7 @@ export class ScrollBar {
         const unaffected = affected(this.enhancedTimeline?.["progress"] || numberRef(0), updateAriaValues);
         addEvent(this.content, "scroll", updateAriaValues, { passive: true });
 
+        /*
         // Enhanced keyboard navigation with better step sizes and feedback
         addEvent(this.scrollbar, "keydown", (e: KeyboardEvent) => {
             let step = 50; // pixels to scroll
@@ -548,6 +549,7 @@ export class ScrollBar {
                 }, 1000);
             }
         });
+        */
 
         // Focus management
         addEvent(this.scrollbar, "focus", () => {
