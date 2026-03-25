@@ -115,6 +115,57 @@ const setIdleInterval = (cb, timeout = 1000, ...args)=>{
 }
 
 //
+/** Prefer real shell chrome (minimal nav / faint toolbar) for PWA title bar / WCO tint. */
+const sampleShellToolbarBackgroundColor = (): string | null => {
+    if (typeof document === "undefined") return null;
+    try {
+        const hosts = document.querySelectorAll("[data-shell]");
+        for (const host of hosts) {
+            const sr = (host as HTMLElement).shadowRoot;
+            if (!sr) continue;
+            const bar = sr.querySelector<HTMLElement>(".app-shell__nav, .app-shell__toolbar");
+            if (!bar) continue;
+            const bg = getComputedStyle(bar).backgroundColor;
+            if (tacp(bg)) return bg;
+        }
+    } catch {
+        /* ignore */
+    }
+    return null;
+};
+
+/** Under window-controls-overlay, sample inside env(titlebar-area-*) — not under OS control buttons. */
+const sampleWcoTitlebarStripColor = (): string | null => {
+    if (typeof document === "undefined") return null;
+    if (!globalThis.matchMedia?.("(display-mode: window-controls-overlay)")?.matches) return null;
+
+    const probe = document.createElement("div");
+    probe.setAttribute("data-wco-theme-probe", "true");
+    probe.style.cssText = [
+        "position:fixed",
+        "visibility:hidden",
+        "pointer-events:none",
+        "z-index:-2147483648",
+        "left:env(titlebar-area-x,0px)",
+        "top:env(titlebar-area-y,0px)",
+        "width:env(titlebar-area-width,0px)",
+        "height:env(titlebar-area-height,0px)"
+    ].join(";");
+
+    document.documentElement.appendChild(probe);
+    try {
+        const r = probe.getBoundingClientRect();
+        if (r.width < 1 || r.height < 1) return null;
+        const x = Math.floor(r.left + Math.min(40, r.width * 0.2));
+        const y = Math.floor(r.top + r.height * 0.5);
+        const c = pickBgColor(x, y);
+        return tacp(c) ? c : null;
+    } finally {
+        probe.remove();
+    }
+};
+
+//
 export const pickBgColor = (x, y, holder: HTMLElement | null = null)=>{
     // exclude any non-reasonable
     const opaque = Array.from(document.elementsFromPoint(x, y))?.filter?.((el: any)=>(
@@ -167,8 +218,24 @@ export const dynamicNativeFrame = (root = document.documentElement)=>{
         document.head.appendChild(media);
     }
 
-    const color = pickBgColor(globalThis.innerWidth - 64, 10);
-    if ((media || window?.[electronAPI]) && root == document.documentElement) {
+    /*
+     * Never sample (innerWidth - 64, 10): that hits the OS window-controls strip (often black)
+     * in desktop PWAs with window-controls-overlay, fighting app toolbar chrome.
+     */
+    const fromShell = sampleShellToolbarBackgroundColor();
+    const fromWco = !fromShell ? sampleWcoTitlebarStripColor() : null;
+    const fallbackX = Math.max(8, Math.floor(globalThis.innerWidth * 0.12));
+    const fallbackY = 20;
+    const picked = !fromShell && !fromWco ? pickBgColor(fallbackX, fallbackY) : null;
+    const color =
+        fromShell || fromWco || (picked && tacp(picked) ? picked : null);
+
+    if (
+        color &&
+        color !== "transparent" &&
+        (media || window?.[electronAPI]) &&
+        root == document.documentElement
+    ) {
         media?.setAttribute?.("content", color);
     }
 }
@@ -182,6 +249,10 @@ export const dynamicBgColors = (root = document.documentElement) => {
 
 //
 export const dynamicTheme = (ROOT = document.documentElement)=>{
+    const startedKey = "__LURE_DYNAMIC_THEME_STARTED__";
+    if ((globalThis as any)?.[startedKey]) return;
+    (globalThis as any)[startedKey] = true;
+
     matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ({}) => dynamicBgColors(ROOT));
 
     //
