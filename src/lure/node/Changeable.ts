@@ -1,5 +1,5 @@
 import { affected } from "fest/object";
-import { appendFix, elMap, getNode, Ps, T } from "../context/Utils";
+import { appendFix, elMap, getNode, T } from "../context/Utils";
 import { makeUpdater } from "../context/ReflectChildren";
 import { isPrimitive, hasValue } from "fest/core";
 import { indexOf, isValidParent } from "fest/dom";
@@ -22,6 +22,7 @@ class Ch {
     #options: ChangeableOptions = {} as ChangeableOptions;
     #oldNode: any; // in case, if '.value' is primitive, and can't be reused by maps
     #mapCb: any = null;
+    #T: any = null;
     //#reMap: WeakMap<any, any>; // reuse same object from value
 
     //
@@ -83,14 +84,16 @@ class Ch {
 
     //
     $getNodeBy(requestor?: any, value?: any) {
-        const node = isPrimitive(hasValue(value) ? value?.value : value) ? T(value) : getNode(value, (value == requestor) ? null : this.#mapCb, -1, requestor);
+        const node = isPrimitive(hasValue(value) ? value?.value : value) ? (this.#T ??= T(value)) : getNode(value, (value == requestor) ? null : this.#mapCb, -1, requestor);
+        if (this.#T != null && (isPrimitive(value) || hasValue(value))) { this.#T.textContent = "" + (value?.value ?? (isPrimitive(value) ? value : null)); }
         return node;
     }
 
     //
     $getNode(requestor?: any, reassignOldNode: boolean | null = true) {
         // TODO: resolve somehow returning this.#valueRef as element...
-        const node = isPrimitive(this.#valueRef?.value) ? T(this.#valueRef) : getNode(this.#valueRef?.value, (requestor == this.#valueRef?.value) ? null : this.#mapCb, -1, requestor);
+        const node = isPrimitive(this.#valueRef?.value) ? (this.#T ??= T(this.#valueRef)) : getNode(this.#valueRef?.value, (requestor == this.#valueRef?.value) ? null : this.#mapCb, -1, requestor);
+        if (this.#T != null && (isPrimitive(this.#valueRef) || hasValue(this.#valueRef))) { this.#T.textContent = "" + (this.#valueRef?.value ?? (isPrimitive(this.#valueRef) ? this.#valueRef : null)); }
         if (node != null && reassignOldNode) { this.#oldNode = node; };
         return node;
     }
@@ -190,15 +193,17 @@ const isWeakCompatible = (key: any) => {
 
 //
 export const C = (observable, mapCb?, boundParent: Node | null | ChangeableOptions = null) => {
+    let Te: any = null;
     if (observable instanceof HTMLElement) { return Q(observable); }
     if (observable == null) return document.createComment(":NULL:");
     const checkable = (typeof mapCb == "function" ? mapCb(observable, -1) : observable) ?? observable;
-    if (isPrimitive(checkable)) { return T(checkable); }
+    if (isPrimitive(checkable)) { return (Te ??= T(checkable)); }
+    if (Te != null && isPrimitive(checkable)) { Te.textContent = "" + checkable; }
 
     //
     if (checkable != null && hasValue(checkable)) {
         if (isPrimitive(checkable?.value)) {
-            return checkable?.value != null ? T(checkable) : document.createComment(":NULL:");
+            return checkable?.value != null ? (Te ??= T(checkable?.value)) : document.createComment(":NULL:");
         } else
         if (typeof checkable == "object" || typeof checkable == "function") {
             // @ts-ignore
