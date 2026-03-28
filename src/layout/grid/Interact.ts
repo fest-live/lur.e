@@ -77,11 +77,12 @@ export const doAnimate = async (newItem, axis: any = "x", animate = false, signa
     if (!animate) { await new Promise((r)=>requestAnimationFrame(r)); };
 
     //
+    const distance = Math.abs(dragCoord || 0);
+    const duration = Math.max(120, Math.min(240, 120 + distance * 0.45));
     const animation = animate && !matchMedia("(prefers-reduced-motion: reduce)")?.matches ? newItem.animate(animationSequence(dragCoord, axis), {
         fill: "none",
-        duration: 200,
-        //duration: 150,
-        easing: "linear"
+        duration,
+        easing: "cubic-bezier(0.22, 0.8, 0.3, 1)"
     }) : null;
 
     //

@@ -248,7 +248,8 @@ export const grabForDrag = (
                 hm.movement  = [...(hm.client ? [client?.[0] - (hm.client?.[0] || 0), client?.[1] - (hm.client?.[1] || 0)] : [0, 0])];
                 hm.client    = client;
                 hm.shifting[0] +=  hm.movement[0] || 0                   , hm.shifting[1] +=  hm.movement[1] || 0;
-                hm.modified[0]  = (hm.shifting[0] ?? hm.modified[0]) || 0, hm.modified[1]  = (hm.shifting[1] ?? hm.modified[1]) | 0;
+                // Keep sub-pixel precision while dragging; bitwise truncation causes visible jitter.
+                hm.modified[0]  = (hm.shifting[0] ?? hm.modified[0]) || 0, hm.modified[1]  = (hm.shifting[1] ?? hm.modified[1]) || 0;
                 em?.dispatchEvent?.(new PointerEventDrag("m-dragging", {
                     ...evc,
                     bubbles: true,

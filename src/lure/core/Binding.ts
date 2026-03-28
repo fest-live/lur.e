@@ -556,20 +556,23 @@ export const bindWhileConnected = (element: Element | null | undefined, bind: ()
     };
 
     const root = typeof document !== "undefined" ? document.documentElement : null;
-    const el = ((element as any)?.element ?? element) as Element;
+    const elAny = ((element as any)?.element ?? element) as unknown;
+    const el = elAny instanceof Node ? (elAny as Element) : null;
+    if (!el) return () => { };
 
     const mo =
         typeof MutationObserver !== "undefined" && root
             ? new MutationObserver((records) => {
                 for (const r of records) {
-                    if (r.target === el || (r.target as any)?.contains?.(el)) {
+                    const target = r.target;
+                    if (target === el || (target instanceof Node && target.contains(el))) {
                         ensureBound();
                         return;
                     }
 
                     const nodes = [...Array.from(r?.addedNodes || []), ...Array.from(r?.removedNodes || [])];
                     for (const n of nodes) {
-                        if (n === el || (n as Node).contains?.(el)) {
+                        if (n === el || (n instanceof Node && n.contains(el))) {
                             ensureBound();
                             return;
                         }
