@@ -299,6 +299,12 @@ export const makeDragEvents = async (
             //
             newItem?.removeAttribute?.("data-dragging");
             delete newItem?.dataset?.dragging;
+            newItem?.dispatchEvent?.(new CustomEvent("m-dragsettled", {
+                bubbles: true,
+                detail: {
+                    cell: cell ? [cell[0], cell[1]] : null
+                }
+            }));
         });
 
         //
