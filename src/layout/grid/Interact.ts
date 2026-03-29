@@ -48,19 +48,33 @@ const registeredCSSProperties = new Set<string>();
 
 //
 //const computed = Symbol("@computed");
-const depAxis  = (axis: string = "x")=>{ const m = matchMedia("(orientation: portrait)").matches; return {["x"]: m?"c":"r", ["y"]: m?"r":"c"}[axis]; }
-const swapped  = (axis: string = "x")=>{ const m = matchMedia("(orientation: portrait)").matches; return {["x"]: m?"x":"y", ["y"]: m?"y":"x"}[axis]; }
+const normalizeOrient = (value: unknown): number => {
+    const parsed = Number(value);
+    if (!Number.isFinite(parsed)) return 0;
+    const rounded = Math.round(parsed);
+    return ((rounded % 4) + 4) % 4;
+};
+
+const depAxis  = (axis: string = "x", orient: number = 0)=> {
+    const normalized = normalizeOrient(orient);
+    const isSwapped = normalized % 2 === 1;
+    if (isSwapped) {
+        return axis === "x" ? "r" : "c";
+    }
+    return axis === "x" ? "c" : "r";
+}
 
 // DragCoord
-export const animationSequence = (DragCoord = 0, axis = "x") => {
+export const animationSequence = (DragCoord = 0, axis = "x", orient = 0) => {
     const drag = "--drag-" + axis;
-    const axisKey = depAxis(axis);
+    const csDrag = "--cs-drag-" + axis;
+    const axisKey = depAxis(axis, orient);
     const rvProp = `--rv-grid-${axisKey}`;
     const gridProp = `--cs-grid-${axisKey}`;
     const prevGridProp = `--cs-p-grid-${axisKey}`;
     return [
-        { [rvProp]: `var(${prevGridProp})`, [drag]: DragCoord }, // starting...
-        { [rvProp]: `var(${gridProp})`, [drag]: 0 }
+        { [rvProp]: `var(${prevGridProp})`, [drag]: DragCoord, [csDrag]: `${DragCoord}px` }, // starting...
+        { [rvProp]: `var(${gridProp})`, [drag]: 0, [csDrag]: "0px" }
     ];
 };
 
@@ -79,7 +93,9 @@ export const doAnimate = async (newItem, axis: any = "x", animate = false, signa
     //
     const distance = Math.abs(dragCoord || 0);
     const duration = Math.max(120, Math.min(240, 120 + distance * 0.45));
-    const animation = animate && !matchMedia("(prefers-reduced-motion: reduce)")?.matches ? newItem.animate(animationSequence(dragCoord, axis), {
+    const gridSystem = newItem?.parentElement as HTMLElement | null;
+    const orient = normalizeOrient(orientOf(gridSystem || newItem));
+    const animation = animate && !matchMedia("(prefers-reduced-motion: reduce)")?.matches ? newItem.animate(animationSequence(dragCoord, axis, orient), {
         fill: "none",
         duration,
         easing: "cubic-bezier(0.22, 0.8, 0.3, 1)"
@@ -340,8 +356,18 @@ export const bindInteraction = (newItem: HTMLElement, pArgs: any): [any, any] =>
 
     //
     const applyDragStyles = (): void => {
-        if (dragging?.[0]?.value != null) setStyleProperty(newItem, "--drag-x", dragging?.[0]?.value || 0);
-        if (dragging?.[1]?.value != null) setStyleProperty(newItem, "--drag-y", dragging?.[1]?.value || 0);
+        if (dragging?.[0]?.value != null) {
+            const dx = dragging?.[0]?.value || 0;
+            setStyleProperty(newItem, "--drag-x", dx);
+            // Keep cs-drag vars in sync explicitly to avoid relying on downstream calc() cascade.
+            setStyleProperty(newItem, "--cs-drag-x", `${dx}px`);
+        }
+        if (dragging?.[1]?.value != null) {
+            const dy = dragging?.[1]?.value || 0;
+            setStyleProperty(newItem, "--drag-y", dy);
+            // Keep cs-drag vars in sync explicitly to avoid relying on downstream calc() cascade.
+            setStyleProperty(newItem, "--cs-drag-y", `${dy}px`);
+        }
     };
 
     //
@@ -388,6 +414,15 @@ export const bindInteraction = (newItem: HTMLElement, pArgs: any): [any, any] =>
             setStyleProperty(newItem, "--cell-y", (item.cell[1] = val) || 0);
         }
     });
+
+    // Prevent stale settle offsets from bleeding into the next drag start.
+    if (!newItem.dataset.dragResetBound) {
+        newItem.dataset.dragResetBound = "1";
+        newItem.addEventListener("m-dragstart", () => {
+            setStyleProperty(newItem, "--cs-transition-c", "0px");
+            setStyleProperty(newItem, "--cs-transition-r", "0px");
+        });
+    }
 
     //
     makeDragEvents(newItem, {layout: layout as [number, number], currentCell, dragging, syncDragStyles}, {item, items, list});
