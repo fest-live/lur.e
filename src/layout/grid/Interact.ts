@@ -48,7 +48,7 @@ const registeredCSSProperties = new Set<string>();
 
 //
 //const computed = Symbol("@computed");
-const depAxis  = (axis: string = "x")=>{ const m = /*matchMedia("(orientation: portrait)").matches*/true; return {["x"]: m?"c":"r", ["y"]: m?"r":"c"}[axis]; }
+const depAxis  = (axis: string = "x")=>{ const m = matchMedia("(orientation: portrait)").matches; return {["x"]: m?"c":"r", ["y"]: m?"r":"c"}[axis]; }
 const swapped  = (axis: string = "x")=>{ const m = matchMedia("(orientation: portrait)").matches; return {["x"]: m?"x":"y", ["y"]: m?"y":"x"}[axis]; }
 
 // DragCoord
@@ -331,6 +331,7 @@ export const bindInteraction = (newItem: HTMLElement, pArgs: any): [any, any] =>
 
     //
     const { item, items, list } = pArgs, layout = [pArgs?.layout?.columns || pArgs?.layout?.[0] || 4, pArgs?.layout?.rows || pArgs?.layout?.[1] || 8];
+    const immediateDragStyles = Boolean(pArgs?.immediateDragStyles);
     const dragging: [any, any] = [ numberRef(0, RAFBehavior()), numberRef(0, RAFBehavior()) ], currentCell: [any, any] = [ numberRef(item?.cell?.[0] || 0), numberRef(item?.cell?.[1] || 0) ];
 
     //
@@ -346,6 +347,13 @@ export const bindInteraction = (newItem: HTMLElement, pArgs: any): [any, any] =>
     //
     let dragStyleRaf = 0, lastRaf: any = null;
     const syncDragStyles = (flush = false): void => {
+        if (immediateDragStyles) {
+            applyDragStyles();
+            if (lastRaf) { cancelAnimationFrame(lastRaf); }
+            dragStyleRaf = 0;
+            lastRaf = null;
+            return;
+        }
         if (flush) {
             applyDragStyles();
             dragStyleRaf = 0;
