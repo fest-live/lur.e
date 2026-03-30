@@ -1,7 +1,7 @@
 import { RAFBehavior, orientOf, getBoundingOrientRect, setStyleProperty } from "fest/dom";
 import { makeObjectAssignable, observe, affected, numberRef } from "fest/object";
 import { makeShiftTrigger, LongPressHandler, clampCell, floorCell, bindDraggable } from "fest/lure";
-import { convertOrientPxToCX, redirectCell } from "fest/core";
+import { convertOrientPxToCX, redirectCell, cvt_cs_to_os } from "fest/core";
 import type { GridArgsType as GridArgsType, GridItemType } from "fest/core";
 
 //
@@ -63,6 +63,53 @@ const depAxis  = (axis: string = "x", orient: number = 0)=> {
     }
     return axis === "x" ? "c" : "r";
 }
+
+export const resolveGridCellFromClientPoint = (
+    gridSystem: HTMLElement | null | undefined,
+    clientPoint: [number, number],
+    args?: Partial<GridArgsType>,
+    mode: "floor" | "round" = "floor"
+): [number, number] => {
+    if (!gridSystem) return [0, 0];
+    const rect = gridSystem.getBoundingClientRect?.();
+    if (!rect) return [0, 0];
+
+    const layout: [number, number] = [
+        parseInt(gridSystem.getAttribute?.("data-grid-columns") || "", 10)
+            || (args?.layout as any)?.columns
+            || (args?.layout as any)?.[0]
+            || 4,
+        parseInt(gridSystem.getAttribute?.("data-grid-rows") || "", 10)
+            || (args?.layout as any)?.rows
+            || (args?.layout as any)?.[1]
+            || 8
+    ];
+
+    const orient = orientOf(gridSystem);
+    const size: [number, number] = [
+        rect.width || gridSystem.clientWidth || 1,
+        rect.height || gridSystem.clientHeight || 1
+    ];
+    const csCoord: [number, number] = [
+        (clientPoint?.[0] || 0) - rect.left,
+        (clientPoint?.[1] || 0) - rect.top
+    ];
+    const osCoord = cvt_cs_to_os(csCoord, size, orient);
+    const normalizedArgs = {
+        item: (args as any)?.item || ({} as GridItemType),
+        list: (args as any)?.list || [],
+        items: (args as any)?.items || new Map(),
+        layout,
+        size
+    } as GridArgsType;
+    const projected = convertOrientPxToCX(osCoord, normalizedArgs, orient);
+    const normalizedCell: [number, number] = mode === "round"
+        ? [Math.round(projected[0]), Math.round(projected[1])]
+        : [Math.floor(projected[0]), Math.floor(projected[1])];
+    const redirected = redirectCell(normalizedCell, normalizedArgs);
+    const clamped = clampCell(redirected, layout);
+    return [clamped.x.value, clamped.y.value];
+};
 
 // DragCoord
 export const animationSequence = (DragCoord = 0, axis = "x", orient = 0) => {

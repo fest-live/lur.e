@@ -53,6 +53,7 @@ export * from "./lure/core/Refs"
 
 //
 export * from "./layout/grid/Interact";
+export { resolveGridCellFromClientPoint } from "./layout/grid/Interact";
 export * from "./layout/grid/GridBox";
 export * from "./layout/orient/OrientBox";
 
