@@ -1,6 +1,6 @@
 import { RAFBehavior, orientOf, getBoundingOrientRect, setStyleProperty } from "fest/dom";
 import { makeObjectAssignable, observe, affected, numberRef } from "fest/object";
-import { makeShiftTrigger, LongPressHandler, clampCell, floorCell, bindDraggable } from "fest/lure";
+import { makeShiftTrigger, LongPressHandler, clampCell, bindDraggable } from "fest/lure";
 import { convertOrientPxToCX, redirectCell, cvt_cs_to_os } from "fest/core";
 import type { GridArgsType as GridArgsType, GridItemType } from "fest/core";
 
@@ -138,8 +138,7 @@ export const doAnimate = async (newItem, axis: any = "x", animate = false, signa
     if (!animate) { await new Promise((r)=>requestAnimationFrame(r)); };
 
     //
-    const distance = Math.abs(dragCoord || 0);
-    const duration = Math.max(120, Math.min(240, 120 + distance * 0.45));
+    const duration = 200;
     const gridSystem = newItem?.parentElement as HTMLElement | null;
     const orient = normalizeOrient(orientOf(gridSystem || newItem));
     const animation = animate && !matchMedia("(prefers-reduced-motion: reduce)")?.matches ? newItem.animate(animationSequence(dragCoord, axis, orient), {
@@ -208,6 +207,23 @@ export const makeDragEvents = async (
     }): Promise<{ dispose: () => void, draggable: any, process: (ev: MouseEvent, el: HTMLElement) => Promise<unknown> } | undefined> => {
 
     //
+    let settleResetTimer: ReturnType<typeof setTimeout> | null = null;
+    const setInteractionState = (
+        state: "onHover" | "onGrab" | "onMoving" | "onRelax" | "onPlace",
+        coordinateState: "source" | "intermediate" | "destination"
+    ): void => {
+        newItem.dataset.interactionState = state;
+        newItem.dataset.gridCoordinateState = coordinateState;
+    };
+    const clearSettleResetTimer = (): void => {
+        if (settleResetTimer) {
+            clearTimeout(settleResetTimer);
+            settleResetTimer = null;
+        }
+    };
+    setInteractionState("onHover", "source");
+
+    //
     const $updateLayout = (newItem: HTMLElement): [number, number] => {
         const gridSystem = newItem?.parentElement as HTMLElement | null;
         if (!gridSystem) { return layout; }
@@ -262,8 +278,8 @@ export const makeDragEvents = async (
         const projected = convertOrientPxToCX(inset, args, orient);
         projected[0] -= spanOffset[0];
         projected[1] -= spanOffset[1];
-        const flooredCell = floorCell(projected as [number, number]);
-        const redirectedCell = redirectCell([flooredCell.x.value, flooredCell.y.value], args);
+        const roundedCell: [number, number] = [Math.round(projected[0] || 0), Math.round(projected[1] || 0)];
+        const redirectedCell = redirectCell(roundedCell, args);
         const clampedCell = clampCell(redirectedCell, layoutSnapshot as [number, number]);
         return {
             inset: [inset[0] - dragging?.[0]?.value, inset[1] - dragging?.[1]?.value],
@@ -297,29 +313,32 @@ export const makeDragEvents = async (
 
     //
     const correctOffset = (dragging: [any, any]): [number, number] => {
-        // compute correct cell with span awareness
+        clearSettleResetTimer();
+        // Drag start must keep the current cell anchor to avoid grab-teleport.
+        const stableCell: [number, number] = [
+            currentCell?.[0]?.value ?? item?.cell?.[0] ?? 0,
+            currentCell?.[1]?.value ?? item?.cell?.[1] ?? 0
+        ];
         const ctx = computeCellFromBounds() as { inset: [number, number], cell: [number, number] } | null;
-        const cell = ctx?.cell;
-
-        //
-        if (cell) {
-            syncInsetVars((ctx?.inset || [0, 0]) as [number, number]); setCell(cell);
-            setStyleProperty(newItem, "--p-cell-x", cell?.[0] ?? currentCell?.[0]?.value ?? item?.cell?.[0] ?? 0);
-            setStyleProperty(newItem, "--p-cell-y", cell?.[1] ?? currentCell?.[1]?.value ?? item?.cell?.[1] ?? 0);
-            setStyleProperty(newItem, "--cell-x", cell?.[0] ?? currentCell?.[0]?.value ?? item?.cell?.[0] ?? 0);
-            setStyleProperty(newItem, "--cell-y", cell?.[1] ?? currentCell?.[1]?.value ?? item?.cell?.[1] ?? 0);
-        }
+        syncInsetVars((ctx?.inset || [0, 0]) as [number, number]);
+        setStyleProperty(newItem, "--p-cell-x", stableCell[0]);
+        setStyleProperty(newItem, "--p-cell-y", stableCell[1]);
+        setStyleProperty(newItem, "--cell-x", stableCell[0]);
+        setStyleProperty(newItem, "--cell-y", stableCell[1]);
 
         // reset dragging offset
         if (dragging && Array.isArray(dragging)) {
             try { dragging[0].value = 0, dragging[1].value = 0; } catch (e) { };
         }
-        syncDragStyles?.(true); newItem?.setAttribute?.("data-dragging", "");
+        setStyleProperty(newItem, "--drag-settle-ms", "0ms");
+        syncDragStyles?.(true);
+        setInteractionState("onGrab", "source");
         return [0, 0];
     };
 
     //
     const resolveDragging = (dragging: [any, any]): [number, number] => {
+        clearSettleResetTimer();
         // compute correct cell
         const ctx = computeCellFromBounds() as { inset: [number, number], cell: [number, number] } | null;
         const cell = ctx?.cell;
@@ -331,10 +350,13 @@ export const makeDragEvents = async (
 
         //
         if (cell) {
-            setCell(cell);
+            // Preview intended destination immediately, but commit to data model after settle.
             setStyleProperty(newItem, "--cell-x", cell?.[0] ?? currentCell?.[0]?.value ?? item?.cell?.[0] ?? 0);
             setStyleProperty(newItem, "--cell-y", cell?.[1] ?? currentCell?.[1]?.value ?? item?.cell?.[1] ?? 0);
         }
+
+        setStyleProperty(newItem, "--drag-settle-ms", "200ms");
+        setInteractionState("onRelax", "destination");
 
         //
         const animations = [
@@ -353,6 +375,7 @@ export const makeDragEvents = async (
 
             //
             if (cell) {
+                setCell(cell);
                 setStyleProperty(newItem, "--p-cell-x", cell?.[0] ?? currentCell?.[0]?.value ?? item?.cell?.[0] ?? 0);
                 setStyleProperty(newItem, "--p-cell-y", cell?.[1] ?? currentCell?.[1]?.value ?? item?.cell?.[1] ?? 0);
                 setStyleProperty(newItem, "--cell-x", cell?.[0] ?? currentCell?.[0]?.value ?? item?.cell?.[0] ?? 0);
@@ -360,12 +383,17 @@ export const makeDragEvents = async (
             }
 
             //
-            newItem?.removeAttribute?.("data-dragging");
-            delete newItem?.dataset?.dragging;
+            setInteractionState("onPlace", "destination");
+            settleResetTimer = setTimeout(() => {
+                setInteractionState("onHover", "source");
+                settleResetTimer = null;
+            }, 220);
             newItem?.dispatchEvent?.(new CustomEvent("m-dragsettled", {
                 bubbles: true,
                 detail: {
-                    cell: cell ? [cell[0], cell[1]] : null
+                    cell: cell ? [cell[0], cell[1]] : null,
+                    interactionState: "onPlace",
+                    coordinateState: "destination"
                 }
             }));
         });
@@ -446,6 +474,22 @@ export const bindInteraction = (newItem: HTMLElement, pArgs: any): [any, any] =>
     //
     affected([dragging?.[0], "value"], (val, prop) => { if (prop == "value") { syncDragStyles(); } });
     affected([dragging?.[1], "value"], (val, prop) => { if (prop == "value") { syncDragStyles(); } });
+    affected([dragging?.[0], "value"], (val, prop) => {
+        if (prop !== "value") return;
+        const dx = Math.abs(dragging?.[0]?.value || 0);
+        const dy = Math.abs(dragging?.[1]?.value || 0);
+        if (dx > 0.5 || dy > 0.5) {
+            setInteractionState("onMoving", "intermediate");
+        }
+    });
+    affected([dragging?.[1], "value"], (val, prop) => {
+        if (prop !== "value") return;
+        const dx = Math.abs(dragging?.[0]?.value || 0);
+        const dy = Math.abs(dragging?.[1]?.value || 0);
+        if (dx > 0.5 || dy > 0.5) {
+            setInteractionState("onMoving", "intermediate");
+        }
+    });
     syncDragStyles(true);
 
     //
@@ -466,6 +510,7 @@ export const bindInteraction = (newItem: HTMLElement, pArgs: any): [any, any] =>
     if (!newItem.dataset.dragResetBound) {
         newItem.dataset.dragResetBound = "1";
         newItem.addEventListener("m-dragstart", () => {
+            setStyleProperty(newItem, "--drag-settle-ms", "0ms");
             setStyleProperty(newItem, "--cs-transition-c", "0px");
             setStyleProperty(newItem, "--cs-transition-r", "0px");
         });
