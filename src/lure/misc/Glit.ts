@@ -203,14 +203,16 @@ export function generateName(length = 8) {
 
 export function defineElement(name: string, options?: ElementDefinitionOptions) {
     return function <T extends HTMLElementConstructor>(target: T, _key?: string): T {
+        const registry = (globalThis as unknown as { customElements?: CustomElementRegistry | null }).customElements;
         try {
-            if (typeof customElements === "undefined" || !name) return target;
-            const existing = customElements.get(name);
+            if (!registry || !name) return target;
+            if (typeof registry.get !== "function" || typeof registry.define !== "function") return target;
+            const existing = registry.get(name);
             if (existing) return existing as unknown as T;
-            customElements.define(name, target as unknown as CustomElementConstructor, options);
+            registry.define(name, target as unknown as CustomElementConstructor, options);
         } catch (e: any) {
             if (e?.name === "NotSupportedError" || /has already been used|already been defined/i.test(e?.message || "")) {
-                return (customElements?.get?.(name) ?? target) as T;
+                return (registry?.get?.(name) ?? target) as T;
             }
             throw e;
         }
@@ -473,7 +475,8 @@ export const customElement = defineElement;
 export function GLitElement<T extends HTMLElement = HTMLElement>(
     derivate?: HTMLElementConstructor<T>
 ): GLitElementClass<T> {
-    const Base = (derivate ?? HTMLElement) as HTMLElementConstructor<T>;
+    const fallbackBase = ((globalThis as unknown as { HTMLElement?: typeof HTMLElement }).HTMLElement ?? class {}) as HTMLElementConstructor<T>;
+    const Base = (derivate ?? fallbackBase) as HTMLElementConstructor<T>;
 
     // Проверяем кэш
     const cached = CSM.get(Base);
