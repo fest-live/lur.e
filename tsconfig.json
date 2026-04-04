@@ -3,7 +3,7 @@
         "./src/**/*.ts",
         "./test/**/*.ts",
         "test/test.tsx"
-, "../../../apps/CrossWord/src/frontend/views/home/Interact.ts"    ],
+, "../../../apps/CrossWord/src/frontend/views/home/ts/Interact.ts"    ],
     "exclude": [
         "./dist/**/*",
         "./externals/**/*",

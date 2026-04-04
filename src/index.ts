@@ -52,10 +52,10 @@ export * from "./lure/core/Links"
 export * from "./lure/core/Refs"
 
 //
-export * from "../../../../apps/CrossWord/src/frontend/views/home/Interact";
-export { resolveGridCellFromClientPoint } from "../../../../apps/CrossWord/src/frontend/views/home/Interact";
-export * from "../../../../apps/CrossWord/src/frontend/views/home/GridBox";
-export * from "../../../../apps/CrossWord/src/frontend/views/orient/OrientBox";
+export * from "../../../../apps/CrossWord/src/frontend/views/home/ts/Interact";
+export { resolveGridCellFromClientPoint } from "../../../../apps/CrossWord/src/frontend/views/home/ts/Interact";
+export * from "../../../../apps/CrossWord/src/frontend/views/home/ts/GridBox";
+export * from "../../../../apps/CrossWord/src/frontend/views/home/orient/OrientBox";
 
 //
 export * from "./extension/color/DynamicEngine";
