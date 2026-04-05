@@ -55,7 +55,7 @@ export * from "./lure/core/Refs"
 export * from "../../../../apps/CrossWord/src/frontend/views/home/ts/Interact";
 export { resolveGridCellFromClientPoint } from "../../../../apps/CrossWord/src/frontend/views/home/ts/Interact";
 export * from "../../../../apps/CrossWord/src/frontend/views/home/ts/GridBox";
-export * from "../../../../apps/CrossWord/src/frontend/views/home/orient/OrientBox";
+export * from "../../../../apps/CrossWord/src/frontend/views/home/ts/OrientBox";
 
 //
 export * from "./extension/color/DynamicEngine";
