@@ -24,5 +24,4 @@ export * from "../extension/anchor/CSSAdapter";
 // Advanced utilities for custom reactive computations
 export { operated } from "./Operations";
 
-// Integration examples and enhanced components
-export * from "../../test/integration-examples";
+// Integration examples are intentionally not exported from runtime bundles.

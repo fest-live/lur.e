@@ -3,7 +3,7 @@
         "./src/**/*.ts",
         "./test/**/*.ts",
         "test/test.tsx"
-, "../../../apps/CrossWord/src/frontend/views/home/ts/Interact.ts", "../../../apps/CrossWord/src/frontend/shells/base/AppLayout.ts", "../../../apps/CrossWord/src/frontend/shells/base/BaseElement.ts", "../../../apps/CrossWord/src/frontend/shells/base/Actions.ts", "../fl.ui/src/ui/window/WindowFrame.ts", "../../../apps/CrossWord/src/frontend/shells/boot/base/BootLoader.ts"    ],
+, "../../../apps/CrossWord/src/frontend/views/home/ts/Interact.ts", "../../../apps/CrossWord/src/frontend/shells/base/AppLayout.ts", "../../../apps/CrossWord/src/frontend/shells/base/BaseElement.ts", "../../../apps/CrossWord/src/frontend/shells/base/Actions.ts", "../fl.ui/src/ui/window/WindowFrame.ts", "../../../apps/CrossWord/src/frontend/shells/boot/ts/BootLoader.ts"    ],
     "exclude": [
         "./dist/**/*",
         "./externals/**/*",
