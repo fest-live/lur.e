@@ -1,18 +1,18 @@
 import { affected, numberRef } from "fest/object";
 import { bindWith, paddingBoxSize, scrollSize } from "fest/lure";
 import { makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
-import { boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
-import { pointerAnchorRef } from "../space-ref/PointerAnchor";
-import { EnhancedScrollTimeline, makeScrollTimeline } from "../css-ref/CSSTimeline";
-import { createResponsiveScrollbarConfig } from "../css-ref/ContainerQuery";
+import { boundingBoxAnchorRef } from "../anchor/BBoxAnchor";
+import { pointerAnchorRef } from "../anchor/PointerAnchor";
+import { EnhancedScrollTimeline, makeScrollTimeline } from "../anchor/CSSTimeline";
+import { createResponsiveScrollbarConfig } from "../anchor/ContainerQuery";
 import { ScrollbarGestureHandler } from "../controllers/EnhancedGestures";
-import { ScrollbarThemeManager, ScrollbarTheme } from "./ScrollbarTheme";
+import { ScrollbarThemeManager, ScrollbarTheme } from "../color/ScrollbarTheme";
 
 // Enhanced reactive math and CSS integration
 import { vector2Ref, operated, CSSBinder, CSSUnitUtils } from "fest/lure";
-import { ReactiveElementSize } from "../css-ref/Utils";
-import { ReactiveTransform } from "../css-ref/Utils";
-import { animateByTimeline } from "../css-ref/CSSAnimated";
+import { ReactiveElementSize } from "../anchor/Utils";
+import { ReactiveTransform } from "../anchor/Utils";
+import { animateByTimeline } from "../anchor/CSSAnimated";
 
 // @ts-ignore
 //import styles from "./ScrollBar.scss?inline";
@@ -578,7 +578,7 @@ export class ScrollBar {
     }
 
     // Public theming API
-    setTheme(theme: ScrollbarTheme | keyof typeof import("./ScrollbarTheme").scrollbarThemes) {
+    setTheme(theme: ScrollbarTheme | keyof typeof import("../color/ScrollbarTheme").scrollbarThemes) {
         this.themeManager?.setTheme(theme);
         return this;
     }

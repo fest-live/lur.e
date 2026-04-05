@@ -10,11 +10,11 @@ import {
     valueRef,
     sizeRef,
     attrRef
-} from "../../lure/core/Refs";
+} from "fest/lure/core/Refs";
 
-import { Q } from "../../lure/node/Queried";
-import { E } from "../../lure/node/Bindings";
-import { H } from "../../lure/node/Syntax";
+import { Q } from "fest/lure/node/Queried";
+import { E } from "fest/lure/node/Bindings";
+import { H } from "fest/lure/node/Syntax";
 
 //
 const styleCache = new Map();

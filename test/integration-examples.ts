@@ -12,7 +12,7 @@ import {
     GridCoordUtils, GridCellUtils, GridLayoutUtils, GridAnimationUtils, GridInteractionUtils,
     GridCoord, GridCell, GridConfig
 } from "../src/math/index";
-import { ReactiveElementSize } from "../src/extension/css-ref/Utils";
+import { ReactiveElementSize } from "../src/extension/anchor/Utils";
 
 /**
  * Example 1: Enhanced Draggable with reactive vector math

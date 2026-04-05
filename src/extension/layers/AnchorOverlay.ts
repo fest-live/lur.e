@@ -1,6 +1,6 @@
-import { makeAnchorElement } from "../css-ref/CSSAnchor";
-import { bindScrollbarPosition, boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
-import { enhancedIntersectionBoxAnchorRef } from "../space-ref/IntersectionAnchor";
+import { makeAnchorElement } from "../anchor/CSSAnchor";
+import { bindScrollbarPosition, boundingBoxAnchorRef } from "../anchor/BBoxAnchor";
+import { enhancedIntersectionBoxAnchorRef } from "../anchor/IntersectionAnchor";
 
 //
 export const getParentOrShadowRoot = (element: HTMLElement): HTMLElement|ShadowRoot|undefined => {

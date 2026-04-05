@@ -8,8 +8,8 @@ import { bindWith, bindCtrl } from "../../lure/core/Binding";
 
 // Enhanced reactive math and CSS integration
 import { operated, CSSBinder } from "fest/lure";
-import { ReactiveElementSize } from "../css-ref/Utils";
-import { ReactiveTransform } from "../css-ref/Utils";
+import { ReactiveElementSize } from "../anchor/Utils";
+import { ReactiveTransform } from "../anchor/Utils";
 
 //
 /* ***************************************************************************************** *

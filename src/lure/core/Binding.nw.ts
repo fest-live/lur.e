@@ -33,7 +33,7 @@ import {
     animatedRef,
     type AnimationOptions,
     type TransitionOptions,
-} from "../../extension/css-ref/CSSAnimated";
+} from "../../extension/anchor/CSSAnimated";
 
 // предполагается, что класс уже существует в проекте
 import { DoubleWeakMap } from "fest/object"; // <-- путь подстрой под себя

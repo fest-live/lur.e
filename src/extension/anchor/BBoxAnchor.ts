@@ -6,7 +6,7 @@ import {
     clampPointToRect, pointToRectDistance
 } from "fest/lure";
 import { CSSBinder, CSSUnitUtils } from "fest/lure";
-import { ReactiveElementSize } from "../css-ref/Utils";
+import { ReactiveElementSize } from "./Utils";
 
 //
 export function boundingBoxAnchorRef(anchor: HTMLElement, options?: {

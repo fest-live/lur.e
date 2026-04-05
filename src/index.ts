@@ -32,19 +32,19 @@ export * from "./extension/controllers/PointerAPI"
 
 
 //
-export * from "./extension/overlay/AnchorOverlay"
-export * from "./extension/overlay/Register"
+export * from "./extension/layers/AnchorOverlay"
+export * from "./extension/layers/Register"
 
 //
-export * from "./extension/interact/CtxMenu"
-export * from "./extension/interact/InputExt"
-export * from "./extension/interact/Clipboard"
+export * from "./extension/modules/CtxMenu"
+export * from "./extension/modules/InputExt"
+export * from "./extension/modules/Clipboard"
 
 //
-export * from "./extension/core/OPFS"
-export * from "./extension/core/Status"
-export * from "./extension/core/Renderer"
-export * from "./extension/core/Base64Data"
+export * from "./extension/opfs/OPFS"
+export * from "./extension/anchor/Status"
+export * from "./extension/color/Renderer"
+export * from "./extension/opfs/Base64Data"
 
 //
 export * from "./lure/core/Binding"
@@ -63,8 +63,8 @@ export * from "./extension/color/StyleRules"
 export * from "./extension/color/ThemeEngine"
 
 //
-export * from "./extension/space-ref/BBoxAnchor"
-export * from "./extension/space-ref/PointerAnchor"
+export * from "./extension/anchor/BBoxAnchor"
+export * from "./extension/anchor/PointerAnchor"
 
 //
 export * from "./math"

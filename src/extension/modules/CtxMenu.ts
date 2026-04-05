@@ -8,7 +8,7 @@ import { bindWhileConnected } from "../../lure/core/Binding";
 import { registerContextMenu } from "../tasking/BackNavigation";
 import Q from "../../lure/node/Queried";
 import H from "../../lure/node/Syntax";
-import { boundingBoxAnchorRef } from "../space-ref/BBoxAnchor";
+import { boundingBoxAnchorRef } from "../anchor/BBoxAnchor";
 import { makeInterruptTrigger } from "../controllers/Trigger";
 import { withInsetWithPointer } from "../../lure/core/Binding";
 
