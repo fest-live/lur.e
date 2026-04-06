@@ -204,13 +204,13 @@ export function generateName(length = 8) {
 
 export function defineElement(name: string, options?: ElementDefinitionOptions) {
     return function <T extends HTMLElementConstructor|HTMLElement>(target: T, _key?: string): T {
-        const registry = (globalThis as unknown as { customElements?: CustomElementRegistry | null }).customElements;
+        const registry = (globalThis as unknown as { customElements?: CustomElementRegistry | null })?.customElements;
         try {
             if (!registry || !name) return target;
             if (typeof registry.get !== "function" || typeof registry.define !== "function") return target;
             const existing = registry.get(name);
             if (existing) return existing as unknown as T;
-            registry.define(name, target as unknown as CustomElementConstructor, options);
+            registry?.define?.(name, target as unknown as CustomElementConstructor, options);
         } catch (e: any) {
             if (e?.name === "NotSupportedError" || /has already been used|already been defined/i.test(e?.message || "")) {
                 return (registry?.get?.(name) ?? target) as T;
