@@ -1,3 +1,4 @@
+// @ts-ignore
 import { ref } from "fest/object";
 import { addRoot, isElement, loadAsAdopted, loadInlineStyle, setAttributesIfNull } from "fest/dom";
 
@@ -202,7 +203,7 @@ export function generateName(length = 8) {
 }
 
 export function defineElement(name: string, options?: ElementDefinitionOptions) {
-    return function <T extends HTMLElementConstructor>(target: T, _key?: string): T {
+    return function <T extends HTMLElementConstructor|HTMLElement>(target: T, _key?: string): T {
         const registry = (globalThis as unknown as { customElements?: CustomElementRegistry | null }).customElements;
         try {
             if (!registry || !name) return target;
