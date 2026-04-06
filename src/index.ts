@@ -43,6 +43,7 @@ export * from "./extension/modules/Clipboard"
 //
 export * from "./extension/opfs/OPFS"
 export * from "./extension/anchor/Status"
+export { pointerAnchorRef } from "./extension/anchor/PointerAnchor"
 export * from "./extension/color/Renderer"
 export * from "./extension/opfs/Base64Data"
 
@@ -52,19 +53,23 @@ export * from "./lure/core/Links"
 export * from "./lure/core/Refs"
 
 //
-export * from "../../../../apps/CrossWord/src/frontend/views/home/ts/Interact";
-export { resolveGridCellFromClientPoint } from "../../../../apps/CrossWord/src/frontend/views/home/ts/Interact";
-export * from "../../../../apps/CrossWord/src/frontend/views/home/ts/GridBox";
-export * from "../../../../apps/CrossWord/src/frontend/views/home/ts/OrientBox";
-
-//
 export * from "./extension/color/DynamicEngine";
 export * from "./extension/color/StyleRules"
 export * from "./extension/color/ThemeEngine"
 
 //
-export * from "./extension/anchor/BBoxAnchor"
-export * from "./extension/anchor/PointerAnchor"
+export * from "./extension/opfs/Base64Data"
+export * from "./extension/opfs/OPFS"
+
+//
+export * from "./extension/modules/LazyLoader"
+export * from "./extension/modules/TemplateManager"
+export * from "./extension/modules/VoiceInput"
+export * from "./extension/modules/Clipboard"
+export * from "./extension/modules/HistoryManager"
+export * from "./extension/modules/InputExt"
+export * from "./extension/modules/HookEvent"
+export * from "./extension/modules/ScrollBar"
 
 //
 export * from "./math"
