@@ -1,5 +1,5 @@
 /* Task Indication Logic */
-import { bindWith, ITask } from "fest/lure";
+import { bindWith, type ITask } from "fest/lure";
 import { handleAttribute } from "fest/dom";
 import { propRef } from "fest/object";
 

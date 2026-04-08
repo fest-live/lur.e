@@ -4,6 +4,8 @@
  * Provides unified clipboard operations with fallbacks
  */
 
+import { lazyAddEventListener } from "fest/lure";
+
 export type ClipboardDataType = "text" | "html" | "image" | "blob";
 
 export interface ClipboardWriteOptions {
@@ -586,8 +588,6 @@ export default {
     isWriteAvailable: isClipboardWriteAvailable,
     isChromeExtension
 };
-
-import { lazyAddEventListener } from "../controllers/LazyEvents";
 
 //
 export interface ClipboardProvider {

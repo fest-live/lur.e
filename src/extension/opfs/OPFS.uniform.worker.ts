@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
 import { registerWorkerAPI } from "fest/uniform";
-import { MessageEnvelope } from "fest/uniform/src/optimized-protocol";
+import type { MessageEnvelope } from "fest/uniform/src/optimized-protocol";
 
 // Import the handlers directly from the OPFS worker module
 import { handlers } from './OPFS.worker.ts';

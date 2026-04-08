@@ -1,7 +1,6 @@
 import { observe, $triggerLess } from "fest/object";
 import { getBy, getFocused, registerTask } from "./Manager";
-import { ITask } from "./Types";
-import { ITaskOptions } from "./Types";
+import type { ITask, ITaskOptions } from "./Types";
 import { setIgnoreNextPopState } from "./BackNavigation";
 
 //

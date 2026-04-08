@@ -1,11 +1,18 @@
 import { numberRef, addToCallChain } from "fest/object";
 import { addEvent, handleStyleChange } from "fest/dom";
+import { bindWith } from "fest/lure";
+import type { Rect2D } from "../../math/Operations";
 import {
-    vector2Ref, bindWith, Vector2D,
-    rectCenter, rectArea, Rect2D, rectContainsPoint, rectIntersects,
-    clampPointToRect, pointToRectDistance
-} from "fest/lure";
-import { CSSBinder, CSSUnitUtils } from "fest/lure";
+    vector2Ref,
+    Vector2D,
+    rectCenter,
+    rectArea,
+    rectContainsPoint,
+    rectIntersects,
+    clampPointToRect,
+    pointToRectDistance
+} from "../../math";
+import { CSSBinder, CSSUnitUtils } from "./CSSAdapter";
 import { ReactiveElementSize } from "./Utils";
 
 //

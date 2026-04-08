@@ -5,7 +5,7 @@ import {
     Matrix2D, Matrix4D
 } from "../../math/index";
 import { handleStyleChange } from "fest/dom";
-import { AnimationOptions, TransitionOptions } from "./CSSAnimated";
+import type { AnimationOptions, TransitionOptions } from "./CSSAnimated";
 
 // CSS Typed OM and Unit Conversion Utilities
 export class CSSUnitConverter {

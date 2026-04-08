@@ -1,3 +1,7 @@
+/**
+ * Pointer helpers for orient-aware UIs. For launcher / speed-dial grids (cell hit-test, placement),
+ * use `fest/dom` `resolveGridCellFromClientPoint` + Veela `compute_grid_item_cell` / `.ui-launcher-grid`.
+ */
 import { getBoundingOrientRect, orientOf, addEvent, addEvents, hasParent, removeEvent } from "fest/dom";
 import { cvt_cs_to_os, withCtx } from "fest/core";
 import { Vector2D, vector2Ref } from "fest/lure";
@@ -116,8 +120,18 @@ class PointerEdge {
     //
     get left() { const current = Math.abs(this.pointer[0] - 0) < 10; return (this.results.left = current); }
     get top () { const current = Math.abs(this.pointer[1] - 0) < 10; return (this.results.top  = current); }
-    get right () { const current = Math.abs(this.pointer[0] - globalThis.innerWidth)  < 10; return (this.results.right  = current); }
-    get bottom() { const current = Math.abs(this.pointer[1] - globalThis.innerHeight) < 10; return (this.results.bottom = current); }
+    get right () {
+        const vv = globalThis.visualViewport;
+        const w = (vv?.width ?? globalThis.innerWidth) || 0;
+        const current = Math.abs(this.pointer[0] - w) < 10;
+        return (this.results.right  = current);
+    }
+    get bottom() {
+        const vv = globalThis.visualViewport;
+        const h = (vv?.height ?? globalThis.innerHeight) || 0;
+        const current = Math.abs(this.pointer[1] - h) < 10;
+        return (this.results.bottom = current);
+    }
 }
 
 //

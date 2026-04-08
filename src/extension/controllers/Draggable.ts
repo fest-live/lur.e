@@ -5,7 +5,8 @@ import { bindDraggable } from "./PointerAPI";
 //
 //import {  E  } from "fest/lure";
 import { numberRef, affected } from "fest/object";
-import { Vector2D, vector2Ref, Rect2D, clampPointToRect, createRect2D } from "fest/lure";
+import type { Rect2D } from "../../math/Operations";
+import { Vector2D, vector2Ref, clampPointToRect, createRect2D } from "../../math";
 
 //
 interface DragHandlerOptions {
@@ -137,8 +138,8 @@ export class DragHandler {
             this.#queueFrame(0, 0);
 
             //
-            setStyleProperty(holder, "--shift-x", (box?.left || 0));
-            setStyleProperty(holder, "--shift-y", (box?.top  || 0));
+            setStyleProperty(holder, "--shift-x", `${box?.left || 0}px`);
+            setStyleProperty(holder, "--shift-y", `${box?.top  || 0}px`);
         }
 
         //

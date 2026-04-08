@@ -1,4 +1,4 @@
-import { ITask } from "./Types";
+import type { ITask } from "./Types";
 import { addEvent } from "fest/dom";
 import {
     initBackNavigation,

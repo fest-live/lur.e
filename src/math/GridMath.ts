@@ -1,5 +1,6 @@
 import { numberRef } from "fest/object";
-import { operated, vector2Ref, Vector2D, addVector2D, Rect2D, createRect2D, } from "./index";
+import { operated, vector2Ref, Vector2D, addVector2D, createRect2D } from "./index";
+import type { Rect2D } from "./Operations";
 
 // Grid-specific mathematical types and operations
 

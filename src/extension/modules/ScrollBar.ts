@@ -6,7 +6,7 @@ import { pointerAnchorRef } from "../anchor/PointerAnchor";
 import { EnhancedScrollTimeline, makeScrollTimeline } from "../anchor/CSSTimeline";
 import { createResponsiveScrollbarConfig } from "../anchor/ContainerQuery";
 import { ScrollbarGestureHandler } from "../controllers/EnhancedGestures";
-import { ScrollbarThemeManager, ScrollbarTheme } from "../color/ScrollbarTheme";
+import { ScrollbarThemeManager, type ScrollbarTheme } from "../color/ScrollbarTheme";
 
 // Enhanced reactive math and CSS integration
 import { vector2Ref, operated, CSSBinder, CSSUnitUtils } from "fest/lure";

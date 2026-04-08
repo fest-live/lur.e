@@ -1,11 +1,20 @@
 import { addEvent, removeEvent, setStyleProperty, getBoundingOrientRect } from "fest/dom";
 import { makeShiftTrigger } from "./Trigger";
 import { bindDraggable } from "./PointerAPI";
+import type { Rect2D } from "../../math/Operations";
 import {
-    Vector2D, vector2Ref, Rect2D, createRect2D,
-    rectCenter, rectContainsPoint, rectIntersects, rectArea,
-    clampPointToRect, pointToRectDistance, addVector2D, subtractVector2D
-} from "fest/lure";
+    Vector2D,
+    vector2Ref,
+    createRect2D,
+    rectCenter,
+    rectContainsPoint,
+    rectIntersects,
+    rectArea,
+    clampPointToRect,
+    pointToRectDistance,
+    addVector2D,
+    subtractVector2D
+} from "../../math";
 import { numberRef, affected } from "fest/object";
 
 export interface SelectionOptions {
