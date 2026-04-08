@@ -4,6 +4,7 @@ import { E } from "./Bindings";
 import { M } from "./Mapped";
 import { isElement } from "fest/dom";
 import { checkInsideTagBlock, cleanupInterTagWhitespaceAndIndent } from "./Normalizer";
+import { pruneEmptyStyleAttribute } from "../misc/Styles";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
@@ -12,8 +13,10 @@ const preserveWhitespaceTags = new Set(["PRE", "TEXTAREA", "SCRIPT", "STYLE"]);
 //
 const parseIndex = (value: string | any | null): number => {
     if (typeof value != "string" || !value?.trim?.()) return -1;
-    const match = value.match(/^#{(\d+)}$/);
-    return match ? parseInt(match?.[1] ?? "-1") : -1;
+    const exact = value.match(/^#\{(\d+)\}$/);
+    if (exact) return parseInt(exact[1] ?? "-1", 10);
+    const embedded = value.match(/#\{(\d+)\}/);
+    return embedded ? parseInt(embedded[1] ?? "-1", 10) : -1;
 }
 
 //
@@ -31,7 +34,7 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         }
 
         //
-        const specialEntryNames = ["dataset", "style", "classList", "visible", "aria", "value", "ref"];
+        const specialEntryNames = ["dataset", "style", "classList", "visible", "aria", "value", "placeholder", "ref"];
         specialEntryNames.forEach((name) => addEntryIfExists(name));
 
         //
@@ -78,7 +81,7 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         }
 
         //
-        let attributesEntries: [string, any][] = makeEntries(["attr:", ""], ["ref"]);
+        let attributesEntries: [string, any][] = makeEntries(["attr:", ""], ["ref", "value", "placeholder"]);
         let propertiesEntries: [string, any][] = makeEntries(["prop:"], []);
         let onEntries: [string, any[]][] = makeCumulativeEntries(["on:", "@"], [], "");
         let refEntries: [string, any[]][] = makeCumulativeEntries(["ref:"], [], ["ref"]);
@@ -118,7 +121,9 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
 
             //
             const attributeIsInRegistry = (name: string) => {
-                return attributesEntries?.some?.((pair) => pair[0] == name) || name?.startsWith?.("ref:") || name == "ref";
+                return attributesEntries?.some?.((pair) => pair[0] == name)
+                    || entriesIdc?.some?.((pair) => pair[0] == name)
+                    || name?.startsWith?.("ref:") || name == "ref";
             }
 
             // needs by splice or remove, DOM element.attributes is a live collection
@@ -132,11 +137,19 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
                     // if attribute name contains colon, it is a property
                     attr.name?.includes?.(":") || attr.name?.includes?.("ref:") || attr.name == "ref"
                 ) { el?.removeAttribute?.(attr.name as string); }
-            };
+            }
+
+            // Strip any leftover internal binding tokens (e.g. failed parse / mixed markup) to avoid leaking into the DOM
+            for (const attr of Array.from(el?.attributes || [])) {
+                if (typeof attr.value == "string" && /#\{\d+\}/.test(attr.value)) {
+                    el?.removeAttribute?.(attr.name as string);
+                }
+            }
         }
 
         //
         clearPlaceholdersFromAttributesOfElement(el);
+        pruneEmptyStyleAttribute(el);
         if (!EMap?.has?.(el)) { EMap?.set?.(el, E(el, bindings)); };
     };
     return EMap?.get?.(el) ?? el;

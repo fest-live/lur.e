@@ -2,6 +2,44 @@ import { bindWith } from "../core/Binding";
 import { handleStyleChange } from "fest/dom";
 
 //
+/** True when there is no non-empty declaration value (handles `prop: ` / `prop:` after empty `${...}` in html templates). */
+export const isEffectivelyEmptyStyleText = (cssText: string | null | undefined): boolean => {
+    const s = typeof cssText == "string" ? cssText.trim() : "";
+    if (!s) return true;
+    for (const chunk of s.split(";")) {
+        const t = chunk.trim();
+        if (!t) continue;
+        const ci = t.indexOf(":");
+        if (ci < 0) return false;
+        if (t.slice(ci + 1).trim().length > 0) return false;
+    }
+    return true;
+};
+
+//
+/** Drop a useless `style` attribute left over from empty template interpolations. */
+export const pruneEmptyStyleAttribute = (element: HTMLElement | null | undefined): void => {
+    if (element == null) return;
+    const raw = element.getAttribute("style");
+    if (raw == null) return;
+    if (isEffectivelyEmptyStyleText(raw)) {
+        element.removeAttribute("style");
+        element.style.cssText = "";
+    }
+};
+
+//
+/** Set inline styles or remove the attribute when the effective CSS text is empty. */
+export const applyNormalizedInlineStyle = (element: HTMLElement, cssText: string): void => {
+    if (isEffectivelyEmptyStyleText(cssText)) {
+        element.style.cssText = "";
+        element.removeAttribute("style");
+    } else {
+        element.style.cssText = cssText;
+    }
+};
+
+//
 // NEWER, INLINE STYLES ONLY!!!
 // string template for CSS values
 export const S = (strings, ...values: any[])=>{
@@ -21,7 +59,9 @@ export const S = (strings, ...values: any[])=>{
                 counter++;
             } else
             if (typeof $value != "object" && typeof $value != "function") {
-                parts.push(`${$value}`);
+                if ($value != null && String($value).trim() !== "") {
+                    parts.push(String($value));
+                }
             }
         }
         index++;
@@ -29,7 +69,7 @@ export const S = (strings, ...values: any[])=>{
 
     // return a function that applies the style to an element
     return [(element: any)=>{
-        element.style.cssText = parts?.join?.(";") ?? element.style.cssText;
+        applyNormalizedInlineStyle(element, parts?.join?.(";") ?? "");
 
         // apply reactive values
         const subs: any[] = [];

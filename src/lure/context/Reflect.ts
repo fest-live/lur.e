@@ -4,6 +4,7 @@ import { isNotEqual, isPrimitive } from "fest/core";
 //
 import { bindHandler, bindWith } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "fest/dom";
+import { applyNormalizedInlineStyle } from "../misc/Styles";
 import Q from "../node/Queried";
 import { setChecked } from "fest/dom";
 
@@ -77,8 +78,8 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
 // TODO! support observe styles
 export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (!styles) return element;
-    if (typeof styles == "string") { element.style.cssText = styles; } else
-    if (typeof styles?.value == "string") { affected([styles, "value"], (val) => { element.style.cssText = val; }); } else
+    if (typeof styles == "string") { applyNormalizedInlineStyle(element, styles); } else
+    if (typeof styles?.value == "string") { affected([styles, "value"], (val) => { applyNormalizedInlineStyle(element, val ?? ""); }); } else
     if (typeof styles == "object" || typeof styles == "function") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
         $entries(styles).forEach(([prop, value])=>{

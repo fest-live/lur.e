@@ -17,6 +17,9 @@ interface Params {
     behaviors?: any;
     stores?: any[] | Set<any> | Map<any, any>;
     style?: any | string;
+    /** Binds element property (not attribute) — required for correct `<input>` / `<textarea>` value. */
+    value?: any;
+    placeholder?: any;
     slot?: any | string;
     name?: any | string;
     type?: any | string;
@@ -71,6 +74,8 @@ export const E = (selector: string | HTMLElement | Node | DocumentFragment | Doc
         if (params.aria != null) reflectARIA(element, params.aria);
 
         //
+        if ("value" in params) bindWith(element, "value", params.value, handleProperty, params, true);
+        if ("placeholder" in params) bindWith(element, "placeholder", params.placeholder, handleProperty, params, true);
         if (params.is != null) bindWith(element, "is", params.is, handleAttribute, params, true);
         if (params.role != null) bindWith(element, "role", params.role, handleProperty, params);
         if (params.slot != null) bindWith(element, "slot", params.slot, handleProperty, params);
