@@ -43,7 +43,6 @@ export * from "./extension/modules/Clipboard"
 //
 export * from "./extension/opfs/OPFS"
 export * from "./extension/anchor/Status"
-export { pointerAnchorRef } from "./extension/anchor/PointerAnchor"
 export * from "./extension/color/Renderer"
 export * from "./extension/opfs/Base64Data"
 

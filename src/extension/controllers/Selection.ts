@@ -1,7 +1,7 @@
 import { addEvent, removeEvent, setStyleProperty, getBoundingOrientRect } from "fest/dom";
 import { makeShiftTrigger } from "./Trigger";
 import { bindDraggable } from "./PointerAPI";
-import type { Rect2D } from "../../math/Operations";
+import type { Rect2D } from "../../../math/Operations";
 import {
     Vector2D,
     vector2Ref,
@@ -14,7 +14,7 @@ import {
     pointToRectDistance,
     addVector2D,
     subtractVector2D
-} from "../../math";
+} from "../../../math";
 import { numberRef, affected } from "fest/object";
 
 export interface SelectionOptions {
