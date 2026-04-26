@@ -1,9 +1,9 @@
 /// <reference lib="webworker" />
 import { registerWorkerAPI } from "fest/uniform";
-import type { MessageEnvelope } from "fest/uniform/src/optimized-protocol";
+import type { MessageEnvelope } from "fest/uniform";
 
 // Import the handlers directly from the OPFS worker module
-import { handlers } from './OPFS.worker.ts';
+import { handlers } from './OPFS.worker.js';
 
 // Register all OPFS handlers with the uniform worker API
 if (handlers) {
@@ -18,7 +18,7 @@ const processMessage = async (envelope: MessageEnvelope) => {
             const results = [];
             for (const msg of envelope.payload) {
                 const result = await processSingleMessage(msg);
-                results.push(result);
+                results.push(result as never);
             }
             return results;
         } else {
