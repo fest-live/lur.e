@@ -1,18 +1,19 @@
 import { affected, numberRef } from "fest/object";
 import { bindWith, paddingBoxSize, scrollSize } from "fest/lure";
 import { makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
-import { boundingBoxAnchorRef } from "../anchor/BBoxAnchor";
-import { pointerAnchorRef } from "../anchor/PointerAnchor";
-import { EnhancedScrollTimeline, makeScrollTimeline } from "../anchor/CSSTimeline";
-import { createResponsiveScrollbarConfig } from "../anchor/ContainerQuery";
-import { ScrollbarGestureHandler } from "../../controllers/md-2025/EnhancedGestures";
-import { ScrollbarThemeManager, type ScrollbarTheme } from "../color/ScrollbarTheme";
+import { boundingBoxAnchorRef } from "../../design/anchor/BBoxAnchor";
+import { pointerAnchorRef } from "../../design/anchor/PointerAnchor";
+import { EnhancedScrollTimeline, makeScrollTimeline } from "../../design/anchor/CSSTimeline";
+import { createResponsiveScrollbarConfig } from "../../design/anchor/ContainerQuery";
+import { ScrollbarThemeManager, type ScrollbarTheme } from "../../design/color/ScrollbarTheme";
 
 // Enhanced reactive math and CSS integration
-import { vector2Ref, operated, CSSBinder, CSSUnitUtils } from "fest/lure";
-import { ReactiveElementSize } from "../anchor/Utils";
-import { ReactiveTransform } from "../anchor/Utils";
-import { animateByTimeline } from "../anchor/CSSAnimated";
+import { vector2Ref, operated } from "fest/lure";
+import { ReactiveElementSize } from "../../design/anchor/Utils";
+import { ReactiveTransform } from "../../design/anchor/Utils";
+import { animateByTimeline } from "../../design/anchor/CSSAnimated";
+import { ScrollbarGestureHandler } from "../controllers/EnhancedGestures";
+import { CSSBinder, CSSUnitUtils } from "../../design/anchor/CSSAdapter";
 
 // @ts-ignore
 //import styles from "./ScrollBar.scss?inline";
@@ -578,8 +579,8 @@ export class ScrollBar {
     }
 
     // Public theming API
-    setTheme(theme: ScrollbarTheme | keyof typeof import("../color/ScrollbarTheme").scrollbarThemes) {
-        this.themeManager?.setTheme(theme);
+    setTheme(theme: ScrollbarTheme | keyof typeof import("../../design/color/ScrollbarTheme").scrollbarThemes) {
+        this.themeManager?.setTheme(theme as ScrollbarTheme | "light" | "dark" | "minimal" | "rounded" | "colorful");
         return this;
     }
 

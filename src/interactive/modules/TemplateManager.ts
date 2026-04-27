@@ -1,7 +1,4 @@
-import { H } from "fest/lure";
-
-// Import built-in templates
-import { DEFAULT_TEMPLATES } from "@rs-com/core/BuiltInAI";
+import { H } from "../../lure/misc/Syntax";
 
 export interface PromptTemplate {
     id?: string;
@@ -315,8 +312,8 @@ export class TemplateManager {
     }
 
     private getDefaultTemplates(): PromptTemplate[] {
-        return DEFAULT_TEMPLATES.map(template => ({
-            ...template,
+        return [].map(template => ({
+            ...(template as PromptTemplate),
             id: this.generateId(),
             createdAt: Date.now(),
             updatedAt: Date.now(),

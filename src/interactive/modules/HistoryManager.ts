@@ -1,4 +1,4 @@
-import { H } from "fest/lure";
+import { H } from "../../lure/misc/Syntax";
 
 export interface HistoryEntry {
     id?: string;

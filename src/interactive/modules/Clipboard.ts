@@ -4,7 +4,7 @@
  * Provides unified clipboard operations with fallbacks
  */
 
-import { lazyAddEventListener } from "fest/lure";
+import { lazyAddEventListener } from "../controllers/LazyEvents";
 
 export type ClipboardDataType = "text" | "html" | "image" | "blob";
 

@@ -4,7 +4,7 @@
  */
 import { getBoundingOrientRect, orientOf, addEvent, addEvents, hasParent, removeEvent } from "fest/dom";
 import { cvt_cs_to_os, withCtx } from "fest/core";
-import { Vector2D, vector2Ref } from "fest/lure";
+import { vector2Ref } from "../../utils/math";
 
 //
 export class DecorWith {

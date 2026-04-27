@@ -5,8 +5,8 @@ import { bindDraggable } from "./PointerAPI";
 //
 //import {  E  } from "fest/lure";
 import { numberRef, affected } from "fest/object";
-import type { Rect2D } from "../lure/math/Operations";
-import { Vector2D, vector2Ref, clampPointToRect, createRect2D } from "../lure/math";
+import type { Rect2D } from "../../utils/math/Operations";
+import { Vector2D, vector2Ref, clampPointToRect, createRect2D } from "../../utils/math";
 
 //
 interface DragHandlerOptions {
