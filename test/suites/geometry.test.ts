@@ -18,7 +18,7 @@ import {
     sliderThumbPosition, scrollbarMetrics, screenToControlValue,
     easeInOutCubic, easeOutBounce, momentumScroll, scrollBoundsWithBounce,
     smoothValueTransition
-} from "../../src/math/index";
+} from "../../src/utils/math/index";
 
 import type { TestRunner as TestRunnerType } from "../index";
 

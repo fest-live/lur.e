@@ -1,15 +1,15 @@
 //import { visibleRef, H, Q } from "fest/lure";
 import { addEvent } from "fest/dom";
 import { visibleRef } from "../../lure/core/Refs";
-import { addProxiedEvent } from "../controllers/md-2025/LazyEvents";
+import { addProxiedEvent } from "../controllers/LazyEvents";
 import { bindWhileConnected } from "../../lure/core/Binding";
 
 //
 import { registerContextMenu } from "../tasking/BackNavigation";
 import Q from "../../lure/node/Queried";
-import H from "../../lure/node/Syntax";
-import { boundingBoxAnchorRef } from "../anchor/BBoxAnchor";
-import { makeInterruptTrigger } from "../controllers/md-2025/Trigger";
+import H from "../../lure/misc/Syntax";
+import { boundingBoxAnchorRef } from "../../design/anchor/BBoxAnchor";
+import { makeInterruptTrigger } from "../controllers/Trigger";
 import { withInsetWithPointer } from "../../lure/core/Binding";
 
 //

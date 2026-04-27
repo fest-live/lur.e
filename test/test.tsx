@@ -8,7 +8,7 @@
 // @ts-ignore
 import { observe, ref, numberRef } from "fest/object";
 import { defineElement, GLitElement, property, S, E, H, M } from "fest/lure";
-import { Vector2D, vector2Ref, operated, magnitude2D } from "../src/math/index";
+import { Vector2D, vector2Ref, operated, magnitude2D } from "../src/utils/math/index";
 
 // ============================================================================
 // Demo 1: Web Component with Reactive Properties

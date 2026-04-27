@@ -20,7 +20,7 @@ import {
     addVector3D, subtractVector3D, multiplyVector3D, magnitude3D,
     crossProduct3D, dotProduct3D, normalize3D,
     addVector4D, subtractVector4D, magnitude4D
-} from "../../src/math/index";
+} from "../../src/utils/math/index";
 
 import type { TestRunner as TestRunnerType } from "../index";
 

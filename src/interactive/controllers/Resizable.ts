@@ -4,9 +4,9 @@ import { clamp } from "fest/core";
 
 //
 import { numberRef } from "fest/object";
-import { E } from "../../lure/node/Bindings";
+import { E } from "../lure/node/Bindings";
 import { bindDraggable } from "./PointerAPI";
-import { Vector2D, vector2Ref } from "../../math";
+import { Vector2D, vector2Ref } from "../lure/math";
 
 //
 export class ResizeHandler {

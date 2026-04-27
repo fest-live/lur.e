@@ -1,11 +1,10 @@
-import { handleDataTransferInputEvent, type shareTargetFormData } from "@rs-core/storage/FileSystem";
 import { isInFocus } from "fest/dom";
 
 //
 const allowedElements = "ui-tabbed-box";
 
 //
-export const implementPasteEvent = (container: HTMLElement | null, handler: (payload: shareTargetFormData) => Promise<void>) => {
+export const implementPasteEvent = (container: HTMLElement | null, handler: (payload: any) => Promise<void>) => {
     (container || globalThis)?.addEventListener("paste", (event: any) => {
         if (isInFocus(event?.target as HTMLElement, allowedElements)) {
             const dataTransfer: DataTransfer | null = event.clipboardData;
@@ -19,13 +18,13 @@ export const implementPasteEvent = (container: HTMLElement | null, handler: (pay
             }
 
             //
-            handleDataTransferInputEvent(dataTransfer, handler);
+            handler(dataTransfer);
         }
     });
 }
 
 //
-export const implementDropEvent = (container: HTMLElement, handler: (payload: shareTargetFormData) => Promise<void>) => {
+export const implementDropEvent = (container: HTMLElement, handler: (payload: any) => Promise<void>) => {
     container.addEventListener("dragover", (event: DragEvent) => {
         if (isInFocus(event?.target as HTMLElement, allowedElements)) {
             event.preventDefault();
@@ -47,7 +46,7 @@ export const implementDropEvent = (container: HTMLElement, handler: (payload: sh
             }
 
             //
-            handleDataTransferInputEvent(dataTransfer, handler);
+            handler(dataTransfer);
         }
     });
 }

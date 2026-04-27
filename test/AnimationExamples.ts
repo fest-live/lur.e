@@ -2,7 +2,7 @@
 // Demonstrates the new animation-based binding/reference types
 
 import { numberRef, booleanRef, observe, affected } from "fest/object";
-import { operated, Vector2D, vector2Ref } from "../src/math/index";
+import { operated, Vector2D, vector2Ref } from "../src/utils/math/index";
 
 // Animation presets for common animations
 export const AnimationPresets = {

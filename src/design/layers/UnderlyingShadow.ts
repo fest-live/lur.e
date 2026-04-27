@@ -1,8 +1,8 @@
 import { computed, affected } from "fest/object";
 import { bindWith, CSSUnitUtils } from "fest/lure";
 import { setProperty, handleStyleChange } from "fest/dom";
-import { boundingBoxAnchorRef } from "../anchor/BBoxAnchor";
-import { enhancedIntersectionBoxAnchorRef } from "../anchor/IntersectionAnchor";
+import { boundingBoxAnchorRef } from "../design/anchor/BBoxAnchor";
+import { enhancedIntersectionBoxAnchorRef } from "../design/anchor/IntersectionAnchor";
 
 //
 export interface UnderlyingShadowOptions {

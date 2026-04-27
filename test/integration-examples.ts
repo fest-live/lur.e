@@ -11,7 +11,7 @@ import {
     clampPointToRect, pointToRectDistance, constrainRectAspectRatio,
     GridCoordUtils, GridCellUtils, GridLayoutUtils, GridAnimationUtils, GridInteractionUtils,
     GridCoord, GridCell, GridConfig
-} from "../src/math/index";
+} from "../src/utils/math/index";
 import { ReactiveElementSize } from "../src/extension/anchor/Utils";
 
 /**

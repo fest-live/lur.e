@@ -14,7 +14,7 @@ import {
     Vector2D, vector2Ref,
     operated, addVector2D, multiplyVector2D, magnitude2D,
     createRect2D, rectContainsPoint, rectCenter
-} from "../../src/math/index";
+} from "../../src/utils/math/index";
 
 import type { TestRunner as TestRunnerType } from "../index";
 

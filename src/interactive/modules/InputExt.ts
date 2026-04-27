@@ -1,10 +1,10 @@
 import { addEvent, setChecked, handleStyleChange } from "fest/dom";
 import { computed, conditional, numberRef, affected } from "fest/object";
-import { bindDraggable } from "../controllers/md-2025/PointerAPI";
+import { bindDraggable } from "../../controllers/PointerAPI";
 
 //
-import { makeShiftTrigger } from "../controllers/md-2025/Trigger";
-import { bindWith, bindCtrl } from "../../lure/core/Binding";
+import { makeShiftTrigger } from "../../controllers/Trigger";
+import { bindWith, bindCtrl } from "../lure/core/Binding";
 
 // Enhanced reactive math and CSS integration
 import { operated, CSSBinder } from "fest/lure";

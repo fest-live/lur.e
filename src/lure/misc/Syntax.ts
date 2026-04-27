@@ -1,7 +1,7 @@
 import { bindEvent, hasValue, isPrimitive } from "fest/core";
 import { getNode } from "../context/Utils";
-import { E } from "./Bindings";
-import { M } from "./Mapped";
+import { E } from "../node/Bindings";
+import { M } from "../node/Mapped";
 import { isElement } from "fest/dom";
 import { checkInsideTagBlock, cleanupInterTagWhitespaceAndIndent } from "./Normalizer";
 import { pruneEmptyStyleAttribute } from "../misc/Styles";

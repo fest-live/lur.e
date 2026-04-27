@@ -4,7 +4,7 @@ import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive,
 import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
 import { setChecked } from "fest/dom";
-import { getIgnoreNextPopState, setIgnoreNextPopState } from "../../extension/tasking/BackNavigation";
+import { getIgnoreNextPopState, setIgnoreNextPopState } from "../../interactive/tasking/BackNavigation";
 
 //
 export const localStorageLinkMap = new Map<string, any>();
