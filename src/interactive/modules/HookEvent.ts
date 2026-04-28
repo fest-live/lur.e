@@ -18,7 +18,21 @@ export const implementPasteEvent = (container: HTMLElement | null, handler: (pay
             }
 
             //
-            handler(dataTransfer);
+            if (dataTransfer) {
+                handler(dataTransfer);
+            } else {
+                void navigator.clipboard?.read()?.then?.((items) => {
+                    if (items && items.length > 0) {
+                        handler({
+                            items: items as ClipboardItem[],
+                            files: files as File[]
+                        });
+                    }
+                }).catch((error) => {
+                    console.error("Failed to read clipboard:", error);
+                    return null;
+                });
+            }
         }
     });
 }

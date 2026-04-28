@@ -12,10 +12,9 @@ import {
     sizeRef,
     attrRef
 } from "../core/Refs";
+import Q from "../node/Queried";
+import H from "./Syntax";
 
-import { Q } from "../node/Queried";
-import { E } from "../node/Bindings";
-import { H } from "../node/Syntax";
 
 //
 const styleCache = new Map();
@@ -601,7 +600,7 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
         }
 
         createShadowRoot(): ShadowRoot {
-            return addRoot(this.shadowRoot ?? this.attachShadow({ mode: "open" })) as ShadowRoot;
+            return this.shadowRoot ?? this.attachShadow({ mode: "open" }) as ShadowRoot;
         }
 
         // ============================================
@@ -669,6 +668,9 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
 
                 this.onRender?.call?.(this, weak);
                 delete (this as any)[inRenderKey];
+                if (shadowRoot) {
+                    addRoot(shadowRoot);
+                }
             }
         }
 
