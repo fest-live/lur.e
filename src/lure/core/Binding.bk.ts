@@ -13,7 +13,7 @@ import {
     animatedRef,
     type AnimationOptions,
     type TransitionOptions
-} from "../../extension/anchor/CSSAnimated";
+} from "../../design/anchor/CSSAnimated";
 
 //
 export const elMap  = new WeakMap<any, WeakMap<any, any>>();
