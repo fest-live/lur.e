@@ -1,12 +1,13 @@
-import { stringRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger, ref } from "fest/object";
-import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink } from "./Links";
+import { stringRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger, ref, refType } from "fest/object";
+import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink, pointerEventLink } from "./Links";
 import { addEvent, getPadding, handleAttribute } from "fest/dom";
 import { elMap } from "./Binding";
 import { isValidObj, WRef } from "fest/core";
 import { operated } from "fest/lure";
+import { type observeValid } from "../../../../object.ts/src/wrap/Utils";
 
 //
-export const makeRef = (host?: any, type?: any, link?: any, ...args)=>{
+export const makeRef = <T = any>(host?: any, type?: any, link?: any, ...args): T extends object ? observeValid<T> | refType<T> : refType<T> => {
     if (link == attrLink || link == handleAttribute) {
         const exists = elMap?.get?.(host)?.get?.(handleAttribute)?.get?.(args[0])?.[0];
         if (exists) { return exists; };
@@ -88,3 +89,6 @@ export const paddingBoxSize  = (source: HTMLElement, axis: number, inputChange?:
     queueMicrotask(()=>{ recompute?.(); });
     return content;
 }
+
+//
+export const pointerEventRef = (host?: any, ...args)=>makeRef(host, observe({x: 0, y: 0, pointerId: 0}), pointerEventLink, ...args);

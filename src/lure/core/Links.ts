@@ -5,6 +5,7 @@ import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
 import { bindCtrl, bindWith } from "./Binding";
 import { setChecked } from "fest/dom";
 import { getIgnoreNextPopState, setIgnoreNextPopState } from "../../interactive/tasking/BackNavigation";
+import { keyType } from "fest/core";
 
 //
 export const localStorageLinkMap = new Map<string, any>();
@@ -26,11 +27,11 @@ export const localStorageLink = (existsStorage?: any|null, exists?: any|null, ke
                 (existsStorage ?? localStorage).setItem(key, val);
             });
         });
-        const list = (ev) => { if (ev.storageArea == (existsStorage ?? localStorage) && ev.key == key) {
+        const list = (ev: { storageArea: any; key: string; newValue: any; }) => { if (ev.storageArea == (existsStorage ?? localStorage) && ev.key == key) {
             if (isNotEqual(ref.value, ev.newValue)) { ref.value = ev.newValue; };
         } };
-        addEventListener("storage", list);
-        return [() => { unsb?.(); removeEventListener("storage", list); }, ref];
+        addEventListener("storage", list as unknown as EventListener);
+        return [() => { unsb?.(); removeEventListener("storage", list as unknown as EventListener); }, ref];
     });
 }
 
@@ -53,7 +54,7 @@ export const hashTargetLink = (_?: any|null, exists?: any|null, initial?: any|nu
     //
     let processingStateChange = false;
     let nanoThrottle = 0;
-    const evf = (ev) => {
+    const evf = (ev: any) => {
         if (getIgnoreNextPopState()) return;
         if (nanoThrottle <= 0) {
             nanoThrottle = 1;
@@ -102,7 +103,7 @@ export const matchMediaLink = (existsMedia?: any|null, exists?: any|null, condit
     if (condition == null) return;
     const med = existsMedia ?? matchMedia(condition), def = med?.matches || false;
     const ref = isValueRef(exists) ? exists : booleanRef(def); ref.value ??= def;
-    const evf = (ev) => (ref.value = ev.matches); med?.addEventListener?.("change", evf);
+    const evf = (ev: { matches: any; }) => (ref.value = ev.matches); med?.addEventListener?.("change", evf);
     return () => { med?.removeEventListener?.("change", evf); };
 }
 
@@ -112,7 +113,7 @@ export const visibleLink = (element?: any|null, exists?: any|null, initial?: any
     const def = (initial?.value ?? (typeof initial != "object" ? initial : null)) ?? (element?.getAttribute?.("data-hidden") == null);
     const val = isValueRef(exists) ? exists : booleanRef(!!def);
     const usb = bindWith(element, "data-hidden", val, handleHidden);
-    const evf = [(ev) => { val.value = ev?.type == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
+    const evf = [(ev: { type: string; }) => { val.value = ev?.type == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
     element?.addEventListener?.("u2-hidden" , ...evf);
     element?.addEventListener?.("u2-appear", ...evf);
     return () => {
@@ -152,7 +153,7 @@ export const scrollLink = (element?: any|null, exists?: any|null, axis?: "inline
     const def = element?.[axis == "block" ? "scrollTop" : "scrollLeft"];
     const val = isValueRef(exists) ? exists : numberRef(def || 0); if (isObject(val)) val.value ||= (def ?? val.value) || 1; val.value ||= (def ?? val.value) || 0;
     const usb = affected([val, "value"], (v) => { if (Math.abs((axis == "block" ? element?.scrollTop : element?.scrollLeft) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (val?.value ?? val) })});
-    const scb = [(ev) => { val.value = (axis == "block" ? wel?.deref?.()?.scrollTop : wel?.deref?.()?.scrollLeft) || 0; }, { passive: true }];
+    const scb = [(ev: any) => { val.value = (axis == "block" ? wel?.deref?.()?.scrollTop : wel?.deref?.()?.scrollLeft) || 0; }, { passive: true }];
     element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };
 }
 
@@ -234,12 +235,8 @@ export const observeSizeLink = (element?: any|null, exists?: any|null, box?: any
 
 //
 export const refCtl = (value?: any|null) => {
-    if (isPrimitive(value)) return;
-
-    //
-    let self: any = null, ctl = ref(value, self = ([val, prop, old], [weak, ctl, valMap]) => boundBehaviors?.get?.(weak?.deref?.())?.values?.()?.forEach?.((beh) => {
-        (beh != self ? beh : null)?.([val, prop, old], [weak, ctl, valMap]);
-    })); return ctl;
+    if (isPrimitive(value)) return value;
+    return ref(value);
 }
 
 //
@@ -257,4 +254,68 @@ export const orientLink = (host?: any|null, exists?: any|null)=>{
     return whenAnyScreenChanges(()=>{
         val.value = orientationNumberMap?.[getCorrectOrientation()] || 0;
     });
+}
+
+//
+export const pointerEventLink = (element?: any|null, event: string = "click", pointerId: number = 0, coordType: string = "client", exists?: any|null) => {
+    if (isPrimitive(element)) return;
+    if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
+
+    //
+    const x = numberRef(0);
+    const y = numberRef(0);
+    const p = numberRef(pointerId || 0);
+
+    //
+    if (exists) {
+        Object.defineProperty(exists, "x", {
+            get: () => x.value,
+            set: (value: number) => x.value = value,
+            enumerable: true,
+        });
+        Object.defineProperty(exists, "y", {
+            get: () => y.value,
+            set: (value: number) => y.value = value,
+            enumerable: true,
+        });
+        Object.defineProperty(exists, "pointerId", {
+            get: () => p.value,
+            set: (value: number) => p.value = value,
+            enumerable: true,
+        });
+    } else {
+        exists ??= observe({
+            get x() {
+                return x.value;
+            },
+            get y() {
+                return y.value;
+            },
+            set x(value: number) {
+                x.value = value;
+            },
+            set y(value: number) {
+                y.value = value;
+            },
+            set pointerId(value: number) {
+                p.value = value;
+            },
+            get pointerId() {
+                return p.value;
+            },
+        });
+    }
+
+    //
+    const unb = addEvent(element, event || "click", (ev: any) => {
+        if (ev?.pointerId == (pointerId || 0)) {
+            x.value = ev[(coordType || "client") + "X"];
+            y.value = ev[(coordType || "client") + "Y"];
+            p.value = ev.pointerId;
+        }
+        return true;
+    });
+
+    //
+    return () => { unb?.(); x?.(); y?.(); p?.(); };
 }

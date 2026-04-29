@@ -33,7 +33,7 @@ import {
     animatedRef,
     type AnimationOptions,
     type TransitionOptions,
-} from "../../extension/anchor/CSSAnimated";
+} from "../../design/anchor/CSSAnimated";
 
 // предполагается, что класс уже существует в проекте
 import { DoubleWeakMap } from "fest/object"; // <-- путь подстрой под себя
@@ -183,9 +183,9 @@ export const bindHandler = (
     if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
 
     //
-    let controller: AbortController | null = null;
-    controller?.abort?.();
-    controller = new AbortController();
+    let controller: AbortController | undefined | null = undefined;
+    if (controller) (controller as AbortController)?.abort?.();
+    controller = new AbortController() as AbortController | undefined | null;
 
     //
     const wv = toRef(value);
