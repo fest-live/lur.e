@@ -4,9 +4,12 @@ import { makeRAFCycle, setProperty } from "fest/dom";
 import { affected } from "fest/object";
 
 //
-export const checkboxCtrl = (ref) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null) { $ref.value = Q(`input[type="radio"], input[type="checkbox"], input:checked`, ev?.target)?.checked ?? $ref?.value; } } }
-export const numberCtrl = (ref) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null && isNotEqual($ref?.value, ev?.target?.valueAsNumber)) { $ref.value = Number(Q("input", ev?.target)?.valueAsNumber || 0) ?? 0; } } }
-export const valueCtrl = (ref) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null && isNotEqual(ev?.target?.value, $ref?.value)) { $ref.value = (Q("input", ev?.target)?.value ?? $ref?.value) || ""; } } }
+export const anyCheckboxCtrl = (ref, element?: any|null) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null) { 
+    $ref.value = Q(`input[type="radio"], input[type="checkbox"], input:checked`, element ?? ev?.target)?.checked ?? element?.checked ?? $ref?.value; } } }
+export const checkboxCtrl = (ref, element?: any|null) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null) { 
+    $ref.value = Q(`input[type="checkbox"], input:checked`, ev?.target)?.checked ?? element?.checked ?? $ref?.value; } } }
+export const numberCtrl = (ref, element?: any|null) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null && isNotEqual($ref?.value, ev?.target?.valueAsNumber)) { $ref.value = Number(Q("input", ev?.target)?.valueAsNumber || 0) ?? 0; } } }
+export const valueCtrl = (ref, element?: any|null) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null && isNotEqual(ev?.target?.value, $ref?.value)) { $ref.value = (Q("input", ev?.target)?.value ?? $ref?.value) || ""; } } }
 
 //
 export const radioCtrl = (ref, name) => {

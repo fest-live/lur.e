@@ -161,13 +161,18 @@ export const scrollLink = (element?: any|null, exists?: any|null, axis?: "inline
 export const checkedLink = (element?: any|null, exists?: any|null) => {
     const def = (!!element?.checked) || false;
     const val = isValueRef(exists) ? exists : booleanRef(def); if (isObject(val)) val.value ??= def;
-    const dbf = bindCtrl(element, checkboxCtrl(val));
+    const dbf = bindCtrl((element?.type == "radio" ? element?.closest?.("input[type='radio']") : element) ?? element, checkboxCtrl(val, element));
     const usb = affected([val, "value"], (v) => {
         if (element && element?.checked != v) {
             setChecked(element, v);
         }
     });
     return ()=>{ usb?.(); dbf?.(); };
+}
+
+// TODO: Implement radio value link
+export const radioValueLink = (element?: any|null, exists?: any|null) => {
+
 }
 
 //
