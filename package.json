@@ -47,7 +47,8 @@
         "@fest-lib/uniform": "^0.1.0"
     },
     "scripts": {
-        "test": "vite --host 0.0.0.0",
+        "test": "node ./scripts/run-linker-tests.mjs",
+        "test:dev": "vite --host 0.0.0.0",
         "dev": "vite --host 0.0.0.0",
         "watch": "vite build --watch",
         "build": "vite build --config vite.config.js && npm run docs && npm run docs:md",

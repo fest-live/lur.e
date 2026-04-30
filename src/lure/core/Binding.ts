@@ -62,6 +62,10 @@ export const $mapped = Symbol.for("@mapped");
 export const $virtual = Symbol.for("@virtual");
 export const $behavior = Symbol.for("@behavior");
 
+const isLinkerLike = (value: any) => {
+    return !!value && typeof value == "object" && "ref" in value && typeof value?.unbind == "function";
+}
+
 //
 export const bindBeh = (element: any, store: any, behavior: any) => {
     const weak = toRef(element);
@@ -80,6 +84,12 @@ export const bindBeh = (element: any, store: any, behavior: any) => {
 
 //
 export const bindCtrl = (element: any, ctrlCb: any) => {
+    if (isLinkerLike(ctrlCb)) {
+        ctrlCb.bind?.();
+        const unsub = () => ctrlCb.unbind?.();
+        addToCallChain(element, Symbol.dispose, unsub);
+        return unsub;
+    }
     const hdl = { click: ctrlCb, input: ctrlCb, change: ctrlCb };
     ctrlCb?.({ target: element });
     const unsub = handleListeners?.(element, "addEventListener", hdl);
@@ -178,6 +188,11 @@ export const bindHandler = (
     set?: any,
     withObserver?: boolean | Function
 ) => {
+    const linker = isLinkerLike(value) ? value : null;
+    if (linker) {
+        linker.bind?.();
+        value = linker.ref;
+    }
     const wel = toRef(element);
     element = deref(wel);
     if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
@@ -224,6 +239,7 @@ export const bindHandler = (
     const unsub = () => {
         obs?.disconnect?.();
         obs != null && typeof obs == "function" ? obs?.() : null;
+        linker?.unbind?.();
         un?.();
         controller?.abort?.();
         removeFromBank?.(element, handler, prop);
@@ -290,7 +306,7 @@ export const bindWith = (
     set?: any,
     withObserver?: boolean | Function
 ) => {
-    handler(el, prop, value);
+    handler(el, prop, isLinkerLike(value) ? value.ref : value);
     return bindHandler(el, value, prop, handler, set, withObserver);
 };
 

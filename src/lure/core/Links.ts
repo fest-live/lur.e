@@ -1,14 +1,195 @@
 import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding, addEvent } from "fest/dom";
-import { observe, booleanRef, numberRef, affected, stringRef, ref } from "fest/object";
+import { observe, booleanRef, numberRef, affected, stringRef, ref, $triggerControl } from "fest/object";
 import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref, hasValue } from "fest/core";
-import { checkboxCtrl, numberCtrl, valueCtrl } from "./Control";
-import { bindCtrl, bindWith } from "./Binding";
 import { setChecked } from "fest/dom";
 import { getIgnoreNextPopState, setIgnoreNextPopState } from "../../interactive/tasking/BackNavigation";
 import { keyType } from "fest/core";
 
 //
 export const localStorageLinkMap = new Map<string, any>();
+
+type Cleanup = (() => void) | { disconnect?: () => void } | { unsubscribe?: () => void } | void;
+type LinkContext<T = any> = {
+    source: any;
+    ref: any;
+    linker: Linker<T>;
+    forProp: string;
+    event?: any;
+    reason?: "initial" | "source" | "ref" | "manual";
+};
+export type LinkGetter<T = any> = (ctx: LinkContext<T>) => T;
+export type LinkSetter<T = any> = (value: T, ctx: LinkContext<T>) => void;
+export type LinkStore<T = any> = (value: T, ctx: LinkContext<T>) => any;
+export type LinkTrigger<T = any> = (ctx: LinkContext<T> & { commit: (event?: any, forProp?: string) => any }) => Cleanup;
+
+export interface LinkOptions<T = any> {
+    source?: any | ((source?: any) => any);
+    ref?: any;
+    getter?: LinkGetter<T>;
+    setter?: LinkSetter<T>;
+    trigger?: LinkTrigger<T>;
+    store?: LinkStore<T>;
+    forProp?: string;
+    affectTypes?: string[];
+    triggerImmediately?: boolean;
+    bindImmediately?: boolean;
+}
+
+export interface Linker<T = any> {
+    source: any;
+    ref: any;
+    forProp: string;
+    get(event?: any, forProp?: string): T;
+    set(value: T, event?: any, forProp?: string): void;
+    store(value: T, event?: any, forProp?: string): any;
+    trigger(event?: any, forProp?: string): any;
+    bind(): Linker<T>;
+    unbind(): void;
+    [Symbol.dispose](): void;
+}
+
+const cleanupOf = (cleanup: Cleanup) => {
+    if (!cleanup) return;
+    if (typeof cleanup == "function") return cleanup;
+    const target = cleanup as any;
+    if (typeof target?.disconnect == "function") return () => target.disconnect?.();
+    if (typeof target?.unsubscribe == "function") return () => target.unsubscribe?.();
+}
+
+const runWithoutSetterTrigger = (target: any, cb: () => any) => {
+    const control = target?.[$triggerControl];
+    if (typeof control?.without == "function") return control.without(["setter", "set"], cb);
+    return $avoidTrigger(target, cb);
+}
+
+const setRefValue = (target: any, value: any, forProp = "value") => {
+    if (!target || !(typeof target == "object" || typeof target == "function")) return value;
+    if (isNotEqual(target[forProp], value)) {
+        return runWithoutSetterTrigger(target, () => { target[forProp] = value; });
+    }
+    return value;
+}
+
+const selectSourceInput = (source: any, event: any, selector = "input") => {
+    const target = event?.target ?? source;
+    if (target?.matches?.(selector)) return target;
+    return target?.querySelector?.(selector) ?? source;
+}
+
+const radioScopeOf = (source: any) => {
+    return source?.matches?.('input[type="radio"]') ? (source?.form ?? source?.parentNode ?? source) : source;
+}
+
+const radioNameOf = (source: any, name?: string | null) => {
+    if (name) return name;
+    if (source?.type == "radio" && source?.name) return source.name;
+    return source?.querySelector?.('input[type="radio"]:checked')?.name ?? source?.querySelector?.('input[type="radio"]')?.name ?? "";
+}
+
+const radioSelectorOf = (name?: string | null) => `input[type="radio"]${name ? `[name="${(globalThis as any).CSS?.escape?.(name) ?? name}"]` : ""}`;
+
+const radioCheckedIn = (source: any, name?: string | null) => {
+    const scope = radioScopeOf(source);
+    if (source?.type == "radio" && (!name || source.name == name) && source.checked) return source;
+    return scope?.querySelector?.(`${radioSelectorOf(name)}:checked`) ?? null;
+}
+
+const radioByValueIn = (source: any, value: any, name?: string | null) => {
+    const scope = radioScopeOf(source);
+    const radios = [...(scope?.querySelectorAll?.(radioSelectorOf(name)) ?? (source?.type == "radio" ? [source] : []))];
+    return radios.find((radio: any) => radio?.value == value) ?? null;
+}
+
+export const eventTrigger = (events: string | string[], options?: AddEventListenerOptions): LinkTrigger => {
+    const eventList = Array.isArray(events) ? events : [events];
+    return ({ source, commit }) => {
+        const target = source?.element ?? source?.self ?? source;
+        if (!target?.addEventListener) return;
+        const listener = (event: any) => commit(event);
+        eventList.forEach((name) => target.addEventListener(name, listener, options));
+        return () => eventList.forEach((name) => target.removeEventListener?.(name, listener, options));
+    };
+}
+
+export const mutationTrigger = (attribute?: string): LinkTrigger => {
+    return ({ source, commit }) => {
+        const target = source?.element ?? source?.self ?? source;
+        if (!target || typeof MutationObserver == "undefined") return;
+        const observer = new MutationObserver((records) => {
+            if (!attribute || records.some((record) => record.type == "attributes" && record.attributeName == attribute)) {
+                commit(records);
+            }
+        });
+        observer.observe(target, { attributes: true, attributeFilter: attribute ? [attribute] : undefined });
+        return () => observer.disconnect();
+    };
+}
+
+export const resizeTrigger = (box?: ResizeObserverBoxOptions): LinkTrigger => {
+    return ({ source, commit }) => {
+        const target = source?.element ?? source?.self ?? source;
+        if (!target || typeof ResizeObserver == "undefined") return;
+        const observer = new ResizeObserver((entries) => commit(entries));
+        observer.observe(target, { box });
+        return () => observer.disconnect();
+    };
+}
+
+export const makeLinker = <T = any>(options: LinkOptions<T>): Linker<T> => {
+    const source = typeof options.source == "function" ? options.source() : options.source;
+    const defaultForProp = options.forProp ?? "value";
+    const linker = {
+        source,
+        ref: options.ref,
+        forProp: defaultForProp,
+        get(event?: any, forProp = defaultForProp) {
+            return options.getter?.({ source, ref: linker.ref, linker, forProp, event, reason: event ? "source" : "manual" }) as T;
+        },
+        set(value: T, event?: any, forProp = defaultForProp) {
+            return options.setter?.(value, { source, ref: linker.ref, linker, forProp, event, reason: "ref" });
+        },
+        store(value: T, event?: any, forProp = defaultForProp) {
+            const ctx = { source, ref: linker.ref, linker, forProp, event, reason: "source" as const };
+            return options.store ? options.store(value, ctx) : setRefValue(linker.ref, value, forProp);
+        },
+        trigger(event?: any, forProp = defaultForProp) {
+            const value = linker.get(event, forProp);
+            return linker.store(value, event, forProp);
+        },
+        bind() {
+            linker.unbind();
+            if (options.bindImmediately) linker.trigger();
+            const triggerCleanup = cleanupOf(options.trigger?.({
+                source,
+                ref: linker.ref,
+                linker,
+                forProp: defaultForProp,
+                reason: "initial",
+                commit: (event?: any, forProp = defaultForProp) => linker.trigger(event, forProp),
+            }));
+            const setterCleanup = linker.ref && options.setter ? affected([linker.ref, defaultForProp], (value) => {
+                linker.set(value, undefined, defaultForProp);
+            }, {
+                affectTypes: options.affectTypes ?? ["setter", "manual"],
+                triggerImmediately: options.triggerImmediately ?? true,
+            }) : null;
+            linker.__cleanup = () => {
+                triggerCleanup?.();
+                setterCleanup?.();
+            };
+            return linker;
+        },
+        unbind() {
+            linker.__cleanup?.();
+            linker.__cleanup = null;
+        },
+        [Symbol.dispose]() {
+            linker.unbind();
+        },
+        __cleanup: null as null | (() => void),
+    } as Linker<T> & { __cleanup: null | (() => void) };
+    return linker;
+}
 export const localStorageLink = (existsStorage?: any|null, exists?: any|null, key?: string, initial?: any|null) => {
     if (key == null) return;
     // de-assign local storage link for key
@@ -112,15 +293,14 @@ export const visibleLink = (element?: any|null, exists?: any|null, initial?: any
     if (element == null) return;
     const def = (initial?.value ?? (typeof initial != "object" ? initial : null)) ?? (element?.getAttribute?.("data-hidden") == null);
     const val = isValueRef(exists) ? exists : booleanRef(!!def);
-    const usb = bindWith(element, "data-hidden", val, handleHidden);
-    const evf = [(ev: { type: string; }) => { val.value = ev?.type == "u2-hidden" ? false : true; }, { passive: true }], wel = new WeakRef(element);
-    element?.addEventListener?.("u2-hidden" , ...evf);
-    element?.addEventListener?.("u2-appear", ...evf);
-    return () => {
-        const element = wel?.deref?.(); usb?.();
-        element?.removeEventListener?.("u2-hidden" , ...evf);
-        element?.removeEventListener?.("u2-appear", ...evf);
-    };
+    const linker = makeLinker<boolean>({
+        source: element,
+        ref: val,
+        getter: ({ event }) => event?.type == "u2-hidden" ? false : true,
+        setter: (value, { source }) => handleHidden(source, "data-hidden", value),
+        trigger: eventTrigger(["u2-hidden", "u2-appear"], { passive: true }),
+    }).bind();
+    return () => linker.unbind();
 }
 
 //
@@ -128,7 +308,14 @@ export const attrLink = (element?: any|null, exists?: any|null, attribute?: stri
     const def = element?.getAttribute?.(attribute) ?? (typeof initial == "boolean" ? (initial ? "" : null) : getValue(initial));
     if (!element) return; const val = isValueRef(exists) ? exists : stringRef(def);
     if (isObject(val) && !normalizePrimitive(val.value)) val.value = normalizePrimitive(def) ?? val.value ?? "";
-    return bindWith(element, attribute, val, handleAttribute, null, true);
+    const linker = makeLinker<string>({
+        source: element,
+        ref: val,
+        getter: ({ source }) => source?.getAttribute?.(attribute),
+        setter: (value, { source }) => handleAttribute(source, attribute, normalizePrimitive(value)),
+        trigger: mutationTrigger(attribute),
+    }).bind();
+    return () => linker.unbind();
 }
 
 //
@@ -148,31 +335,71 @@ export const sizeLink = (element?: any|null, exists?: any|null, axis?: "inline" 
 
 //
 export const scrollLink = (element?: any|null, exists?: any|null, axis?: "inline" | "block", initial?: any|null) => {
-    const wel = element instanceof WeakRef ? element : new WeakRef(element);
     if (initial != null && typeof (initial?.value ?? initial) == "number") { element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (initial?.value ?? initial) }); };
     const def = element?.[axis == "block" ? "scrollTop" : "scrollLeft"];
     const val = isValueRef(exists) ? exists : numberRef(def || 0); if (isObject(val)) val.value ||= (def ?? val.value) || 1; val.value ||= (def ?? val.value) || 0;
-    const usb = affected([val, "value"], (v) => { if (Math.abs((axis == "block" ? element?.scrollTop : element?.scrollLeft) - (val?.value ?? val)) > 0.001) element?.scrollTo?.({ [axis == "block" ? "top" : "left"]: (val?.value ?? val) })});
-    const scb = [(ev: any) => { val.value = (axis == "block" ? wel?.deref?.()?.scrollTop : wel?.deref?.()?.scrollLeft) || 0; }, { passive: true }];
-    element?.addEventListener?.("scroll", ...scb); return ()=>{ wel?.deref?.()?.removeEventListener?.("scroll", ...scb); usb?.(); };
+    const prop = axis == "block" ? "scrollTop" : "scrollLeft";
+    const scrollProp = axis == "block" ? "top" : "left";
+    const linker = makeLinker<number>({
+        source: element,
+        ref: val,
+        getter: ({ source }) => source?.[prop] || 0,
+        setter: (value, { source }) => {
+            if (Math.abs((source?.[prop] || 0) - Number(value || 0)) > 0.001) {
+                source?.scrollTo?.({ [scrollProp]: Number(value || 0) });
+            }
+        },
+        trigger: eventTrigger("scroll", { passive: true }),
+    }).bind();
+    return () => linker.unbind();
 }
 
 //
 export const checkedLink = (element?: any|null, exists?: any|null) => {
     const def = (!!element?.checked) || false;
-    const val = isValueRef(exists) ? exists : booleanRef(def); if (isObject(val)) val.value ??= def;
-    const dbf = bindCtrl((element?.type == "radio" ? element?.closest?.("input[type='radio']") : element) ?? element, checkboxCtrl(val, element));
-    const usb = affected([val, "value"], (v) => {
-        if (element && element?.checked != v) {
-            setChecked(element, v);
-        }
-    });
-    return ()=>{ usb?.(); dbf?.(); };
+    const val = isValueRef(exists) ? exists : booleanRef(def); if (isObject(val) && val.value !== def) val.value = def;
+    const inputSource = (element?.type == "radio" ? element?.closest?.("input[type='radio']") : element) ?? element;
+    const linker = makeLinker<boolean>({
+        source: inputSource,
+        ref: val,
+        getter: ({ source, event }) => selectSourceInput(source, event, `input[type="checkbox"], input:checked`)?.checked ?? element?.checked ?? val?.value,
+        setter: (value) => {
+            if (element && element?.checked != value) setChecked(element, value);
+        },
+        trigger: eventTrigger(["click", "input", "change"]),
+    }).bind();
+    return () => linker.unbind();
 }
 
-// TODO: Implement radio value link
-export const radioValueLink = (element?: any|null, exists?: any|null) => {
+export const radioValueLink = (element?: any|null, exists?: any|null, name?: string|null, initial?: any|null) => {
+    if (isPrimitive(element)) return;
+    if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
 
+    const radioName = radioNameOf(element, name);
+    const checked = radioCheckedIn(element, radioName);
+    const def = checked?.value ?? getValue(initial) ?? "";
+    const val = isValueRef(exists) ? exists : stringRef(def);
+    if (isObject(val) && !normalizePrimitive(val.value)) val.value = normalizePrimitive(def) ?? val.value ?? "";
+    if (isObject(val) && isNotEqual(val.value, def)) val.value = def;
+
+    const linker = makeLinker<string>({
+        source: element,
+        ref: val,
+        getter: ({ source, event }) => {
+            const target = event?.target;
+            if (target?.matches?.(radioSelectorOf(radioName)) && target?.checked) return target.value;
+            return radioCheckedIn(source, radioName)?.value ?? val?.value ?? "";
+        },
+        setter: (value, { source }) => {
+            const radio = radioByValueIn(source, $getValue(value), radioName);
+            if (radio && !radio.checked) {
+                setChecked(radio, true);
+                radio.dispatchEvent?.(new Event("change", { bubbles: true }));
+            }
+        },
+        trigger: eventTrigger(["click", "input", "change"]),
+    }).bind();
+    return () => linker.unbind();
 }
 
 //
@@ -182,18 +409,21 @@ export const valueLink = (element?: any|null, exists?: any|null) => {
 
     //
     const def = element?.value ?? "";
-    const val = isValueRef(exists) ? exists : stringRef(def); if (isObject(val)) val.value ??= def;
-    const dbf = bindCtrl(element, valueCtrl(val));
-    const $val = new WeakRef(val);
-    const usb = affected([val, "value"], (v) => {
-        if (element && isNotEqual(element?.value, (v?.value ?? v))) {
-            $avoidTrigger(deref($val), ()=>{
-                element.value = $getValue(deref($val)) ?? $getValue(v);
-                element?.dispatchEvent?.(new Event("change", { bubbles: true }));
-            });
-        }
-    });
-    return ()=>{ usb?.(); dbf?.(); };
+    const val = isValueRef(exists) ? exists : stringRef(def); if (isObject(val) && !normalizePrimitive(val.value)) val.value = normalizePrimitive(def) ?? val.value ?? "";
+    const linker = makeLinker<string>({
+        source: element,
+        ref: val,
+        getter: ({ source, event }) => selectSourceInput(source, event)?.value ?? source?.value ?? val?.value ?? "",
+        setter: (value, { source }) => {
+            const next = $getValue(value);
+            if (source && isNotEqual(source?.value, next)) {
+                source.value = next ?? "";
+                source?.dispatchEvent?.(new Event("change", { bubbles: true }));
+            }
+        },
+        trigger: eventTrigger(["click", "input", "change"]),
+    }).bind();
+    return () => linker.unbind();
 }
 
 //
@@ -203,15 +433,20 @@ export const valueAsNumberLink = (element?: any|null, exists?: any|null) => {
 
     //
     const def = Number(element?.valueAsNumber) || 0;
-    const val = isValueRef(exists) ? exists : numberRef(def); if (isObject(val)) val.value ??= def;
-    const dbf = bindCtrl(element, numberCtrl(val));
-    const usb = affected([val, "value"], (v) => {
-        if (element && (element.type == "range" || element.type == "number") && typeof element?.valueAsNumber == "number" && isNotEqual(element?.valueAsNumber, v)) {
-            element.valueAsNumber = Number(v);
-            element?.dispatchEvent?.(new Event("change", { bubbles: true }));
-        }
-    });
-    return ()=>{ usb?.(); dbf?.(); };
+    const val = isValueRef(exists) ? exists : numberRef(def); if (isObject(val) && !val.value && def) val.value = def;
+    const linker = makeLinker<number>({
+        source: element,
+        ref: val,
+        getter: ({ source, event }) => Number(selectSourceInput(source, event)?.valueAsNumber || source?.valueAsNumber || 0) || 0,
+        setter: (value, { source }) => {
+            if (source && (source.type == "range" || source.type == "number") && typeof source?.valueAsNumber == "number" && isNotEqual(source?.valueAsNumber, value)) {
+                source.valueAsNumber = Number(value);
+                source?.dispatchEvent?.(new Event("change", { bubbles: true }));
+            }
+        },
+        trigger: eventTrigger(["click", "input", "change"]),
+    }).bind();
+    return () => linker.unbind();
 }
 
 //
@@ -324,3 +559,6 @@ export const pointerEventLink = (element?: any|null, event: string = "click", po
     //
     return () => { unb?.(); x?.(); y?.(); p?.(); };
 }
+
+
+

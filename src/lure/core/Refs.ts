@@ -1,5 +1,5 @@
 import { stringRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger, ref, refType } from "fest/object";
-import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink, pointerEventLink } from "./Links";
+import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink, pointerEventLink, radioValueLink, type Linker } from "./Links";
 import { addEvent, getPadding, handleAttribute } from "fest/dom";
 import { elMap } from "./Binding";
 import { isValidObj, WRef } from "fest/core";
@@ -12,14 +12,19 @@ export const makeRef = <T = any>(host?: any, type?: any, link?: any, ...args): T
         const exists = elMap?.get?.(host)?.get?.(handleAttribute)?.get?.(args[0])?.[0];
         if (exists) { return exists; };
     }
-    const rf = (type ?? ref)?.(null), usub = link?.(host, rf, ...args);
-    if (usub && rf) addToCallChain(rf, Symbol.dispose, usub); return rf;
+    const rf = (type ?? ref)?.(null), result = link?.(host, rf, ...args);
+    const linker = result && typeof result == "object" && typeof result?.unbind == "function" ? result as Linker : null;
+    const targetRef = linker?.ref ?? rf;
+    const usub = linker ? () => linker.unbind() : result;
+    if (usub && targetRef) addToCallChain(targetRef, Symbol.dispose, usub);
+    return targetRef;
 }
 
 //
 export const orientRef = (host?: any, ...args)=>makeRef(host, numberRef, orientLink, ...args);
 export const attrRef = (host?: any, ...args)=>makeRef(host, stringRef, attrLink, ...args);
 export const valueRef = (host?: any, ...args)=>makeRef(host, stringRef, valueLink, ...args);
+export const radioValueRef = (host?: any, ...args)=>makeRef(host, stringRef, radioValueLink, ...args);
 export const valueAsNumberRef = (host?: any, ...args)=>makeRef(host, numberRef, valueAsNumberLink, ...args);
 export const localStorageRef = (...args)=>{
     if (localStorageLinkMap.has(args[0])) return localStorageLinkMap.get(args[0])?.[1];

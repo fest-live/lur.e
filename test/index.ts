@@ -93,6 +93,7 @@ import { runGeometryTests } from "./suites/geometry.test";
 import { runDOMTests } from "./suites/dom.test";
 import { runRefsTests } from "./suites/refs.test";
 import { runIntegrationTests } from "./suites/integration.test";
+import { runLinkerTests } from "./suites/linker.test";
 
 // Main test runner
 export async function runAllTests() {
@@ -103,11 +104,12 @@ export async function runAllTests() {
     TestRunner.reset();
 
     // Run all test categories
-    runMathTests(TestRunner);
-    runGeometryTests(TestRunner);
-    runDOMTests(TestRunner);
-    runRefsTests(TestRunner);
-    runIntegrationTests(TestRunner);
+    await runMathTests(TestRunner);
+    await runGeometryTests(TestRunner);
+    await runDOMTests(TestRunner);
+    await runRefsTests(TestRunner);
+    await runIntegrationTests(TestRunner);
+    await runLinkerTests(TestRunner);
 
     return TestRunner.summary();
 }
