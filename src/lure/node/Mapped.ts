@@ -224,7 +224,7 @@ class Mp {
     //
     _onUpdate(newEl, idx, oldEl, op: string | null = "") {
         //
-        if (op == "@add" || (newEl != null && oldEl == null)) {
+        if (op == "add" || (newEl != null && oldEl == null)) {
             if (this.#indexMap.has(idx)) { return; }
             const indexRef = ref(this.#observable, idx);
             const withElement = C(indexRef, (...args) => {
@@ -236,7 +236,7 @@ class Mp {
         }
 
         //
-        if (op == "@delete" || (newEl == null && oldEl != null)) {
+        if (op == "delete" || (newEl == null && oldEl != null)) {
             const withElement = this.#indexMap.get(idx);
             if (withElement) { removeChild(this.boundParent, withElement, null, idx); }
             this.#indexMap.delete(idx);

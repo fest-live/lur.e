@@ -343,7 +343,7 @@ export function bindAnimatedStyle(
             handleMorphStyleChange(deref(wel), properties, options);
         });
 
-        return unsubscribe;
+        return unaffected;
     } else {
         // For other animation types, propertyOrProperties should be a string
         const property = propertyOrProperties as string;
@@ -360,7 +360,7 @@ export function bindAnimatedStyle(
             handler(deref(wel), property, newValue, options);
         });
 
-        return unsubscribe;
+        return unaffected;
     }
 }
 
