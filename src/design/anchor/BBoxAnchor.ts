@@ -1,17 +1,16 @@
 import { numberRef, addToCallChain } from "fest/object";
 import { addEvent, handleStyleChange } from "fest/dom";
-import { bindWith } from "fest/lure";
-import type { Rect2D } from "../../math/Operations";
+import { bindWith } from "../../lure/core/Binding";
+import { Vector2D, vector2Ref } from "../../utils/math/Point2D";
+import type { Rect2D } from "../../utils/math/Operations";
 import {
-    vector2Ref,
-    Vector2D,
     rectCenter,
     rectArea,
     rectContainsPoint,
     rectIntersects,
     clampPointToRect,
     pointToRectDistance
-} from "../../math";
+} from "../../utils/math/Operations";
 import { CSSBinder, CSSUnitUtils } from "./CSSAdapter";
 import { ReactiveElementSize } from "./Utils";
 
@@ -37,7 +36,11 @@ export function boundingBoxAnchorRef(anchor: HTMLElement, options?: {
     const center = rectCenter(rect);
     const reactiveArea = rectArea(rect);
 
-    const { root = anchor?.offsetParent ?? document.documentElement, iterateResize = true, iterateMutations = false } = options || {};
+    const {
+        root = anchor?.offsetParent ?? document.documentElement,
+        observeResize = true,
+        observeMutations = false
+    } = options || {};
 
     // Reactive element size tracker
     const elementSize = new ReactiveElementSize(anchor);

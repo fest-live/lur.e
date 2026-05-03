@@ -1,7 +1,7 @@
 import { toRef, type keyType } from "fest/core";
 import { deref, computed, affected, $affected } from "fest/object";
 import { getPadding } from "fest/dom";
-import { scrollRef, sizeRef } from "fest/lure";
+import { scrollRef, sizeRef } from "../../lure/core/Refs";
 import { makeAnchorElement } from "./CSSAnchor";
 
 //

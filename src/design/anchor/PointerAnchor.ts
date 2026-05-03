@@ -1,5 +1,6 @@
 import { addToCallChain, booleanRef, numberRef, stringRef } from "fest/object";
-import { handleByPointer } from "../../controllers/md-2025/Handler";
+/** INVARIANT: use interactive/controllers (not legacy md-2025 path). */
+import { handleByPointer } from "../../interactive/controllers/Handler";
 import { WRef } from "fest/core";
 
 //

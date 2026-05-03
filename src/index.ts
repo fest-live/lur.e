@@ -31,6 +31,9 @@ export * from "./interactive/controllers/Handler"
 export * from "./interactive/controllers/LazyEvents"
 export * from "./interactive/controllers/PointerAPI"
 
+//
+export * from "./interactive/mixins"
+
 
 //
 export * from "./design/layers/AnchorOverlay"
@@ -38,12 +41,32 @@ export * from "./design/layers/Register"
 
 //
 export * from "./interactive/modules/CtxMenu"
-export * from "./interactive/modules/InputExt"
 export * from "./interactive/modules/Clipboard"
+export * from "./interactive/modules/DesktopStateStorage"
+export * from "./interactive/modules/DesktopItemIconCodec"
+export * from "./interactive/modules/HistoryManager"
+export * from "./interactive/modules/UIState"
+export * from "./interactive/modules/VoiceInput"
+export * from "./interactive/modules/HookEvent"
+export * from "./interactive/modules/ScrollBar"
+export * from "./interactive/modules/InputExt"
+export * from "./interactive/modules/TemplateManager"
 
 //
 export * from "./design/anchor/Status"
+export * from "./design/anchor/PointerAnchor"
+export * from "./design/anchor/CSSAnchor"
+export * from "./design/anchor/BBoxAnchor"
+export * from "./design/anchor/IntersectionAnchor"
+export * from "./design/anchor/CSSAdapter"
+export * from "./design/anchor/Utils"
+
+//
 export * from "./design/color/Renderer"
+export * from "./design/color/ScrollbarTheme"
+export * from "./design/color/ThemeEngine"
+export * from "./design/color/StyleRules"
+export * from "./design/color/DynamicEngine"
 
 //
 export * from "./lure/core/Binding"

@@ -12,3 +12,4 @@
   - Registered by/in special registry. Transported by JS descriptor object.
   - Some CSS properties can/may be bound directly by these controllers (such as anchor position).
 - More and new DOM mixins (new but unused early mechanics, feature)...
+- In progress: `src/interactive/mixins` — junction + `bindAnchorableDragResize` (CSS `anchor-name` + `data-mixin` controllers); canonical mixin impl remains in `fest/dom` junction module.

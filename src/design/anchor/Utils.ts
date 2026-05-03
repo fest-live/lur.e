@@ -1,5 +1,5 @@
 import { numberRef } from "fest/object";
-import { CSSBinder, CSSUnitConverter, CSSTransform, CSSCalc } from "fest/lure";
+import { CSSBinder, CSSUnitConverter, CSSTransform, CSSCalc } from "./CSSAdapter";
 
 // generate only random letters, NOT numbers
 export const generateAnchorId = () => {

@@ -19,7 +19,7 @@ export * from "./Operations";
 export * from "./GridMath";
 
 // CSS integration and utilities
-export * from "../extension/anchor/CSSAdapter";
+export * from "../../design/anchor/CSSAdapter";
 
 // Advanced utilities for custom reactive computations
 export { operated } from "./Operations";

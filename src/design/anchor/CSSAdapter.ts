@@ -1,9 +1,8 @@
 import { numberRef } from "fest/object";
-import { bindWith, bindAnimated, bindTransition, bindSpring, bindMorph } from "fest/lure";
-import {
-    Vector2D, operated,
-    Matrix2D, Matrix4D
-} from "../../math/index";
+import { bindWith, bindAnimated, bindTransition, bindSpring, bindMorph } from "../../lure/core/Binding";
+import { Vector2D, Matrix2D } from "../../utils/math/Point2D";
+import { Matrix4D } from "../../utils/math/Point4D";
+import { operated } from "../../utils/math/Operations";
 import { handleStyleChange } from "fest/dom";
 import type { AnimationOptions, TransitionOptions } from "./CSSAnimated";
 
