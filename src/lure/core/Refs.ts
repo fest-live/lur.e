@@ -1,10 +1,11 @@
-import { stringRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger, ref, refType } from "fest/object";
+import type { refType } from "fest/object";
+import { stringRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger, ref } from "fest/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink, pointerEventLink, radioValueLink, type Linker } from "./Links";
 import { addEvent, getPadding, handleAttribute } from "fest/dom";
 import { elMap } from "./Binding";
 import { isValidObj, WRef } from "fest/core";
 import { operated } from "fest/lure";
-import { type observeValid } from "../../../../object.ts/src/wrap/Utils";
+import type { observeValid } from "fest/object/wrap/Utils";
 
 //
 export const makeRef = <T = any>(host?: any, type?: any, link?: any, ...args): T extends object ? observeValid<T> | refType<T> : refType<T> => {

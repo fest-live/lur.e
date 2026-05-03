@@ -535,14 +535,21 @@ export const bindConditionalAnimation = (
 };
 
 //
+/** WHY: DOM stores `--client-*` via stringification; bare numbers become `"450"` (invalid `<length>`), so `.ux-anchor` inset resolves to (0,0). */
+const asPointerInsetLength = (v: unknown): unknown => {
+    if (typeof v === "number" && Number.isFinite(v)) return `${v}px`;
+    return v;
+};
+
+//
 export const withInsetWithPointer = (exists: HTMLElement, pRef: any) => {
     if (!exists) return () => { };
     const ubs = [
-        bindWith(exists, "--client-x", pRef?.[0], handleStyleChange),
-        bindWith(exists, "--client-y", pRef?.[1], handleStyleChange),
+        bindWith(exists, "--client-x", asPointerInsetLength(pRef?.[0]), handleStyleChange),
+        bindWith(exists, "--client-y", asPointerInsetLength(pRef?.[1]), handleStyleChange),
     ];
-    if (pRef?.[2]) ubs.push(bindWith(exists, "--anchor-width", pRef?.[2], handleStyleChange));
-    if (pRef?.[3]) ubs.push(bindWith(exists, "--anchor-height", pRef?.[3], handleStyleChange));
+    if (pRef?.[2] != null) ubs.push(bindWith(exists, "--anchor-width", asPointerInsetLength(pRef?.[2]), handleStyleChange));
+    if (pRef?.[3] != null) ubs.push(bindWith(exists, "--anchor-height", asPointerInsetLength(pRef?.[3]), handleStyleChange));
     return () => ubs?.forEach?.((ub: any) => ub?.());
 };
 

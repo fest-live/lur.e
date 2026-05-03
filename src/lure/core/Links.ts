@@ -3,7 +3,6 @@ import { observe, booleanRef, numberRef, affected, stringRef, ref, $triggerContr
 import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref, hasValue } from "fest/core";
 import { setChecked } from "fest/dom";
 import { getIgnoreNextPopState, setIgnoreNextPopState } from "../../interactive/tasking/BackNavigation";
-import { keyType } from "fest/core";
 
 //
 export const localStorageLinkMap = new Map<string, any>();
