@@ -910,10 +910,10 @@ export const openImageFilePicker = async () => {
 }
 
 //
-export const downloadFile = async (file) => {
+export const downloadFile = async (file: File | Blob | string, filename?: string) => {
     // as file
     if (file instanceof FileSystemFileHandle) { file = await file.getFile(); }
-    if (typeof file == "string") { file = await provide(file); }; const filename = file?.name; if (!filename) return; // @ts-ignore // IE10+
+    if (typeof file == "string") { file = await provide(file); }; filename = filename ?? (file as any)?.name; if (!filename) return; // @ts-ignore // IE10+
     if ("msSaveOrOpenBlob" in self.navigator) { self.navigator.msSaveOrOpenBlob(file, filename); };
 
     // for directory

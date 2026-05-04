@@ -79,8 +79,14 @@ export * from "./design/color/StyleRules"
 export * from "./design/color/ThemeEngine"
 
 //
+export * from "./utils/opfs/file-utils"
 export * from "./utils/opfs/Base64Data"
 export * from "./utils/opfs/OPFS"
+export * from "./utils/opfs/OPFSMod"
+export * from "./utils/opfs/FileOps"
+export * from "./utils/opfs/WriteFileSmart-v2"
+export * from "./utils/opfs/FsWatch"
+export * from "./utils/opfs/FileHandling"
 
 //
 export * from "./interactive/modules/LazyLoader"
