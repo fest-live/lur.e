@@ -5,7 +5,7 @@ import { addEvent, getPadding, handleAttribute } from "fest/dom";
 import { elMap } from "./Binding";
 import { isValidObj, WRef } from "fest/core";
 import { operated } from "fest/lure";
-import type { observeValid } from "fest/object/wrap/Utils";
+import type { observeValid } from "../../../../../subsystem/fest/object/wrap/Utils";
 
 //
 export const makeRef = <T = any>(host?: any, type?: any, link?: any, ...args): T extends object ? observeValid<T> | refType<T> : refType<T> => {

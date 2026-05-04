@@ -3,7 +3,7 @@
         "./src/**/*.ts",
         "./test/**/*.ts",
         "test/test.tsx"
-, "../../../apps/CrossWord/src/frontend/views/home/ts/Interact.ts", "../../../apps/CrossWord/src/frontend/shells/base/AppLayout.ts", "../../../apps/CrossWord/src/frontend/shells/base/BaseElement.ts", "../../../apps/CrossWord/src/frontend/shells/base/Actions.ts", "../fl.ui/src/ui/window/WindowFrame.ts", "../../../apps/CrossWord/src/frontend/shells/boot/ts/BootLoader.ts", "../../../apps/CrossWord/src/shared/store/FileSystem.ts"    ],
+    ],
     "exclude": [
         "./dist/**/*",
         "./externals/**/*",
@@ -20,7 +20,7 @@
                 "../../shared/assets/fonts/*"
             ],
             "fest/*": [
-                "../../shared/fest/*"
+                "../../subsystem/fest/*"
             ],
             "fest/cdnImport": [
                 "../../cdnImport.mjs"
@@ -50,10 +50,10 @@
                 "../core.ts/src/index.ts"
             ],
             "fest/polyfill/*": [
-                "../../shared/fest/polyfill/*"
+                "../../subsystem/fest/polyfill/*"
             ],
             "polyfill/*": [
-                "../../shared/fest/polyfill/*"
+                "../../subsystem/fest/polyfill/*"
             ]
         },
         "target": "ESNext",

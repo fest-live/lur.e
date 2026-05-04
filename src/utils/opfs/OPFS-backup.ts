@@ -340,7 +340,7 @@ export async function remove(rootHandle, relPath, options = {}, logger = default
 //
 export const openImageFilePicker = async ()=>{
     const $e = "showOpenFilePicker"; // @ts-ignore
-    const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
+    const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("../../../../../subsystem/fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
     return showOpenFilePicker(imageImportDesc);
 }
 
@@ -354,7 +354,7 @@ export const downloadFile = async (file) => {
         showOpenFilePicker: self?.showOpenFilePicker?.bind?.(window), // @ts-ignore
         showSaveFilePicker: self?.showSaveFilePicker?.bind?.(window), // @ts-ignore
     })) // @ts-ignore
-    : import(/* @vite-ignore */ "fest/polyfill/showOpenFilePicker.mjs"));
+    : import(/* @vite-ignore */ "../../../../../subsystem/fest/polyfill/showOpenFilePicker.mjs"));
 
     // @ts-ignore
     if (window?.showSaveFilePicker) { // @ts-ignore
@@ -465,7 +465,7 @@ export const uploadFile = async (dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-
     const $e = "showOpenFilePicker"; dest = dest?.trim?.()?.startsWith?.("/user/") ? dest?.trim?.()?.replace?.(/^\/user/g, "")?.trim?.() : dest;
 
     // @ts-ignore
-    const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
+    const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("../../../../../subsystem/fest/polyfill/showOpenFilePicker.mjs"))?.[$e];
     return showOpenFilePicker(imageImportDesc)?.then?.(async ([handle] = [])=>{
         const file = await handle?.getFile?.();
         return dropFile(file, dest, current);
