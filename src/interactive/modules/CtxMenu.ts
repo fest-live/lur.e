@@ -131,7 +131,7 @@ export const makeMenuHandler = (
                 ...(ctxMenuDesc?.items
                     ?.map?.((section, sIdx) => {
                         const items = section?.map?.((item) =>
-                            H`<li data-id=${item?.id || ""}><ui-icon icon=${item?.icon || ""}></ui-icon><span>${item?.label || ""}</span></li>`
+                            H`<li data-id=${item?.id || ""}><ui-icon icon=${item?.icon || ""} icon-style="duotone"></ui-icon><span>${item?.label || ""}</span></li>`
                         );
                         const separator = (section?.length > 1 && sIdx !== ((ctxMenuDesc?.items?.length || 0) - 1))
                             ? H`<li class="ctx-menu-separator"></li>`
