@@ -109,9 +109,8 @@ const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?:
             const obj: any = getMapped(el) ?? $getBase(el, mapper, index, requestor);
             return $getLeaf(obj instanceof WeakRef ? obj?.deref?.() : obj, requestor);
         };
-        const $node = $getBase(el, mapper, index, requestor);
-        if (!mapper && $node != null && $node != el && isWeakCompatible(el) && !isElement(el)) { elMap.set(el, $node); }
-        return $getLeaf($node, requestor);
+        if ("value" in el && isWeakCompatible(el?.value)) { return __getNode(el?.value, mapper, index, requestor); }; const $node = $getBase(el, mapper, index, requestor);
+        if (!mapper && $node != null && $node != el && isWeakCompatible(el) && !isElement(el)) { elMap.set(el, $node); };    return $getLeaf($node, requestor);
     }
     return $getNode(el, mapper, index, requestor);
 }
