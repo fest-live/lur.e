@@ -1,13 +1,20 @@
 import { observeAttributeBySelector, getAdoptedStyleRule, handleAttribute, containsOrSelf, MOCElement, observeBySelector, observeAttribute } from "fest/dom";
 import { bindWith, elMap } from "../core/Binding";
 import { $affected } from "fest/object";
+import { appendChild, removeChild, replaceOrSwap } from "../context/Utils";
 
 //
 const existsQueries = new WeakMap<any, Map<string|HTMLElement, any>>();
 const alreadyUsed   = new WeakMap();
 const queryExtensions = {
     logAll (ctx) { return ()=> console.log("attributes:", [...ctx?.attributes].map(x => ({ name: x.name, value: x.value })) ); },
-    append (ctx) { return (...args)=> ctx?.append?.(...([...args||[]]?.map?.((e)=>e?.element??e) || args)) },
+    append (ctx) { return (...args)=> args?.forEach?.((e)=>appendChild(ctx, e, null, -1)) },
+    appendChildren (ctx) { return (...args)=> args?.forEach?.((e)=>appendChild(ctx, e, null, -1)) },
+    removeChildren (ctx) { return (...args)=> args?.forEach?.((e)=>removeChild(ctx, e, null, -1)) },
+    removeChild (ctx) { return (e)=> removeChild(ctx, e, null, -1) },
+    replaceChild (ctx) { return (e, n)=> replaceOrSwap(ctx, e, n) },
+    remove(ctx) { return ()=>removeChild(ctx?.parentNode, ctx, null, -1) },
+    replace(ctx) { return (newEl)=>replaceOrSwap(ctx?.parentNode, ctx, newEl) },
     current(ctx) { return ctx; } // direct getter
 }
 
@@ -18,7 +25,7 @@ class UniversalElementHandler {
     index: number = 0;
 
     //
-    private _eventMap = new WeakMap<object, Map<string, Map<Function, {wrap: Function, option: any}>>>();
+    private _eventMap = new WeakMap<object, Map<string, WeakMap<Function, {wrap: Function, option: any}>>>();
     constructor(selector, index = 0, direction: "children" | "parent" = "children") {
         this.index     = index;
         this.selector  = selector;
@@ -150,7 +157,7 @@ class UniversalElementHandler {
         const eventName = this._redirectToBubble(name), eventMap = this._eventMap.get(parent);
         if (!eventMap) return; const cbMap = eventMap.get(eventName), entry = cbMap?.get?.(cb);
         parent?.removeEventListener?.(eventName, entry?.wrap ?? cb, option ?? entry?.option ?? {});
-        cbMap?.delete?.(cb); if (cbMap?.size == 0) eventMap?.delete?.(eventName);
+        cbMap?.delete?.(cb); if (cbMap?.size != null && cbMap?.size == 0) eventMap?.delete?.(eventName);
         if (eventMap.size == 0) this._eventMap.delete(parent);
     }
 
