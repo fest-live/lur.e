@@ -150,6 +150,7 @@ rxItems.push("D"); // DOM updates
 - Tagged template → interpolates values into content/attributes/events/props.
 
 Attribute/prop/event/ref prefixes inside tagged templates:
+
 - `attr:*` → HTML attribute
 - `prop:*` → DOM property
 - `on:*` or `@*` → event listener
@@ -208,6 +209,7 @@ bindDraggable(target, () => console.log("drag end"));
 ### Handling refs and DOM elements
 
 **Flexible handling of refs and DOM elements:**
+
 - Referenced content is also a DOM element (`Text` node)
 - HTML DOM elements also can be placed as content of other DOM elements
 - `ref(...)` are reactive and will be updated when the referenced content changes
@@ -266,13 +268,11 @@ Feel free to check [issues page](https://github.com/fest-live/lur.e/issues).
 
 ---
 
-<p align="center">
-  <b>Made with ❤️ by fest-live</b>
-</p>
+<p align="center"><b>Made with ❤️ by fest-live</b></p>
 
 ---
 
-## About naming conflicts...
+## About naming conflicts
 
 - Originally, project was named as **BLU.E**.
   - However, I won't have 'B' as first letter.
