@@ -1,4 +1,4 @@
-import { iterated, ref } from "fest/object";
+import { computed, iterated, ref } from "fest/object";
 import { $mapped } from "../core/Binding";
 import { getNode, appendFix, removeNotExists, removeChild, removeChildDirectly, appendChild } from "../context/Utils";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
@@ -227,10 +227,19 @@ class Mp {
         if (op == "add" || (newEl != null && oldEl == null)) {
             if (this.#indexMap.has(idx)) { return; }
             const indexRef = ref(this.#observable, idx);
-            const withElement = C(indexRef, (...args) => {
+            /*const withElement = C(indexRef, (...args) => {
                 if (args?.[1] == null || args?.[1] < 0) { args[1] = idx ?? args?.[1]; };
                 return this.mapper(...args);
-            });
+            });*/
+            const withElement = C(computed(indexRef, (...args) => {
+                if (args?.[1] == "value" || typeof args?.[1] == "string") {
+                    const tmpValueArray = Array.isArray(this.#observable) ? [...this.#observable] : Array.from((this.#observable as any)?.values?.() ?? Object.values((this.#observable as any) ?? {}) ?? []);
+                    const possiblyIndex = tmpValueArray?.indexOf?.((args?.[0] as any)) ?? -1;
+                    args[1] = (possiblyIndex >= 0 ? possiblyIndex : null) ?? idx ?? args?.[1]; 
+                };
+                if (args?.[1] == null || args?.[1] < 0) { args[1] = (idx >= 0 ? idx : null) ?? args?.[1] ?? -1; };
+                return this.mapper(...args);
+            }));
             this.#indexMap.set(idx, withElement);
             appendChild(this.boundParent, withElement, null, idx);
         }
