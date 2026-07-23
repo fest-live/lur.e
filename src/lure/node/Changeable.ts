@@ -201,7 +201,7 @@ export const C = (observable, mapCb?, boundParent: Node | null | ChangeableOptio
     if (Te != null && isPrimitive(checkable)) { Te.textContent = "" + checkable; }
 
     //
-    if (checkable != null && hasValue(checkable)) {
+    if (checkable != null && hasValue(checkable) && !mapCb) {
         if (isPrimitive(checkable?.value)) {
             return checkable?.value != null ? (Te ??= T(checkable?.value)) : document.createComment(":NULL:");
         } else

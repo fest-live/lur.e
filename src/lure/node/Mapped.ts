@@ -231,7 +231,7 @@ class Mp {
                 if (args?.[1] == null || args?.[1] < 0) { args[1] = idx ?? args?.[1]; };
                 return this.mapper(...args);
             });*/
-            const withElement = C(computed(indexRef, (...args) => {
+            const withElement = C(/*computed*/(indexRef, (...args) => {
                 if (args?.[1] == "value" || typeof args?.[1] == "string") {
                     const tmpValueArray = Array.isArray(this.#observable) ? [...this.#observable] : Array.from((this.#observable as any)?.values?.() ?? Object.values((this.#observable as any) ?? {}) ?? []);
                     const possiblyIndex = tmpValueArray?.indexOf?.((args?.[0] as any)) ?? -1;
