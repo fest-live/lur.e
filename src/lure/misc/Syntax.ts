@@ -1,10 +1,15 @@
-import { bindEvent, hasValue, isPrimitive } from "fest/core";
+import { hasValue, isPrimitive } from "fest/core";
 import { getNode } from "../context/Utils";
 import { E } from "../node/Bindings";
 import { M } from "../node/Mapped";
 import { isElement } from "fest/dom";
 import { checkInsideTagBlock, cleanupInterTagWhitespaceAndIndent } from "./Normalizer";
-import { pruneEmptyStyleAttribute } from "../misc/Styles";
+
+import {
+    applyNormalizedInlineStyle,
+    compileInlineStyleAttribute,
+    pruneEmptyStyleAttribute,
+} from "../misc/Styles";
 
 //
 const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
@@ -22,6 +27,14 @@ const parseIndex = (value: string | any | null): number => {
 //
 const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: WeakMap<HTMLElement, any>) => {
     if (!el) return el;
+
+    const rawStyleAttribute = el.getAttribute("style");
+    const inlineStylePlan =
+        rawStyleAttribute != null
+            ? compileInlineStyleAttribute(rawStyleAttribute, atb)
+            : null;
+
+    //
     if (el != null) {
         const entriesIdc: [string, number][] = [];
         const addEntryIfExists = (name: string): [string, any] => {
@@ -34,8 +47,24 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         }
 
         //
-        const specialEntryNames = ["dataset", "style", "classList", "visible", "aria", "value", "placeholder", "ref"];
-        specialEntryNames.forEach((name) => addEntryIfExists(name));
+        const specialEntryNames = [
+            "dataset",
+            "style",
+            "classList",
+            "visible",
+            "aria",
+            "value",
+            "placeholder",
+            "ref",
+        ];
+        
+        specialEntryNames.forEach(name => {
+            if (name === "style" && inlineStylePlan != null) {
+                return;
+            }
+        
+            addEntryIfExists(name);
+        });
 
         //
         const makeEntries = (startsWith: string[] | string, except: string[] | string): [string, any][] => {
@@ -81,7 +110,6 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         }
 
         //
-        let attributesEntries: [string, any][] = makeEntries(["attr:", ""], ["ref", "value", "placeholder"]);
         let propertiesEntries: [string, any][] = makeEntries(["prop:"], []);
         let onEntries: [string, any[]][] = makeCumulativeEntries(["on:", "@"], [], "");
         let refEntries: [string, any[]][] = makeCumulativeEntries(["ref:"], [], ["ref"]);
@@ -89,8 +117,57 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         // remove entries that are already in properties or on
         //attributesEntries = attributesEntries?.filter?.((pair) => !(propertiesEntries?.some?.((p) => p[0] == pair[0]) || onEntries?.some?.((p) => p[0] == pair[0]) || refEntries?.some?.((p) => p[0] == pair[0]))) ?? [];
 
+        let attributesEntries: [string, any][] = makeEntries(
+            ["attr:", ""],
+            ["ref", "value", "placeholder"],
+        );
+        
+        if (inlineStylePlan != null) {
+            attributesEntries = attributesEntries.filter(
+                ([name]) => name !== "style",
+            );
+        }
+        
         //
-        const bindings: any = Object.fromEntries(entriesIdc?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
+        const bindings: any = Object.fromEntries(
+            entriesIdc
+                ?.filter?.(pair => pair[1] >= 0)
+                ?.map?.(pair => [pair[0], atb?.[pair[1]] ?? null]) ?? [],
+        );
+        
+        bindings.attributes = Object.fromEntries(
+            attributesEntries
+                ?.filter?.(pair => pair[1] >= 0)
+                ?.map?.(pair => [pair[0], atb?.[pair[1]] ?? null]) ?? [],
+        );
+        
+        bindings.properties = Object.fromEntries(
+            propertiesEntries
+                ?.filter?.(pair => pair[1] >= 0)
+                ?.map?.(pair => [pair[0], atb?.[pair[1]] ?? null]) ?? [],
+        );
+        
+        bindings.on = Object.fromEntries(
+            onEntries
+                ?.filter?.(pair => pair[1]?.some?.(
+                    (idx: number) => idx >= 0,
+                ))
+                ?.map?.(pair => [
+                    pair[0],
+                    pair[1]
+                        ?.map?.((idx: number) => atb?.[idx])
+                        .filter((value: any) => value != null),
+                ]) ?? [],
+        );
+        
+        if (inlineStylePlan?.kind === "direct") {
+            bindings.style = inlineStylePlan.value;
+        } else if (inlineStylePlan?.kind === "template") {
+            // This is precisely the value returned by an explicit S`...`.
+            bindings.style = inlineStylePlan.binding;
+        }
+        
+        //
         bindings.attributes = Object.fromEntries(attributesEntries?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
         bindings.properties = Object.fromEntries(propertiesEntries?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
         bindings.on = Object.fromEntries(onEntries?.filter?.((pair) => pair[1]?.some?.((idx: number) => idx >= 0))?.map?.((pair) => [pair[0], pair[1]?.map?.((idx: number) => atb?.[idx]).filter((v: any) => v != null)]) ?? []);
@@ -145,6 +222,14 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
                     el?.removeAttribute?.(attr.name as string);
                 }
             }
+        }
+
+        //
+        if (inlineStylePlan?.kind === "static") {
+            applyNormalizedInlineStyle(
+                el,
+                inlineStylePlan.cssText,
+            );
         }
 
         //
