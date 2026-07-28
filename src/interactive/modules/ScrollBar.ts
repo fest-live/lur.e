@@ -1,3 +1,9 @@
+/*
+ * Filename: ScrollBar.ts
+ * FullPath: modules/projects/lur.e/src/interactive/modules/ScrollBar.ts
+ * Change date and time: 05.18.00_29.07.2026
+ * Reason for changes: Fix overlay scrollbars — timeline on content, thumb size/offset from scroll metrics, optional spatial layout.
+ */
 import { affected, numberRef } from "fest/object";
 import { bindWith, paddingBoxSize, scrollSize, vector2Ref, operated } from "fest/lure";
 import { makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
@@ -24,6 +30,20 @@ export interface ScrollBarStatus {
     scroll: number;
     delta: number;
     point: number;
+};
+
+/** anchored = CSS/overlay sibling (default); spatial = JS bbox edge placement */
+export type ScrollBarLayout = "anchored" | "spatial";
+
+export interface ScrollBarInit {
+    holder: HTMLElement;
+    scrollbar: HTMLDivElement;
+    content: HTMLDivElement;
+    inputChange?: any;
+    /** Default "anchored" — do not rewrite left/top from content bbox (breaks overlay siblings). */
+    layout?: ScrollBarLayout;
+    /** When false, keep scrollbar fully visible (skip auto-hide fade). */
+    autoHide?: boolean;
 };
 
 //
@@ -151,6 +171,10 @@ export class ScrollBar {
     status: ScrollBarStatus;
     holder: HTMLElement;
     inputChange: any;
+    layout: ScrollBarLayout;
+    private preferAutoHide: boolean;
+    private axis = 0;
+    private _thumbSyncCleanup?: () => void;
 
     // Enhanced spatial awareness
     spatialAnchor?: any[];
@@ -184,74 +208,135 @@ export class ScrollBar {
     themeManager?: ScrollbarThemeManager;
 
     //
-    constructor({holder, scrollbar, content, inputChange}, axis = 0) {
-        this.scrollbar   = scrollbar;
-        this.holder      = holder;
-        this.content     = content;
-        this.status      = { delta: 0, scroll: 0, point: 0, pointerId: -1 };
+    constructor(
+        { holder, scrollbar, content, inputChange, layout = "anchored", autoHide = true }: ScrollBarInit,
+        axis = 0,
+    ) {
+        this.scrollbar = scrollbar;
+        this.holder = holder;
+        this.content = content;
+        this.status = { delta: 0, scroll: 0, point: 0, pointerId: -1 };
         this.inputChange = inputChange;
+        this.layout = layout;
+        this.preferAutoHide = autoHide;
+        this.axis = axis;
 
-        //
-        this.initializeReactiveSizing(axis);
-        this.initializeSpatialAwareness(axis);
+        // Anchored/overlay path: keep chrome lean — metrics + drag only.
+        // Spatial/CSS-timeline path keeps the heavier theme/timeline stack for ScrollFrame.
+        if (this.layout === "anchored") {
+            this.scrollbarOpacity.value = 1;
+            makeInteractive(this.holder, this.content, this.scrollbar, axis, this.status, this.inputChange, this.isDragging);
+            this.bindThumbMetrics(axis);
+            this.setupAccessibility();
+            return;
+        }
+
         this.initializeResponsiveBehavior();
         this.initializeGestureHandling(axis);
         this.initializeTheming();
-        this.setupAutoHideBehavior();
+        if (this.preferAutoHide) {
+            this.setupAutoHideBehavior();
+        } else {
+            this.scrollbarOpacity.value = 1;
+        }
         this.setupAccessibility();
 
-        //
-        const currAxis   = axisConfig[axis]; // @ts-ignore
-        const bar        = this.scrollbar, source = this?.holder ?? this?.content; bar?.style?.setProperty(...currAxis.cssScrollProperty, "") // @ts-ignore
+        // WHY: ScrollTimeline / progress must track the element that actually scrolls.
+        const currAxis = axisConfig[axis]; // @ts-ignore
+        const bar = this.scrollbar;
+        const source = this.content ?? this.holder;
+        bar?.style?.setProperty(...currAxis.cssScrollProperty, ""); // @ts-ignore
         const properties = { [currAxis.cssPercentProperty]: [0, 1] };
-        if (this.enhancedTimeline = makeScrollTimeline(source as HTMLElement & { element?: HTMLElement }, axis === 0 ? "inline" : "block"))
-            { animateByTimeline(bar, properties, this.enhancedTimeline); };
+        if (this.enhancedTimeline = makeScrollTimeline(source as HTMLElement & { element?: HTMLElement }, axis === 0 ? "inline" : "block")) {
+            animateByTimeline(bar, properties, this.enhancedTimeline);
+        }
 
-        //
         makeInteractive(this.holder, this.content, this.scrollbar, axis, this.status, this.inputChange, this.isDragging);
         bindWith(this.scrollbar, "--content-size", CSSUnitUtils.asPx(paddingBoxSize(this.content, axis, this.inputChange)), handleStyleChange);
         bindWith(this.scrollbar, "--scroll-size", CSSUnitUtils.asPx(scrollSize(this.content, axis, this.inputChange)), handleStyleChange);
 
-        // Enhanced reactive binding with CSS transforms
         bindWith(this.scrollbar, "opacity", this.scrollbarOpacity, handleStyleChange);
         bindWith(this.scrollbar, "--is-dragging", this.isDragging, handleStyleChange);
 
-        // Bind reactive thumb transform
-        CSSBinder.bindTransform(this.scrollbar.querySelector('*') as HTMLElement,
-            this.thumbTransform.value);
+        this.bindThumbMetrics(axis);
+
+        if (this.layout === "spatial") {
+            this.initializeSpatialAwareness(axis);
+        }
     }
 
-    private initializeReactiveSizing(axis: number) {
-        // Create reactive element size trackers
-        const containerSizeTracker = new ReactiveElementSize(this.holder);
-        const contentSizeTracker = new ReactiveElementSize(this.content);
+    /**
+     * Size + offset the thumb from real scrollWidth/clientWidth (or height).
+     * Also writes --percent-* so CSS consumers stay in sync.
+     */
+    private bindThumbMetrics(axis: number) {
+        const thumb = (this.scrollbar.querySelector(".ui-thumb, .thumb, *") ?? null) as HTMLElement | null;
+        if (!thumb) return;
 
-        // Update reactive size properties
-        operated([containerSizeTracker.width, containerSizeTracker.height], () => {
-            this.containerSize.x.value = containerSizeTracker.width.value;
-            this.containerSize.y.value = containerSizeTracker.height.value;
-        });
+        const percentProp = axisConfig[axis].cssPercentProperty;
+        let tries = 0;
 
-        // Calculate thumb size reactively
-        const contentSize = axis === 0 ? contentSizeTracker.width : contentSizeTracker.height;
-        const containerSize = axis === 0 ? containerSizeTracker.width : containerSizeTracker.height;
+        const trackSizeOf = () => {
+            const rect = this.scrollbar.getBoundingClientRect();
+            const viaRect = axis === 0 ? rect.width : rect.height;
+            if (viaRect > 0) return viaRect;
+            return axis === 0 ? this.scrollbar.clientWidth : this.scrollbar.clientHeight;
+        };
 
-        operated([contentSize, containerSize], () => {
-            const ratio = containerSize.value / contentSize.value;
-            const thumbLength = Math.max(20, ratio * containerSize.value);
-            const thumbThickness = this.responsiveConfig?.getCurrentConfig().thickness || 12;
-
-            if (axis === 0) { // Horizontal
-                this.thumbSize.x.value = thumbLength;
-                this.thumbSize.y.value = thumbThickness;
-            } else { // Vertical
-                this.thumbSize.x.value = thumbThickness;
-                this.thumbSize.y.value = thumbLength;
+        const update = () => {
+            const scrollSizePx = this.content[["scrollWidth", "scrollHeight"][axis]] || 1;
+            const clientSizePx = this.content[["clientWidth", "clientHeight"][axis]] || 1;
+            const scrollPos = this.content[["scrollLeft", "scrollTop"][axis]] || 0;
+            const maxScroll = Math.max(0, scrollSizePx - clientSizePx);
+            const trackSize = trackSizeOf();
+            if (trackSize <= 0) {
+                // Anchor/contain layout may resolve a frame later.
+                if (tries++ < 120) requestAnimationFrame(update);
+                return;
             }
-        });
+            tries = 0;
 
-        // Bind reactive thumb size to CSS
-        CSSBinder.bindSize(this.scrollbar.querySelector('*') as HTMLElement, this.thumbSize);
+            const thumbLen = maxScroll <= 0
+                ? trackSize
+                : Math.max(20, (clientSizePx / scrollSizePx) * trackSize);
+            const maxOffset = Math.max(0, trackSize - thumbLen);
+            const progress = maxScroll <= 0 ? 0 : Math.min(1, Math.max(0, scrollPos / maxScroll));
+
+            if (axis === 0) {
+                thumb.style.boxSizing = "border-box";
+                thumb.style.width = `${thumbLen}px`;
+                thumb.style.height = "100%";
+                thumb.style.transform = `translate3d(${maxOffset * progress}px, 0, 0)`;
+                this.thumbSize.x.value = thumbLen;
+            } else {
+                thumb.style.boxSizing = "border-box";
+                thumb.style.height = `${thumbLen}px`;
+                thumb.style.width = "100%";
+                thumb.style.transform = `translate3d(0, ${maxOffset * progress}px, 0)`;
+                this.thumbSize.y.value = thumbLen;
+            }
+
+            this.scrollbar.style.setProperty(percentProp, String(progress));
+            this.scrollbar.style.setProperty("--scroll-coef", String(maxScroll <= 0 ? 1 : clientSizePx / scrollSizePx));
+            this.scrollbar.setAttribute("aria-valuenow", String(Math.round(progress * 100)));
+        };
+
+        const onScroll = () => update();
+        this.content.addEventListener("scroll", onScroll, { passive: true });
+        const ro = new ResizeObserver(() => update());
+        ro.observe(this.content);
+        ro.observe(this.scrollbar);
+        const mo = new MutationObserver(() => queueMicrotask(update));
+        mo.observe(this.content, { childList: true, subtree: true, characterData: true });
+
+        queueMicrotask(update);
+        requestAnimationFrame(update);
+
+        this._thumbSyncCleanup = () => {
+            this.content.removeEventListener("scroll", onScroll);
+            ro.disconnect();
+            mo.disconnect();
+        };
     }
 
     private initializeSpatialAwareness(axis: number) {
@@ -295,14 +380,14 @@ export class ScrollBar {
     }
 
     private updateScrollbarThickness(thickness: number) {
-        // Update CSS custom property for scrollbar thickness
         this.scrollbar.style.setProperty("--scrollbar-thickness", `${thickness}px`);
 
-        // Update actual size if needed
-        if (this.scrollbar.style.width && this.scrollbar.style.width.includes("var(--scrollbar-thickness)")) {
-            // Already using CSS variable
-        } else {
-            // Set explicit size
+        // WHY: horizontal track thickness is block-size; vertical track thickness is inline-size.
+        if (this.axis === 0) {
+            if (!this.scrollbar.style.height || !this.scrollbar.style.height.includes("var(--scrollbar-thickness)")) {
+                this.scrollbar.style.height = `${thickness}px`;
+            }
+        } else if (!this.scrollbar.style.width || !this.scrollbar.style.width.includes("var(--scrollbar-thickness)")) {
             this.scrollbar.style.width = `${thickness}px`;
         }
     }
@@ -606,9 +691,12 @@ export class ScrollBar {
     }
 
     destroy() {
+        this._thumbSyncCleanup?.();
+        this._thumbSyncCleanup = undefined;
+
         // Cleanup spatial anchors
-        this.spatialAnchor?.forEach(anchor => {
-            if (anchor && typeof anchor[Symbol.dispose] === 'function') {
+        this.spatialAnchor?.forEach((anchor) => {
+            if (anchor && typeof anchor[Symbol.dispose] === "function") {
                 anchor[Symbol.dispose]();
             }
         });

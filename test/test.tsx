@@ -9,6 +9,7 @@
 import { observe, ref, numberRef } from "fest/object";
 import { defineElement, GLitElement, property, S, E, H, M } from "fest/lure";
 import { Vector2D, vector2Ref, operated, magnitude2D } from "../src/utils/math/index";
+import { appendAsUnderlying, appendAsOverlay } from "../src/design/layers/AnchorOverlay";
 
 // ============================================================================
 // Demo 1: Web Component with Reactive Properties
@@ -150,5 +151,26 @@ const animate = () => {
 };
 
 animate();
+
+// ============================================================================
+// Demo 5: Underlying / Overlay layers smoke
+// ============================================================================
+const layerDemo = document.createElement("div");
+layerDemo.style.cssText = "position:relative;margin:1rem 0;isolation:isolate;padding:8px;";
+const mainEl = document.createElement("div");
+mainEl.textContent = "Main (z=3) — under blur + overlay label";
+mainEl.style.cssText =
+    "position:relative;z-index:3;padding:1rem;background:#246;color:#fff;border-radius:12px;";
+const underEl = document.createElement("div");
+underEl.style.cssText =
+    "background:rgba(255,200,0,.45);filter:blur(10px);border-radius:12px;";
+const overEl = document.createElement("div");
+overEl.textContent = "overlay";
+overEl.style.cssText =
+    "display:flex;align-items:end;justify-content:end;padding:4px;color:#6ee7b7;font:12px monospace;pointer-events:none;";
+layerDemo.appendChild(mainEl);
+container.appendChild(layerDemo);
+appendAsUnderlying(mainEl, underEl, { stackMode: "shift" });
+appendAsOverlay(mainEl, overEl, null, { stackMode: "shift", placement: "fill" });
 
 console.log("✅ LUR-E Demo loaded successfully");

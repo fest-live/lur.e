@@ -36,8 +36,11 @@ export * from "./interactive/mixins"
 
 
 //
+export * from "./design/layers/types"
+export * from "./design/layers/stacking"
 export * from "./design/layers/AnchorOverlay"
 export * from "./design/layers/Register"
+export * from "./design/layers/UnderlyingShadow"
 
 //
 export * from "./interactive/modules/CtxMenu"

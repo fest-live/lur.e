@@ -467,9 +467,18 @@ export const effectProperty = { fill: "both", delay: 0, easing: "linear", rangeS
 export const animateByTimeline = async (source: HTMLElement, properties = {}, timeline?: any) => {
     if (!source || !timeline) return;
 
+    // Prefer native Scroll/ViewTimeline (incl. Enhanced* wrappers that stash it on `.timeline`).
+    // WHY: do not pass `$extract` (element source) as WAAPI `timeline` — that breaks scroll-driven anims.
     // @ts-ignore
-    if (timeline instanceof ScrollTimeline || timeline instanceof ViewTimeline) {
-        return source?.animate?.(properties, { ...effectProperty as any, timeline: timeline?.[$extract] ?? timeline });
+    const nativeTimeline =
+        // @ts-ignore
+        (timeline instanceof ScrollTimeline || timeline instanceof ViewTimeline)
+            ? timeline
+            : timeline?.timeline;
+
+    // @ts-ignore
+    if (nativeTimeline instanceof ScrollTimeline || nativeTimeline instanceof ViewTimeline) {
+        return source?.animate?.(properties, { ...effectProperty as any, timeline: nativeTimeline });
     }
 
     //

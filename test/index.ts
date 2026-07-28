@@ -96,6 +96,7 @@ import { runRefsTests } from "./suites/refs.test";
 import { runIntegrationTests } from "./suites/integration.test";
 import { runLinkerTests } from "./suites/linker.test";
 import { runReactiveDOMTests } from "./suites/reactive-dom.test";
+import { runLayersTests } from "./suites/layers.test";
 
 // Main test runner
 export async function runAllTests() {
@@ -113,6 +114,7 @@ export async function runAllTests() {
     await runIntegrationTests(TestRunner);
     await runLinkerTests(TestRunner);
     await runReactiveDOMTests(TestRunner);
+    await runLayersTests(TestRunner);
 
     return TestRunner.summary();
 }
