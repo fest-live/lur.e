@@ -4,7 +4,8 @@ import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, 
 import { addEvent, getPadding, handleAttribute } from "fest/dom";
 import { elMap } from "./Binding";
 import { isValidObj, WRef } from "fest/core";
-import { operated } from "fest/lure";
+// Keep this low-level ref module independent from the barrel export.
+import { operated } from "../../utils/math/Operations";
 import type { observeValid } from "../../../../../subsystem/fest/object/wrap/Utils";
 
 //

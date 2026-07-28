@@ -1,5 +1,5 @@
 import { affected, numberRef } from "fest/object";
-import { bindWith, paddingBoxSize, scrollSize } from "fest/lure";
+import { bindWith, paddingBoxSize, scrollSize, vector2Ref, operated } from "fest/lure";
 import { makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
 import { boundingBoxAnchorRef } from "../../design/anchor/BBoxAnchor";
 import { pointerAnchorRef } from "../../design/anchor/PointerAnchor";
@@ -8,7 +8,6 @@ import { createResponsiveScrollbarConfig } from "../../design/anchor/ContainerQu
 import { ScrollbarThemeManager, type ScrollbarTheme } from "../../design/color/ScrollbarTheme";
 
 // Enhanced reactive math and CSS integration
-import { vector2Ref, operated } from "fest/lure";
 import { ReactiveElementSize } from "../../design/anchor/Utils";
 import { ReactiveTransform } from "../../design/anchor/Utils";
 import { animateByTimeline } from "../../design/anchor/CSSAnimated";

@@ -4,10 +4,11 @@
  * Comprehensive test suite organized by categories/chapters:
  * 1. Math & Vectors - Point2D, Point3D, Point4D, Matrix operations
  * 2. Rectangle & Geometry - Rect2D, collision detection, transformations
- * 3. DOM & Node API - H, E, M functions, template parsing
+ * 3. DOM & Node API - H, E, template parsing
  * 4. Reactive Refs - attrRef, valueRef, sizeRef, scrollRef, etc.
- * 5. Controllers & Extensions - Draggable, Resizable, Selection
- * 6. Integration - Combined reactive math + DOM examples
+ * 5. Integration - Combined reactive math + DOM examples
+ * 6. Linker - Observable linker and integration contracts
+ * 7. Reactive DOM - M, C, I/SwM, bindings, events, and GLit elements
  */
 
 // Test utilities
@@ -94,6 +95,7 @@ import { runDOMTests } from "./suites/dom.test";
 import { runRefsTests } from "./suites/refs.test";
 import { runIntegrationTests } from "./suites/integration.test";
 import { runLinkerTests } from "./suites/linker.test";
+import { runReactiveDOMTests } from "./suites/reactive-dom.test";
 
 // Main test runner
 export async function runAllTests() {
@@ -110,6 +112,7 @@ export async function runAllTests() {
     await runRefsTests(TestRunner);
     await runIntegrationTests(TestRunner);
     await runLinkerTests(TestRunner);
+    await runReactiveDOMTests(TestRunner);
 
     return TestRunner.summary();
 }

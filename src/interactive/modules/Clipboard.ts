@@ -1,4 +1,9 @@
-/**
+/*
+ * Filename: Clipboard.ts
+ * FullPath: modules/projects/lur.e/src/interactive/modules/Clipboard.ts
+ * Change date and time: 23.16.00_28.07.2026
+ * Reason for changes: Prevent shadow-host clipboard traversal loops and duplicate providers.
+ *
  * Standalone Clipboard API
  * Works independently in any context: PWA, Chrome Extension, service worker, vanilla JS
  * Provides unified clipboard operations with fallbacks
@@ -608,7 +613,9 @@ const collectProviders = (ev: ClipboardEvent, action: keyof ClipboardProvider): 
 
     // 1. Walk up the tree (bubbling emulation / focus context)
     let current: HTMLElement | null = el as HTMLElement;
-    while (current) {
+    const visited = new Set<HTMLElement>();
+    while (current && !visited.has(current)) {
+        visited.add(current);
         // Check if element instance has the methods (e.g. web components or custom objects attached)
         if (typeof (current as any)[action] === "function") {
             providers.add(current as any);
@@ -619,10 +626,13 @@ const collectProviders = (ev: ClipboardEvent, action: keyof ClipboardProvider): 
         }
 
         // Move up
-        if (current.shadowRoot && (current.shadowRoot as any).host) {
-            current = (current.shadowRoot as any).host;
+        const shadowHost = current.shadowRoot?.host as HTMLElement | null;
+        if (shadowHost && shadowHost !== current) {
+            current = shadowHost;
         } else {
-            current = (current.parentElement || (current.getRootNode() as ShadowRoot)?.host) as HTMLElement;
+            const rootHost = (current.getRootNode?.() as ShadowRoot | null)?.host as HTMLElement | null;
+            const next = current.parentElement || rootHost;
+            current = next && next !== current ? next : null;
         }
     }
 
@@ -663,7 +673,13 @@ const collectProviders = (ev: ClipboardEvent, action: keyof ClipboardProvider): 
 //
 const handleClipboardEvent = (ev: ClipboardEvent, type: "onCopy" | "onCut" | "onPaste") => {
     const providers = collectProviders(ev, type);
+    const handled = new Set<any>();
     for (const provider of providers) {
+        if (handled.has(provider)) continue;
+        const operative = (provider as any)?.operativeInstance;
+        if (operative && handled.has(operative)) continue;
+        handled.add(provider);
+        if (operative) handled.add(operative);
         provider[type]?.(ev);
     }
 };

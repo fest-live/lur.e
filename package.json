@@ -47,9 +47,12 @@
         "@fest-lib/uniform": "^0.1.0"
     },
     "scripts": {
-        "test": "node ./scripts/run-linker-tests.mjs",
-        "test:dev": "vite --host 0.0.0.0",
-        "dev": "vite --host 0.0.0.0",
+        "test": "npm run test:linker",
+        "test:linker": "node ./scripts/run-linker-tests.mjs",
+        "test:mapped": "node ./scripts/run-mapped-tests.mjs",
+        "test:dev": "npm run demo",
+        "dev": "npm run demo",
+        "demo": "vite --host 0.0.0.0",
         "watch": "vite build --watch",
         "build": "vite build --config vite.config.js && npm run docs && npm run docs:md",
         "build:publish": "FEST_NPM_IMPORTS=1 vite build --config vite.config.js",

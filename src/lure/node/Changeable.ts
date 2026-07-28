@@ -197,13 +197,14 @@ export const C = (observable, mapCb?, boundParent: Node | null | ChangeableOptio
     if (observable instanceof HTMLElement) { return Q(observable); }
     if (observable == null) return document.createComment(":NULL:");
     const checkable = (typeof mapCb == "function" ? mapCb(observable, -1) : observable) ?? observable;
-    if (isPrimitive(checkable)) { return (Te ??= T(checkable)); }
+    if (isPrimitive(checkable)) { return (Te ??= T(hasValue(observable) ? observable : checkable)); }
     if (Te != null && isPrimitive(checkable)) { Te.textContent = "" + checkable; }
 
     //
     if (checkable != null && hasValue(checkable) && !mapCb) {
         if (isPrimitive(checkable?.value)) {
-            return checkable?.value != null ? (Te ??= T(checkable?.value)) : document.createComment(":NULL:");
+            // Preserve the ref as T's source so template interpolations stay reactive.
+            return checkable?.value != null ? (Te ??= T(checkable)) : document.createComment(":NULL:");
         } else
         if (typeof checkable == "object" || typeof checkable == "function") {
             // @ts-ignore
