@@ -4,7 +4,7 @@ import { isNotEqual, isPrimitive } from "fest/core";
 //
 import { bindHandler, bindWith } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "fest/dom";
-import { applyNormalizedInlineStyle } from "../misc/Styles";
+import { applyNormalizedInlineStyle, bindStyle } from "../misc/Styles";
 import Q from "../node/Queried";
 import { setChecked } from "fest/dom";
 
@@ -20,6 +20,14 @@ const $entries = (obj: any) => {
     if (obj instanceof Set) { return Array.from(obj.values()); }
     return Array.from(Object.entries(obj));
 }
+
+/**
+ * Detect StyleBinding from S`...` / css`...`: [apply, @property rules, variables].
+ * WHY: treating the tuple as a plain array made reflectStyles write indices 0/1/2 as CSS props.
+ */
+const isStyleBindingTuple = (styles: any): boolean => {
+    return Array.isArray(styles) && typeof styles[0] === "function";
+};
 
 //
 export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
@@ -80,7 +88,11 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (!styles) return element;
     if (typeof styles == "string") { applyNormalizedInlineStyle(element, styles); } else
     if (typeof styles?.value == "string") { affected([styles, "value"], (val) => { applyNormalizedInlineStyle(element, val ?? ""); }); } else
-    if (typeof styles == "object" || typeof styles == "function") {
+    if (isStyleBindingTuple(styles) || typeof styles == "function") {
+        // S`...` / css`...` applicator (and optional StyleBinding tuple).
+        bindStyle(element, styles);
+    } else
+    if (typeof styles == "object") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
         $entries(styles).forEach(([prop, value])=>{
             handleStyleChange(wel?.deref?.(), prop, value);
