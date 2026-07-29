@@ -2,7 +2,7 @@
  * Pointer helpers for orient-aware UIs. For launcher / speed-dial grids (cell hit-test, placement),
  * use `fest/dom` `resolveGridCellFromClientPoint` + Veela `compute_grid_item_cell` / `.ui-launcher-grid`.
  */
-import { getBoundingOrientRect, orientOf, addEvent, addEvents, hasParent, removeEvent } from "fest/dom";
+import { getBoundingOrientRect, orientOf, addEvent, addEvents, removeEvent } from "fest/dom";
 import { cvt_cs_to_os, withCtx } from "fest/core";
 import { vector2Ref } from "../../utils/math";
 
@@ -254,26 +254,27 @@ export const grabForDrag = (
     };
 
     //
+    // WHY: After `setPointerCapture`, touch `target` can leave the tile (or be a text node);
+    // gating on `hasParent` drops moves and stalls drop → wrong cell on mobile.
+    // INVARIANT: matching `pointerId` alone drives drag deltas while capture is active.
     const moveEvent = [/*agWrapEvent*/((evc)=>{
         if (ex?.pointerId == evc?.pointerId) {
             evc?.preventDefault?.();
-            if (hasParent(evc?.target, em)) {
-                const client = [...(evc?.client  || [evc?.clientX || 0, evc?.clientY || 0] || [0, 0])]; hm.duration = computeDuration();
-                hm.movement  = [...(hm.client ? [client?.[0] - (hm.client?.[0] || 0), client?.[1] - (hm.client?.[1] || 0)] : [0, 0])];
-                hm.client    = client;
-                hm.shifting[0] +=  hm.movement[0] || 0                   , hm.shifting[1] +=  hm.movement[1] || 0;
-                // Keep sub-pixel precision while dragging; bitwise truncation causes visible jitter.
-                hm.modified[0]  = (hm.shifting[0] ?? hm.modified[0]) || 0, hm.modified[1]  = (hm.shifting[1] ?? hm.modified[1]) || 0;
-                em?.dispatchEvent?.(new PointerEventDrag("m-dragging", {
-                    ...evc,
-                    bubbles: true,
-                    holding: hm,
-                    event: evc,
-                }));
-                if (hm?.result?.[0] != null) hm.result[0].value = hm.modified[0] || 0;
-                if (hm?.result?.[1] != null) hm.result[1].value = hm.modified[1] || 0;
-                if (hm?.result?.[2] != null) hm.result[2].value = 0;
-            }
+            const client = [...(evc?.client  || [evc?.clientX || 0, evc?.clientY || 0] || [0, 0])]; hm.duration = computeDuration();
+            hm.movement  = [...(hm.client ? [client?.[0] - (hm.client?.[0] || 0), client?.[1] - (hm.client?.[1] || 0)] : [0, 0])];
+            hm.client    = client;
+            hm.shifting[0] +=  hm.movement[0] || 0                   , hm.shifting[1] +=  hm.movement[1] || 0;
+            // Keep sub-pixel precision while dragging; bitwise truncation causes visible jitter.
+            hm.modified[0]  = (hm.shifting[0] ?? hm.modified[0]) || 0, hm.modified[1]  = (hm.shifting[1] ?? hm.modified[1]) || 0;
+            em?.dispatchEvent?.(new PointerEventDrag("m-dragging", {
+                ...evc,
+                bubbles: true,
+                holding: hm,
+                event: evc,
+            }));
+            if (hm?.result?.[0] != null) hm.result[0].value = hm.modified[0] || 0;
+            if (hm?.result?.[1] != null) hm.result[1].value = hm.modified[1] || 0;
+            if (hm?.result?.[2] != null) hm.result[2].value = 0;
         }
     }), {capture: true}];
 
@@ -282,16 +283,16 @@ export const grabForDrag = (
     const releaseEvent = [/*agWrapEvent*/((evc)=>{
         if (ex?.pointerId == evc?.pointerId) {
             const elm = em?.element || em;
-            if (hasParent(evc?.target, elm) || evc?.currentTarget?.contains?.(elm) || evc?.target == elm) {
-                if (evc?.type == "pointerup") { clickPrevention(elm, evc?.pointerId); };
+            // WHY: pointerup outside the tile (common on touch) must still end the drag.
+            if (evc?.type == "pointerup") { clickPrevention(elm, evc?.pointerId); };
 
-                //
-                queueMicrotask(() => promised?.resolve?.(result));
-                bindings?.forEach?.(binding => binding?.());
-                elm?.releaseCapturePointer?.(evc?.pointerId);
-                elm?.dispatchEvent?.(new PointerEventDrag("m-dragend", { ...evc, bubbles: true, holding: hm, event: evc }));
-                hm.canceled = true; try { ex.pointerId = -1; } catch (_) { /* noop */ }
-            }
+            //
+            queueMicrotask(() => promised?.resolve?.(result));
+            bindings?.forEach?.(binding => binding?.());
+            try { elm?.releasePointerCapture?.(evc?.pointerId); } catch { /* noop */ }
+            try { elm?.releaseCapturePointer?.(evc?.pointerId); } catch { /* noop */ }
+            elm?.dispatchEvent?.(new PointerEventDrag("m-dragend", { ...evc, bubbles: true, holding: hm, event: evc }));
+            hm.canceled = true; try { ex.pointerId = -1; } catch (_) { /* noop */ }
         }
     }), {capture: true}];
 
