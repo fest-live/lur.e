@@ -1,20 +1,26 @@
 /*
  * Filename: UnderlyingShadow.ts
  * FullPath: modules/projects/lur.e/src/design/layers/UnderlyingShadow.ts
- * Change date and time: 05.12.00_29.07.2026
- * Reason for changes: Attach via appendAsUnderlying; sync mask with shaped clone.
+ * Change date and time: 16.56.00_30.07.2026
+ * Reason for changes: Tile under as grid sibling of `.ui-ws-item` (CSS-anchor); optional geometrySource.
  */
 import { setProperty, handleStyleChange } from "fest/dom";
 import { bindWith } from "../../lure/core/Binding";
 import { CSSUnitUtils } from "../anchor/CSSAdapter";
 import { boundingBoxAnchorRef } from "../anchor/BBoxAnchor";
 import { enhancedIntersectionBoxAnchorRef } from "../anchor/IntersectionAnchor";
-import { appendAsUnderlying } from "./AnchorOverlay";
+import { appendAsUnderlying, observeConnect } from "./AnchorOverlay";
+import type { LayerPositioning } from "./types";
 
 //
 export interface UnderlyingShadowOptions {
     target: HTMLElement;
-    shadowType?: 'drop-shadow' | 'blur' | 'box-shadow';
+    /**
+     * Shape/radius source when different from `target` (e.g. `.ui-ws-item-icon` while
+     * `target` is the grid `.ui-ws-item` sibling anchor).
+     */
+    geometrySource?: HTMLElement | null;
+    shadowType?: "drop-shadow" | "blur" | "box-shadow";
     shadowColor?: string;
     shadowBlur?: number;
     shadowOffsetX?: number;
@@ -27,10 +33,15 @@ export interface UnderlyingShadowOptions {
     cloneGeometry?: boolean;
     updateOnScroll?: boolean;
     updateOnResize?: boolean;
+    /**
+     * - `contain` — absolute inset:0 sibling in parent (relative hosts).
+     * - `fixed` — viewport-fixed bbox (context menus / `position:fixed` hosts).
+     * - `anchor` — CSS anchor fill of `target` (grid item siblings in speed-dial).
+     */
+    positioning?: LayerPositioning | "fixed";
+    /** Extra class on the shadow container (e.g. hover CSS hooks). */
+    className?: string;
 }
-
-//
-// Unit conversion utilities now imported from CSSUnitUtils
 
 //
 export class UnderlyingShadow {
@@ -45,8 +56,8 @@ export class UnderlyingShadow {
     constructor(options: UnderlyingShadowOptions) {
         this.target = options.target;
         this.options = {
-            shadowType: 'drop-shadow',
-            shadowColor: 'rgba(0, 0, 0, 0.25)',
+            shadowType: "drop-shadow",
+            shadowColor: "rgba(0, 0, 0, 0.25)",
             shadowBlur: 8,
             shadowOffsetX: 0,
             shadowOffsetY: 4,
@@ -58,6 +69,7 @@ export class UnderlyingShadow {
             cloneGeometry: true,
             updateOnScroll: true,
             updateOnResize: true,
+            positioning: "contain",
             ...options
         };
 
@@ -68,57 +80,67 @@ export class UnderlyingShadow {
         this.attachToDOM();
     }
 
+    private get positioningMode(): LayerPositioning | "fixed" {
+        return this.options.positioning ?? "contain";
+    }
+
+    private get geometryHost(): HTMLElement {
+        return this.options.geometrySource ?? this.target;
+    }
+
     private createShadowElements() {
-        // Create container for the filter (transparent background)
-        this.shadowContainer = document.createElement('div');
-        this.shadowContainer.className = 'underlying-shadow-container';
-        this.shadowContainer.style.position = 'absolute';
-        this.shadowContainer.style.pointerEvents = 'none';
-        this.shadowContainer.style.zIndex = this.options.zIndexShift!.toString();
-        this.shadowContainer.style.overflow = 'visible';
+        this.shadowContainer = document.createElement("div");
+        this.shadowContainer.className = [
+            "underlying-shadow-container",
+            this.options.className || ""
+        ]
+            .filter(Boolean)
+            .join(" ");
+        this.shadowContainer.setAttribute("aria-hidden", "true");
+        this.shadowContainer.style.pointerEvents = "none";
+        this.shadowContainer.style.overflow = "visible";
+        // WHY: filters/box-shadow must not share the main's backdrop-filter stacking context.
+        this.shadowContainer.style.isolation = "isolate";
 
         if (this.options.cloneGeometry) {
-            this.geometryClone = document.createElement('div');
-            this.geometryClone.className = 'underlying-shadow-geometry underlying-shadow-element';
-            this.geometryClone.style.width = '100%';
-            this.geometryClone.style.height = '100%';
-            this.geometryClone.style.position = 'relative';
-            this.geometryClone.style.overflow = 'hidden';
-            this.shadowContainer!.appendChild(this.geometryClone);
+            this.geometryClone = document.createElement("div");
+            this.geometryClone.className = "underlying-shadow-geometry underlying-shadow-element";
+            this.geometryClone.style.width = "100%";
+            this.geometryClone.style.height = "100%";
+            this.geometryClone.style.position = "relative";
+            this.geometryClone.style.overflow = "hidden";
+            this.shadowContainer.appendChild(this.geometryClone);
             this.shadowElement = this.geometryClone;
         } else {
-            this.shadowElement = document.createElement('div');
-            this.shadowElement.className = 'underlying-shadow-element';
-            this.shadowElement.style.width = '100%';
-            this.shadowElement.style.height = '100%';
-            this.shadowElement.style.position = 'relative';
-            this.shadowElement.style.overflow = 'hidden';
-            this.shadowContainer!.appendChild(this.shadowElement);
+            this.shadowElement = document.createElement("div");
+            this.shadowElement.className = "underlying-shadow-element";
+            this.shadowElement.style.width = "100%";
+            this.shadowElement.style.height = "100%";
+            this.shadowElement.style.position = "relative";
+            this.shadowElement.style.overflow = "hidden";
+            this.shadowContainer.appendChild(this.shadowElement);
         }
-
-        // Create the actual shadow element (where filter is applied)
-        /*this.shadowElement = document.createElement('div');
-        this.shadowElement.className = 'underlying-shadow-element';
-        this.shadowElement.style.width = '100%';
-        this.shadowElement.style.height = '100%';
-        this.shadowElement.style.position = 'relative';
-
-        // Add geometry clone if requested
-        if (this.options.cloneGeometry) {
-            this.geometryClone = document.createElement('div');
-            this.geometryClone.className = 'underlying-shadow-geometry';
-            this.geometryClone.style.width = '100%';
-            this.geometryClone.style.height = '100%';
-            this.geometryClone.style.position = 'relative';
-            this.shadowElement.appendChild(this.geometryClone);
-        }
-
-        this.shadowContainer.appendChild(this.shadowElement);*/
     }
 
     private setupPositioning() {
+        const mode = this.positioningMode;
+        // contain: parent-relative fill via appendAsUnderlying — no viewport bbox binds.
+        if (mode === "contain") {
+            this.shadowContainer!.style.position = "absolute";
+            return;
+        }
+        // anchor: CSS `position-anchor` fill via appendAsUnderlying — no bbox left/top fight.
+        if (mode === "anchor") {
+            return;
+        }
+
+        if (mode === "fixed") {
+            this.shadowContainer!.style.position = "fixed";
+        } else {
+            this.shadowContainer!.style.position = "absolute";
+        }
+
         if (this.options.useIntersection) {
-            // Use intersection-based positioning for more precise placement
             this.anchorBox = enhancedIntersectionBoxAnchorRef(this.target as HTMLElement, {
                 root: window as any,
                 observeResize: this.options.updateOnResize,
@@ -126,34 +148,28 @@ export class UnderlyingShadow {
                 observeIntersection: true
             }) as any[];
 
-            // Position based on intersection box
-            // anchorBox: [ix, iy, iwidth, iheight, iright, ibottom, ax, ay, awidth, aheight, rx, ry, rwidth, rheight]
-            bindWith(this.shadowContainer, 'left', CSSUnitUtils.asPx(this.anchorBox?.[6]), handleStyleChange); // anchor x
-            bindWith(this.shadowContainer, 'top', CSSUnitUtils.asPx(this.anchorBox?.[7]), handleStyleChange); // anchor y
-            bindWith(this.shadowContainer, 'width', CSSUnitUtils.asPx(this.anchorBox?.[8]), handleStyleChange); // anchor width
-            bindWith(this.shadowContainer, 'height', CSSUnitUtils.asPx(this.anchorBox?.[9]), handleStyleChange); // anchor height
+            bindWith(this.shadowContainer, "left", CSSUnitUtils.asPx(this.anchorBox?.[6]), handleStyleChange);
+            bindWith(this.shadowContainer, "top", CSSUnitUtils.asPx(this.anchorBox?.[7]), handleStyleChange);
+            bindWith(this.shadowContainer, "width", CSSUnitUtils.asPx(this.anchorBox?.[8]), handleStyleChange);
+            bindWith(this.shadowContainer, "height", CSSUnitUtils.asPx(this.anchorBox?.[9]), handleStyleChange);
         } else {
-            // Use standard bounding box positioning
             this.anchorBox = boundingBoxAnchorRef(this.target as HTMLElement, {
                 observeResize: this.options.updateOnResize,
                 observeMutations: true
             }) as any[];
 
-            // Position based on bounding box
-            // anchorBox: [x, y, width, height, right, bottom]
-            bindWith(this.shadowContainer, 'left', CSSUnitUtils.asPx(this.anchorBox?.[0]), handleStyleChange);
-            bindWith(this.shadowContainer, 'top', CSSUnitUtils.asPx(this.anchorBox?.[1]), handleStyleChange);
-            bindWith(this.shadowContainer, 'width', CSSUnitUtils.asPx(this.anchorBox?.[2]), handleStyleChange);
-            bindWith(this.shadowContainer, 'height', CSSUnitUtils.asPx(this.anchorBox?.[3]), handleStyleChange);
+            bindWith(this.shadowContainer, "left", CSSUnitUtils.asPx(this.anchorBox?.[0]), handleStyleChange);
+            bindWith(this.shadowContainer, "top", CSSUnitUtils.asPx(this.anchorBox?.[1]), handleStyleChange);
+            bindWith(this.shadowContainer, "width", CSSUnitUtils.asPx(this.anchorBox?.[2]), handleStyleChange);
+            bindWith(this.shadowContainer, "height", CSSUnitUtils.asPx(this.anchorBox?.[3]), handleStyleChange);
         }
 
-        // Apply inset offset
         if (this.options.inset !== 0) {
             const insetPx = CSSUnitUtils.asPx(this.options.inset);
-            setProperty(this.shadowContainer, 'left', `calc(var(--left) + ${insetPx})`);
-            setProperty(this.shadowContainer, 'top', `calc(var(--top) + ${insetPx})`);
-            setProperty(this.shadowContainer, 'width', `calc(var(--width) - ${2 * insetPx})`);
-            setProperty(this.shadowContainer, 'height', `calc(var(--height) - ${2 * insetPx})`);
+            setProperty(this.shadowContainer, "left", `calc(var(--left) + ${insetPx})`);
+            setProperty(this.shadowContainer, "top", `calc(var(--top) + ${insetPx})`);
+            setProperty(this.shadowContainer, "width", `calc(var(--width) - ${2 * insetPx})`);
+            setProperty(this.shadowContainer, "height", `calc(var(--height) - ${2 * insetPx})`);
         }
     }
 
@@ -161,104 +177,124 @@ export class UnderlyingShadow {
         if (!this.geometryClone) return;
 
         const cloneGeometry = () => {
-            const computedStyle = getComputedStyle(this.target);
+            const host = this.geometryHost;
+            const computedStyle = getComputedStyle(host);
 
-            // Clone border radius
             const borderRadius = computedStyle.borderRadius;
-            if (borderRadius && borderRadius !== '0px') {
+            if (borderRadius && borderRadius !== "0px") {
                 this.geometryClone!.style.borderRadius = borderRadius;
             }
 
-            // Clone clip path if present
             const clipPath = computedStyle.clipPath;
-            if (clipPath && clipPath !== 'none') {
+            if (clipPath && clipPath !== "none") {
                 this.geometryClone!.style.clipPath = clipPath;
             }
 
-            // Clone mask so shaped under-glows match main cutouts
             const maskImage = computedStyle.maskImage || (computedStyle as any).webkitMaskImage;
-            if (maskImage && maskImage !== 'none') {
+            if (maskImage && maskImage !== "none") {
                 this.geometryClone!.style.maskImage = maskImage;
                 (this.geometryClone!.style as any).webkitMaskImage = maskImage;
             }
 
-            // Clone transform if it affects shape
-            const transform = computedStyle.transform;
-            if (transform && transform !== 'none') {
-                this.geometryClone!.style.transform = transform;
-            }
+            // WHY: do not clone live drag transforms onto the under-shadow (jitter); shape only.
+            const shape = host.getAttribute("data-shape");
+            if (shape) this.geometryClone!.setAttribute("data-shape", shape);
 
-            // Clone border if present (for more accurate shadow)
             const borderWidth = computedStyle.borderWidth;
             const borderStyle = computedStyle.borderStyle;
-            const borderColor = computedStyle.borderColor;
-
-            if (borderWidth && borderWidth !== '0px' && borderStyle !== 'none') {
-                this.geometryClone!.style.border = `${CSSUnitUtils.asPx(borderWidth)} ${borderStyle} ${borderColor}`;
+            if (borderWidth && borderWidth !== "0px" && borderStyle !== "none") {
+                this.geometryClone!.style.border = `${borderWidth} ${borderStyle} transparent`;
             }
 
-            // Clone background for complex shadows
-            const background = computedStyle.background;
-            if (background && background !== 'none' && background !== 'rgba(0, 0, 0, 0)') {
-                this.geometryClone!.style.background = background;
-            } else {
-                // Use solid color for shadow shape
-                this.geometryClone!.style.background = '#000000';
+            // Solid silhouette for drop-shadow / blur filters (not the glass fill).
+            if (this.options.shadowType !== "box-shadow") {
+                this.shadowContainer!.style.background = "#000000";
             }
+            this.geometryClone!.style.opacity = "1";
         };
 
-        // Initial clone
         cloneGeometry();
 
-        // Watch for style changes
         const observer = new MutationObserver(cloneGeometry);
-        observer.observe(this.target, {
+        observer.observe(this.geometryHost, {
             attributes: true,
-            attributeFilter: ['style', 'class']
+            attributeFilter: ["style", "class", "data-shape"]
         });
 
         this.cleanupFunctions.push(() => observer.disconnect());
     }
 
     private applyShadowStyle() {
-        const { shadowType, shadowColor, shadowBlur, shadowOffsetX, shadowOffsetY, spreadRadius, opacity } = this.options;
+        const {
+            shadowType,
+            shadowColor,
+            shadowBlur,
+            shadowOffsetX,
+            shadowOffsetY,
+            spreadRadius,
+            opacity
+        } = this.options;
 
-        if (shadowType === 'drop-shadow') {
-            // Use CSS filter drop-shadow (applied to container)
+        if (shadowType === "drop-shadow") {
             const filterValue = `drop-shadow(${CSSUnitUtils.asPx(shadowOffsetX || 0)} ${CSSUnitUtils.asPx(shadowOffsetY || 0)} ${CSSUnitUtils.asPx(shadowBlur || 0)} ${shadowColor})`;
             this.shadowContainer!.style.filter = filterValue;
-            this.shadowContainer!.style.opacity = opacity!.toString() || '1';
-        } else if (shadowType === 'blur') {
-            // Use blur filter with solid shape
+            this.shadowContainer!.style.opacity = opacity!.toString() || "1";
+            this.shadowContainer!.style.boxShadow = "none";
+        } else if (shadowType === "blur") {
             const filterValue = `blur(${CSSUnitUtils.asPx(shadowBlur || 0)})`;
             this.shadowContainer!.style.filter = filterValue;
-            this.shadowContainer!.style.opacity = opacity!.toString() || '1';
-
+            this.shadowContainer!.style.opacity = opacity!.toString() || "1";
             if (this.geometryClone) {
-                this.geometryClone!.style.backgroundColor = shadowColor!;
-                this.geometryClone!.style.transform = `translate(${CSSUnitUtils.asPx(-(shadowOffsetX || 0))}, ${CSSUnitUtils.asPx(-(shadowOffsetY || 0))})`;
+                this.geometryClone.style.backgroundColor = shadowColor!;
             }
-
-        } else if (shadowType === 'box-shadow') {
-            // Traditional box-shadow (applied to geometry clone)
+        } else if (shadowType === "box-shadow") {
             const boxShadowValue = `${CSSUnitUtils.asPx(shadowOffsetX || 0)} ${CSSUnitUtils.asPx(shadowOffsetY || 0)} ${CSSUnitUtils.asPx(shadowBlur || 0)} ${CSSUnitUtils.asPx(spreadRadius || 0)} ${shadowColor}`;
-            this.shadowContainer!.style.boxShadow = boxShadowValue;
-            this.shadowContainer!.style.opacity = opacity!.toString() || '1';
+            // Apply on the shaped clone so radius/squircle matches.
+            if (this.geometryClone) {
+                this.shadowContainer.style.background = "transparent";
+                this.shadowContainer.style.boxShadow = boxShadowValue;
+            } else {
+                this.shadowContainer!.style.boxShadow = boxShadowValue;
+            }
+            this.shadowContainer!.style.filter = "none";
+            this.shadowContainer!.style.opacity = opacity!.toString() || "1";
         }
     }
 
     private attachToDOM() {
         if (!this.shadowContainer) return;
 
-        // WHY: sibling-before-main + zIndexShift keeps filters outside backdrop stacking.
-        appendAsUnderlying(this.target, this.shadowContainer, {
-            stackMode: "shift",
-            zIndexShift: this.options.zIndexShift ?? -1,
-            placement: "fill",
-            useIntersection: this.options.useIntersection,
-        });
+        const mode = this.positioningMode;
 
-        const parent = this.target!.parentElement ?? document.body;
+        if (mode === "fixed") {
+            // WHY: fixed-bbox menus must not use contain (fills overlay) or CSS-anchor absolute.
+            const layer = this.shadowContainer;
+            layer.style.position = "fixed";
+            layer.style.pointerEvents = "none";
+            const shift = this.options.zIndexShift ?? -1;
+            const mainZ = Number.parseInt(getComputedStyle(this.target).zIndex || "0", 10);
+            if (Number.isFinite(mainZ)) {
+                layer.style.zIndex = String(mainZ + shift);
+            } else {
+                layer.style.zIndex = String(shift);
+            }
+            const insert = () => {
+                if (!this.target.isConnected) return;
+                this.target.before(layer);
+            };
+            observeConnect(this.target, insert);
+            if (this.target.isConnected) insert();
+        } else {
+            appendAsUnderlying(this.target, this.shadowContainer, {
+                stackMode: "shift",
+                zIndexShift: this.options.zIndexShift ?? -1,
+                placement: "fill",
+                positioning: mode === "contain" ? "contain" : "anchor",
+                useIntersection: this.options.useIntersection
+            });
+        }
+
+        const parent = this.target.parentElement ?? document.body;
         const disconnectObserver = new MutationObserver((mutations) => {
             mutations.forEach((mutation) => {
                 mutation.removedNodes.forEach((node) => {
@@ -275,18 +311,16 @@ export class UnderlyingShadow {
         }
     }
 
-    // Public API
     updateOptions(newOptions: Partial<UnderlyingShadowOptions>) {
         Object.assign(this.options, newOptions);
         this.applyShadowStyle();
-
         if (newOptions.cloneGeometry !== undefined) {
             this.setupGeometryCloning();
         }
     }
 
     setVisible(visible: boolean) {
-        this.shadowContainer!.style.display = visible ? 'block' : 'none';
+        this.shadowContainer!.style.display = visible ? "block" : "none";
     }
 
     getShadowElement(): HTMLElement {
@@ -294,18 +328,13 @@ export class UnderlyingShadow {
     }
 
     destroy() {
-        // Run cleanup functions
-        this.cleanupFunctions.forEach(cleanup => cleanup());
-
-        // Remove from DOM
-        if (this.shadowContainer!.parentNode) {
-            this.shadowContainer!.parentNode.removeChild(this.shadowContainer!);
+        this.cleanupFunctions.forEach((cleanup) => cleanup());
+        if (this.shadowContainer?.parentNode) {
+            this.shadowContainer.parentNode.removeChild(this.shadowContainer);
         }
-
-        // Cleanup anchor box
         if (this.anchorBox) {
-            this.anchorBox!.forEach(anchor => {
-                if (anchor && typeof anchor[Symbol.dispose] === 'function') {
+            this.anchorBox.forEach((anchor) => {
+                if (anchor && typeof anchor[Symbol.dispose] === "function") {
                     anchor[Symbol.dispose]();
                 }
             });
@@ -313,45 +342,106 @@ export class UnderlyingShadow {
     }
 }
 
-// Factory function for creating underlying shadows
 export function createUnderlyingShadow(options: UnderlyingShadowOptions): UnderlyingShadow {
     return new UnderlyingShadow(options);
 }
 
-// Convenience function for common shadow types
-export function createDropShadow(target: HTMLElement, options?: Partial<UnderlyingShadowOptions>): UnderlyingShadow {
+export function createDropShadow(
+    target: HTMLElement,
+    options?: Partial<UnderlyingShadowOptions>
+): UnderlyingShadow {
     return createUnderlyingShadow({
         target,
-        shadowType: 'drop-shadow',
-        shadowColor: 'rgba(0, 0, 0, 0.15)',
+        shadowType: "drop-shadow",
+        shadowColor: "rgba(0, 0, 0, 0.15)",
         shadowBlur: 6,
         shadowOffsetX: 0,
         shadowOffsetY: 3,
+        positioning: "contain",
         ...options
     });
 }
 
-export function createBlurShadow(target: HTMLElement, options?: Partial<UnderlyingShadowOptions>): UnderlyingShadow {
+export function createBlurShadow(
+    target: HTMLElement,
+    options?: Partial<UnderlyingShadowOptions>
+): UnderlyingShadow {
     return createUnderlyingShadow({
         target,
-        shadowType: 'blur',
-        shadowColor: 'rgba(0, 0, 0, 0.2)',
+        shadowType: "blur",
+        shadowColor: "rgba(0, 0, 0, 0.2)",
         shadowBlur: 4,
         shadowOffsetX: 0,
         shadowOffsetY: 2,
+        positioning: "contain",
         ...options
     });
 }
 
-export function createBoxShadow(target: HTMLElement, options?: Partial<UnderlyingShadowOptions>): UnderlyingShadow {
+export function createBoxShadow(
+    target: HTMLElement,
+    options?: Partial<UnderlyingShadowOptions>
+): UnderlyingShadow {
     return createUnderlyingShadow({
         target,
-        shadowType: 'box-shadow',
-        shadowColor: 'rgba(0, 0, 0, 0.2)',
+        shadowType: "box-shadow",
+        shadowColor: "rgba(0, 0, 0, 0.2)",
         shadowBlur: 8,
         shadowOffsetX: 0,
         shadowOffsetY: 4,
         spreadRadius: 0,
+        positioning: "contain",
+        ...options
+    });
+}
+
+/**
+ * Shaped under-glow for glass tiles (`backdrop-filter` on main).
+ * INVARIANT: `target` is the grid `.ui-ws-item` (under is a preceding sibling in the grid);
+ * shape/radius clones from `geometrySource` (usually `.ui-ws-item-icon`).
+ */
+export function createShapedTileShadow(
+    target: HTMLElement,
+    options?: Partial<UnderlyingShadowOptions>
+): UnderlyingShadow {
+    const geometrySource =
+        options?.geometrySource
+        ?? (target.querySelector(".ui-ws-item-icon") as HTMLElement | null)
+        ?? target;
+    return createBoxShadow(target, {
+        className: "ui-ws-item-icon-under",
+        shadowColor: "rgba(0, 0, 0, 0.38)",
+        shadowBlur: 24,
+        shadowOffsetY: 6,
+        shadowOffsetX: 0,
+        spreadRadius: -8,
+        opacity: 1,
+        cloneGeometry: true,
+        // WHY: sibling of `.ui-ws-item` in `.speed-dial-grid` — CSS-anchor fill, not contain (contain fills the whole grid).
+        positioning: "anchor",
+        geometrySource,
+        ...options
+    });
+}
+
+/**
+ * Under-shadow for fixed chrome panels (context menus) that may use backdrop-filter.
+ */
+export function createPanelUnderShadow(
+    target: HTMLElement,
+    options?: Partial<UnderlyingShadowOptions>
+): UnderlyingShadow {
+    return createBoxShadow(target, {
+        className: "cw-context-menu-under",
+        shadowColor: "rgba(0, 0, 0, 0.45)",
+        shadowBlur: 36,
+        shadowOffsetY: 14,
+        shadowOffsetX: 0,
+        spreadRadius: 0,
+        cloneGeometry: true,
+        positioning: "fixed",
+        updateOnScroll: true,
+        updateOnResize: true,
         ...options
     });
 }

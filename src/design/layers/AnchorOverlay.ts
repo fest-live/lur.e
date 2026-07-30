@@ -1,8 +1,8 @@
 /*
  * Filename: AnchorOverlay.ts
  * FullPath: modules/projects/lur.e/src/design/layers/AnchorOverlay.ts
- * Change date and time: 05.12.00_29.07.2026
- * Reason for changes: Symmetric appendAsLayer for underlying/overlaying siblings + stackMode.
+ * Change date and time: 16.55.00_30.07.2026
+ * Reason for changes: observeConnect must watch a connected root when the local parent is still detached.
  */
 
 import { makeAnchorElement } from "../anchor/CSSAnchor";
@@ -52,23 +52,33 @@ export const observeConnect = (element: Element, handleMutation) => {
         return handleMutation();
     }
 
-    const observer = new MutationObserver((mutationList, observer) => {
-        for (const mutation of mutationList) {
-            if (mutation.type == "childList") {
-                if (Array.from(mutation?.addedNodes || []).some((node) => (node === element || node?.contains?.(element)))) {
-                    queueMicrotask(() => handleMutation(mutation));
-                    observer?.disconnect?.();
-                }
-            }
-        }
+    const observer = new MutationObserver((_mutationList, obs) => {
+        // WHY: when the local parent is still detached, the real connect mutation is on an ancestor
+        // (e.g. grid appends `.ui-ws-item`). Checking `isConnected` covers that path.
+        if (!element?.isConnected) return;
+        queueMicrotask(() => handleMutation());
+        obs?.disconnect?.();
     });
 
-    const parent = getParentOrShadowRoot(element as HTMLElement) ?? document.documentElement;
-    const observed = (parent instanceof HTMLElement ? parent : parent?.host) ?? parent;
-    queueMicrotask(() => observer.observe(observed, {
-        subtree: true,
-        childList: true
-    }));
+    const parent = getParentOrShadowRoot(element as HTMLElement);
+    // INVARIANT: never observe a disconnected parent alone — its childList won't see later tree inserts.
+    const observed =
+        (parent instanceof HTMLElement && parent.isConnected
+            ? parent
+            : null)
+        ?? document.documentElement;
+
+    queueMicrotask(() => {
+        if (element?.isConnected) {
+            handleMutation();
+            observer.disconnect();
+            return;
+        }
+        observer.observe(observed, {
+            subtree: true,
+            childList: true
+        });
+    });
 };
 
 const connectWithPlacement = (
