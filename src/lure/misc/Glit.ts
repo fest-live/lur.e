@@ -179,11 +179,23 @@ export function withProperties<T extends HTMLElementConstructor>(ctr: T): T {
         }
 
         for (const [key, def] of Object.entries(allDefs)) {
+            // WHY: class-field defaults (e.g. ui-task icon="app-window") shadow
+            // setAttribute() values; prefer the live content attribute when present.
+            const attrLive =
+                typeof key === "string" && typeof this.getAttribute === "function"
+                    ? this.getAttribute(key)
+                    : null;
             const exists = this[key];
             if (def != null) {
                 Object.defineProperty(this, key, def as PropertyDescriptor);
             }
-            try { this[key] = exists || this[key]; } catch (e) {}
+            try {
+                const preferred =
+                    attrLive != null && String(attrLive).length > 0 ? attrLive : exists;
+                if (preferred != null && preferred !== "") {
+                    this[key] = preferred;
+                }
+            } catch (e) {}
         }
 
         return this;
