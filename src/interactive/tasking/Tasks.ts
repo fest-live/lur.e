@@ -3,6 +3,21 @@ import { getBy, getFocused, registerTask } from "./Manager";
 import type { ITask, ITaskOptions } from "./Types";
 import { setIgnoreNextPopState } from "./BackNavigation";
 
+/**
+ * Apply a task hash without dropping pathname/search.
+ * WHY: `history.replaceState("", "", "#env-viewer")` is fine, but bare `#…` after a
+ * prior root rewrite made mono Settings look like `/?view=…#env-viewer`.
+ */
+const taskHashUrl = (taskIdOrHash: string): string => {
+    const raw = String(taskIdOrHash || "").trim();
+    const hash = !raw ? "" : raw.startsWith("#") ? raw : `#${raw.replace(/^#/, "")}`;
+    try {
+        return `${location.pathname}${location.search}${hash}`;
+    } catch {
+        return hash || "#";
+    }
+};
+
 //
 export class Task implements ITask {
     $active: boolean = false;
@@ -19,12 +34,15 @@ export class Task implements ITask {
         this.$action = action ?? (()=>{
             if ((location.hash != this.taskId) && this.taskId) {
                 setIgnoreNextPopState(true);
-                history.replaceState("", "", this.taskId || location.hash);
+                /* WHY: task ids are hash-only (`#env-viewer`); never drop pathname/search. */
+                history.replaceState("", "", taskHashUrl(this.taskId || location.hash));
                 setIgnoreNextPopState(false);
                 return;
             }
         });
-        this.addSelfToList(list, true);
+        /* WHY: do not auto-focus on create — TaskBar home/viewer used to stomp mono
+         * `/settings?...` with `#env-viewer` before the window task registered. */
+        this.addSelfToList(list, false);
     }
 
     //
@@ -41,12 +59,21 @@ export class Task implements ITask {
         this.list = list;
 
         //
-        if (doFocus) { this.focus = true; }
-        setIgnoreNextPopState(true);
-        history.pushState({ backNav: true }, "", getFocused(list, false)?.taskId || location.hash);
-        setIgnoreNextPopState(false);
-        document.dispatchEvent(new CustomEvent("task-focus", { detail: this, bubbles: true, composed: true, cancelable: true }));
-
+        if (doFocus) {
+            this.focus = true;
+            setIgnoreNextPopState(true);
+            const focusHash = getFocused(list, false)?.taskId || this.taskId || location.hash || "";
+            history.pushState({ backNav: true }, "", taskHashUrl(focusHash));
+            setIgnoreNextPopState(false);
+            document.dispatchEvent(
+                new CustomEvent("task-focus", {
+                    detail: this,
+                    bubbles: true,
+                    composed: true,
+                    cancelable: true
+                })
+            );
+        }
         //
         return this;
     }

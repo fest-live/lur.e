@@ -16,10 +16,23 @@ export const getBy = (tasks: ITask[] = [], taskId: ITask|string|any)=>{
 }
 
 //
+const taskHashUrl = (taskIdOrHash: string): string => {
+    const raw = String(taskIdOrHash || "").trim();
+    const hash = !raw ? "" : raw.startsWith("#") ? raw : `#${raw.replace(/^#/, "")}`;
+    try {
+        return `${location.pathname}${location.search}${hash}`;
+    } catch {
+        return hash || "#";
+    }
+};
+
 export const historyBack = (tasks: ITask[] = [])=>{
     setIgnoreNextPopState(true);
     history?.back?.(); const lastFocus = getFocused(tasks, false)?.taskId || "";
-    if (location?.hash?.trim?.()?.replace?.(/^#/, "")?.trim?.() != lastFocus?.trim?.()?.replace?.(/^#/, "")?.trim?.()) { setIgnoreNextPopState(true); history?.replaceState?.("", "", lastFocus); }
+    if (location?.hash?.trim?.()?.replace?.(/^#/, "")?.trim?.() != lastFocus?.trim?.()?.replace?.(/^#/, "")?.trim?.()) {
+        setIgnoreNextPopState(true);
+        history?.replaceState?.("", "", taskHashUrl(lastFocus));
+    }
     return tasks;
 }
 
@@ -87,9 +100,9 @@ export const navigationEnable = (tasks: ITask[], taskEnvAction?: (task?: ITask|n
                 const hash = getFocused(tasks, false)?.taskId || location.hash || "";
                 if (location.hash?.trim?.()?.replace?.(/^#/, "")?.trim?.() != hash?.trim?.()?.replace?.(/^#/, "")?.trim?.()) {
                     setIgnoreNextPopState(true);
-                    // Preserve existing state structure
+                    // Preserve existing state structure + pathname/search
                     const state = history.state || {};
-                    history?.replaceState?.(state, "", hash);
+                    history?.replaceState?.(state, "", taskHashUrl(hash));
                 };
             };
         } finally {
@@ -97,11 +110,15 @@ export const navigationEnable = (tasks: ITask[], taskEnvAction?: (task?: ITask|n
         }
     });
 
-    // Ensure initial state
+    // Ensure initial state — keep path/query; only ensure backNav flag (+ hash if any).
     if (!history.state?.backNav) {
         setIgnoreNextPopState(true);
         const state = history.state || {};
-        history?.replaceState?.({ ...state, backNav: true, depth: history.length }, "", location.hash || "#");
+        history?.replaceState?.(
+            { ...state, backNav: true, depth: history.length },
+            "",
+            taskHashUrl(location.hash || "")
+        );
         setIgnoreNextPopState(false);
     }
 

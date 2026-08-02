@@ -219,16 +219,66 @@ export const dynamicNativeFrame = (root = document.documentElement)=>{
     }
 
     /*
+     * WHY: while fl.ui native-theme-color owns theme-color (native / viewport-covering
+     * ui-window), do not overwrite with toolbar / wallpaper ambient samples.
+     * Also never write legacy #007acc (VS Code blue) into WCO.
+     */
+    try {
+        const nativeOwned = Boolean((globalThis as any)?.__CWSP_NATIVE_THEME_COLOR_OWNED__);
+        const coveringWin =
+            (document.querySelector("ui-window[native-mode]:not([minimized])") as HTMLElement | null) ||
+            (document.querySelector(
+                "ui-window[data-desk-max]:not([minimized]), ui-window[maximized]:not([minimized]), ui-window[data-mobile-max]:not([minimized])"
+            ) as HTMLElement | null);
+        if (nativeOwned || coveringWin) {
+            /* Ownership claimed — skip ambient; native-theme-color owns the meta. */
+            if (nativeOwned) return;
+            if (coveringWin?.shadowRoot && root == document.documentElement) {
+                const title = coveringWin.shadowRoot.querySelector(".title-handler") as HTMLElement | null;
+                /* Prefer titlebar CSS token — never sample wallpaper pixels underneath. */
+                const token =
+                    (title && getComputedStyle(title).getPropertyValue("--ui-win-titlebar-bg").trim()) ||
+                    getComputedStyle(coveringWin).getPropertyValue("--ui-win-titlebar-bg").trim() ||
+                    getComputedStyle(document.documentElement)
+                        .getPropertyValue("--color-surface-container")
+                        .trim();
+                const bg = title ? getComputedStyle(title).backgroundColor : "";
+                const candidate = (bg && tacp(bg) ? bg : null) || (token && tacp(token) ? token : null);
+                if (candidate) {
+                    const low = String(candidate).toLowerCase();
+                    /* Reject VS Code blue rgb(0,122,204) / #007acc */
+                    if (!/#007acc\b/.test(low) && !/rgba?\(\s*0\s*,\s*122\s*,\s*204/.test(low)) {
+                        media?.setAttribute?.("content", candidate);
+                    }
+                    return;
+                }
+            }
+            return;
+        }
+    } catch {
+        /* fall through to ambient sampling */
+    }
+
+    /*
      * Never sample (innerWidth - 64, 10): that hits the OS window-controls strip (often black)
      * in desktop PWAs with window-controls-overlay, fighting app toolbar chrome.
+     * Also never pickBgColor at top-of-viewport — that hits the wallpaper canvas.
      */
     const fromShell = sampleShellToolbarBackgroundColor();
     const fromWco = !fromShell ? sampleWcoTitlebarStripColor() : null;
-    const fallbackX = Math.max(8, Math.floor(globalThis.innerWidth * 0.12));
-    const fallbackY = 20;
-    const picked = !fromShell && !fromWco ? pickBgColor(fallbackX, fallbackY) : null;
-    const color =
-        fromShell || fromWco || (picked && tacp(picked) ? picked : null);
+    const fromSurface = !fromShell && !fromWco
+        ? (() => {
+            try {
+                const raw = getComputedStyle(document.documentElement)
+                    .getPropertyValue("--color-surface-container")
+                    .trim();
+                return raw && tacp(raw) ? raw : null;
+            } catch {
+                return null;
+            }
+        })()
+        : null;
+    const color = fromShell || fromWco || fromSurface;
 
     if (
         color &&
