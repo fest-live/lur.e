@@ -250,36 +250,70 @@ export const mergeByKey = (items: any|any[]|Set<any>|Map<any, any>, key = "id")=
 
 const hasChromeStorage = () => typeof chrome !== "undefined" && chrome?.storage?.local;
 
+/**
+ * WHY: Vite symlink graphs can load lur.e twice. A module-local Map would leave
+ * the second copy's saveUIState() looking at an empty registry while the live
+ * state (and real saver) live in the first copy — silent no-op persists.
+ */
+const UI_STATE_SAVE_BOOT = "__CWSP_UI_STATE_SAVE_BY_KEY_V1__";
+const uiStateSaveByKey = (): Map<string, (ev?: any) => void> => {
+    const g = globalThis as any;
+    if (!(g[UI_STATE_SAVE_BOOT] instanceof Map)) {
+        g[UI_STATE_SAVE_BOOT] = new Map();
+    }
+    return g[UI_STATE_SAVE_BOOT] as Map<string, (ev?: any) => void>;
+};
+
+/** Call the registered saver for a makeUIState storage key (preferred over `(state).$save`). */
+export const saveUIState = (storageKey: string, ev?: any) => {
+    const save = uiStateSaveByKey().get(storageKey);
+    if (typeof save === "function") save(ev);
+};
+
 export const makeUIState = (storageKey, initialCb, unpackCb, packCb = (items) => safe(items), key = "id", saveInterval = 6000)=>{
     let state = null;
     state = mergeByKey(initialCb?.() || {}, key);
 
+    // WHY: chrome.storage.local.get is async — early $save must not write defaults over real data.
+    let hydrated = !hasChromeStorage();
+
     // Load initial state
     if (hasChromeStorage()) {
         chrome.storage.local.get([storageKey], (result) => {
-            if (result[storageKey]) {
-                const unpacked = unpackCb(JSOX.parse(result?.[storageKey] as string || "{}"));
-                reloadInto(state, unpacked);
+            try {
+                if (result[storageKey]) {
+                    const unpacked = unpackCb(JSOX.parse(result?.[storageKey] as string || "{}"));
+                    reloadInto(state, unpacked);
+                    mergeByKey(state, key);
+                }
+            } finally {
+                hydrated = true;
             }
         });
     } else if (typeof localStorage !== "undefined") {
         if (localStorage.getItem(storageKey)) {
-            state = unpackCb(JSOX.parse(localStorage.getItem(storageKey) || "{}"));
+            // WHY: mutate in place so $save / dispose / listeners stay on the same reference.
+            const unpacked = unpackCb(JSOX.parse(localStorage.getItem(storageKey) || "{}"));
+            reloadInto(state, unpacked);
             mergeByKey(state, key);
         } else {
             localStorage.setItem(storageKey, JSOX.stringify(packCb(state)));
         }
+        hydrated = true;
     }
 
     // Save function
     const saveInStorage = (ev?: any)=>{
+        if (!hydrated) return;
         const packed = JSOX.stringify(packCb(mergeByKey(state, key)));
         if (hasChromeStorage()) {
             chrome.storage.local.set({ [storageKey]: packed });
         } else if (typeof localStorage !== "undefined") {
             localStorage.setItem(storageKey, packed);
         }
-    }
+    };
+
+    uiStateSaveByKey().set(storageKey, saveInStorage);
 
     // Periodic save
     setIdleInterval(saveInStorage, saveInterval);
