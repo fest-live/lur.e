@@ -101,6 +101,7 @@ export class UnderlyingShadow {
         this.shadowContainer.style.overflow = "visible";
         // WHY: filters/box-shadow must not share the main's backdrop-filter stacking context.
         this.shadowContainer.style.isolation = "isolate";
+        this.shadowContainer.style.contentVisibility = "visible";
 
         if (this.options.cloneGeometry) {
             this.geometryClone = document.createElement("div");
@@ -109,6 +110,8 @@ export class UnderlyingShadow {
             this.geometryClone.style.height = "100%";
             this.geometryClone.style.position = "relative";
             this.geometryClone.style.overflow = "hidden";
+            this.geometryClone.style.contentVisibility = "visible";
+            this.geometryClone.style.visibility = "visible";
             this.shadowContainer.appendChild(this.geometryClone);
             this.shadowElement = this.geometryClone;
         } else {
@@ -118,6 +121,8 @@ export class UnderlyingShadow {
             this.shadowElement.style.height = "100%";
             this.shadowElement.style.position = "relative";
             this.shadowElement.style.overflow = "hidden";
+            this.shadowElement.style.contentVisibility = "visible";
+            this.shadowElement.style.visibility = "visible";
             this.shadowContainer.appendChild(this.shadowElement);
         }
     }
@@ -190,6 +195,14 @@ export class UnderlyingShadow {
                 this.geometryClone!.style.clipPath = clipPath;
             }
 
+            if (computedStyle.borderShape && computedStyle.borderShape !== "none") {
+                this.geometryClone!.style.borderShape = computedStyle.borderShape;
+            }
+
+            if (computedStyle.cornerShape && computedStyle.cornerShape !== "none") {
+                this.geometryClone!.style.cornerShape = computedStyle.cornerShape;
+            }
+
             const maskImage = computedStyle.maskImage || (computedStyle as any).webkitMaskImage;
             if (maskImage && maskImage !== "none") {
                 this.geometryClone!.style.maskImage = maskImage;
@@ -208,7 +221,7 @@ export class UnderlyingShadow {
 
             // Solid silhouette for drop-shadow / blur filters (not the glass fill).
             if (this.options.shadowType !== "box-shadow") {
-                this.shadowContainer!.style.background = "#000000";
+                this.geometryClone!.style.background = "#000000";
             }
             this.geometryClone!.style.opacity = "1";
         };
@@ -274,9 +287,9 @@ export class UnderlyingShadow {
             const shift = this.options.zIndexShift ?? -1;
             const mainZ = Number.parseInt(getComputedStyle(this.target).zIndex || "0", 10);
             if (Number.isFinite(mainZ)) {
-                layer.style.zIndex = String(mainZ + shift);
+                layer.style.zIndex = String(Math.max(mainZ + shift, 0));
             } else {
-                layer.style.zIndex = String(shift);
+                layer.style.zIndex = String(Math.max(shift, 0));
             }
             const insert = () => {
                 if (!this.target.isConnected) return;
@@ -353,7 +366,7 @@ export function createDropShadow(
     return createUnderlyingShadow({
         target,
         shadowType: "drop-shadow",
-        shadowColor: "rgba(0, 0, 0, 0.15)",
+        shadowColor: "rgba(0, 0, 0, 0.6)",
         shadowBlur: 6,
         shadowOffsetX: 0,
         shadowOffsetY: 3,
@@ -409,8 +422,9 @@ export function createShapedTileShadow(
         ?? (target.querySelector(".ui-ws-item-icon") as HTMLElement | null)
         ?? target;
     return createBoxShadow(target, {
+        shadowType: "blur",
         className: "ui-ws-item-icon-under",
-        shadowColor: "rgba(0, 0, 0, 0.38)",
+        shadowColor: "rgba(0, 0, 0, 0.6)",
         shadowBlur: 24,
         shadowOffsetY: 6,
         shadowOffsetX: 0,

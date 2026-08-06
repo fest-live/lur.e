@@ -32,5 +32,5 @@ export function resolveLayerZIndex(
 
     const shift = options.zIndexShift ?? defaultZIndexShift(role);
     // WHY: shift needs a numeric base; treat auto as 0.
-    return (mainIsAuto ? 0 : mainZ) + shift;
+    return Math.max(mainIsAuto ? 0 : mainZ + shift, 0);
 }
