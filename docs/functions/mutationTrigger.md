@@ -1,0 +1,23 @@
+[**@fest-lib/lure v0.1.3**](../README.md)
+
+***
+
+[@fest-lib/lure](../README.md) / mutationTrigger
+
+# Function: mutationTrigger()
+
+```ts
+function mutationTrigger(attribute?): LinkTrigger;
+```
+
+Defined in: lur.e/src/lure/core/Links.ts:113
+
+## Parameters
+
+### attribute?
+
+`string`
+
+## Returns
+
+[`LinkTrigger`](../type-aliases/LinkTrigger.md)

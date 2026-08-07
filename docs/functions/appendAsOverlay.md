@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -10,24 +10,31 @@
 function appendAsOverlay(
    anchor, 
    overlay?, 
-   self?): HTMLElement | undefined;
+   self?, 
+   options?): HTMLElement | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/AnchorOverlay.ts:34](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/AnchorOverlay.ts#L34)
+Defined in: lur.e/src/design/layers/AnchorOverlay.ts:256
+
+COMPAT: existing callers pass (anchor, overlay?, self?, options?).
 
 ## Parameters
 
 ### anchor
 
-`HTMLElement` | `null`
+`HTMLElement` \| `null`
 
 ### overlay?
 
-`HTMLElement` | `null`
+`HTMLElement` \| `null`
 
 ### self?
 
-`HTMLElement` | `null`
+`HTMLElement` \| `null`
+
+### options?
+
+`Omit`\<[`AppendAsLayerOptions`](../interfaces/AppendAsLayerOptions.md), `"role"`\> & `object`
 
 ## Returns
 

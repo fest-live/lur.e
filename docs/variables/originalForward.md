@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,23 +7,27 @@
 # Variable: originalForward
 
 ```ts
-const originalForward: () => void | undefined;
+const originalForward: (() => void) | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:89](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L89)
+Defined in: lur.e/src/interactive/tasking/History.ts:89
 
-## Type Declaration
+## Union Members
+
+### Function
 
 ```ts
 () => void
 ```
 
-The **`forward()`** method of the History interface causes the browser to move forward one page in the session history.
+The **`forward()`** method of the History interface causes the browser to move forward one page in the session history. It has the same effect as calling history.go(1).
 
 [MDN Reference](https://developer.mozilla.org/docs/Web/API/History/forward)
 
-## Returns
+#### Returns
 
 `void`
+
+***
 
 `undefined`

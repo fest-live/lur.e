@@ -1,38 +1,18 @@
-import { resolve  } from "node:path";
+/*
+ * Filename: vite.config.js
+ * FullPath: modules/projects/lur.e/vite.config.js
+ * Change date and time: 21.41.00_07.08.2026
+ * Reason for changes: Call initiate(NAME) so dist emits lure.js, not subsystem.js.
+ */
+import { resolve } from "node:path";
 import { readFile } from "node:fs/promises";
+import { defineConfig } from "vite";
+import { initiate } from "../../shared/vite.config.js";
 
-//
-const importConfig = (url, ...args)=>{ return import(url)?.then?.((m)=>m?.default?.(...args)); }
-const objectAssign = (target, ...sources) => {
-    if (!sources.length) return target;
-
-    const source = sources.shift();
-    if (source && typeof source === 'object') {
-        for (const key in source) {
-            if (Object.prototype.hasOwnProperty.call(source, key)) {
-                if (source[key] && typeof source[key] === 'object') {
-                    if (!target[key] || typeof target[key] !== 'object') {
-                        target[key] = Array.isArray(source[key]) ? [] : {};
-                    }
-                    objectAssign(target[key], source[key]);
-                } else {
-                    target[key] = source[key];
-                }
-            }
-        }
-    }
-
-    return objectAssign(target, ...sources);
-}
-
-//
-export const NAME = "lure"; // TODO! rename to lure
+export const NAME = "lure";
 export const __dirname = resolve(import.meta.dirname, "./");
-export default objectAssign(
-    await importConfig(resolve(__dirname, "../../shared/vite.config.js"),
-        NAME,
-        JSON.parse(await readFile(resolve(__dirname, "./tsconfig.json"), {encoding: "utf8"})),
-        __dirname
-    ),
-    {}
-);
+
+export default defineConfig(async () => {
+    const tsconfig = JSON.parse(await readFile(resolve(__dirname, "./tsconfig.json"), { encoding: "utf8" }));
+    return initiate(NAME, tsconfig, __dirname);
+});

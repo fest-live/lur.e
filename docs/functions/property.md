@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,47 +7,17 @@
 # Function: property()
 
 ```ts
-function property(__namedParameters): (target, key) => void;
+function property(options?): (target, key) => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/Glit.ts:106](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/Glit.ts#L106)
+Defined in: lur.e/src/lure/misc/Glit.ts:242
 
 ## Parameters
 
-### \_\_namedParameters
+### options?
 
-#### attribute?
-
-`string` \| `boolean`
-
-#### from?
-
-`any`
-
-#### name?
-
-`string` \| `null`
-
-#### source?
-
-`any`
+[`PropertyOptions`](../interfaces/PropertyOptions.md) = `{}`
 
 ## Returns
 
-```ts
-(target, key): void;
-```
-
-### Parameters
-
-#### target
-
-`any`
-
-#### key
-
-`string`
-
-### Returns
-
-`void`
+(`target`, `key`) => `void`

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,14 +7,20 @@
 # Function: makeRef()
 
 ```ts
-function makeRef(
+function makeRef<T>(
    host?, 
    type?, 
    link?, ...
-   args?): any;
+args): T extends object ? observeValid<T> | refType<T> : refType<T>;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Refs.ts:8](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/lure/core/Refs.ts#L8)
+Defined in: lur.e/src/lure/core/Refs.ts:12
+
+## Type Parameters
+
+### T
+
+`T` = `any`
 
 ## Parameters
 
@@ -30,10 +36,10 @@ Defined in: [modules/projects/lur.e/src/lure/core/Refs.ts:8](https://github.com/
 
 `any`
 
-### args?
+### args
 
 ...`any`[]
 
 ## Returns
 
-`any`
+`T` *extends* `object` ? `observeValid`\<`T`\> \| `refType`\<`T`\> : `refType`\<`T`\>

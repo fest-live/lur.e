@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,29 +7,33 @@
 # Variable: originalGo
 
 ```ts
-const originalGo: (delta?) => void | undefined;
+const originalGo: ((delta?) => void) | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:88](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L88)
+Defined in: lur.e/src/interactive/tasking/History.ts:88
 
-## Type Declaration
+## Union Members
+
+### Function
 
 ```ts
 (delta?) => void
 ```
 
-The **`go()`** method of the History interface loads a specific page from the session history.
+The **`go()`** method of the History interface loads a specific page from the session history. You can use it to move forwards and backwards through the history depending on the value of a parameter.
 
 [MDN Reference](https://developer.mozilla.org/docs/Web/API/History/go)
 
-## Parameters
+#### Parameters
 
-### delta?
+##### delta?
 
 `number`
 
-## Returns
+#### Returns
 
 `void`
+
+***
 
 `undefined`

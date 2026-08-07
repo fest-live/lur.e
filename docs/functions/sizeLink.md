@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function sizeLink(
    box?): () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:134](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/lure/core/Links.ts#L134)
+Defined in: lur.e/src/lure/core/Links.ts:321
 
 ## Parameters
 
@@ -28,7 +28,7 @@ Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:134](https://github.c
 
 ### axis?
 
-`"inline"` | `"block"`
+`"inline"` \| `"block"`
 
 ### box?
 
@@ -36,10 +36,4 @@ Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:134](https://github.c
 
 ## Returns
 
-```ts
-(): void;
-```
-
-### Returns
-
-`void`
+() => `void`

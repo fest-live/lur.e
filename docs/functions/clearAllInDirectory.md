@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -8,31 +8,31 @@
 
 ```ts
 function clearAllInDirectory(
-   rootHandle, 
-   relPath, 
-   options, 
-logger): Promise<null | undefined>;
+   rootHandle?, 
+   relPath?, 
+   options?, 
+logger?): Promise<null | undefined>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:971](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/OPFS.ts#L971)
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1116
 
 ## Parameters
 
-### rootHandle
+### rootHandle?
 
 `any` = `null`
 
-### relPath
+### relPath?
 
 `string` = `""`
 
-### options
+### options?
 
 #### basePath?
 
 `string`
 
-### logger
+### logger?
 
 (`status`, `message`) => `void`
 

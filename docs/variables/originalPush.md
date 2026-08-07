@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,12 +7,14 @@
 # Variable: originalPush
 
 ```ts
-const originalPush: (data, unused, url?) => void | undefined;
+const originalPush: ((data, unused, url?) => void) | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:86](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L86)
+Defined in: lur.e/src/interactive/tasking/History.ts:86
 
-## Type Declaration
+## Union Members
+
+### Function
 
 ```ts
 (data, unused, url?) => void
@@ -22,22 +24,24 @@ The **`pushState()`** method of the History interface adds an entry to the brows
 
 [MDN Reference](https://developer.mozilla.org/docs/Web/API/History/pushState)
 
-## Parameters
+#### Parameters
 
-### data
+##### data
 
 `any`
 
-### unused
+##### unused
 
 `string`
 
-### url?
+##### url?
 
-`string` | `URL` | `null`
+`string` \| `URL` \| `null`
 
-## Returns
+#### Returns
 
 `void`
+
+***
 
 `undefined`

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -9,11 +9,11 @@
 ```ts
 function dropFile(
    file, 
-   dest, 
+   dest?, 
 current?): Promise<string>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:875](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/OPFS.ts#L875)
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1020
 
 ## Parameters
 
@@ -21,7 +21,7 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:875](https://gith
 
 `any`
 
-### dest
+### dest?
 
 `string` = `...`
 

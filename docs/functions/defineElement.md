@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,10 +7,10 @@
 # Function: defineElement()
 
 ```ts
-function defineElement(name, options): (target, key) => any;
+function defineElement(name, options?): <T>(target, _key?) => T;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/Glit.ts:105](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/Glit.ts#L105)
+Defined in: lur.e/src/lure/misc/Glit.ts:216
 
 ## Parameters
 
@@ -18,26 +18,10 @@ Defined in: [modules/projects/lur.e/src/extension/misc/Glit.ts:105](https://gith
 
 `string`
 
-### options
+### options?
 
-`any` = `null`
+`ElementDefinitionOptions`
 
 ## Returns
 
-```ts
-(target, key): any;
-```
-
-### Parameters
-
-#### target
-
-`any`
-
-#### key
-
-`string`
-
-### Returns
-
-`any`
+\<`T`\>(`target`, `_key?`) => `T`

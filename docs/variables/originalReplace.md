@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,37 +7,41 @@
 # Variable: originalReplace
 
 ```ts
-const originalReplace: (data, unused, url?) => void | undefined;
+const originalReplace: ((data, unused, url?) => void) | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:87](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L87)
+Defined in: lur.e/src/interactive/tasking/History.ts:87
 
-## Type Declaration
+## Union Members
+
+### Function
 
 ```ts
 (data, unused, url?) => void
 ```
 
-The **`replaceState()`** method of the History interface modifies the current history entry, replacing it with the state object and URL passed in the method parameters.
+The **`replaceState()`** method of the History interface modifies the current history entry, replacing it with the state object and URL passed in the method parameters. This method is particularly useful when you want to update the state object or URL of the current history entry in response to some user action.
 
 [MDN Reference](https://developer.mozilla.org/docs/Web/API/History/replaceState)
 
-## Parameters
+#### Parameters
 
-### data
+##### data
 
 `any`
 
-### unused
+##### unused
 
 `string`
 
-### url?
+##### url?
 
-`string` | `URL` | `null`
+`string` \| `URL` \| `null`
 
-## Returns
+#### Returns
 
 `void`
+
+***
 
 `undefined`

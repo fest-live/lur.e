@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -11,10 +11,10 @@ function makeMenuHandler(
    triggerElement, 
    placement, 
    ctxMenuDesc, 
-   menuElement?): (ev) => void;
+   menuElement?): (ev) => boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:77](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L77)
+Defined in: lur.e/src/interactive/modules/CtxMenu.ts:92
 
 ## Parameters
 
@@ -36,16 +36,4 @@ Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:77](https://gi
 
 ## Returns
 
-```ts
-(ev): void;
-```
-
-### Parameters
-
-#### ev
-
-`MouseEvent`
-
-### Returns
-
-`void`
+(`ev`) => `boolean`

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function itemClickHandle(ev, ctxMenuDesc): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:37](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L37)
+Defined in: lur.e/src/interactive/modules/CtxMenu.ts:41
 
 ## Parameters
 

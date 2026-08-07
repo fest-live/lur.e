@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,10 +7,10 @@
 # Function: handleByPointer()
 
 ```ts
-function handleByPointer(cb, root): () => void;
+function handleByPointer(cb, root?): () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:12](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Anchor.ts#L12)
+Defined in: lur.e/src/interactive/controllers/Handler.ts:6
 
 ## Parameters
 
@@ -18,16 +18,10 @@ Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:12](https://git
 
 `any`
 
-### root
+### root?
 
-`HTMLElement` | `null`
+`HTMLElement` \| `null`
 
 ## Returns
 
-```ts
-(): void;
-```
-
-### Returns
-
-`void`
+() => `void`

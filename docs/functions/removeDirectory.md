@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -10,11 +10,11 @@
 function removeDirectory(
    rootHandle, 
    relPath, 
-   options, 
-logger): Promise<true | null>;
+   options?, 
+logger?): Promise<boolean | null>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:763](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/OPFS.ts#L763)
+Defined in: lur.e/src/utils/opfs/OPFS.ts:891
 
 ## Parameters
 
@@ -26,7 +26,7 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:763](https://gith
 
 `any`
 
-### options
+### options?
 
 #### basePath?
 
@@ -36,10 +36,10 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:763](https://gith
 
 `boolean`
 
-### logger
+### logger?
 
 (`status`, `message`) => `void`
 
 ## Returns
 
-`Promise`\<`true` \| `null`\>
+`Promise`\<`boolean` \| `null`\>

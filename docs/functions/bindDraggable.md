@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -9,9 +9,9 @@
 ```ts
 function bindDraggable(
    elementOrEventListener, 
-   onEnd, 
-   draggable, 
-   shifting): 
+   onEnd?, 
+   draggable?, 
+   shifting?): 
   | {
   dispose: () => void;
   draggable: any;
@@ -20,7 +20,7 @@ function bindDraggable(
   | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:305](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/PointerAPI.ts#L305)
+Defined in: lur.e/src/interactive/controllers/PointerAPI.ts:327
 
 ## Parameters
 
@@ -28,15 +28,15 @@ Defined in: [modules/projects/lur.e/src/extension/core/PointerAPI.ts:305](https:
 
 `any`
 
-### onEnd
+### onEnd?
 
 `any` = `...`
 
-### draggable
+### draggable?
 
 `any` = `...`
 
-### shifting
+### shifting?
 
 `any` = `...`
 

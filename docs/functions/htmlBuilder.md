@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,14 +7,14 @@
 # Function: htmlBuilder()
 
 ```ts
-function htmlBuilder(__namedParameters): (strings, ...values) => ChildNode | DocumentFragment;
+function htmlBuilder(__namedParameters?): (strings, ...values) => ChildNode | DocumentFragment;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Syntax.ts:190](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/lure/node/Syntax.ts#L190)
+Defined in: lur.e/src/lure/misc/Syntax.ts:288
 
 ## Parameters
 
-### \_\_namedParameters
+### \_\_namedParameters?
 
 #### createElement?
 
@@ -22,20 +22,4 @@ Defined in: [modules/projects/lur.e/src/lure/node/Syntax.ts:190](https://github.
 
 ## Returns
 
-```ts
-(strings, ...values): ChildNode | DocumentFragment;
-```
-
-### Parameters
-
-#### strings
-
-`any`
-
-#### values
-
-...`any`[]
-
-### Returns
-
-`ChildNode` \| `DocumentFragment`
+(`strings`, ...`values`) => `ChildNode` \| `DocumentFragment`

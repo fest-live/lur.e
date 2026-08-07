@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: LongHoverHandler
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongHover.ts:4](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongHover.ts#L4)
+Defined in: lur.e/src/interactive/controllers/LongHover.ts:4
 
 ## Constructors
 
@@ -19,7 +19,7 @@ new LongHoverHandler(
    fx?): LongHoverHandler;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongHover.ts:8](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongHover.ts#L8)
+Defined in: lur.e/src/interactive/controllers/LongHover.ts:8
 
 #### Parameters
 
@@ -47,7 +47,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongHover.ts:8](ht
 defaultHandler(ev, weakRef): boolean | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongHover.ts:15](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongHover.ts#L15)
+Defined in: lur.e/src/interactive/controllers/LongHover.ts:15
 
 #### Parameters
 
@@ -68,10 +68,10 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongHover.ts:15](h
 ### longHover()
 
 ```ts
-longHover(options, fx): void;
+longHover(options, fx?): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongHover.ts:20](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongHover.ts#L20)
+Defined in: lur.e/src/interactive/controllers/LongHover.ts:20
 
 #### Parameters
 
@@ -79,7 +79,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongHover.ts:20](h
 
 `any`
 
-##### fx
+##### fx?
 
 (`ev`) => `void`
 

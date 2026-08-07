@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: SwipeHandler
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Swipe.ts:4](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Swipe.ts#L4)
+Defined in: lur.e/src/interactive/controllers/Swipe.ts:4
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/Swipe.ts:4](https:
 new SwipeHandler(holder, options?): SwipeHandler;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Swipe.ts:8](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Swipe.ts#L8)
+Defined in: lur.e/src/interactive/controllers/Swipe.ts:8
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/Swipe.ts:8](https:
 swipe(options): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Swipe.ts:15](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Swipe.ts#L15)
+Defined in: lur.e/src/interactive/controllers/Swipe.ts:15
 
 #### Parameters
 

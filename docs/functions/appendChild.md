@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function appendChild(
    index?): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/context/Utils.ts:173](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/lure/context/Utils.ts#L173)
+Defined in: lur.e/src/lure/context/Utils.ts:174
 
 ## Parameters
 
@@ -28,7 +28,7 @@ Defined in: [modules/projects/lur.e/src/lure/context/Utils.ts:173](https://githu
 
 ### mapper?
 
-`Function` | `null`
+`Function` \| `null`
 
 ### index?
 

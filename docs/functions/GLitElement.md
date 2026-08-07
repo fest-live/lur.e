@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,23 +7,66 @@
 # Function: GLitElement()
 
 ```ts
-function GLitElement<T>(derivate): any;
+function GLitElement<T>(derivate?): GLitElementClass<T>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/Glit.ts:271](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/Glit.ts#L271)
+Defined in: lur.e/src/lure/misc/Glit.ts:487
+
+GLitElement: Создаёт базовый класс для кастомных элементов с расширенными возможностями.
+Поддерживает все lifecycle callbacks Web Components.
 
 ## Type Parameters
 
 ### T
 
-`T` *extends* () => `HTMLElement` = () => `HTMLElement`
+`T` *extends* `HTMLElement` = `HTMLElement`
 
 ## Parameters
 
-### derivate
+### derivate?
 
-`any` *extends* `T` ? `any` : `T` = `HTMLElement`
+[`HTMLElementConstructor`](../type-aliases/HTMLElementConstructor.md)\<`T`\>
+
+Базовый класс для расширения (по умолчанию HTMLElement).
 
 ## Returns
 
-`any`
+[`GLitElementClass`](../type-aliases/GLitElementClass.md)\<`T`\>
+
+Конструктор расширенного класса с полной поддержкой lifecycle.
+
+## Example
+
+```typescript
+// Базовое использование
+class MyElement extends GLitElement() {
+    connectedCallback() {
+        super.connectedCallback();
+        console.log('Connected!');
+    }
+    
+    render() {
+        return H`<div>Hello</div>`;
+    }
+}
+
+// С наследованием от другого элемента
+class MyButton extends GLitElement(HTMLButtonElement) {
+    static observedAttributes = ['disabled'];
+    
+    attributeChangedCallback(name, oldVal, newVal) {
+        console.log(`${name} changed from ${oldVal} to ${newVal}`);
+    }
+}
+
+// С декоратором
+@defineElement('my-element')
+class MyElement extends GLitElement() {
+    @property({ source: 'attr', name: 'value' })
+    value: string = '';
+    
+    disconnectedCallback() {
+        console.log('Disconnected!');
+    }
+}
+```

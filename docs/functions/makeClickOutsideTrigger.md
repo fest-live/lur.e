@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -9,12 +9,12 @@
 ```ts
 function makeClickOutsideTrigger(
    ref, 
-   except, 
+   except?, 
    element, 
-   options): RefBool;
+   options?): RefBool;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:150](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Anchor.ts#L150)
+Defined in: lur.e/src/interactive/controllers/Trigger.ts:156
 
 ## Parameters
 
@@ -22,7 +22,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:150](https://gi
 
 `RefBool`
 
-### except
+### except?
 
 `any` = `null`
 
@@ -30,7 +30,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:150](https://gi
 
 `any`
 
-### options
+### options?
 
 `TriggerOptions` = `{}`
 

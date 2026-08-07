@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -10,11 +10,11 @@
 function removeFile(
    rootHandle, 
    relPath, 
-   options, 
-logger): Promise<true | null>;
+   options?, 
+logger?): Promise<boolean | null>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:751](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/OPFS.ts#L751)
+Defined in: lur.e/src/utils/opfs/OPFS.ts:877
 
 ## Parameters
 
@@ -26,7 +26,7 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:751](https://gith
 
 `any`
 
-### options
+### options?
 
 #### basePath?
 
@@ -36,10 +36,10 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:751](https://gith
 
 `boolean`
 
-### logger
+### logger?
 
 (`status`, `message`) => `void`
 
 ## Returns
 
-`Promise`\<`true` \| `null`\>
+`Promise`\<`boolean` \| `null`\>

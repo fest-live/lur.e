@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: DragHandler
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Draggable.ts:18](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Draggable.ts#L18)
+Defined in: lur.e/src/interactive/controllers/Draggable.ts:25
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/Draggable.ts:18](h
 new DragHandler(holder, options): DragHandler;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Draggable.ts:29](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Draggable.ts#L29)
+Defined in: lur.e/src/interactive/controllers/Draggable.ts:37
 
 #### Parameters
 
@@ -46,7 +46,7 @@ draggable(options):
   | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Draggable.ts:76](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Draggable.ts#L76)
+Defined in: lur.e/src/interactive/controllers/Draggable.ts:118
 
 #### Parameters
 

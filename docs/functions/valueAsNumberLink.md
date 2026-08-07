@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,10 +7,10 @@
 # Function: valueAsNumberLink()
 
 ```ts
-function valueAsNumberLink(element?, exists?): () => void | undefined;
+function valueAsNumberLink(element?, exists?): (() => void) | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:194](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/lure/core/Links.ts#L194)
+Defined in: lur.e/src/lure/core/Links.ts:429
 
 ## Parameters
 
@@ -24,4 +24,4 @@ Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:194](https://github.c
 
 ## Returns
 
-() => `void` \| `undefined`
+(() => `void`) \| `undefined`

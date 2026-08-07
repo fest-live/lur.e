@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,25 +7,19 @@
 # Function: initBackNavigation()
 
 ```ts
-function initBackNavigation(opts): () => void;
+function initBackNavigation(opts?): () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:231](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L231)
+Defined in: lur.e/src/interactive/tasking/BackNavigation.ts:230
 
 Initialize back navigation handling
 
 ## Parameters
 
-### opts
+### opts?
 
 `BackNavigationOptions` = `{}`
 
 ## Returns
 
-```ts
-(): void;
-```
-
-### Returns
-
-`void`
+() => `void`

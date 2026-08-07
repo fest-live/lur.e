@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -9,12 +9,12 @@
 ```ts
 function handleIncomingEntries(
    data, 
-   destPath, 
-   rootHandle, 
+   destPath?, 
+   rootHandle?, 
 onItemHandled?): Promise<void>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:988](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/OPFS.ts#L988)
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1132
 
 ## Parameters
 
@@ -22,11 +22,11 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:988](https://gith
 
 `any`
 
-### destPath
+### destPath?
 
 `string` = `"/user/"`
 
-### rootHandle
+### rootHandle?
 
 `any` = `null`
 

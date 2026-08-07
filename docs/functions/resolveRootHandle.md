@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,10 +7,10 @@
 # Function: resolveRootHandle()
 
 ```ts
-function resolveRootHandle(rootHandle, relPath): Promise<any>;
+function resolveRootHandle(rootHandle, relPath?): Promise<any>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:272](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/OPFS.ts#L272)
+Defined in: lur.e/src/utils/opfs/OPFS.ts:352
 
 ## Parameters
 
@@ -18,7 +18,7 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:272](https://gith
 
 `any`
 
-### relPath
+### relPath?
 
 `string` = `""`
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -6,27 +6,27 @@
 
 # Interface: ITask
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:2](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L2)
+Defined in: lur.e/src/interactive/tasking/Types.ts:2
 
 ## Properties
 
 ### $active?
 
 ```ts
-optional $active: boolean;
+optional $active?: boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:3](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L3)
+Defined in: lur.e/src/interactive/tasking/Types.ts:3
 
 ***
 
 ### list?
 
 ```ts
-optional list: ITask[] | null;
+optional list?: ITask[] | null;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:4](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L4)
+Defined in: lur.e/src/interactive/tasking/Types.ts:4
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:4](https://gi
 payload: any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:6](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L6)
+Defined in: lur.e/src/interactive/tasking/Types.ts:6
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:6](https://gi
 taskId: string;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:5](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L5)
+Defined in: lur.e/src/interactive/tasking/Types.ts:5
 
 ## Accessors
 
@@ -58,7 +58,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:5](https://gi
 get active(): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:9](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L9)
+Defined in: lur.e/src/interactive/tasking/Types.ts:9
 
 ##### Returns
 
@@ -70,7 +70,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:9](https://gi
 set active(activeStatus): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:8](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L8)
+Defined in: lur.e/src/interactive/tasking/Types.ts:8
 
 ##### Parameters
 
@@ -92,7 +92,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:8](https://gi
 get focus(): boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:11](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L11)
+Defined in: lur.e/src/interactive/tasking/Types.ts:11
 
 ##### Returns
 
@@ -104,7 +104,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:11](https://g
 set focus(activeStatus): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:10](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L10)
+Defined in: lur.e/src/interactive/tasking/Types.ts:10
 
 ##### Parameters
 
@@ -126,7 +126,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:10](https://g
 get order(): number;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:7](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L7)
+Defined in: lur.e/src/interactive/tasking/Types.ts:7
 
 ##### Returns
 
@@ -140,13 +140,13 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:7](https://gi
 addSelfToList(list?, doFocus?): ITask;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:14](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L14)
+Defined in: lur.e/src/interactive/tasking/Types.ts:14
 
 #### Parameters
 
 ##### list?
 
-`ITask`[] | `null`
+`ITask`[] \| `null`
 
 ##### doFocus?
 
@@ -164,7 +164,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:14](https://g
 removeFromList(): ITask;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:15](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L15)
+Defined in: lur.e/src/interactive/tasking/Types.ts:15
 
 #### Returns
 
@@ -178,7 +178,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:15](https://g
 optional render(): any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:12](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L12)
+Defined in: lur.e/src/interactive/tasking/Types.ts:12
 
 #### Returns
 
@@ -192,7 +192,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:12](https://g
 optional takeAction(): boolean | void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Types.ts:13](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Types.ts#L13)
+Defined in: lur.e/src/interactive/tasking/Types.ts:13
 
 #### Returns
 

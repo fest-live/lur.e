@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function scrollLink(
    initial?): () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:149](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/lure/core/Links.ts#L149)
+Defined in: lur.e/src/lure/core/Links.ts:336
 
 ## Parameters
 
@@ -28,7 +28,7 @@ Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:149](https://github.c
 
 ### axis?
 
-`"inline"` | `"block"`
+`"inline"` \| `"block"`
 
 ### initial?
 
@@ -36,10 +36,4 @@ Defined in: [modules/projects/lur.e/src/lure/core/Links.ts:149](https://github.c
 
 ## Returns
 
-```ts
-(): void;
-```
-
-### Returns
-
-`void`
+() => `void`

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,16 +7,16 @@
 # Function: css()
 
 ```ts
-function css(strings, ...values): (Map<string, any> | string[] | (element) => () => void)[];
+function css(strings, ...values): StyleBinding;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/Styles.ts:50](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/Styles.ts#L50)
+Defined in: lur.e/src/lure/misc/Styles.ts:2167
 
 ## Parameters
 
 ### strings
 
-`any`
+`TemplateStringsArray`
 
 ### values
 
@@ -24,4 +24,4 @@ Defined in: [modules/projects/lur.e/src/extension/misc/Styles.ts:50](https://git
 
 ## Returns
 
-(`Map`\<`string`, `any`\> \| `string`[] \| (`element`) => () => `void`)[]
+[`StyleBinding`](../type-aliases/StyleBinding.md)

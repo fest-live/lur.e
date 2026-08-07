@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function makeShiftTrigger(callable, newItem?): (evc) => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Trigger.ts:11](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Trigger.ts#L11)
+Defined in: lur.e/src/interactive/controllers/Trigger.ts:57
 
 ## Parameters
 
@@ -24,16 +24,4 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/Trigger.ts:11](htt
 
 ## Returns
 
-```ts
-(evc): void;
-```
-
-### Parameters
-
-#### evc
-
-`any`
-
-### Returns
-
-`void`
+(`evc`) => `void`

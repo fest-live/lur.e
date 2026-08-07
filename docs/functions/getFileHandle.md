@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -10,11 +10,11 @@
 function getFileHandle(
    rootHandle, 
    relPath, 
-   __namedParameters, 
-logger): Promise<any>;
+   __namedParameters?, 
+logger?): Promise<any>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:438](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/OPFS.ts#L438)
+Defined in: lur.e/src/utils/opfs/OPFS.ts:517
 
 ## Parameters
 
@@ -26,7 +26,7 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:438](https://gith
 
 `any`
 
-### \_\_namedParameters
+### \_\_namedParameters?
 
 #### basePath?
 
@@ -36,7 +36,7 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:438](https://gith
 
 `boolean` = `false`
 
-### logger
+### logger?
 
 (`status`, `message`) => `void`
 

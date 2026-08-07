@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,10 +7,10 @@
 # Function: createBackNavigableModal()
 
 ```ts
-function createBackNavigableModal(content, options): object;
+function createBackNavigableModal(content, options?): object;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:388](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L388)
+Defined in: lur.e/src/interactive/tasking/BackNavigation.ts:387
 
 Create a modal backdrop with back navigation support
 Wraps an existing modal creation pattern
@@ -19,9 +19,9 @@ Wraps an existing modal creation pattern
 
 ### content
 
-`HTMLElement` | `DocumentFragment`
+`HTMLElement` \| `DocumentFragment`
 
-### options
+### options?
 
 #### backdropClass?
 
@@ -43,7 +43,7 @@ Wraps an existing modal creation pattern
 
 `object`
 
-### close()
+### close
 
 ```ts
 close: () => void;
@@ -59,7 +59,7 @@ close: () => void;
 element: HTMLElement;
 ```
 
-### unregister()
+### unregister
 
 ```ts
 unregister: () => void;

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -10,25 +10,25 @@
 function copyFromOneHandlerToAnother(
    fromHandle, 
    toHandle, 
-   options, 
-logger): Promise<any>;
+   options?, 
+logger?): Promise<any>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:982](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/OPFS.ts#L982)
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1126
 
 ## Parameters
 
 ### fromHandle
 
-`FileSystemDirectoryHandle` | `FileSystemFileHandle`
+`FileSystemDirectoryHandle` \| `FileSystemFileHandle`
 
 ### toHandle
 
-`FileSystemDirectoryHandle` | `FileSystemFileHandle`
+`FileSystemDirectoryHandle` \| `FileSystemFileHandle`
 
-### options
+### options?
 
-### logger
+### logger?
 
 (`status`, `message`) => `void`
 

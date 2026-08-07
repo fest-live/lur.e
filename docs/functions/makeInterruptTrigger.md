@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -8,38 +8,32 @@
 
 ```ts
 function makeInterruptTrigger(
-   except, 
-   ref, 
-   closeEvents, 
-   element): () => void;
+   except?, 
+   ref?, 
+   closeEvents?, 
+   element?): () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:89](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Anchor.ts#L89)
+Defined in: lur.e/src/interactive/controllers/Trigger.ts:32
 
 ## Parameters
 
-### except
+### except?
 
 `any` = `null`
 
-### ref
+### ref?
 
-`Function` | `RefBool`
+`Function` \| `RefBool`
 
-### closeEvents
+### closeEvents?
 
 `string`[] = `...`
 
-### element
+### element?
 
 `any` = `document.documentElement`
 
 ## Returns
 
-```ts
-(): void;
-```
-
-### Returns
-
-`void`
+() => `void`

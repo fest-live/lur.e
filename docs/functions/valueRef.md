@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -7,10 +7,10 @@
 # Function: valueRef()
 
 ```ts
-function valueRef(host?, ...args?): any;
+function valueRef(host?, ...args): any;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/core/Refs.ts:20](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/lure/core/Refs.ts#L20)
+Defined in: lur.e/src/lure/core/Refs.ts:28
 
 ## Parameters
 
@@ -18,7 +18,7 @@ Defined in: [modules/projects/lur.e/src/lure/core/Refs.ts:20](https://github.com
 
 `any`
 
-### args?
+### args
 
 ...`any`[]
 

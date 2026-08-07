@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -6,17 +6,17 @@
 
 # Interface: CtxMenuDesc
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:21](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L21)
+Defined in: lur.e/src/interactive/modules/CtxMenu.ts:25
 
 ## Properties
 
-### buildItems()?
+### buildItems?
 
 ```ts
-optional buildItems: (details) => void | MenuItem[][];
+optional buildItems?: (details) => void | MenuItem[][];
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:24](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L24)
+Defined in: lur.e/src/interactive/modules/CtxMenu.ts:28
 
 #### Parameters
 
@@ -51,20 +51,20 @@ Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:24](https://gi
 ### context?
 
 ```ts
-optional context: any;
+optional context?: any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:26](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L26)
+Defined in: lur.e/src/interactive/modules/CtxMenu.ts:30
 
 ***
 
-### defaultAction()?
+### defaultAction?
 
 ```ts
-optional defaultAction: (initiator, item, ev) => void;
+optional defaultAction?: (initiator, item, ev) => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:23](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L23)
+Defined in: lur.e/src/interactive/modules/CtxMenu.ts:27
 
 #### Parameters
 
@@ -89,20 +89,20 @@ Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:23](https://gi
 ### items?
 
 ```ts
-optional items: MenuItem[][];
+optional items?: MenuItem[][];
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:22](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L22)
+Defined in: lur.e/src/interactive/modules/CtxMenu.ts:26
 
 ***
 
-### onBeforeOpen()?
+### onBeforeOpen?
 
 ```ts
-optional onBeforeOpen: (details) => boolean | void;
+optional onBeforeOpen?: (details) => boolean | void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:25](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L25)
+Defined in: lur.e/src/interactive/modules/CtxMenu.ts:29
 
 #### Parameters
 
@@ -137,7 +137,7 @@ Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:25](https://gi
 ### openedWith?
 
 ```ts
-optional openedWith: 
+optional openedWith?: 
   | {
   close: () => void;
   context?: any;
@@ -148,4 +148,4 @@ optional openedWith:
   | null;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/CtxMenu.ts:27](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/CtxMenu.ts#L27)
+Defined in: lur.e/src/interactive/modules/CtxMenu.ts:31

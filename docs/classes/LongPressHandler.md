@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: LongPressHandler
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:21](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongPress.ts#L21)
+Defined in: lur.e/src/interactive/controllers/LongPress.ts:23
 
 ## Constructors
 
@@ -15,11 +15,11 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:21](h
 ```ts
 new LongPressHandler(
    holder, 
-   options, 
+   options?, 
    fx?): LongPressHandler;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:25](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongPress.ts#L25)
+Defined in: lur.e/src/interactive/controllers/LongPress.ts:27
 
 #### Parameters
 
@@ -27,7 +27,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:25](h
 
 `any`
 
-##### options
+##### options?
 
 `any` = `...`
 
@@ -47,7 +47,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:25](h
 defaultHandler(ev, weakRef): boolean | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:36](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongPress.ts#L36)
+Defined in: lur.e/src/interactive/controllers/LongPress.ts:38
 
 #### Parameters
 
@@ -68,14 +68,14 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:36](h
 ### longPress()
 
 ```ts
-longPress(options, fx?): void;
+longPress(options?, fx?): void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/LongPress.ts:41](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/LongPress.ts#L41)
+Defined in: lur.e/src/interactive/controllers/LongPress.ts:43
 
 #### Parameters
 
-##### options
+##### options?
 
 `any` = `...`
 

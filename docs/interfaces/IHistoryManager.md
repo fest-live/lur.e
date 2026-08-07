@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: IHistoryManager
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:24](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L24)
+Defined in: lur.e/src/interactive/tasking/History.ts:24
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:24](https:/
 action: NavigationAction;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:27](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L27)
+Defined in: lur.e/src/interactive/tasking/History.ts:27
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:27](https:/
 canBack: boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:29](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L29)
+Defined in: lur.e/src/interactive/tasking/History.ts:29
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:29](https:/
 canForward: boolean;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:30](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L30)
+Defined in: lur.e/src/interactive/tasking/History.ts:30
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:30](https:/
 entries: IHistoryState[];
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:31](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L31)
+Defined in: lur.e/src/interactive/tasking/History.ts:31
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:31](https:/
 index: number;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:25](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L25)
+Defined in: lur.e/src/interactive/tasking/History.ts:25
 
 ***
 
@@ -66,7 +66,7 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:25](https:/
 length: number;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:26](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L26)
+Defined in: lur.e/src/interactive/tasking/History.ts:26
 
 ***
 
@@ -76,4 +76,4 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:26](https:/
 view: string;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/History.ts:28](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/History.ts#L28)
+Defined in: lur.e/src/interactive/tasking/History.ts:28

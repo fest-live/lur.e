@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function M(
    boundParent?): Mp;
 ```
 
-Defined in: [modules/projects/lur.e/src/lure/node/Mapped.ts:271](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/lure/node/Mapped.ts#L271)
+Defined in: lur.e/src/lure/node/Mapped.ts:392
 
 ## Parameters
 
@@ -27,7 +27,7 @@ Defined in: [modules/projects/lur.e/src/lure/node/Mapped.ts:271](https://github.
 
 ### boundParent?
 
-`Node` | `MappedOptions` | `null`
+`Node` \| `MappedOptions` \| `null`
 
 ## Returns
 

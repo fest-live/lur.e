@@ -1,16 +1,16 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
 [@fest-lib/lure](../README.md) / customElement
 
-# Variable: customElement()
+# Variable: customElement
 
 ```ts
-const customElement: (name, options) => (target, key) => any = defineElement;
+const customElement: (name, options?) => <T>(target, _key?) => T = defineElement;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/Glit.ts:270](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/Glit.ts#L270)
+Defined in: lur.e/src/lure/misc/Glit.ts:439
 
 ## Parameters
 
@@ -18,26 +18,10 @@ Defined in: [modules/projects/lur.e/src/extension/misc/Glit.ts:270](https://gith
 
 `string`
 
-### options
+### options?
 
-`any` = `null`
+`ElementDefinitionOptions`
 
 ## Returns
 
-```ts
-(target, key): any;
-```
-
-### Parameters
-
-#### target
-
-`any`
-
-#### key
-
-`string`
-
-### Returns
-
-`any`
+\<`T`\>(`target`, `_key?`) => `T`

@@ -1,0 +1,29 @@
+[**@fest-lib/lure v0.1.3**](../README.md)
+
+***
+
+[@fest-lib/lure](../README.md) / LinkGetter
+
+# Type Alias: LinkGetter\<T\>
+
+```ts
+type LinkGetter<T> = (ctx) => T;
+```
+
+Defined in: lur.e/src/lure/core/Links.ts:19
+
+## Type Parameters
+
+### T
+
+`T` = `any`
+
+## Parameters
+
+### ctx
+
+`LinkContext`\<`T`\>
+
+## Returns
+
+`T`

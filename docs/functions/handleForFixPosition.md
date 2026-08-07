@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -10,10 +10,10 @@
 function handleForFixPosition(
    container, 
    cb, 
-   root): () => void;
+   root?): () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:28](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/core/Anchor.ts#L28)
+Defined in: lur.e/src/interactive/controllers/Handler.ts:22
 
 ## Parameters
 
@@ -25,16 +25,10 @@ Defined in: [modules/projects/lur.e/src/extension/core/Anchor.ts:28](https://git
 
 `any`
 
-### root
+### root?
 
-`Window` & *typeof* `globalThis` = `window`
+`HTMLElement` \| `null`
 
 ## Returns
 
-```ts
-(): void;
-```
-
-### Returns
-
-`void`
+() => `void`

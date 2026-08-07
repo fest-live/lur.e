@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -12,24 +12,24 @@ function makeTask(
    list?, 
    state?, 
    payload?, 
-action?): refValid<any, Task>;
+action?): observeValid<Task>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:124](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/Tasks.ts#L124)
+Defined in: lur.e/src/interactive/tasking/Tasks.ts:150
 
 ## Parameters
 
 ### taskId
 
-`string` | [`Task`](../classes/Task.md)
+`string` \| [`Task`](../classes/Task.md)
 
 ### list?
 
-[`ITask`](../interfaces/ITask.md)[] | `null`
+[`ITask`](../interfaces/ITask.md)[] \| `null`
 
 ### state?
 
-[`ITaskOptions`](../interfaces/ITaskOptions.md) | `null`
+[`ITaskOptions`](../interfaces/ITaskOptions.md) \| `null`
 
 ### payload?
 
@@ -41,4 +41,4 @@ Defined in: [modules/projects/lur.e/src/extension/tasking/Tasks.ts:124](https://
 
 ## Returns
 
-`refValid`\<`any`, [`Task`](../classes/Task.md)\>
+`observeValid`\<[`Task`](../classes/Task.md)\>

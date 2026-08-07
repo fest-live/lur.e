@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: ResizeHandler
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:11](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Resizable.ts#L11)
+Defined in: lur.e/src/interactive/controllers/Resizable.ts:13
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:11](h
 new ResizeHandler(holder, options?): ResizeHandler;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:19](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Resizable.ts#L19)
+Defined in: lur.e/src/interactive/controllers/Resizable.ts:21
 
 #### Parameters
 
@@ -44,7 +44,7 @@ limitResize(
    container): any;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:26](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Resizable.ts#L26)
+Defined in: lur.e/src/interactive/controllers/Resizable.ts:28
 
 #### Parameters
 
@@ -82,7 +82,7 @@ resizable(options):
   | undefined;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/controllers/Resizable.ts:38](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/controllers/Resizable.ts#L38)
+Defined in: lur.e/src/interactive/controllers/Resizable.ts:40
 
 #### Parameters
 

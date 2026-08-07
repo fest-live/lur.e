@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -10,13 +10,13 @@
 function resolvePath(
    rootHandle, 
    relPath, 
-   basePath): Promise<{
+   basePath?): Promise<{
   resolvedPath: string;
   rootHandle: any;
 }>;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:353](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/misc/OPFS.ts#L353)
+Defined in: lur.e/src/utils/opfs/OPFS.ts:433
 
 ## Parameters
 
@@ -28,7 +28,7 @@ Defined in: [modules/projects/lur.e/src/extension/misc/OPFS.ts:353](https://gith
 
 `string`
 
-### basePath
+### basePath?
 
 `string` = `""`
 

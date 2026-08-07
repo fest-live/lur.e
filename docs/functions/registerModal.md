@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.0.0**](../README.md)
+[**@fest-lib/lure v0.1.3**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function registerModal(
    onClose?): () => void;
 ```
 
-Defined in: [modules/projects/lur.e/src/extension/tasking/BackNavigation.ts:313](https://github.com/fest-live/lur.e/blob/845e11d38ceeba5a7b19fbeb61bfed0b0338af9f/src/extension/tasking/BackNavigation.ts#L313)
+Defined in: lur.e/src/interactive/tasking/BackNavigation.ts:312
 
 Register a modal dialog as closeable
 
@@ -33,10 +33,4 @@ Register a modal dialog as closeable
 
 ## Returns
 
-```ts
-(): void;
-```
-
-### Returns
-
-`void`
+() => `void`

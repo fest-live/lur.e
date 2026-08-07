@@ -1,0 +1,39 @@
+[**@fest-lib/lure v0.1.3**](../README.md)
+
+***
+
+[@fest-lib/lure](../README.md) / bindTransition
+
+# Function: bindTransition()
+
+```ts
+function bindTransition(
+   element, 
+   property, 
+   value, 
+   options?): () => void;
+```
+
+Defined in: lur.e/src/lure/core/Binding.ts:398
+
+## Parameters
+
+### element
+
+`any`
+
+### property
+
+`any`
+
+### value
+
+`any`
+
+### options?
+
+`TransitionOptions` = `{}`
+
+## Returns
+
+() => `void`
