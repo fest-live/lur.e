@@ -1,6 +1,6 @@
 import { observeAttributeBySelector, getAdoptedStyleRule, handleAttribute, containsOrSelf, MOCElement, observeBySelector, observeAttribute } from "fest/dom";
 import { bindWith, elMap } from "../core/Binding";
-import { $affected } from "fest/object";
+import { $affected, observe } from "fest/object";
 import { appendChild, removeChild, replaceOrSwap } from "../context/Utils";
 
 //
@@ -436,6 +436,7 @@ class UniversalElementHandler {
 
     //
     private _pseudoMap = new Map<string, PseudoElementProxy>();
+    private _observeMap = new WeakMap<HTMLElement, any[]>();
 
     // остальной код...
 
@@ -487,7 +488,7 @@ class UniversalElementHandler {
         { return (typeof this.selector == "string" ? observeAttributeBySelector(target, this.selector, attribute, cb) : observeAttribute(target ?? this.selector, attribute, cb)); }
 
     //
-    _getArray(target: any) {
+    _getArrayPrimary(target: any) {
         if (typeof target == "function") { target = this.selector || target?.(this.selector); }; if (!this.selector) return [target];
         if (typeof this.selector == "string") {
             const inclusion = ((typeof target?.matches == "function" && target?.element != null) && target?.matches?.(this.selector)) ? [target] : [];
@@ -501,6 +502,39 @@ class UniversalElementHandler {
             return inclusion;
         }
         return Array.isArray(this.selector) ? this.selector : [this.selector];
+    }
+
+    //
+    _getArray(target: any) {
+        const tg = target?.self ?? target;
+        return this._observeMap.getOrInsertComputed(tg, ()=>{
+            const array = this._getArrayPrimary(tg);
+
+            //
+            let forReactive = observe(Array.isArray(array) ? array : [this._getSelected(tg)]);
+    
+            // TODO: support for parent direction
+            if (this.direction == "children") {
+                observeBySelector(tg, typeof this.selector == "string" ? this.selector : undefined, (mut, obs)=>{
+                    if (mut?.addedNodes?.length > 0 || mut?.removedNodes?.length > 0) {
+                        mut?.addedNodes?.forEach((node: any)=>{
+                            if ((node?.element ?? node) && !forReactive?.includes?.(node?.element ?? node)) {
+                                forReactive?.push?.(node?.element ?? node);
+                            }
+                        });
+                        mut?.removedNodes?.forEach((node: any)=>{
+                            const index = forReactive.indexOf(node?.element ?? node);
+                            if (index > -1) {
+                                forReactive.splice(index, 1);
+                            }
+                        });
+                    }
+                });
+            }
+    
+            //
+            return forReactive;
+        });
     }
 
     //
