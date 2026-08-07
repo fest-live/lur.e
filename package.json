@@ -74,5 +74,11 @@
         "vite": "^8.0.7",
         "vite-plugin-external": ">=6.2.2",
         "vite-plugin-optimizer": ">=1.4.3"
+    },
+    "dependencies": {
+        "@fest-lib/core": "github:fest-live/core.ts#main",
+        "@fest-lib/dom": "github:fest-live/dom.ts#main",
+        "@fest-lib/object": "github:fest-live/object.ts#main",
+        "@fest-lib/uniform": "github:fest-live/uniform.ts#main"
     }
 }
