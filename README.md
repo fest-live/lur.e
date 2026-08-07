@@ -62,7 +62,7 @@ import {
   E, M, Q, createElement, H,
   // Extensions (selected)
   bindDraggable, grabForDrag, agWrapEvent,
-} from "fest/lure";
+} from "@fest-lib/lure";
 ```
 
 ### Quick Start
@@ -131,7 +131,7 @@ box.attr.id = "app2"; // example of reactive wrapper operations
 `M(observable, mapper)` maps a reactive array/set into DOM. Returns a reactive fragment-like node.
 
 ```ts
-import { observe } from "fest/object";
+import { observe } from "@fest-lib/object";
 
 const rxItems = iterated(["A", "B", "C"]);
 const list = H`<ul>${M(rxItems, (x) => H`<li>${x}</li>`)}</ul>`;
@@ -184,7 +184,7 @@ const items = ["A", "B", "C"];
 const listStatic = H`<ul>${items.map(x => H`<li>${x}</li>`)}</ul>`;
 
 // Reactive list: use M(...)
-import { observe } from "fest/object";
+import { observe } from "@fest-lib/object";
 const rxItems = iterated(["A", "B", "C"]);
 const listReactive = H`<ul>${M(rxItems, (x) => H`<li>${x}</li>`)}</ul>`;
 ```
@@ -200,7 +200,7 @@ const frag = H`<div>one</div><div>two</div>`; // DocumentFragment
 Pointer helpers and drag handling:
 
 ```ts
-import { bindDraggable, grabForDrag } from "fest/lure";
+import { bindDraggable, grabForDrag } from "@fest-lib/lure";
 
 const target = H`<div class="draggable" />` as HTMLElement;
 bindDraggable(target, () => console.log("drag end"));
@@ -215,8 +215,8 @@ bindDraggable(target, () => console.log("drag end"));
 - `ref(...)` are reactive and will be updated when the referenced content changes
 
 ```ts
-import { ref } from "fest/object";
-import { H } from "fest/lure";
+import { ref } from "@fest-lib/object";
+import { H } from "@fest-lib/lure";
 
 // referenced content is also a DOM element (`Text` node)
 const txt = ref("Hello");

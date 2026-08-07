@@ -1,7 +1,7 @@
-import { unwrap, affected } from "fest/object";
+import { unwrap, affected } from "@fest-lib/object";
 import { $virtual, $mapped } from "../core/Binding";
-import { isElement, isValidParent } from "fest/dom";
-import { hasValue, isNotEqual, isPrimitive } from "fest/core";
+import { isElement, isValidParent } from "@fest-lib/dom";
+import { hasValue, isNotEqual, isPrimitive } from "@fest-lib/core";
 import C from "../node/Changeable";
 import Q from "../node/Queried";
 

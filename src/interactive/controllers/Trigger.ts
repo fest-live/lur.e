@@ -1,8 +1,8 @@
-import { doBorderObserve, doContentObserve, addEvents, handleStyleChange, addEvent } from "fest/dom";
-import { addToCallChain, numberRef, stringRef, booleanRef } from "fest/object";
+import { doBorderObserve, doContentObserve, addEvents, handleStyleChange, addEvent } from "@fest-lib/dom";
+import { addToCallChain, numberRef, stringRef, booleanRef } from "@fest-lib/object";
 import { lazyAddEventListener } from "./LazyEvents";
-import { unref } from "fest/core";
-import { toRef } from "fest/core";
+import { unref } from "@fest-lib/core";
+import { toRef } from "@fest-lib/core";
 
 //
 const ROOT = typeof document != "undefined" ? document?.documentElement : null;

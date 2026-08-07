@@ -4,7 +4,7 @@
  * WHY: `--jx-frame` / `--jx-drag-handle` / `--jx-resize-handle` pair with `position-anchor` / `anchor()`
  * in author styles without imperative `DragHandler` setup.
  */
-import { updateAllMixins } from "fest/dom";
+import { updateAllMixins } from "@fest-lib/dom";
 
 const ANCHOR_IDENT = /^--[-\w]+$/;
 

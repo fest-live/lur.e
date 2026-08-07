@@ -1,5 +1,5 @@
-import { numberRef, addToCallChain } from "fest/object";
-import { addEvent, handleStyleChange } from "fest/dom";
+import { numberRef, addToCallChain } from "@fest-lib/object";
+import { addEvent, handleStyleChange } from "@fest-lib/dom";
 import { bindWith } from "../../lure/core/Binding";
 import { Vector2D, vector2Ref } from "../../utils/math/Point2D";
 import type { Rect2D } from "../../utils/math/Operations";

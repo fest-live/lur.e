@@ -13,7 +13,7 @@ A comprehensive reactive math library for LUR.E that provides vector, matrix, an
 ## Basic Usage
 
 ```typescript
-import { Vector2D, vector2Ref, addVector2D, multiplyVector2D } from "fest/lure/src/math";
+import { Vector2D, vector2Ref, addVector2D, multiplyVector2D } from "@fest-lib/lure/src/math";
 
 const pos1 = vector2Ref(10, 20);
 const pos2 = vector2Ref(5, 15);
@@ -39,7 +39,7 @@ const dragging = [numberRef(0), numberRef(0)]; // [x, y]
 
 **After**: Reactive vectors
 ```typescript
-import { ReactiveDraggable } from "fest/lure/src/math";
+import { ReactiveDraggable } from "@fest-lib/lure/src/math";
 
 const draggable = new ReactiveDraggable(100, 200);
 // Physics-based movement with automatic reactivity
@@ -56,7 +56,7 @@ const area = [numberRef(0), numberRef(0), numberRef(0), numberRef(0)]; // [x, y,
 
 **After**: Reactive bounding boxes
 ```typescript
-import { ReactiveBoundingBox } from "fest/lure/src/math";
+import { ReactiveBoundingBox } from "@fest-lib/lure/src/math";
 
 const bbox = new ReactiveBoundingBox(element);
 // Reactive center point, corners, collision detection
@@ -74,7 +74,7 @@ setStyleProperty(element, "--drag-y", dy);
 
 **After**: Reactive transformations
 ```typescript
-import { ReactiveGridTransform } from "fest/lure/src/math";
+import { ReactiveGridTransform } from "@fest-lib/lure/src/math";
 
 const transform = new ReactiveGridTransform();
 // Apply transformations reactively
@@ -229,7 +229,7 @@ affected(isColliding, (colliding) => {
 ### Smooth Animations
 
 ```typescript
-import { ReactiveAnimation } from "fest/lure/src/math";
+import { ReactiveAnimation } from "@fest-lib/lure/src/math";
 
 const startPos = vector2Ref(0, 0);
 const endPos = vector2Ref(200, 100);

@@ -1,5 +1,5 @@
-import { setIdleInterval, addEvent } from "fest/dom";
-import { ref } from "fest/object";
+import { setIdleInterval, addEvent } from "@fest-lib/dom";
+import { ref } from "@fest-lib/object";
 
 //
 export const batteryStatusRef = ()=>{

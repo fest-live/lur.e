@@ -9,7 +9,7 @@
  * - UI controls: slider positions, scroll metrics, easing
  */
 
-import { numberRef } from "fest/object";
+import { numberRef } from "@fest-lib/object";
 import {
     Vector2D, vector2Ref,
     Rect2D, createRect2D, rectCenter, rectContainsPoint, rectIntersects,

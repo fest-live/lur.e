@@ -107,7 +107,7 @@ Object.getPrototypeOf(new Set().values()).map ??= function (callback: Function) 
 const { getOrInsert: installUpsertPolyfills } = await import("../../core.ts/src/utils/Upsert");
 installUpsertPolyfills(new Map(), "__upsert_polyfill__", () => null);
 
-const { stringRef } = await import("fest/object");
+const { stringRef } = await import("@fest-lib/object");
 const { attrLink, checkedLink, eventTrigger, makeLinker, radioValueLink, valueLink } = await import("../src/lure/core/Links");
 
 const tick = async () => {

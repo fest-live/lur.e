@@ -11,7 +11,7 @@
  * - Event handling
  */
 
-import { ref, observe } from "fest/object";
+import { ref, observe } from "@fest-lib/object";
 import { H, E, M, T, replaceChildren, removeChild, appendChild, createElement } from "../../src/index";
 
 import type { TestRunner as TestRunnerType } from "../index";

@@ -1,8 +1,8 @@
-import { affected } from "fest/object";
+import { affected } from "@fest-lib/object";
 import { appendFix, elMap, getNode, T } from "../context/Utils";
 import { makeUpdater } from "../context/ReflectChildren";
-import { isPrimitive, hasValue } from "fest/core";
-import { indexOf, isValidParent } from "fest/dom";
+import { isPrimitive, hasValue } from "@fest-lib/core";
+import { indexOf, isValidParent } from "@fest-lib/dom";
 import { $mapped } from "../core/Binding";
 import Q from "./Queried";
 

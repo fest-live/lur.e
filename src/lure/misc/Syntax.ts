@@ -1,8 +1,8 @@
-import { hasValue, isPrimitive } from "fest/core";
+import { hasValue, isPrimitive } from "@fest-lib/core";
 import { getNode } from "../context/Utils";
 import { E } from "../node/Bindings";
 import { M } from "../node/Mapped";
-import { isElement } from "fest/dom";
+import { isElement } from "@fest-lib/dom";
 import { checkInsideTagBlock, cleanupInterTagWhitespaceAndIndent } from "./Normalizer";
 
 import {

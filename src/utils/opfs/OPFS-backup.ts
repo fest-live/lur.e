@@ -1,5 +1,5 @@
-import { UUIDv4, Promised } from 'fest/core';
-import { observe } from 'fest/object';
+import { UUIDv4, Promised } from '@fest-lib/core';
+import { observe } from '@fest-lib/object';
 
 //
 export const getDir = (dest)=>{

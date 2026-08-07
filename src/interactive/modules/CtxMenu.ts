@@ -1,5 +1,5 @@
-//import { visibleRef, H, Q } from "fest/lure";
-import { addEvent } from "fest/dom";
+//import { visibleRef, H, Q } from "@fest-lib/lure";
+import { addEvent } from "@fest-lib/dom";
 import { visibleRef } from "../../lure/core/Refs";
 import { addProxiedEvent } from "../controllers/LazyEvents";
 import { bindWhileConnected } from "../../lure/core/Binding";

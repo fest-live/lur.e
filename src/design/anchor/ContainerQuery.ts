@@ -1,5 +1,5 @@
-import { numberRef, affected } from "fest/object";
-import { addEvent } from "fest/dom";
+import { numberRef, affected } from "@fest-lib/object";
+import { addEvent } from "@fest-lib/dom";
 
 //
 export interface ContainerQueryOptions {

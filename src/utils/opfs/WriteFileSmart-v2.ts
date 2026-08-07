@@ -1,11 +1,11 @@
 import { JSOX } from "jsox";
 
 /** Dynamic-only: static `fest/lure` pulls `com-app` (lure/fl-ui merge) into the MV3 service worker graph. */
-type LureFs = Pick<typeof import("fest/lure"), "readFile" | "writeFile">;
+type LureFs = Pick<typeof import("@fest-lib/lure"), "readFile" | "writeFile">;
 let lureFsPromise: Promise<LureFs> | null = null;
 const getLureFs = (): Promise<LureFs> => {
 	if (!lureFsPromise) {
-		lureFsPromise = import("fest/lure").then((m) => ({ readFile: m.readFile, writeFile: m.writeFile }));
+		lureFsPromise = import("@fest-lib/lure").then((m) => ({ readFile: m.readFile, writeFile: m.writeFile }));
 	}
 	return lureFsPromise;
 };

@@ -1,9 +1,9 @@
-import { numberRef } from "fest/object";
+import { numberRef } from "@fest-lib/object";
 import { bindWith, bindAnimated, bindTransition, bindSpring, bindMorph } from "../../lure/core/Binding";
 import { Vector2D, Matrix2D } from "../../utils/math/Point2D";
 import { Matrix4D } from "../../utils/math/Point4D";
 import { operated } from "../../utils/math/Operations";
-import { handleStyleChange } from "fest/dom";
+import { handleStyleChange } from "@fest-lib/dom";
 import type { AnimationOptions, TransitionOptions } from "./CSSAnimated";
 
 // CSS Typed OM and Unit Conversion Utilities

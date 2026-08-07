@@ -1,7 +1,7 @@
 // Export all reactive math functionality
 
 // 1D Primitives (from fest/object)
-export { numberRef, booleanRef } from "fest/object";
+export { numberRef, booleanRef } from "@fest-lib/object";
 
 // 2D Vectors and Matrices
 export { Vector2D, vector2Ref, Matrix2D, matrix2x2Ref } from "./Point2D";

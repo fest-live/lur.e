@@ -1,5 +1,5 @@
-import { addEvent, setChecked, handleStyleChange } from "fest/dom";
-import { computed, conditional, numberRef, affected } from "fest/object";
+import { addEvent, setChecked, handleStyleChange } from "@fest-lib/dom";
+import { computed, conditional, numberRef, affected } from "@fest-lib/object";
 import { bindDraggable } from "../controllers/PointerAPI";
 
 //
@@ -7,7 +7,7 @@ import { makeShiftTrigger } from "../controllers/Trigger";
 import { bindWith, bindCtrl } from "../../lure/core/Binding";
 
 // Enhanced reactive math and CSS integration
-import { operated } from "fest/lure";
+import { operated } from "@fest-lib/lure";
 import { ReactiveElementSize } from "../../design/anchor/Utils";
 import { ReactiveTransform } from "../../design/anchor/Utils";
 import { CSSBinder } from "../../design/anchor/CSSAdapter";

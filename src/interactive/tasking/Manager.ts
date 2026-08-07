@@ -1,5 +1,5 @@
 import type { ITask } from "./Types";
-import { addEvent } from "fest/dom";
+import { addEvent } from "@fest-lib/dom";
 import {
     initBackNavigation,
     registerCloseable,

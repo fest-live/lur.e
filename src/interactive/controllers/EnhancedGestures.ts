@@ -1,5 +1,5 @@
-import { numberRef, affected } from "fest/object";
-import { addEvents, removeEvents, addEvent, removeEvent } from "fest/dom";
+import { numberRef, affected } from "@fest-lib/object";
+import { addEvents, removeEvents, addEvent, removeEvent } from "@fest-lib/dom";
 
 //
 export interface GestureOptions {

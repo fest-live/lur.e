@@ -2,7 +2,7 @@ import { E } from "./Bindings";
 import { M } from "./Mapped";
 import { I } from "./Switched";
 import { Q } from "./Queried";
-import { bindEvent } from "fest/core";
+import { bindEvent } from "@fest-lib/core";
 
 //
 export const createElement = (type: string | HTMLElement | Node | DocumentFragment | Document | Element | Function, props: any = {}, children?: any[]|any|null, ...others: any[]|any|null)=>{

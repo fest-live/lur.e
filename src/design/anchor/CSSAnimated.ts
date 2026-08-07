@@ -3,9 +3,9 @@
 // And current (to) state
 // Animates when bound with style property, by change value
 
-import { numberRef, stringRef, affected } from "fest/object";
-import { toRef, deref, $getValue } from "fest/core";
-import { makeRAFCycle, setProperty } from "fest/dom";
+import { numberRef, stringRef, affected } from "@fest-lib/object";
+import { toRef, deref, $getValue } from "@fest-lib/core";
+import { makeRAFCycle, setProperty } from "@fest-lib/dom";
 import { $extract } from "./CSSTimeline";
 
 /**

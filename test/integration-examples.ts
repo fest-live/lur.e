@@ -1,6 +1,6 @@
 // Integration examples showing how reactive math enhances existing components
 
-import { numberRef, affected, computed } from "fest/object";
+import { numberRef, affected, computed } from "@fest-lib/object";
 import {
     Vector2D, vector2Ref,
     addVector2D, subtractVector2D, multiplyVector2D, magnitude2D, divideVector2D,

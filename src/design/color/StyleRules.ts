@@ -5,7 +5,7 @@
  * Reason for changes: Bridge --primary → --color-primary / --base-color for veela/shell.
  */
 
-import { E, localStorageRef } from "fest/lure";
+import { E, localStorageRef } from "@fest-lib/lure";
 
 //
 export type StyleTuple = [selector: string, sheet: object];

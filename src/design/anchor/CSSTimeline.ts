@@ -1,6 +1,6 @@
-import { toRef, type keyType } from "fest/core";
-import { deref, computed, affected, $affected } from "fest/object";
-import { getPadding } from "fest/dom";
+import { toRef, type keyType } from "@fest-lib/core";
+import { deref, computed, affected, $affected } from "@fest-lib/object";
+import { getPadding } from "@fest-lib/dom";
 import { scrollRef, sizeRef } from "../../lure/core/Refs";
 import { makeAnchorElement } from "./CSSAnchor";
 

@@ -1,4 +1,4 @@
-import { isInFocus } from "fest/dom";
+import { isInFocus } from "@fest-lib/dom";
 
 //
 const allowedElements = "ui-tabbed-box";

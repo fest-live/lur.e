@@ -5,12 +5,12 @@
  * Reason for changes: Bound mapped collections retain anchors and dispose observers safely.
  */
 
-import { iterated } from "fest/object";
+import { iterated } from "@fest-lib/object";
 import { $mapped } from "../core/Binding";
 import { getNode } from "../context/Utils";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
-import { canBeInteger, isObservable, isPrimitive } from "fest/core";
-import { isValidParent } from "fest/dom";
+import { canBeInteger, isObservable, isPrimitive } from "@fest-lib/core";
+import { isValidParent } from "@fest-lib/dom";
 
 //
 interface MappedOptions {

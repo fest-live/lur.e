@@ -1,5 +1,5 @@
-import { numberRef, addToCallChain } from "fest/object";
-import { addEvent, getBoundingOrientRect } from "fest/dom";
+import { numberRef, addToCallChain } from "@fest-lib/object";
+import { addEvent, getBoundingOrientRect } from "@fest-lib/dom";
 
 //
 const computeIntersectionRect = (anchor: HTMLElement, root: HTMLElement = document.documentElement, includeExtendedInfo = false) => {

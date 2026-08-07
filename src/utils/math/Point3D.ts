@@ -1,5 +1,5 @@
 
-import { numberRef } from "fest/object";
+import { numberRef } from "@fest-lib/object";
 
 export class Vector3D {
     private _x: ReturnType<typeof numberRef>;

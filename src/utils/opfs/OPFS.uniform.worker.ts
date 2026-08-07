@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
-import { registerWorkerAPI } from "fest/uniform";
-import type { MessageEnvelope } from "fest/uniform";
+import { registerWorkerAPI } from "@fest-lib/uniform";
+import type { MessageEnvelope } from "@fest-lib/uniform";
 
 // Import the handlers directly from the OPFS worker module
 import { handlers } from './OPFS.worker.js';

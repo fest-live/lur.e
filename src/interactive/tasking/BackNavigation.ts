@@ -13,7 +13,7 @@
  * 3. Supports custom close handlers and visibility checks
  */
 
-import { addEvent } from "fest/dom";
+import { addEvent } from "@fest-lib/dom";
 import { historyState, initHistory, originalForward } from "./History";
 
 //

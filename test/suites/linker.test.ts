@@ -1,5 +1,5 @@
-import { handleProperty } from "fest/dom";
-import { stringRef } from "fest/object";
+import { handleProperty } from "@fest-lib/dom";
+import { stringRef } from "@fest-lib/object";
 import {
     attrRef,
     bindWith,

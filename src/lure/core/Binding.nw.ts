@@ -1,4 +1,4 @@
-import { addToCallChain, observe, affected, unaffected } from "fest/object";
+import { addToCallChain, observe, affected, unaffected } from "@fest-lib/object";
 import {
     handleAttribute,
     handleProperty,
@@ -9,7 +9,7 @@ import {
     setChecked,
     getEventTarget,
     handleStyleChange,
-} from "fest/dom";
+} from "@fest-lib/dom";
 import {
     $getValue,
     camelToKebab,
@@ -19,7 +19,7 @@ import {
     isNotEqual,
     handleListeners,
     $avoidTrigger,
-} from "fest/core";
+} from "@fest-lib/core";
 
 import {
     handleAnimatedStyleChange,
@@ -36,7 +36,7 @@ import {
 } from "../../design/anchor/CSSAnimated";
 
 // предполагается, что класс уже существует в проекте
-import { DoubleWeakMap } from "fest/object"; // <-- путь подстрой под себя
+import { DoubleWeakMap } from "@fest-lib/object"; // <-- путь подстрой под себя
 
 const runWhenIdle = (cb: IdleRequestCallback, timeout = 100) => {
     if (typeof globalThis.requestIdleCallback === "function") {

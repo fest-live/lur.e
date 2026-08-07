@@ -15,7 +15,7 @@
  * - hashTargetRef(): URL hash
  */
 
-import { ref, numberRef, stringRef, booleanRef, affected } from "fest/object";
+import { ref, numberRef, stringRef, booleanRef, affected } from "@fest-lib/object";
 import {
     makeRef, attrRef, valueRef, valueAsNumberRef,
     sizeRef, checkedRef, scrollRef, visibleRef,

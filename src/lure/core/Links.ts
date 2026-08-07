@@ -1,7 +1,7 @@
-import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding, addEvent } from "fest/dom";
-import { observe, booleanRef, numberRef, affected, stringRef, ref, $triggerControl } from "fest/object";
-import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref, hasValue } from "fest/core";
-import { setChecked } from "fest/dom";
+import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding, addEvent } from "@fest-lib/dom";
+import { observe, booleanRef, numberRef, affected, stringRef, ref, $triggerControl } from "@fest-lib/object";
+import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref, hasValue } from "@fest-lib/core";
+import { setChecked } from "@fest-lib/dom";
 import { getIgnoreNextPopState, setIgnoreNextPopState } from "../../interactive/tasking/BackNavigation";
 
 //

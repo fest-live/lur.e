@@ -1,6 +1,6 @@
-import { observe, propRef, affected } from "fest/object";
-import { addEvent, hash } from "fest/dom";
-import { isPrimitive } from "fest/core";
+import { observe, propRef, affected } from "@fest-lib/object";
+import { addEvent, hash } from "@fest-lib/dom";
+import { isPrimitive } from "@fest-lib/core";
 import { getIgnoreNextPopState, setIgnoreNextPopState } from "./BackNavigation";
 
 //

@@ -1,4 +1,4 @@
-import { addEvent, removeEvent, setStyleProperty, getBoundingOrientRect } from "fest/dom";
+import { addEvent, removeEvent, setStyleProperty, getBoundingOrientRect } from "@fest-lib/dom";
 import { makeShiftTrigger } from "./Trigger";
 import { bindDraggable } from "./PointerAPI";
 import type { Rect2D } from "../../utils/math/Operations";
@@ -15,7 +15,7 @@ import {
     addVector2D,
     subtractVector2D
 } from "../../utils/math";
-import { numberRef, affected } from "fest/object";
+import { numberRef, affected } from "@fest-lib/object";
 
 export interface SelectionOptions {
     target?: HTMLElement;      // Element to attach selection to (default: document.body)

@@ -4,9 +4,9 @@
  * Change date and time: 05.18.00_29.07.2026
  * Reason for changes: Fix overlay scrollbars — timeline on content, thumb size/offset from scroll metrics, optional spatial layout.
  */
-import { affected, numberRef } from "fest/object";
-import { bindWith, paddingBoxSize, scrollSize, vector2Ref, operated } from "fest/lure";
-import { makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "fest/dom";
+import { affected, numberRef } from "@fest-lib/object";
+import { bindWith, paddingBoxSize, scrollSize, vector2Ref, operated } from "@fest-lib/lure";
+import { makeRAFCycle, addEvent, removeEvents, addEvents, removeEvent, handleStyleChange } from "@fest-lib/dom";
 import { boundingBoxAnchorRef } from "../../design/anchor/BBoxAnchor";
 import { pointerAnchorRef } from "../../design/anchor/PointerAnchor";
 import { EnhancedScrollTimeline, makeScrollTimeline } from "../../design/anchor/CSSTimeline";

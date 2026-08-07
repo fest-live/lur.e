@@ -1,5 +1,5 @@
 /// <reference lib="webworker" />
-import { UUIDv4 } from "fest/core";
+import { UUIDv4 } from "@fest-lib/core";
 
 //
 const mappedRoots = new Map<string, FileSystemDirectoryHandle>();

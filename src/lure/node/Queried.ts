@@ -1,6 +1,6 @@
-import { observeAttributeBySelector, getAdoptedStyleRule, handleAttribute, containsOrSelf, MOCElement, observeBySelector, observeAttribute } from "fest/dom";
+import { observeAttributeBySelector, getAdoptedStyleRule, handleAttribute, containsOrSelf, MOCElement, observeBySelector, observeAttribute } from "@fest-lib/dom";
 import { bindWith, elMap } from "../core/Binding";
-import { $affected, observe } from "fest/object";
+import { $affected, observe } from "@fest-lib/object";
 import { appendChild, removeChild, replaceOrSwap } from "../context/Utils";
 
 //

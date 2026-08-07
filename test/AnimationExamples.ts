@@ -1,7 +1,7 @@
 // Animation Binding Examples
 // Demonstrates the new animation-based binding/reference types
 
-import { numberRef, booleanRef, observe, affected } from "fest/object";
+import { numberRef, booleanRef, observe, affected } from "@fest-lib/object";
 import { operated, Vector2D, vector2Ref } from "../src/utils/math/index";
 
 // Animation presets for common animations

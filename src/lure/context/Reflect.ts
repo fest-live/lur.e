@@ -1,12 +1,12 @@
-import { addToCallChain, affected, iterated } from "fest/object";
-import { isNotEqual, isPrimitive } from "fest/core";
+import { addToCallChain, affected, iterated } from "@fest-lib/object";
+import { isNotEqual, isPrimitive } from "@fest-lib/core";
 
 //
 import { bindHandler, bindWith } from "../core/Binding";
-import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "fest/dom";
+import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "@fest-lib/dom";
 import { applyNormalizedInlineStyle, bindStyle } from "../misc/Styles";
 import Q from "../node/Queried";
-import { setChecked } from "fest/dom";
+import { setChecked } from "@fest-lib/dom";
 
 // !
 // TODO! - add support for un-subscribe for everyone...

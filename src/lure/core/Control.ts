@@ -1,7 +1,7 @@
-import { deref, isNotEqual, toRef, unref } from "fest/core";
+import { deref, isNotEqual, toRef, unref } from "@fest-lib/core";
 import { Q } from "../node/Queried";
-import { makeRAFCycle, setProperty } from "fest/dom";
-import { affected } from "fest/object";
+import { makeRAFCycle, setProperty } from "@fest-lib/dom";
+import { affected } from "@fest-lib/object";
 
 //
 export const anyCheckboxCtrl = (ref, element?: any|null) => { ref = toRef(ref); return (ev) => { const $ref = unref(ref); if ($ref != null) { 

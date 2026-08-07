@@ -1,7 +1,7 @@
-import { addToCallChain, affected, $trigger } from "fest/object";
+import { addToCallChain, affected, $trigger } from "@fest-lib/object";
 import { appendFix, getNode, removeChild, replaceOrSwap } from "../context/Utils";
-import { contextify, isNotEqual, inProxy } from "fest/core";
-import { isElement, isValidParent } from "fest/dom";
+import { contextify, isNotEqual, inProxy } from "@fest-lib/core";
+import { isElement, isValidParent } from "@fest-lib/dom";
 
 //
 export interface SwitchedParams {

@@ -1,6 +1,6 @@
-import { addToCallChain, observe, affected, unaffected } from "fest/object";
-import { handleAttribute, handleProperty, namedStoreMaps, observeAttribute, observeBySelector, includeSelf, setChecked, getEventTarget, handleStyleChange } from "fest/dom";
-import { $getValue, camelToKebab, $set, toRef, deref, isNotEqual, handleListeners, $avoidTrigger } from "fest/core";
+import { addToCallChain, observe, affected, unaffected } from "@fest-lib/object";
+import { handleAttribute, handleProperty, namedStoreMaps, observeAttribute, observeBySelector, includeSelf, setChecked, getEventTarget, handleStyleChange } from "@fest-lib/dom";
+import { $getValue, camelToKebab, $set, toRef, deref, isNotEqual, handleListeners, $avoidTrigger } from "@fest-lib/core";
 import {
     handleAnimatedStyleChange,
     handleTransitionStyleChange,

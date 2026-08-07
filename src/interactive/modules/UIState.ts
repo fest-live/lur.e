@@ -1,6 +1,6 @@
 import { JSOX } from "jsox";
-import { addEvent, setIdleInterval } from "fest/dom";
-import { safe, addToCallChain } from "fest/object";
+import { addEvent, setIdleInterval } from "@fest-lib/dom";
+import { safe, addToCallChain } from "@fest-lib/object";
 // Wait, I should not break imports if I overwrite the file.
 // The previous file had everything inline. I will keep everything inline but modified.
 

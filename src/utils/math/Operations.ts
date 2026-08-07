@@ -1,4 +1,4 @@
-import { numberRef, computed, affected } from "fest/object";
+import { numberRef, computed, affected } from "@fest-lib/object";
 import { Vector2D, vector2Ref } from "./Point2D";
 import { Vector3D } from "./Point3D";
 import { Vector4D } from "./Point4D";

@@ -6,8 +6,8 @@
  */
 
 // @ts-ignore
-import { observe, ref, numberRef } from "fest/object";
-import { defineElement, GLitElement, property, S, E, H, M } from "fest/lure";
+import { observe, ref, numberRef } from "@fest-lib/object";
+import { defineElement, GLitElement, property, S, E, H, M } from "@fest-lib/lure";
 import { Vector2D, vector2Ref, operated, magnitude2D } from "../src/utils/math/index";
 import { appendAsUnderlying, appendAsOverlay } from "../src/design/layers/AnchorOverlay";
 

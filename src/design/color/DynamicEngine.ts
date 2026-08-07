@@ -1,5 +1,5 @@
-import { addEvent, fixedClientZoom } from "fest/dom";
-import { stringRef } from "fest/object";
+import { addEvent, fixedClientZoom } from "@fest-lib/dom";
+import { stringRef } from "@fest-lib/object";
 
 const runWhenIdle = (cb: IdleRequestCallback, timeout = 100) => {
     if (typeof globalThis.requestIdleCallback === "function") {

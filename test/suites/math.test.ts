@@ -9,7 +9,7 @@
  * - Reactive operations: operated(), reactive vector operations
  */
 
-import { numberRef, affected } from "fest/object";
+import { numberRef, affected } from "@fest-lib/object";
 import {
     Vector2D, vector2Ref, Matrix2D, matrix2x2Ref,
     Vector3D, vector3Ref,

@@ -19,37 +19,37 @@
             "fonts/*": [
                 "../../shared/assets/fonts/*"
             ],
-            "fest/*": [
+            "@fest-lib/*": [
                 "../../subsystem/fest/*"
             ],
-            "fest/cdnImport": [
+            "@fest-lib/cdnImport": [
                 "../../cdnImport.mjs"
             ],
-            "fest/dom": [
+            "@fest-lib/dom": [
                 "../dom.ts/src/index.ts"
             ],
-            "fest/lure": [
+            "@fest-lib/lure": [
                 "../lur.e/src/index.ts"
             ],
-            "fest/object": [
+            "@fest-lib/object": [
                 "../object.ts/src/index.ts"
             ],
-            "fest/fl-ui": [
+            "@fest-lib/fl-ui": [
                 "../fl.ui/src/index.ts"
             ],
-            "fest/ui": [
+            "@fest-lib/ui": [
                 "../fl.ui/src/index.ts"
             ],
-            "fest/uniform": [
+            "@fest-lib/uniform": [
                 "../uniform.ts/src/index.ts"
             ],
-            "fest/theme": [
+            "@fest-lib/theme": [
                 "../theme.core/src/index.ts"
             ],
-            "fest/core": [
+            "@fest-lib/core": [
                 "../core.ts/src/index.ts"
             ],
-            "fest/polyfill/*": [
+            "@fest-lib/polyfill/*": [
                 "../../subsystem/fest/polyfill/*"
             ],
             "polyfill/*": [

@@ -1,4 +1,4 @@
-import { numberRef } from "fest/object";
+import { numberRef } from "@fest-lib/object";
 import { operated, vector2Ref, Vector2D, addVector2D, createRect2D } from "./index";
 import type { Rect2D } from "./Operations";
 

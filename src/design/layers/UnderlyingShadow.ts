@@ -4,7 +4,7 @@
  * Change date and time: 16.56.00_30.07.2026
  * Reason for changes: Tile under as grid sibling of `.ui-ws-item` (CSS-anchor); optional geometrySource.
  */
-import { setProperty, handleStyleChange } from "fest/dom";
+import { setProperty, handleStyleChange } from "@fest-lib/dom";
 import { bindWith } from "../../lure/core/Binding";
 import { CSSUnitUtils } from "../anchor/CSSAdapter";
 import { boundingBoxAnchorRef } from "../anchor/BBoxAnchor";

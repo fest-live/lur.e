@@ -54,7 +54,7 @@ for (const name of browserGlobals) {
     setTimeout(() => callback(Date.now()), 0);
 (globalThis as any).cancelAnimationFrame = (id: number) => clearTimeout(id);
 
-const { observe, ref } = await import("fest/object");
+const { observe, ref } = await import("@fest-lib/object");
 const { M } = await import("../src/lure/node/Mapped");
 
 const tick = async (): Promise<void> => {

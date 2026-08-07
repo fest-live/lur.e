@@ -5,7 +5,7 @@
  * Reason for changes: Role-aware DOMMixin registration for underlying/overlaying layers.
  */
 
-import { DOMMixin } from "fest/dom";
+import { DOMMixin } from "@fest-lib/dom";
 import { appendAsOverlay, appendAsUnderlying } from "./AnchorOverlay";
 import type { LayerRole } from "./types";
 

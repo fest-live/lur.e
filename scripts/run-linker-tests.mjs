@@ -16,10 +16,10 @@ await build({
     logLevel: "warn",
     resolve: {
         alias: [
-            { find: "fest/core", replacement: resolve(root, "../core.ts/src/index.ts") },
-            { find: "fest/dom", replacement: resolve(root, "test/stubs/dom.ts") },
-            { find: "fest/object", replacement: resolve(root, "../object.ts/src/index.ts") },
-            { find: "fest/lure", replacement: resolve(root, "src/index.ts") },
+            { find: "@fest-lib/core", replacement: resolve(root, "../core.ts/src/index.ts") },
+            { find: "@fest-lib/dom", replacement: resolve(root, "test/stubs/dom.ts") },
+            { find: "@fest-lib/object", replacement: resolve(root, "../object.ts/src/index.ts") },
+            { find: "@fest-lib/lure", replacement: resolve(root, "src/index.ts") },
         ],
     },
     build: {

@@ -5,8 +5,8 @@
  * Reason for changes: Cover reactive nodes, DOM reflection, events, and GLit elements in a real browser.
  */
 
-import { observe, ref } from "fest/object";
-import { handleAttribute, handleProperty } from "fest/dom";
+import { observe, ref } from "@fest-lib/object";
+import { handleAttribute, handleProperty } from "@fest-lib/dom";
 import {
     C,
     E,

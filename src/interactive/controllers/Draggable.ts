@@ -1,10 +1,10 @@
-import { setStyleProperty, RAFBehavior, ROOT } from "fest/dom";
+import { setStyleProperty, RAFBehavior, ROOT } from "@fest-lib/dom";
 import { makeShiftTrigger, doObserve } from "./Trigger";
 import { bindDraggable } from "./PointerAPI";
 
 //
-//import {  E  } from "fest/lure";
-import { numberRef, affected } from "fest/object";
+//import {  E  } from "@fest-lib/lure";
+import { numberRef, affected } from "@fest-lib/object";
 import type { Rect2D } from "../../utils/math/Operations";
 import { Vector2D, vector2Ref, clampPointToRect, createRect2D } from "../../utils/math";
 

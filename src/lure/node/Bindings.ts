@@ -1,9 +1,9 @@
-import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden, addEventsList, createElementVanilla } from "fest/dom";
+import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden, addEventsList, createElementVanilla } from "@fest-lib/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectProperties, reflectWithStyleRules, reflectARIA } from '../context/Reflect';
 import { reflectControllers, bindWith } from '../core/Binding';
 
 //
-import { affected } from "fest/object";
+import { affected } from "@fest-lib/object";
 import { Q } from "./Queried";
 import { M } from "./Mapped";
 import { getNode } from "../context/Utils";

@@ -1,5 +1,5 @@
 // Integration examples showing how reactive math enhances existing components
-import { numberRef } from "fest/object";
+import { numberRef } from "@fest-lib/object";
 import { Vector2D, vector2Ref, addVector2D, subtractVector2D, multiplyVector2D, magnitude2D, divideVector2D, translate2D, scale2D, rotate2D, operated, createRect2D, rectCenter, rectContainsPoint, rectIntersects, pointToRectDistance } from "../src/math/index";
 import { ReactiveElementSize } from "../src/extension/css-ref/Utils";
 /**

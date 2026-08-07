@@ -2,8 +2,8 @@
  * Pointer helpers for orient-aware UIs. For launcher / speed-dial grids (cell hit-test, placement),
  * use `fest/dom` `resolveGridCellFromClientPoint` + Veela `compute_grid_item_cell` / `.ui-launcher-grid`.
  */
-import { getBoundingOrientRect, orientOf, addEvent, addEvents, removeEvent } from "fest/dom";
-import { cvt_cs_to_os, withCtx } from "fest/core";
+import { getBoundingOrientRect, orientOf, addEvent, addEvents, removeEvent } from "@fest-lib/dom";
+import { cvt_cs_to_os, withCtx } from "@fest-lib/core";
 import { vector2Ref } from "../../utils/math";
 
 //

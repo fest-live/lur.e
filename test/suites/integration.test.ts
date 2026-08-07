@@ -8,7 +8,7 @@
  * - Performance edge cases
  */
 
-import { numberRef, ref, affected, observe } from "fest/object";
+import { numberRef, ref, affected, observe } from "@fest-lib/object";
 import { H, E, M, T } from "../../src/index";
 import {
     Vector2D, vector2Ref,

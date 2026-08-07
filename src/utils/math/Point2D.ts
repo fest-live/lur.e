@@ -1,4 +1,4 @@
-import { numberRef, observe } from "fest/object";
+import { numberRef, observe } from "@fest-lib/object";
 
 export class Vector2D {
     private _x: ReturnType<typeof numberRef>;

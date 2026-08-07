@@ -1,7 +1,7 @@
-import { addToCallChain, booleanRef, numberRef, stringRef } from "fest/object";
+import { addToCallChain, booleanRef, numberRef, stringRef } from "@fest-lib/object";
 /** INVARIANT: use interactive/controllers (not legacy md-2025 path). */
 import { handleByPointer } from "../../interactive/controllers/Handler";
-import { WRef } from "fest/core";
+import { WRef } from "@fest-lib/core";
 
 //
 export const pointerAnchorRef = (root = typeof document != "undefined" ? document?.documentElement : null)=>{

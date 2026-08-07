@@ -1,4 +1,4 @@
-import { numberRef } from "fest/object";
+import { numberRef } from "@fest-lib/object";
 import { CSSBinder, CSSUnitConverter, CSSTransform, CSSCalc } from "./CSSAdapter";
 
 // generate only random letters, NOT numbers

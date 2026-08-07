@@ -1,5 +1,5 @@
 /* Task Interaction Logic */
-import { Q, type ITask } from "fest/lure";
+import { Q, type ITask } from "@fest-lib/lure";
 
 //
 export class TaskInteraction {

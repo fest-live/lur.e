@@ -1,5 +1,5 @@
 import { bindWith } from "../core/Binding";
-import { handleStyleChange } from "fest/dom";
+import { handleStyleChange } from "@fest-lib/dom";
 
 type Cleanup = () => void;
 

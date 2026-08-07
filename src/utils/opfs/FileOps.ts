@@ -5,7 +5,7 @@
  * higher-level storage and recognition pipelines so views do not have to know
  * about OPFS handles or import-heavy recognition modules directly.
  */
-import { getDirectoryHandle, handleIncomingEntries, writeFileSmart } from "fest/lure";
+import { getDirectoryHandle, handleIncomingEntries, writeFileSmart } from "@fest-lib/lure";
 
 /** Bind drag-and-drop ingestion for a directory target and emit a local `dir-dropped` event on success. */
 export const bindDropToDir = (host: HTMLElement, dir: string) => {

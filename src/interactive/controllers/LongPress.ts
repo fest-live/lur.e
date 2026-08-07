@@ -1,4 +1,4 @@
-import { addEvents } from "fest/dom";
+import { addEvents } from "@fest-lib/dom";
 
 //
 const defaultOptions = {

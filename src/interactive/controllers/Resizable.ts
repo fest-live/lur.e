@@ -1,9 +1,9 @@
-import { bbh, bbw, cbh, cbw, ROOT, type InteractStatus, RAFBehavior } from "fest/dom";
+import { bbh, bbw, cbh, cbw, ROOT, type InteractStatus, RAFBehavior } from "@fest-lib/dom";
 import { makeShiftTrigger, doObserve } from "./Trigger";
-import { clamp } from "fest/core";
+import { clamp } from "@fest-lib/core";
 
 //
-import { numberRef } from "fest/object";
+import { numberRef } from "@fest-lib/object";
 import { E } from "../../lure/node/Bindings";
 import { bindDraggable } from "./PointerAPI";
 import { vector2Ref } from "../../utils/math";

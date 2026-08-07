@@ -1,4 +1,4 @@
-import { RAFBehavior } from "fest/dom";
+import { RAFBehavior } from "@fest-lib/dom";
 
 //
 export const makeRenderer = () => {

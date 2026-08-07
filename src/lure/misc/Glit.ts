@@ -1,6 +1,6 @@
 // @ts-ignore
-import { ref } from "fest/object";
-import { addRoot, isElement, loadAsAdopted, loadInlineStyle, setAttributesIfNull } from "fest/dom";
+import { ref } from "@fest-lib/object";
+import { addRoot, isElement, loadAsAdopted, loadInlineStyle, setAttributesIfNull } from "@fest-lib/dom";
 
 import {
     valueAsNumberRef,
