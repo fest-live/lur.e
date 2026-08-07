@@ -18,6 +18,416 @@ const queryExtensions = {
     current(ctx) { return ctx; } // direct getter
 }
 
+type PseudoElementProxy = {
+    readonly type: string;
+    readonly element: Element | null;
+    readonly parent: Element | PseudoElementProxy | null;
+    readonly native: any | null;
+    readonly selector: string | null;
+
+    readonly style: CSSStyleDeclaration | undefined;
+    readonly attributeStyleMap: any;
+    readonly computedStyle: CSSStyleDeclaration | undefined;
+
+    getComputedStyle(): CSSStyleDeclaration | undefined;
+    pseudo(type: string): PseudoElementProxy;
+};
+
+let pseudoUID = 0;
+
+/**
+ * Нам нельзя разрешать произвольную строку, потому что она позже
+ * добавляется в CSS selector.
+ *
+ * Поддерживаются:
+ *   ::before
+ *   ::after
+ *   ::marker
+ *   ::highlight(name)
+ *   ::view-transition-group(root)
+ *
+ * Вложенные скобки намеренно не поддерживаются.
+ */
+function normalizePseudoType(value: unknown): string {
+    if (typeof value !== "string") {
+        throw new TypeError("Pseudo-element type must be a string");
+    }
+
+    let type = value.trim();
+
+    // Необязательная совместимость со старой записью :before/:after.
+    if (type === ":before" || type === ":after") {
+        type = `:${type}`;
+    }
+
+    const valid =
+        /^::[-_a-zA-Z][-\w]*(?:\((?:[^()"']|"(?:\\.|[^"])*"|'(?:\\.|[^'])*')*\))?$/u;
+
+    if (!valid.test(type)) {
+        throw new TypeError(`Invalid pseudo-element selector: ${type}`);
+    }
+
+    return type;
+}
+
+//
+function pseudoStyleRoot(element: Element): Document | ShadowRoot | Element {
+    const root = element.getRootNode?.();
+
+    if (
+        typeof ShadowRoot !== "undefined" &&
+        root instanceof ShadowRoot
+    ) {
+        return root;
+    }
+
+    return element.ownerDocument?.documentElement ?? document.documentElement;
+}
+
+//
+function createPseudoElementProxy(
+    resolveElement: () => Element | null,
+    types: string[],
+    parent: Element | PseudoElementProxy | null = null,
+): PseudoElementProxy {
+    const handler = new UniversalPseudoElementHandler(
+        resolveElement,
+        types,
+        parent,
+    );
+
+    const proxy = new Proxy(
+        Object.create(null),
+        handler as ProxyHandler<object>,
+    ) as PseudoElementProxy;
+
+    handler.self = proxy;
+
+    return proxy;
+}
+
+//
+class UniversalPseudoElementHandler implements ProxyHandler<object> {
+    self!: PseudoElementProxy;
+
+    private readonly token = `ux-pseudo-${(++pseudoUID).toString(36)}`;
+    private readonly children = new Map<string, PseudoElementProxy>();
+
+    private attachedElement: Element | null = null;
+    private styleActivated = false;
+
+    constructor(
+        private readonly resolveOrigin: () => Element | null,
+        private readonly types: string[],
+        private readonly pseudoParent: Element | PseudoElementProxy | null,
+    ) {}
+
+    private get suffix(): string {
+        return this.types.join("");
+    }
+
+    private get localType(): string {
+        return this.types[this.types.length - 1];
+    }
+
+    /**
+     * Переносит служебный класс на актуальный selected element.
+     *
+     * Это важно, если элемент, подходящий под Q(selector),
+     * был удалён и заменён другим.
+     */
+    private resolveElement(): Element | null {
+        const element = this.resolveOrigin();
+
+        if (this.styleActivated && element !== this.attachedElement) {
+            this.attachedElement?.classList?.remove?.(this.token);
+            element?.classList?.add?.(this.token);
+            this.attachedElement = element;
+        } else if (
+            this.styleActivated &&
+            element &&
+            !element.classList.contains(this.token)
+        ) {
+            // Восстанавливаем класс, если его удалили внешним кодом.
+            element.classList.add(this.token);
+        }
+
+        return element;
+    }
+
+    private activateStyleTarget(): Element | null {
+        this.styleActivated = true;
+        return this.resolveElement();
+    }
+
+    private getSelector(): string | null {
+        const element = this.activateStyleTarget();
+        if (!element) return null;
+
+        return `.${this.token}${this.suffix}`;
+    }
+
+    private getRule(): any {
+        const element = this.activateStyleTarget();
+        if (!element) return undefined;
+
+        const selector = `.${this.token}${this.suffix}`;
+        const root = pseudoStyleRoot(element);
+
+        return getAdoptedStyleRule(
+            selector,
+            "ux-query-pseudo",
+            root as any,
+        );
+    }
+
+    private getStyle(): CSSStyleDeclaration | undefined {
+        return this.getRule()?.style;
+    }
+
+    private getComputedStyle(): CSSStyleDeclaration | undefined {
+        const element = this.resolveElement();
+        if (!element) return undefined;
+
+        const win = element.ownerDocument?.defaultView ?? window;
+
+        /*
+         * getComputedStyle() может выбросить TypeError для некоторых
+         * pseudo-elements, например ::part() и ::slotted().
+         * Ошибку намеренно не скрываем.
+         */
+        return win.getComputedStyle(element, this.suffix);
+    }
+
+    private getNativePseudo(): any | null {
+        let current: any = this.resolveElement();
+
+        if (!current) return null;
+
+        for (const type of this.types) {
+            if (typeof current?.pseudo !== "function") {
+                return null;
+            }
+
+            current = current.pseudo(type);
+
+            if (!current) {
+                return null;
+            }
+        }
+
+        return current;
+    }
+
+    private getChild(type: unknown): PseudoElementProxy {
+        const normalized = normalizePseudoType(type);
+
+        const cached = this.children.get(normalized);
+        if (cached) return cached;
+
+        const child = createPseudoElementProxy(
+            this.resolveOrigin,
+            [...this.types, normalized],
+            this.self,
+        );
+
+        this.children.set(normalized, child);
+        return child;
+    }
+
+    get(_target: object, name: PropertyKey): any {
+        switch (name) {
+            case "type":
+                return this.localType;
+
+            /**
+             * Ultimate originating element.
+             */
+            case "element":
+                return this.resolveElement();
+
+            /**
+             * Для первого pseudo это Element,
+             * для вложенного — предыдущий pseudo proxy.
+             */
+            case "parent":
+                return this.pseudoParent ?? this.resolveElement();
+
+            case "native":
+                return this.getNativePseudo();
+
+            case "selector":
+                return this.getSelector();
+
+            /**
+             * Это CSSStyleDeclaration созданного CSSStyleRule,
+             * а не inline style — у pseudo-elements его быть не может.
+             */
+            case "style":
+                return this.getStyle();
+
+            case "attributeStyleMap": {
+                const rule = this.getRule();
+                return rule?.styleMap ?? rule?.attributeStyleMap;
+            }
+
+            case "computedStyle":
+                return this.getComputedStyle();
+
+            case "getComputedStyle":
+                return () => this.getComputedStyle();
+
+            case "pseudo":
+                return (type: string) => this.getChild(type);
+
+            case "addEventListener":
+                return (...args: any[]) => {
+                    const native = this.getNativePseudo();
+
+                    if (typeof native?.addEventListener !== "function") {
+                        throw new DOMException(
+                            "CSSPseudoElement events are not supported by this browser",
+                            "NotSupportedError",
+                        );
+                    }
+
+                    return native.addEventListener(...args);
+                };
+
+            case "removeEventListener":
+                return (...args: any[]) => {
+                    const native = this.getNativePseudo();
+
+                    if (typeof native?.removeEventListener !== "function") {
+                        return;
+                    }
+
+                    return native.removeEventListener(...args);
+                };
+
+            case "dispose":
+                return () => {
+                    this.attachedElement?.classList?.remove?.(this.token);
+                    this.attachedElement = null;
+                    this.styleActivated = false;
+                };
+
+            case Symbol.toStringTag:
+                return "CSSPseudoElement";
+
+            case Symbol.toPrimitive:
+                return () => this.getSelector() ?? this.suffix;
+        }
+
+        /*
+         * Fallback к нативному CSSPseudoElement.
+         */
+        const native = this.getNativePseudo();
+
+        if (native && name in native) {
+            const value = native[name];
+
+            return typeof value === "function"
+                ? value.bind(native)
+                : value;
+        }
+
+        /*
+         * Сокращённая запись:
+         *
+         * pseudo.color
+         * pseudo.backgroundColor
+         * pseudo["--custom-property"]
+         */
+        if (typeof name === "string") {
+            const style: any = this.getStyle();
+
+            if (style && (name.startsWith("--") || name in style)) {
+                return style[name];
+            }
+        }
+
+        return undefined;
+    }
+
+    set(_target: object, name: PropertyKey, value: any): boolean {
+        if (typeof name !== "string") {
+            return false;
+        }
+
+        const style: any = this.getStyle();
+        if (!style) return false;
+
+        if (name === "cssText") {
+            style.cssText = String(value ?? "");
+            return true;
+        }
+
+        if (name.startsWith("--")) {
+            style.setProperty(name, String(value ?? ""));
+            return true;
+        }
+
+        if (name in style) {
+            style[name] = value == null ? "" : String(value);
+            return true;
+        }
+
+        return false;
+    }
+
+    has(_target: object, name: PropertyKey): boolean {
+        if (
+            name === "type" ||
+            name === "element" ||
+            name === "parent" ||
+            name === "native" ||
+            name === "selector" ||
+            name === "style" ||
+            name === "computedStyle" ||
+            name === "attributeStyleMap" ||
+            name === "getComputedStyle" ||
+            name === "pseudo"
+        ) {
+            return true;
+        }
+
+        const native = this.getNativePseudo();
+
+        if (native && name in native) {
+            return true;
+        }
+
+        if (typeof name === "string") {
+            const style: any = this.getStyle();
+            return !!style && (name.startsWith("--") || name in style);
+        }
+
+        return false;
+    }
+
+    deleteProperty(_target: object, name: PropertyKey): boolean {
+        if (typeof name !== "string") {
+            return false;
+        }
+
+        const style: any = this.getStyle();
+        if (!style) return false;
+
+        if (name.startsWith("--")) {
+            style.removeProperty(name);
+            return true;
+        }
+
+        if (name in style) {
+            style[name] = "";
+            return true;
+        }
+
+        return false;
+    }
+}
+
 //
 class UniversalElementHandler {
     direction: "children" | "parent" = "children";
@@ -25,11 +435,45 @@ class UniversalElementHandler {
     index: number = 0;
 
     //
+    private _pseudoMap = new Map<string, PseudoElementProxy>();
+
+    // остальной код...
+
+    //
     private _eventMap = new WeakMap<object, Map<string, WeakMap<Function, {wrap: Function, option: any}>>>();
     constructor(selector, index = 0, direction: "children" | "parent" = "children") {
         this.index     = index;
         this.selector  = selector;
         this.direction = direction;
+    }
+
+    _resolveSelectedElement(target: any): Element | null {
+        const array = this._getArray(target);
+    
+        const selected =
+            array.length > 0
+                ? array[this.index]
+                : this._getSelected(target);
+    
+        const element = selected?.element ?? selected;
+    
+        return element instanceof Element ? element : null;
+    }
+    
+    _getPseudo(target: any, type: unknown): PseudoElementProxy {
+        const normalized = normalizePseudoType(type);
+    
+        const cached = this._pseudoMap.get(normalized);
+        if (cached) return cached;
+    
+        const pseudo = createPseudoElementProxy(
+            () => this._resolveSelectedElement(target),
+            [normalized],
+            null,
+        );
+    
+        this._pseudoMap.set(normalized, pseudo);
+        return pseudo;
     }
 
     //
@@ -171,6 +615,11 @@ class UniversalElementHandler {
     get(target: any, name: any, ctx: any) {
         const array = this._getArray(target);
         const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
+
+        //
+        if (name === "pseudo") {
+            return (type: string) => this._getPseudo(target, type);
+        }
 
         // Extensions
         if (name in queryExtensions) { return queryExtensions?.[name]?.(selected); }
