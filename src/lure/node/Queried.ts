@@ -512,22 +512,26 @@ export class EventHandler implements ProxyHandler<object> {
 //
 class UniversalElementHandler implements ProxyHandler<object> {
     direction: "children" | "parent" = "children";
-    selector: string | HTMLElement;
+    selector: string | HTMLElement | null;
     index: number = 0;
 
     //
     private _pseudoMap = new Map<string, PseudoElementProxy>();
     private _observeMap = new WeakMap<HTMLElement, any[]>();
 
-    // остальной код...
-
     //
     private _callbackMap = new WeakMap<Function, {wrap: Function, option: any}>();
     private _eventMap = new WeakMap<object, Map<string, WeakMap<Function, {wrap: Function, option: any}>>>();
-    constructor(selector, index = 0, direction: "children" | "parent" = "children") {
+
+    //
+    constructor(selector: string | HTMLElement, index = 0, direction: "children" | "parent" = "children") {
         this.index     = index;
-        this.selector  = selector;
+        this.selector  = typeof selector == "string" ? selector : null;
         this.direction = direction;
+    }
+
+    get selectorElement(): HTMLElement | null {
+        return typeof this.selector == "string" ? null : this.selector;
     }
 
     _resolveSelectedElement(target: any): Element | null {
@@ -649,16 +653,11 @@ class UniversalElementHandler implements ProxyHandler<object> {
     //
     _addEventListener(target: any, name: any, $cb: (event: Event) => any, option?: any) {
         const selector = this._selector(target);
-        const cb = (ev: any): any => {
-            return $cb?.call?.(ev?.target ?? target, new Proxy(ev, new EventHandler(ev?.target ?? target, ev?.currentTarget ?? target, selector, name, $cb)));
-        }
+        const cb = (ev: any): any => { $cb?.call?.(ev?.target ?? target, new Proxy(ev, new EventHandler(ev?.target ?? target, ev?.currentTarget ?? target, typeof selector == "string" ? selector : "", name, $cb))); }
         this._callbackMap.set($cb, {wrap: cb, option: option});
 
         //
-        if (typeof selector != "string") {
-            selector?.addEventListener?.(name, cb, option);
-            return cb;
-        }
+        if (typeof selector != "string") { selector?.addEventListener?.(name, cb, option); return cb; }
 
         //
         const eventName = this._redirectToBubble(name);
@@ -728,12 +727,12 @@ class UniversalElementHandler implements ProxyHandler<object> {
         const eventName = this._redirectToBubble(name), eventMap = this._eventMap.get(parent);
         if (!eventMap) return; const cbMap = eventMap.get(eventName), entry = cbMap?.get?.(cb);
         parent?.removeEventListener?.(eventName, entry?.wrap ?? cb, option ?? entry?.option ?? {});
-        if (entry?.size != null && entry?.size == 0) eventMap?.delete?.(eventName);
+        if ((entry as any)?.size != null && (entry as any)?.size == 0) eventMap?.delete?.(eventName);
         if (eventMap?.size == 0) this._eventMap.delete(parent);
     }
 
     //
-    _selector(tg?: any) {
+    _selector(tg?: any): string | HTMLElement | null {
         if (typeof this.selector == "string" && typeof tg?.selector == "string") { return ((tg?.selector || "") + " " + this.selector)?.trim?.(); }
         return this.selector;
     }
@@ -765,6 +764,55 @@ class UniversalElementHandler implements ProxyHandler<object> {
                 return basis?.styleMap ?? basis?.attributeStyleMap;
             }
             return basis?.[name];
+        }
+
+        //
+        if (name == "querySelectorAll") {
+            return (selector?: string) => {
+                const prefix = this._selector(target);
+                // WHY: `undefined + " " + sel` becomes `"undefined .foo"` — only join real string parts.
+                const combined = [typeof prefix == "string" ? prefix : "", typeof selector == "string" ? selector : ""]
+                    .map((s) => s.trim())
+                    .filter(Boolean)
+                    .join(" ")
+                    .trim();
+                let list: any[] = observe([]);
+                if (typeof prefix == "string") {
+                    list = observe([...((target?.querySelectorAll?.(combined) ?? []))].map((node: any)=>node?.element ?? node));
+                } else {
+                    const sel = (typeof selector == "string" ? selector : "").trim();
+                    list = observe([...((prefix ?? target)?.querySelectorAll?.(sel) ?? [])].map((node: any)=>node?.element ?? node));
+                }
+
+                if (combined) {
+                    observeBySelector(target, combined, (mut, obs)=>{
+                        if (mut?.addedNodes?.length > 0 || mut?.removedNodes?.length > 0) {
+                            mut?.addedNodes?.forEach((node: any)=>{
+                                if ((node?.element ?? node) && !list?.includes?.(node?.element ?? node))
+                                    { list?.push?.(node?.element ?? node); }
+                            });
+                            mut?.removedNodes?.forEach((node: any)=>{
+                                const index = list?.findIndex?.(x => (x?.element ?? x) == (node?.element ?? node));
+                                if (index > -1) { list?.splice?.(index, 1); }
+                            });
+                        }
+                    });
+                }
+                // INVARIANT: callers expect a live NodeList-like array, not undefined.
+                return list;
+            }
+        }
+
+        //
+        if (name == "querySelector") {
+            return (selector?: string) => {
+                const prefix = this._selector(target);
+                if (typeof prefix == "string") {
+                    return Q(((prefix ?? "") + " " + (selector ?? ""))?.trim?.(), target, 0, this.direction == "children" ? "children" : "parent");
+                } else {
+                    return Q((selector ?? "")?.trim?.(), target, 0, this.direction == "children" ? "children" : "parent");
+                }
+            }
         }
 
         //

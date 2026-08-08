@@ -1,3 +1,9 @@
+/*
+ * Filename: Glit.ts
+ * FullPath: modules/projects/lur.e/src/lure/misc/Glit.ts
+ * Change date and time: 17.52.00_08.08.2026
+ * Reason for changes: unresolved query/query-shadow props must return null (not Q proxy) outside render.
+ */
 // @ts-ignore
 import { ref } from "@fest-lib/object";
 import { addRoot, isElement, loadAsAdopted, loadInlineStyle, setAttributesIfNull } from "@fest-lib/dom";
@@ -290,6 +296,9 @@ export function property(options: PropertyOptions = {}) {
 
                 if (inRender) return stored;
                 if (stored?.element instanceof HTMLElement) return stored?.element;
+                // WHY: Q() proxy is always truthy; unresolved query must be null so
+                // `titleHandler ?? shadow.querySelector(...)` and `instanceof HTMLElement` work.
+                if (source == "query" || source == "query-shadow") return null;
                 return ((typeof stored == "object" || typeof stored == "function") && (stored?.value != null || "value" in stored)) ? stored?.value : stored;
             },
             set(this: any, newValue: any) {
