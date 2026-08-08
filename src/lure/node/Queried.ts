@@ -429,7 +429,73 @@ class UniversalPseudoElementHandler implements ProxyHandler<object> {
 }
 
 //
-class UniversalElementHandler {
+export class EventHandler implements ProxyHandler<object> {
+    constructor(private readonly target: any, private readonly currentTarget: any, private readonly selector: string | HTMLElement, private readonly eventName: string, private readonly callback: (event: Event) => void) {
+    }
+
+    get(_target: object, name: PropertyKey, ctx: any): any {
+        if (name === "currentTarget" && typeof this.selector == "string") {
+            return MOCElement(this.target, this.selector);
+        }
+
+        if (name === "currentTarget" && typeof this.selector != "string") {
+            return this.currentTarget ?? this.selector;
+        }
+
+        return Reflect.get(this.target, name, ctx);
+    }
+
+    set(_target: object, name: PropertyKey, value: any): boolean {
+        return Reflect.set(this.target, name, value);
+    }
+
+    has(_target: object, name: PropertyKey): boolean {
+        return Reflect.has(this.target, name);
+    }
+
+    deleteProperty(_target: object, name: PropertyKey): boolean {
+        return Reflect.deleteProperty(this.target, name);
+    }
+
+    ownKeys(_target: object): (string | symbol)[] {
+        return Reflect.ownKeys(this.target);
+    }
+
+    defineProperty(_target: object, name: PropertyKey, desc: PropertyDescriptor): boolean {
+        return Reflect.defineProperty(this.target, name, desc);
+    }
+
+    apply(_target: object, thisArg: any, args: any[]): any {
+        return Reflect.apply(this.target, thisArg, args);
+    }
+
+    construct(_target: object, args: any[]): any {
+        return Reflect.construct(this.target, args);
+    }
+
+    getPrototypeOf(_target: object): any {
+        return Reflect.getPrototypeOf(this.target);
+    }
+
+    setPrototypeOf(_target: object, proto: any): boolean {
+        return Reflect.setPrototypeOf(this.target, proto);
+    }
+
+    isExtensible(_target: object): boolean {
+        return Reflect.isExtensible(this.target);
+    }
+
+    preventExtensions(_target: object): boolean {
+        return Reflect.preventExtensions(this.target);
+    }
+
+    getOwnPropertyDescriptor(_target: object, name: PropertyKey): PropertyDescriptor | undefined {
+        return Reflect.getOwnPropertyDescriptor(this.target, name);
+    }
+}
+
+//
+class UniversalElementHandler implements ProxyHandler<object> {
     direction: "children" | "parent" = "children";
     selector: string | HTMLElement;
     index: number = 0;
@@ -441,6 +507,7 @@ class UniversalElementHandler {
     // остальной код...
 
     //
+    private _callbackMap = new WeakMap<Function, {wrap: Function, option: any}>();
     private _eventMap = new WeakMap<object, Map<string, WeakMap<Function, {wrap: Function, option: any}>>>();
     constructor(selector, index = 0, direction: "children" | "parent" = "children") {
         this.index     = index;
@@ -565,8 +632,14 @@ class UniversalElementHandler {
     }
 
     //
-    _addEventListener(target: any, name: any, cb: any, option?: any) {
+    _addEventListener(target: any, name: any, $cb: (event: Event) => any, option?: any) {
         const selector = this._selector(target);
+        const cb = (ev: any): any => {
+            return $cb?.call?.(ev?.target ?? target, new Proxy(ev, new EventHandler(ev?.target ?? target, ev?.currentTarget ?? target, selector, name, $cb)));
+        }
+        this._callbackMap.set($cb, {wrap: cb, option: option});
+
+        //
         if (typeof selector != "string") {
             selector?.addEventListener?.(name, cb, option);
             return cb;
@@ -609,8 +682,8 @@ class UniversalElementHandler {
             }
 
             if (typeof sel == "string")
-                { if (containsOrSelf(rot, MOCElement(tg, sel, ev), ev)) { cb?.call?.(tg, ev); } } else
-                { if (containsOrSelf(rot, sel, ev) && containsOrSelf(sel, tg, ev)) { cb?.call?.(tg, ev); }
+                { if (containsOrSelf(rot, MOCElement(tg, sel, ev), ev)) { this._callbackMap.get($cb)?.wrap?.call?.(tg, ev); } } else
+                { if (containsOrSelf(rot, sel, ev) && containsOrSelf(sel, tg, ev)) { this._callbackMap.get($cb)?.wrap?.call?.(tg, ev); }
             }
         };
         parent?.addEventListener?.(eventName, wrap, option);
@@ -618,12 +691,17 @@ class UniversalElementHandler {
         // @ts-ignore
         const eventMap = this._eventMap.getOrInsert(parent, new Map())!;
         const cbMap = eventMap.getOrInsert(eventName, new WeakMap())!;
+        cbMap.set($cb, {wrap, option});
         cbMap.set(cb, {wrap, option});
         return wrap;
     }
 
     //
     _removeEventListener(target: any, name: any, cb: any, option?: any) {
+        cb = this._callbackMap.get(cb)?.wrap ?? cb;
+        option = this._callbackMap.get(cb)?.option ?? option;
+
+        //
         const selector = this._selector(target);
         if (typeof selector != "string") {
             selector?.removeEventListener?.(name, cb, option);
@@ -635,8 +713,8 @@ class UniversalElementHandler {
         const eventName = this._redirectToBubble(name), eventMap = this._eventMap.get(parent);
         if (!eventMap) return; const cbMap = eventMap.get(eventName), entry = cbMap?.get?.(cb);
         parent?.removeEventListener?.(eventName, entry?.wrap ?? cb, option ?? entry?.option ?? {});
-        cbMap?.delete?.(cb); if (cbMap?.size != null && cbMap?.size == 0) eventMap?.delete?.(eventName);
-        if (eventMap.size == 0) this._eventMap.delete(parent);
+        if (entry?.size != null && entry?.size == 0) eventMap?.delete?.(eventName);
+        if (eventMap?.size == 0) this._eventMap.delete(parent);
     }
 
     //
@@ -840,30 +918,19 @@ class UniversalElementHandler {
     }
 
     //
-    ownKeys(target: any) {
-        const array = this._getArray(target);
-        const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
-        const keys = new Set();
-        array.forEach((el, i) => keys.add(i.toString()));
-        Object.getOwnPropertyNames(array).forEach(k => keys.add(k));
-        if (selected) Object.getOwnPropertyNames(selected).forEach(k => keys.add(k));
+    ownKeys(_target: object): (string | symbol)[] {
+        const array = this._getArray(_target);
+        const selected = array.length > 0 ? array[this.index] : this._getSelected(_target);
+        const keys = new Set<string | symbol>();
+        array.forEach((el, i) => keys.add(i.toString() as string | symbol));
+        Object.getOwnPropertyNames(array).forEach(k => keys.add(k as string | symbol));
+        if (selected) Object.getOwnPropertyNames(selected).forEach(k => keys.add(k as string | symbol));
         return Array.from(keys);
     }
 
     //
-    defineProperty(target: any, name: any, desc: any) {
-        const array = this._getArray(target);
-        const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
-        if (selected) { Object.defineProperty(selected, name, desc); return true; }
-        return false;
-    }
-
-    //
-    apply(target: any, self: any, args: any) {
-        args[0] ||= this.selector;
-        const result = target?.apply?.(self, args);
-        this.selector = result || this.selector;
-        return new Proxy(target, this as ProxyHandler<any>);
+    defineProperty(_target: object, name: any, desc: any) {
+        return Reflect.defineProperty(_target, name, desc);
     }
 }
 
