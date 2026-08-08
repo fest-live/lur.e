@@ -6,7 +6,7 @@ import { elMap } from "./Binding";
 import { isValidObj, WRef } from "@fest-lib/core";
 // Keep this low-level ref module independent from the barrel export.
 import { operated } from "../../utils/math/Operations";
-import type { observeValid } from "../../../../../subsystem/fest/object/wrap/Utils";
+import type { observeValid } from "@fest-lib/object";
 
 //
 export const makeRef = <T = any>(host?: any, type?: any, link?: any, ...args): T extends object ? observeValid<T> | refType<T> : refType<T> => {

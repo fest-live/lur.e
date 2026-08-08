@@ -54,14 +54,27 @@ type BankEntry = [any, Unsub];
 type Bank = Record<string | symbol, BankEntry>;
 
 //
-export const elMap = new DoubleWeakMap();
-export const alives = new FinalizationRegistry((unsub: any) => unsub?.());
+const bankSymbol = Symbol.for("lur.e@bank");
+const bank = globalThis[bankSymbol] ??= new DoubleWeakMap();
+
+//
+const elMapSymbol = Symbol.for("lur.e@elMap");
+const elMap = globalThis[elMapSymbol] ??= new DoubleWeakMap();
+
+//
+export { bank, elMap };
+
+//
+const alivesSymbol = Symbol.for("lur.e@alives");
+const alives = globalThis[alivesSymbol] ??= new FinalizationRegistry((unsub: any) => unsub?.());
+export { alives };
 
 //
 export const $mapped = Symbol.for("@mapped");
 export const $virtual = Symbol.for("@virtual");
 export const $behavior = Symbol.for("@behavior");
 
+//
 const isLinkerLike = (value: any) => {
     return !!value && typeof value == "object" && "ref" in value && typeof value?.unbind == "function";
 }

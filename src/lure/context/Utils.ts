@@ -14,8 +14,17 @@ export const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
 export const isElementValue = (el: any, requestor?: any | null) => { return KIDNAP_WITHOUT_HANG(el, requestor) ?? (hasValue(el) && isElement(el?.value) ? el?.value : el); }
 
 //
-export const elMap = new WeakMap();
-export const tmMap = new WeakMap();
+const __nodeGuardSymbol = Symbol.for("lur.e@__nodeGuard");
+const __nodeGuard = globalThis[__nodeGuardSymbol] ??= new WeakSet<any>();
+export { __nodeGuard };
+
+//
+const elMapSymbol = Symbol.for("lur.e@elMap");
+export const elMap = globalThis[elMapSymbol] ??= new WeakMap<any, any>();
+
+//
+const tmMapSymbol = Symbol.for("lur.e@tmMap");
+export const tmMap = globalThis[tmMapSymbol] ??= new WeakMap<any, any>();
 
 //
 const getMapped = (obj: any)=>{
@@ -100,7 +109,6 @@ const isWeakCompatible = (el: any)=>{
 }
 
 //
-const __nodeGuard = new WeakSet<any>();
 const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
     if (el instanceof WeakRef || typeof (el as any)?.deref == "function") { el = el.deref(); }
     if (el instanceof Promise || typeof (el as any)?.then == "function") { return $makePromisePlaceholder(el, (nd)=>__getNode(nd, mapper, index, requestor)); };
