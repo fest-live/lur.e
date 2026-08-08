@@ -29,8 +29,8 @@ export const tmMap = globalThis[tmMapSymbol] ??= new WeakMap<any, any>();
 //
 const getMapped = (obj: any)=>{
     if (isPrimitive(obj)) return obj;
-    if (hasValue(obj) && isPrimitive(obj?.value)) return tmMap?.get(obj);
-    return elMap?.get?.(obj);
+    if (hasValue(obj) && isPrimitive(obj?.value) && obj != null) return tmMap?.get(obj);
+    return ((typeof obj == "object" || typeof obj == "function") && obj != null) ? elMap?.get?.(obj) : obj;
 }
 
 //
@@ -277,15 +277,17 @@ export const T = (ref) => {
     if (ref == null) return document.createComment(":NULL:");
 
     // @ts-ignore
-    return tmMap.getOrInsertComputed(ref, () => {
-        const element = document.createTextNode(((hasValue(ref) ? ref?.value : ref) ?? "")?.trim?.() ?? "");
-        //affected([ref, "value"], (val) => (element.textContent = (val?.innerText ?? val?.textContent ?? val ?? "")?.trim?.() ?? ""));
-        affected([ref, "value"], (val) => {
-            const untrimmed = "" + (val?.innerText ?? val?.textContent ?? val?.value ?? val ?? "");
-            (element.textContent = untrimmed?.trim?.() ?? "");
+    if (isWeakCompatible(ref)) {
+        return tmMap.getOrInsertComputed(ref, () => {
+            const element = document.createTextNode(((hasValue(ref) ? ref?.value : ref) ?? "")?.trim?.() ?? "");
+            //affected([ref, "value"], (val) => (element.textContent = (val?.innerText ?? val?.textContent ?? val ?? "")?.trim?.() ?? ""));
+            affected([ref, "value"], (val) => {
+                const untrimmed = "" + (val?.innerText ?? val?.textContent ?? val?.value ?? val ?? "");
+                (element.textContent = untrimmed?.trim?.() ?? "");
+            });
+            return element;
         });
-        return element;
-    });
+    }
 }
 
 //
