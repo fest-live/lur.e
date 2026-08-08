@@ -9,8 +9,11 @@ pnpm-debug.log*
 lerna-debug.log*
 
 node_modules
-dist
+#dist
 dist-ssr
+#dist/*
+#dist/
+#dist
 *.local
 
 # Editor directories and files
@@ -23,9 +26,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-dist/*
-dist/
-dist
+
 
 # ── Compiled TS artifacts in source trees (must never be committed) ──────────
 src/**/*.js
