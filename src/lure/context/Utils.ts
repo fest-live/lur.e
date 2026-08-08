@@ -34,7 +34,11 @@ const getMapped = (obj: any)=>{
 }
 
 //
-const $promiseResolvedMap = new WeakMap();
+const $promiseResolvedMapSymbol = Symbol.for("lur.e@$promiseResolvedMap");
+globalThis[$promiseResolvedMapSymbol] ??= new WeakMap();
+export const $promiseResolvedMap = globalThis[$promiseResolvedMapSymbol];
+
+//
 const $makePromisePlaceholder = (promised, getNodeCb)=>{
     if ($promiseResolvedMap?.has?.(promised)) {
         return $promiseResolvedMap?.get?.(promised);
@@ -118,7 +122,7 @@ const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?:
             return $getLeaf(obj instanceof WeakRef ? obj?.deref?.() : obj, requestor);
         };
         const $node = $getBase(el, mapper, index, requestor);
-        if (!mapper && $node != null && $node != el && isWeakCompatible(el) && !isElement(el)) { elMap.set(el, $node); };
+        if (!mapper && $node != null && $node != el && isWeakCompatible(el) && !isElement(el) && el != null) { elMap.set(el, $node); };
         return $getLeaf($node, requestor);
     }
     return $getNode(el, mapper, index, requestor);

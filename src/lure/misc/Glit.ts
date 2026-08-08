@@ -17,10 +17,23 @@ import H from "./Syntax";
 
 
 //
-const styleCache = new Map();
-const styleElementCache = new WeakMap();
-const propStore = new WeakMap<object, Map<string, any>>();
-const CSM = new WeakMap<WeakKey | HTMLElement, any>();
+const styleCacheSymbol = Symbol.for("lur.e@styleCache");
+globalThis[styleCacheSymbol] ??= new Map();
+export const styleCache = globalThis[styleCacheSymbol];
+
+const styleElementCacheSymbol = Symbol.for("lur.e@styleElementCache");
+globalThis[styleElementCacheSymbol] ??= new WeakMap();
+export const styleElementCache = globalThis[styleElementCacheSymbol];
+
+const propStoreSymbol = Symbol.for("lur.e@propStore");
+globalThis[propStoreSymbol] ??= new WeakMap<object, Map<string, any>>();
+export const propStore = globalThis[propStoreSymbol];
+
+const CSM_symbol = Symbol.for("lur.e@CSM");
+globalThis[CSM_symbol] ??= new WeakMap<WeakKey | HTMLElement, any>();
+export const CSM = globalThis[CSM_symbol];
+
+
 
 const camelToKebab = (str: string) => str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 const kebabToCamel = (str: string) => str.replace(/-([a-z])/g, (_, char) => char.toUpperCase());

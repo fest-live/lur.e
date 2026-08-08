@@ -1,12 +1,12 @@
 (function() {
-	var ee = Object.defineProperty, Me = (e, t, n) => () => {
+	var ee = Object.defineProperty, De = (e, t, n) => () => {
 		if (n) throw n[0];
 		try {
 			return e && (t = e(e = 0)), t;
 		} catch (s) {
 			throw n = [s], s;
 		}
-	}, De = (e, t) => {
+	}, Ne = (e, t) => {
 		let n = {};
 		for (var s in e) ee(n, s, {
 			get: e[s],
@@ -17,7 +17,7 @@
 	let h = (function(e) {
 		return e.GET = "get", e.SET = "set", e.CALL = "call", e.APPLY = "apply", e.CONSTRUCT = "construct", e.DELETE = "delete", e.DELETE_PROPERTY = "deleteProperty", e.HAS = "has", e.OWN_KEYS = "ownKeys", e.GET_OWN_PROPERTY_DESCRIPTOR = "getOwnPropertyDescriptor", e.GET_PROPERTY_DESCRIPTOR = "getPropertyDescriptor", e.GET_PROTOTYPE_OF = "getPrototypeOf", e.SET_PROTOTYPE_OF = "setPrototypeOf", e.IS_EXTENSIBLE = "isExtensible", e.PREVENT_EXTENSIONS = "preventExtensions", e.TRANSFER = "transfer", e.IMPORT = "import", e.DISPOSE = "dispose", e;
 	})({});
-	const Ne = {
+	const Le = {
 		ws: "websocket",
 		socket: "websocket",
 		socketio: "socket-io",
@@ -27,22 +27,25 @@
 		"service-worker-host": "service-worker",
 		"ring-buffer": "atomics"
 	};
-	function Le(e) {
-		const t = String(e ?? "").trim().toLowerCase();
-		return t ? Ne[t] ?? t : "internal";
-	}
 	function Be(e) {
-		return typeof e == "string" ? Le(e) : typeof Worker < "u" && e instanceof Worker ? "worker" : typeof SharedWorker < "u" && e instanceof SharedWorker ? "shared-worker" : typeof MessagePort < "u" && e instanceof MessagePort ? "message-port" : typeof BroadcastChannel < "u" && e instanceof BroadcastChannel ? "broadcast" : typeof WebSocket < "u" && e instanceof WebSocket ? "websocket" : typeof RTCDataChannel < "u" && e instanceof RTCDataChannel ? "rtc-data" : typeof chrome < "u" && e && typeof e == "object" && typeof e.postMessage == "function" && e.onMessage?.addListener ? "chrome-port" : "internal";
+		const t = String(e ?? "").trim().toLowerCase();
+		return t ? Le[t] ?? t : "internal";
 	}
-	const te = Symbol.for("@fix"), C = (e) => typeof e == "string" || typeof e == "number" || typeof e == "boolean" || typeof e == "bigint" || typeof e > "u" || e == null, qe = (e, t) => C(e) ? t == "number" ? Number(e) || 0 : t == "string" ? String(e) || "" : t == "boolean" ? !!e : e : null, p = (e, t) => e?.[te] ?? e ?? t ?? t, Fe = (e) => {
+	function qe(e) {
+		return typeof e == "string" ? Be(e) : typeof Worker < "u" && e instanceof Worker ? "worker" : typeof SharedWorker < "u" && e instanceof SharedWorker ? "shared-worker" : typeof MessagePort < "u" && e instanceof MessagePort ? "message-port" : typeof BroadcastChannel < "u" && e instanceof BroadcastChannel ? "broadcast" : typeof WebSocket < "u" && e instanceof WebSocket ? "websocket" : typeof RTCDataChannel < "u" && e instanceof RTCDataChannel ? "rtc-data" : typeof chrome < "u" && e && typeof e == "object" && typeof e.postMessage == "function" && e.onMessage?.addListener ? "chrome-port" : "internal";
+	}
+	const te = Symbol.for("@fix"), C = (e) => typeof e == "string" || typeof e == "number" || typeof e == "boolean" || typeof e == "bigint" || typeof e > "u" || e == null, Fe = (e, t) => C(e) ? t == "number" ? Number(e) || 0 : t == "string" ? String(e) || "" : t == "boolean" ? !!e : e : null, p = (e, t) => e?.[te] ?? e ?? t ?? t, He = (e) => {
 		if (typeof e == "function" || e == null) return e;
 		const t = function() {};
 		return t[te] = e, t;
-	}, He = (e) => crypto?.getRandomValues ? crypto?.getRandomValues?.(e) : (() => {
+	}, Ge = (e) => crypto?.getRandomValues ? crypto?.getRandomValues?.(e) : (() => {
 		const t = new Uint8Array(e.length);
 		for (let n = 0; n < e.length; n++) t[n] = Math.floor(Math.random() * 256);
 		return t;
-	})(), d = () => crypto?.randomUUID ? crypto?.randomUUID?.() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (e) => (+e ^ He?.(/* @__PURE__ */ new Uint8Array(1))?.[0] & 15 >> +e / 4).toString(16)), ne = (e) => Array.isArray(e) ? e?.flatMap?.((t) => Array.isArray(t) ? ne(t) : t) : e, $ = (e) => ne(e)?.every?.(x), x = (e) => C(e) || typeof SharedArrayBuffer == "function" && e instanceof SharedArrayBuffer || Ge(e) || Array.isArray(e) && $(e), Ge = (e) => ArrayBuffer.isView(e) && !(e instanceof DataView), z = (e) => C(e) || typeof ArrayBuffer == "function" && e instanceof ArrayBuffer || typeof MessagePort == "function" && e instanceof MessagePort || typeof ReadableStream == "function" && e instanceof ReadableStream || typeof WritableStream == "function" && e instanceof WritableStream || typeof TransformStream == "function" && e instanceof TransformStream || typeof ImageBitmap == "function" && e instanceof ImageBitmap || typeof VideoFrame == "function" && e instanceof VideoFrame || typeof OffscreenCanvas == "function" && e instanceof OffscreenCanvas || typeof RTCDataChannel == "function" && e instanceof RTCDataChannel || typeof AudioData == "function" && e instanceof AudioData || typeof WebTransportReceiveStream == "function" && e instanceof WebTransportReceiveStream || typeof WebTransportSendStream == "function" && e instanceof WebTransportSendStream || typeof WebTransportReceiveStream == "function" && e instanceof WebTransportReceiveStream, k = (e, t, n) => {
+	})(), d = () => crypto?.randomUUID ? crypto?.randomUUID?.() : "10000000-1000-4000-8000-100000000000".replace(/[018]/g, (e) => (+e ^ Ge?.(/* @__PURE__ */ new Uint8Array(1))?.[0] & 15 >> +e / 4).toString(16)), ne = (e) => Array.isArray(e) ? e?.flatMap?.((t) => Array.isArray(t) ? ne(t) : t) : e, $ = (e) => ne(e)?.every?.(x), x = (e) => C(e) || typeof SharedArrayBuffer == "function" && e instanceof SharedArrayBuffer || Ue(e) || Array.isArray(e) && $(e), Ue = (e) => ArrayBuffer.isView(e) && !(e instanceof DataView), z = (e) => C(e) || typeof ArrayBuffer == "function" && e instanceof ArrayBuffer || typeof MessagePort == "function" && e instanceof MessagePort || typeof ReadableStream == "function" && e instanceof ReadableStream || typeof WritableStream == "function" && e instanceof WritableStream || typeof TransformStream == "function" && e instanceof TransformStream || typeof ImageBitmap == "function" && e instanceof ImageBitmap || typeof VideoFrame == "function" && e instanceof VideoFrame || typeof OffscreenCanvas == "function" && e instanceof OffscreenCanvas || typeof RTCDataChannel == "function" && e instanceof RTCDataChannel || typeof AudioData == "function" && e instanceof AudioData || typeof WebTransportReceiveStream == "function" && e instanceof WebTransportReceiveStream || typeof WebTransportSendStream == "function" && e instanceof WebTransportSendStream || typeof WebTransportReceiveStream == "function" && e instanceof WebTransportReceiveStream, se = Symbol.for("object.boundCtx");
+	globalThis[se] ??= /* @__PURE__ */ new WeakMap();
+	globalThis[se];
+	const k = (e, t, n) => {
 		if (Array.isArray(e)) return e.every(x) ? e.map(t) : e.map((s, r) => k(s, t, [e, r]));
 		if (e instanceof Map) {
 			const s = Array.from(e.entries());
@@ -57,11 +60,11 @@
 			return s.map(([r, i]) => i).every(x) ? Object.fromEntries(s.map(([r, i]) => [r, t(i, r, e)])) : Object.fromEntries(s.map(([r, i]) => [r, k(i, t, [e, r])]));
 		}
 		return t(e, n?.[1] ?? "", n?.[0] ?? null);
-	}, S = /* @__PURE__ */ new WeakMap(), se = /* @__PURE__ */ new WeakMap(), g = (e, t) => e instanceof Promise || typeof e?.then == "function" ? S?.has?.(e) ? t(S?.get?.(e)) : Promise.try?.(async () => {
+	}, S = /* @__PURE__ */ new WeakMap(), re = /* @__PURE__ */ new WeakMap(), g = (e, t) => e instanceof Promise || typeof e?.then == "function" ? S?.has?.(e) ? t(S?.get?.(e)) : Promise.try?.(async () => {
 		const n = await e;
 		return S?.set?.(e, n), n;
 	})?.then?.(t) : t(e);
-	var Ue = class {
+	var We = class {
 		#e;
 		#t;
 		constructor(e, t) {
@@ -116,7 +119,7 @@
 				}
 			}
 			let s;
-			return S?.has?.(e) && (s = S?.get?.(e))?.[t] != null ? s = S?.get?.(e)?.[t] : s = re(g(e, async (r) => {
+			return S?.has?.(e) && (s = S?.get?.(e))?.[t] != null ? s = S?.get?.(e)?.[t] : s = oe(g(e, async (r) => {
 				if (p(r) instanceof Promise) return Reflect.get(r, t, n);
 				if (C(r)) return t == Symbol.toPrimitive || t == Symbol.toStringTag ? r : void 0;
 				let i;
@@ -127,7 +130,7 @@
 				}
 				return typeof i == "function" ? i?.bind?.(r) : i;
 			})), t == Symbol.toStringTag ? C(s) ? String(s ?? "") || "" : s?.[Symbol.toStringTag]?.() || String(s ?? "") || "" : t == Symbol.toPrimitive ? (r) => {
-				if (C(s)) return qe(s, r);
+				if (C(s)) return Fe(s, r);
 			} : s;
 		}
 		set(e, t, n) {
@@ -143,10 +146,10 @@
 			});
 		}
 	};
-	function re(e, t, n) {
-		return e instanceof Promise || typeof e?.then == "function" ? S?.has?.(e) ? S?.get?.(e) : (se?.has?.(e) || e?.then?.((s) => S?.set?.(e, s)), se?.getOrInsertComputed?.(e, () => new Proxy(Fe(e), new Ue(t, n)))) : e;
+	function oe(e, t, n) {
+		return e instanceof Promise || typeof e?.then == "function" ? S?.has?.(e) ? S?.get?.(e) : (re?.has?.(e) || e?.then?.((s) => S?.set?.(e, s)), re?.getOrInsertComputed?.(e, () => new Proxy(He(e), new We(t, n)))) : e;
 	}
-	var oe = class {
+	var ie = class {
 		_unsubscribe;
 		_closed = !1;
 		constructor(e) {
@@ -158,7 +161,7 @@
 		unsubscribe() {
 			this._closed || (this._closed = !0, this._unsubscribe());
 		}
-	}, We = class {
+	}, $e = class {
 		_producer;
 		constructor(e) {
 			this._producer = e;
@@ -187,7 +190,7 @@
 			} catch (c) {
 				a.error(c);
 			}
-			return new oe(o);
+			return new ie(o);
 		}
 		pipe(...e) {
 			return e.reduce((t, n) => n(t), this);
@@ -222,7 +225,7 @@
 			} catch (s) {
 				t.error?.(s);
 			}
-			return new oe(() => {
+			return new ie(() => {
 				this._subs.delete(t);
 			});
 		}
@@ -236,7 +239,7 @@
 			return this._subs.size;
 		}
 	};
-	const $e = (e) => (t) => new We((n) => {
+	const ze = (e) => (t) => new $e((n) => {
 		const s = t.subscribe({
 			next: (r) => e(r) && n.next(r),
 			error: (r) => n.error(r),
@@ -244,7 +247,7 @@
 		});
 		return () => s.unsubscribe();
 	});
-	function ie() {
+	function ae() {
 		if (typeof globalThis.Deno < "u") return "deno";
 		if (typeof globalThis.process < "u" && globalThis.process?.versions?.node) return "node";
 		const e = globalThis.ServiceWorkerGlobalScope, t = globalThis.SharedWorkerGlobalScope, n = globalThis.DedicatedWorkerGlobalScope;
@@ -259,18 +262,18 @@
 		}
 		return typeof globalThis < "u" && typeof document < "u" ? "window" : "unknown";
 	}
-	function ae(e) {
+	function ce(e) {
 		if (typeof RTCDataChannel < "u" && e instanceof RTCDataChannel) return "rtc-data";
-		const t = Be(e);
+		const t = qe(e);
 		return t && t !== "internal" ? t : e === self || e === globalThis || e === "self" ? "self" : "internal";
 	}
-	function ze(e) {
+	function Ye(e) {
 		if (!e) return "unknown";
 		if (e.contextType) return e.contextType;
 		const t = e.sender ?? "";
 		return t.includes("worker") ? "worker" : t.includes("sw") || t.includes("service") ? "service-worker" : t.includes("chrome") || t.includes("crx") ? "chrome-content" : t.includes("background") ? "chrome-background" : "unknown";
 	}
-	const Ye = {
+	const Ke = {
 		get: (e, t) => Reflect.get(e, t),
 		set: (e, t, n) => Reflect.set(e, t, n),
 		has: (e, t) => Reflect.has(e, t),
@@ -283,8 +286,8 @@
 		setPrototypeOf: (e, t) => Reflect.setPrototypeOf(e, t),
 		isExtensible: (e) => Reflect.isExtensible(e),
 		preventExtensions: (e) => Reflect.preventExtensions(e)
-	}, Ke = Symbol.for("uniform.proxy"), Ve = Symbol.for("uniform.proxy.internals");
-	var Xe = class {
+	}, Ve = Symbol.for("uniform.proxy"), Xe = Symbol.for("uniform.proxy.internals");
+	var je = class {
 		_invoker;
 		_config;
 		_childCache = /* @__PURE__ */ new Map();
@@ -299,9 +302,9 @@
 		}
 		get(e, t, n) {
 			const s = String(t);
-			if (t === Ke) return !0;
-			if (t === Ve) return this._config;
-			if (t === it) return !0;
+			if (t === Ve) return !0;
+			if (t === Xe) return this._config;
+			if (t === at) return !0;
 			if (t === D) return this._getDescriptor();
 			if (t === "then" || t === "catch" || t === "finally" || typeof t == "symbol") return;
 			if (t === "$path") return this._config.basePath;
@@ -362,21 +365,21 @@
 		}
 	};
 	function H(e, t) {
-		const n = function() {}, s = new Xe(e, t);
+		const n = function() {}, s = new je(e, t);
 		return new Proxy(n, s);
 	}
-	function ce(e, t, n) {
+	function le(e, t, n) {
 		if (!e || typeof e != "object" || e.primitive) return e;
-		const s = _e.get(e);
+		const s = ye.get(e);
 		if (s) return s;
 		const r = H(t, {
 			channel: n ?? e.channel ?? "unknown",
 			basePath: e.path ?? []
 		});
-		return _e.set(e, r), V.set(r, e), r;
+		return ye.set(e, r), V.set(r, e), r;
 	}
-	const Qe = ce;
-	function Ze(e) {
+	const Ze = le;
+	function et(e) {
 		return [
 			e.localChannel,
 			e.remoteChannel,
@@ -385,11 +388,11 @@
 			e.direction
 		].join("::");
 	}
-	function et(e, t = {}) {
+	function tt(e, t = {}) {
 		const n = t.includeClosed ?? !1, s = t.status ?? (n ? void 0 : "active");
 		return [...e].filter((r) => !(s && r.status !== s || t.channel && r.localChannel !== t.channel && r.remoteChannel !== t.channel || t.localChannel && r.localChannel !== t.localChannel || t.remoteChannel && r.remoteChannel !== t.remoteChannel || t.sender && r.sender !== t.sender || t.transportType && r.transportType !== t.transportType || t.direction && r.direction !== t.direction)).sort((r, i) => i.updatedAt - r.updatedAt);
 	}
-	var le = class {
+	var ue = class {
 		_createId;
 		_emitEvent;
 		_connections = /* @__PURE__ */ new Map();
@@ -397,7 +400,7 @@
 			this._createId = e, this._emitEvent = t;
 		}
 		register(e) {
-			const t = Ze(e), n = Date.now(), s = this._connections.get(t);
+			const t = et(e), n = Date.now(), s = this._connections.get(t);
 			if (s) return s.updatedAt = n, s.status = "active", s.metadata = {
 				...s.metadata,
 				...e.metadata
@@ -446,7 +449,7 @@
 			}));
 		}
 		query(e = {}) {
-			return et(this._connections.values(), e);
+			return tt(this._connections.values(), e);
 		}
 		values() {
 			return [...this._connections.values()];
@@ -454,14 +457,14 @@
 		clear() {
 			this._connections.clear();
 		}
-	}, ue = class {
+	}, he = class {
 		_name;
 		_contextType;
 		_config;
 		_transports = /* @__PURE__ */ new Map();
 		_defaultTransport = null;
 		_connectionEvents = new y({ bufferSize: 200 });
-		_connectionRegistry = new le(() => d(), (e) => this._connectionEvents.next(e));
+		_connectionRegistry = new ue(() => d(), (e) => this._connectionEvents.next(e));
 		_pending = /* @__PURE__ */ new Map();
 		_subscriptions = [];
 		_inbound = new y({ bufferSize: 100 });
@@ -478,17 +481,17 @@
 		}
 		constructor(e) {
 			const t = typeof e == "string" ? { name: e } : e;
-			this._name = t.name, this._contextType = t.autoDetect !== !1 ? ie() : "unknown", this._config = {
+			this._name = t.name, this._contextType = t.autoDetect !== !1 ? ae() : "unknown", this._config = {
 				name: t.name,
 				autoDetect: t.autoDetect ?? !0,
 				timeout: t.timeout ?? 3e4,
-				reflect: t.reflect ?? Ye,
+				reflect: t.reflect ?? Ke,
 				bufferSize: t.bufferSize ?? 100,
 				autoListen: t.autoListen ?? !0
 			}, this._config.autoListen && this._isWorkerContext() && this.listen(self);
 		}
 		connect(e, t = {}) {
-			const n = ae(e), s = t.targetChannel ?? this._inferTargetChannel(e, n), r = this._createTransportBinding(e, n, s, t);
+			const n = ce(e), s = t.targetChannel ?? this._inferTargetChannel(e, n), r = this._createTransportBinding(e, n, s, t);
 			this._transports.set(s, r), this._defaultTransport || (this._defaultTransport = r);
 			const i = this._registerConnection({
 				localChannel: this._name,
@@ -505,7 +508,7 @@
 			}), this;
 		}
 		listen(e, t = {}) {
-			const n = ae(e), s = t.targetChannel ?? this._inferTargetChannel(e, n), r = (o) => this._handleIncoming(o), i = this._registerConnection({
+			const n = ce(e), s = t.targetChannel ?? this._inferTargetChannel(e, n), r = (o) => this._handleIncoming(o), i = this._registerConnection({
 				localChannel: this._name,
 				remoteChannel: s,
 				sender: s,
@@ -612,7 +615,7 @@
 			return this.proxy(t, [e]);
 		}
 		wrapDescriptor(e, t) {
-			return ce(e, (s, r, i) => {
+			return le(e, (s, r, i) => {
 				const o = t ?? e?.channel ?? this._getDefaultTarget();
 				return this.invoke(o, s, r, i);
 			}, t ?? e?.channel ?? this._getDefaultTarget());
@@ -755,13 +758,13 @@
 				path: s,
 				args: r ?? [],
 				timestamp: Date.now(),
-				contextType: ze(e)
+				contextType: Ye(e)
 			});
 			const { result: a, toTransfer: c, newPath: l } = await this._executeAction(n, s, r ?? [], i);
 			await this._sendResponse(o, n, i, l, a, c);
 		}
 		async _executeAction(e, t, n, s) {
-			const { result: r, toTransfer: i, path: o } = me(e, t, n, {
+			const { result: r, toTransfer: i, path: o } = we(e, t, n, {
 				channel: this._name,
 				sender: s,
 				reflect: this._config.reflect
@@ -773,7 +776,7 @@
 			};
 		}
 		async _sendResponse(e, t, n, s, r, i) {
-			const { response: o, transfer: a } = await we(e, t, this._name, n, s, r, i), c = {
+			const { response: o, transfer: a } = await be(e, t, this._name, n, s, r, i), c = {
 				id: e,
 				...o,
 				timestamp: Date.now(),
@@ -984,12 +987,12 @@
 		}
 	};
 	function Y(e) {
-		return new ue(e);
+		return new he(e);
 	}
 	let G = null;
-	function tt() {
+	function nt() {
 		if (!G) {
-			const e = ie();
+			const e = ae();
 			[
 				"worker",
 				"shared-worker",
@@ -1029,7 +1032,7 @@
 		typeof OffscreenCanvas != m.udf ? OffscreenCanvas : null,
 		typeof RTCDataChannel != m.udf ? RTCDataChannel : null
 	].filter((e) => e != null);
-	function he() {
+	function de() {
 		try {
 			const e = globalThis.location?.href;
 			if (typeof e == "string" && e.length > 0) return e;
@@ -1039,8 +1042,8 @@
 		} catch {}
 		return "";
 	}
-	function de(e) {
-		const t = he();
+	function fe(e) {
+		const t = de();
 		if (!t.length) throw new TypeError("[uniform] No base URL for worker resolution (missing location / document.baseURI)");
 		const n = e.startsWith("/") ? e.replace(/^\//, "./") : e;
 		return new URL(n, t).href;
@@ -1048,21 +1051,21 @@
 	const w = {
 		name: "unknown",
 		instance: null
-	}, K = /* @__PURE__ */ new Map(), fe = (e) => [...Object.values(h)].includes(e);
-	var nt = class {
+	}, K = /* @__PURE__ */ new Map(), pe = (e) => [...Object.values(h)].includes(e);
+	var st = class {
 		channelName;
 		options;
 		_channel;
 		constructor(e, t = {}) {
-			this.channelName = e, this.options = t, this._channel = tt();
+			this.channelName = e, this.options = t, this._channel = nt();
 		}
 		request(e, t, n, s = {}) {
-			return typeof e == "string" && (e = [e]), Array.isArray(t) && fe(e) && (s = n, n = t, t = e, e = []), this._channel.invoke(this.channelName, t, e, n);
+			return typeof e == "string" && (e = [e]), Array.isArray(t) && pe(e) && (s = n, n = t, t = e, e = []), this._channel.invoke(this.channelName, t, e, n);
 		}
 		doImportModule(e, t) {
 			return this._channel.import(e, this.channelName);
 		}
-	}, st = class {
+	}, rt = class {
 		channel;
 		options;
 		_unified;
@@ -1074,31 +1077,31 @@
 			}), w.name = e, w.instance = this;
 		}
 		createRemoteChannel(e, t = {}, n) {
-			return n && (this._unified.attach(n, { targetChannel: e }), this.broadcasts[e] = n), Promise.resolve(new nt(e, t));
+			return n && (this._unified.attach(n, { targetChannel: e }), this.broadcasts[e] = n), Promise.resolve(new st(e, t));
 		}
 		getChannel() {
 			return this.channel;
 		}
 		request(e, t, n, s = {}, r = "worker") {
-			return typeof e == "string" && (e = [e]), Array.isArray(t) && fe(e) && (r = s, s = n, n = t, t = e, e = []), this._unified.invoke(r, t, e, n);
+			return typeof e == "string" && (e = [e]), Array.isArray(t) && pe(e) && (r = s, s = n, n = t, t = e, e = []), this._unified.invoke(r, t, e, n);
 		}
 		resolveResponse(e, t) {
 			return Promise.resolve(t);
 		}
 		async handleAndResponse(e, t, n) {
-			const s = await lt(e, t, this.channel);
+			const s = await ut(e, t, this.channel);
 			s && n?.(s.response, s.transfer);
 		}
 		close() {
 			this._unified.close();
 		}
 	};
-	const rt = (e = "$host$") => {
+	const ot = (e = "$host$") => {
 		if (w?.instance && e === "$host$") return w.instance;
 		if (K.has(e)) return K.get(e) ?? null;
-		const t = new st(e);
+		const t = new rt(e);
 		return e === "$host$" && (w.name = e, w.instance = t), K.set(e, t), t;
-	}, pe = /* @__PURE__ */ new WeakMap(), V = /* @__PURE__ */ new WeakMap(), _e = /* @__PURE__ */ new WeakMap(), ot = (e, t = w?.name, n) => typeof e == "object" && e != null || typeof e == "function" && e != null ? V.has(e) ? V.get(e) : pe.has(e) ? pe.get(e) : $(e) || n?.includes?.(e) || t == w?.name ? e : {
+	}, _e = /* @__PURE__ */ new WeakMap(), V = /* @__PURE__ */ new WeakMap(), ye = /* @__PURE__ */ new WeakMap(), it = (e, t = w?.name, n) => typeof e == "object" && e != null || typeof e == "function" && e != null ? V.has(e) ? V.get(e) : _e.has(e) ? _e.get(e) : $(e) || n?.includes?.(e) || t == w?.name ? e : {
 		$isDescriptor: !0,
 		path: E.get(e) ?? (() => {
 			const s = [d()];
@@ -1111,7 +1114,7 @@
 		enumerable: !0,
 		configurable: !0,
 		argumentCount: e instanceof Function ? e.length : -1
-	} : x(e) ? e : null, it = Symbol.for("@requestHandler"), D = Symbol.for("@descriptor"), X = (e) => x(e) || e?.[D] ? e : e?.$isDescriptor ? Qe(e, async () => {}) : $(e) ? e : null, L = /* @__PURE__ */ new Map(), E = /* @__PURE__ */ new WeakMap(), j = (e, t) => {
+	} : x(e) ? e : null, at = Symbol.for("@requestHandler"), D = Symbol.for("@descriptor"), X = (e) => x(e) || e?.[D] ? e : e?.$isDescriptor ? Ze(e, async () => {}) : $(e) ? e : null, L = /* @__PURE__ */ new Map(), E = /* @__PURE__ */ new WeakMap(), j = (e, t) => {
 		if (t != null && !Array.isArray(t) && (t = [t]), t == null || t?.length < 1) return e;
 		const n = e?.[D] ?? (e?.$isDescriptor ? e : null);
 		if (n && n?.owner == w?.name && (e = R(n?.path) ?? e), C(e)) return e;
@@ -1126,18 +1129,18 @@
 		if (n && n?.owner == w?.name && (t = R(n?.path) ?? t), e != null && !Array.isArray(e) && (e = [e]), e == null || e?.length < 1) return null;
 		const s = L?.get?.(e?.[0]) ?? null;
 		return e?.length > 1 ? j(s, e?.slice?.(1, -1))[e?.[e?.length - 1]] = t : L?.set?.(e?.[0], t), (typeof t == "object" || typeof t == "function") && E?.set?.(t, e), t;
-	}, ye = (e) => {
+	}, ge = (e) => {
 		if (e != null && !Array.isArray(e) && (e = [e]), e == null || e?.length < 1) return !1;
 		return !(L?.get?.(e?.[0]) ?? null) && e?.length <= 1 ? (L?.delete?.(e?.[0]), !0) : !1;
-	}, at = (e) => {
+	}, ct = (e) => {
 		const t = e?.[D] ?? (e?.$isDescriptor ? e : null);
 		t && t?.owner == w?.name && (e = R(t?.path) ?? e);
 		const n = E?.get?.(e) ?? t?.path;
-		return n == null || n?.length < 1 ? !1 : (ye(n), (typeof e == "object" || typeof e == "function") && E?.delete?.(e), !0);
-	}, ct = (e) => {
+		return n == null || n?.length < 1 ? !1 : (ge(n), (typeof e == "object" || typeof e == "function") && E?.delete?.(e), !0);
+	}, lt = (e) => {
 		const t = e?.[D] ?? (e?.$isDescriptor ? e : null);
 		return (E?.get?.(e) ?? t?.path) == null;
-	}, P = (e) => (typeof e == "object" || typeof e == "function") && e != null, ge = {
+	}, P = (e) => (typeof e == "object" || typeof e == "function") && e != null, me = {
 		get: (e, t) => e?.[t],
 		set: (e, t, n) => (e[t] = n, !0),
 		has: (e, t) => t in e,
@@ -1151,8 +1154,8 @@
 		isExtensible: (e) => Object.isExtensible(e),
 		preventExtensions: (e) => Object.preventExtensions(e)
 	};
-	function me(e, t, n, s = {}) {
-		const { channel: r = "", sender: i = "", reflect: o = ge } = s, a = s.target ?? R(t), c = [];
+	function we(e, t, n, s = {}) {
+		const { channel: r = "", sender: i = "", reflect: o = me } = s, a = s.target ?? R(t), c = [];
 		let l = null, _ = t;
 		switch (String(e).toLowerCase()) {
 			case "import":
@@ -1200,7 +1203,7 @@
 				if (s.target) {
 					const f = t[t.length - 1];
 					l = o.deleteProperty?.(a, f) ?? delete a[f];
-				} else l = t?.length > 0 ? ye(t) : at(a), l && (_ = E.get(a) ?? []);
+				} else l = t?.length > 0 ? ge(t) : ct(a), l && (_ = E.get(a) ?? []);
 				break;
 			case "has":
 			case h.HAS:
@@ -1239,11 +1242,11 @@
 			path: _
 		};
 	}
-	async function we(e, t, n, s, r, i, o) {
+	async function be(e, t, n, s, r, i, o) {
 		const a = await i, c = z(a) && o.includes(a) || x(a);
 		let l = r;
-		!c && t !== "get" && t !== h.GET && (typeof a == "object" || typeof a == "function") && (ct(a) ? (l = [d()], U(l, a)) : l = E.get(a) ?? []);
-		const _ = R(l), f = t === "get" || t === h.GET ? l?.at(-1) : void 0, b = R(r), N = k(a, (It) => ot(It, n, o)) ?? a;
+		!c && t !== "get" && t !== h.GET && (typeof a == "object" || typeof a == "function") && (lt(a) ? (l = [d()], U(l, a)) : l = E.get(a) ?? []);
+		const _ = R(l), f = t === "get" || t === h.GET ? l?.at(-1) : void 0, b = R(r), N = k(a, (Ot) => it(Ot, n, o)) ?? a;
 		return {
 			response: {
 				channel: s,
@@ -1273,17 +1276,17 @@
 			transfer: o
 		};
 	}
-	async function lt(e, t, n, s) {
+	async function ut(e, t, n, s) {
 		const { channel: r, sender: i, path: o, action: a, args: c } = e;
 		if (r !== n) return null;
-		const { result: l, toTransfer: _, path: f } = me(a, o, c, {
+		const { result: l, toTransfer: _, path: f } = we(a, o, c, {
 			channel: r,
 			sender: i,
 			...s
 		});
-		return we(t, a, n, i, f, l, _);
+		return be(t, a, n, i, f, l, _);
 	}
-	var ht = class {
+	var dt = class {
 		_name;
 		_transportType;
 		_id = d();
@@ -1318,7 +1321,7 @@
 			}, this._setupSubscriptions();
 		}
 		subscribe(e, t) {
-			return (t ? $e((n) => n.sender === t)(this._inbound) : this._inbound).subscribe(typeof e == "function" ? { next: e } : e);
+			return (t ? ze((n) => n.sender === t)(this._inbound) : this._inbound).subscribe(typeof e == "function" ? { next: e } : e);
 		}
 		next(e) {
 			if (this._state !== "connected") {
@@ -1448,14 +1451,14 @@
 				connectedChannels: new Set(this._connectedPeers.keys())
 			};
 		}
-	}, dt = class F {
+	}, ft = class F {
 		_connections = /* @__PURE__ */ new Map();
 		static _instance = null;
 		static getInstance() {
 			return F._instance || (F._instance = new F()), F._instance;
 		}
 		getOrCreate(t, n = "internal", s = {}) {
-			return this._connections.has(t) || this._connections.set(t, new ht(t, n, s)), this._connections.get(t);
+			return this._connections.has(t) || this._connections.set(t, new dt(t, n, s)), this._connections.get(t);
 		}
 		get(t) {
 			return this._connections.get(t);
@@ -1476,14 +1479,14 @@
 			return [...this._connections.keys()];
 		}
 	};
-	const be = () => dt.getInstance(), ft = (e, t, n) => be().getOrCreate(e, t, n), pt = "uniform_channels", _t = 1, u = {
+	const Ce = () => ft.getInstance(), pt = (e, t, n) => Ce().getOrCreate(e, t, n), _t = "uniform_channels", yt = 1, u = {
 		MESSAGES: "messages",
 		MAILBOX: "mailbox",
 		PENDING: "pending",
 		EXCHANGE: "exchange",
 		TRANSACTIONS: "transactions"
 	};
-	var yt = class {
+	var gt = class {
 		_db = null;
 		_isOpen = !1;
 		_openPromise = null;
@@ -1495,7 +1498,7 @@
 		}
 		async open() {
 			return this._db && this._isOpen ? this._db : this._openPromise ? this._openPromise : (this._openPromise = new Promise((e, t) => {
-				const n = indexedDB.open(pt, _t);
+				const n = indexedDB.open(_t, yt);
 				n.onerror = () => {
 					this._openPromise = null, t(/* @__PURE__ */ new Error("Failed to open IndexedDB"));
 				}, n.onsuccess = () => {
@@ -1775,7 +1778,7 @@
 			return e.owner === this._channelName || e.sharedWith.includes("*") ? !0 : e.sharedWith.includes(this._channelName);
 		}
 		async beginTransaction() {
-			return new gt(this);
+			return new mt(this);
 		}
 		async executeTransaction(e) {
 			const t = await this.open(), n = new Set(e.map((s) => s.store));
@@ -1835,7 +1838,7 @@
 				}, r.oncomplete = () => n(a), r.onerror = () => s(/* @__PURE__ */ new Error("Failed to cleanup expired"));
 			});
 		}
-	}, gt = class {
+	}, mt = class {
 		_storage;
 		_operations = [];
 		_isCommitted = !1;
@@ -1890,22 +1893,22 @@
 		}
 	};
 	const J = /* @__PURE__ */ new Map();
-	function mt(e) {
-		return J.has(e) || J.set(e, new yt(e)), J.get(e);
+	function wt(e) {
+		return J.has(e) || J.set(e, new gt(e)), J.get(e);
 	}
-	const Ce = he(), wt = Ce.length > 0 ? new URL("../transport/Worker.ts", Ce) : "";
-	var Se = class {
+	const Se = de(), bt = Se.length > 0 ? new URL("../transport/Worker.ts", Se) : "";
+	var xe = class {
 		_channel;
 		_context;
 		_options;
 		_connection;
 		_storage;
 		constructor(e, t, n = {}) {
-			this._channel = e, this._context = t, this._options = n, this._connection = ft(e), this._storage = mt(e);
+			this._channel = e, this._context = t, this._options = n, this._connection = pt(e), this._storage = wt(e);
 		}
 		async request(e, t, n, s = {}) {
 			let r = typeof e == "string" ? [e] : e, i = t, o = n;
-			return Array.isArray(t) && xe(e) && (s = n, o = t, i = e, r = []), this._context.getHost()?.request(r, i, o, s, this._channel);
+			return Array.isArray(t) && ke(e) && (s = n, o = t, i = e, r = []), this._context.getHost()?.request(r, i, o, s, this._channel);
 		}
 		async doImportModule(e, t = {}) {
 			return this.request([], h.IMPORT, [e], t);
@@ -1946,14 +1949,14 @@
 			return this._unified.__getPrivate("_transports");
 		}
 		constructor(e, t, n = {}) {
-			this._channel = e, this._context = t, this._options = n, this._connection = be().getOrCreate(e, "internal", n), this._unified = new ue({
+			this._channel = e, this._context = t, this._options = n, this._connection = Ce().getOrCreate(e, "internal", n), this._unified = new he({
 				name: e,
 				autoListen: !1,
 				timeout: n?.timeout
 			});
 		}
 		createRemoteChannel(e, t = {}, n) {
-			const s = Ct(n ?? this._context.$createOrUseExistingRemote(e, t, n ?? null)?.messageChannel?.port1), r = Ee(s?.target ?? s);
+			const s = St(n ?? this._context.$createOrUseExistingRemote(e, t, n ?? null)?.messageChannel?.port1), r = Pe(s?.target ?? s);
 			return this._unified.listen(s?.target, { targetChannel: e }), s && (this._broadcasts?.set?.(e, s), r === "self" && typeof postMessage > "u" || this._unified.connect(s, { targetChannel: e }), this._context.$registerConnection({
 				localChannel: this._channel,
 				remoteChannel: e,
@@ -1963,7 +1966,7 @@
 			}), this.notifyChannel(e, {
 				contextId: this._context.id,
 				contextName: this._context.hostName
-			}, "connect")), new Se(e, this._context, t);
+			}, "connect")), new xe(e, this._context, t);
 		}
 		getChannel() {
 			return this._channel;
@@ -1973,7 +1976,7 @@
 		}
 		request(e, t, n, s = {}, r = "worker") {
 			let i = typeof e == "string" ? [e] : e, o = n;
-			return Array.isArray(t) && xe(e) && (r = s, s = n, o = t, t = e, i = []), this._unified.invoke(r, t, i ?? [], Array.isArray(o) ? o : [o]);
+			return Array.isArray(t) && ke(e) && (r = s, s = n, o = t, t = e, i = []), this._unified.invoke(r, t, i ?? [], Array.isArray(o) ? o : [o]);
 		}
 		resolveResponse(e, t) {
 			this._forResolves.get(e)?.resolve?.(t);
@@ -1997,7 +2000,7 @@
 		get unified() {
 			return this._unified;
 		}
-	}, bt = class {
+	}, Ct = class {
 		_options;
 		_id = d();
 		_hostName;
@@ -2008,7 +2011,7 @@
 		_remoteChannels = /* @__PURE__ */ new Map();
 		_deferredChannels = /* @__PURE__ */ new Map();
 		_connectionEvents = new y({ bufferSize: 200 });
-		_connectionRegistry = new le(() => d(), (e) => this._emitConnectionEvent(e));
+		_connectionRegistry = new ue(() => d(), (e) => this._emitConnectionEvent(e));
 		_closed = !1;
 		_globalSelf = null;
 		constructor(e = {}) {
@@ -2117,7 +2120,7 @@
 			return this._endpoints.has(e) ? this._endpoints.get(e) : this._deferredChannels.has(e) ? this.initDeferred(e) : null;
 		}
 		async addWorker(e, t, n = {}) {
-			const s = Pe(t);
+			const s = ve(t);
 			if (!s) throw new Error(`Failed to create worker for channel: ${e}`);
 			const r = new v(e, this, {
 				...this._options.defaultOptions,
@@ -2258,10 +2261,10 @@
 		$createOrUseExistingRemote(e, t = {}, n) {
 			if (e == null || n) return null;
 			if (this._remoteChannels.has(e)) return this._remoteChannels.get(e);
-			const s = new MessageChannel(), r = re(new Promise((o) => {
-				const a = Pe(wt);
+			const s = new MessageChannel(), r = oe(new Promise((o) => {
+				const a = ve(bt);
 				a?.addEventListener?.("message", (c) => {
-					c.data.type === "channelCreated" && (s.port1?.start?.(), o(new Se(c.data.channel, this, t)));
+					c.data.type === "channelCreated" && (s.port1?.start?.(), o(new xe(c.data.channel, this, t)));
 				}), a?.postMessage?.({
 					type: "createChannel",
 					channel: e,
@@ -2346,13 +2349,13 @@
 			});
 		}
 	};
-	function xe(e) {
+	function ke(e) {
 		return [...Object.values(h)].includes(e);
 	}
-	function Ct(e) {
+	function St(e) {
 		if (!e) return null;
-		if (ke(e)) return e;
-		const t = e, n = Ee(t);
+		if (Ee(e)) return e;
+		const t = e, n = Pe(t);
 		return {
 			target: t,
 			targetChannel: "unknown",
@@ -2373,14 +2376,14 @@
 			close: t.close?.bind(t)
 		};
 	}
-	function ke(e) {
+	function Ee(e) {
 		return !!e && typeof e == "object" && "target" in e && typeof e.postMessage == "function";
 	}
-	function Ee(e) {
-		const t = ke(e) ? e.target : e;
+	function Pe(e) {
+		const t = Ee(e) ? e.target : e;
 		return t ? t === "chrome-runtime" ? "chrome-runtime" : t === "chrome-tabs" ? "chrome-tabs" : t === "chrome-port" ? "chrome-port" : t === "chrome-external" ? "chrome-external" : typeof MessagePort < "u" && t instanceof MessagePort ? "message-port" : typeof BroadcastChannel < "u" && t instanceof BroadcastChannel ? "broadcast" : typeof Worker < "u" && t instanceof Worker ? "worker" : typeof WebSocket < "u" && t instanceof WebSocket ? "websocket" : typeof chrome < "u" && typeof t == "object" && t && typeof t.postMessage == "function" && t.onMessage?.addListener ? "chrome-port" : typeof self < "u" && t === self ? "self" : "internal" : "internal";
 	}
-	function Pe(e) {
+	function ve(e) {
 		if (e instanceof Worker) return e;
 		if (e instanceof URL) return new Worker(e.href, { type: "module" });
 		if (typeof e == "function") try {
@@ -2388,14 +2391,14 @@
 		} catch {
 			return e({ type: "module" });
 		}
-		return typeof e == "string" ? e.startsWith("/") ? new Worker(de(e.replace(/^\//, "./")), { type: "module" }) : URL.canParse(e) || e.startsWith("./") ? new Worker(de(e), { type: "module" }) : new Worker(URL.createObjectURL(new Blob([e], { type: "application/javascript" })), { type: "module" }) : e instanceof Blob || e instanceof File ? new Worker(URL.createObjectURL(e), { type: "module" }) : e ?? (typeof self < "u" ? self : null);
+		return typeof e == "string" ? e.startsWith("/") ? new Worker(fe(e.replace(/^\//, "./")), { type: "module" }) : URL.canParse(e) || e.startsWith("./") ? new Worker(fe(e), { type: "module" }) : new Worker(URL.createObjectURL(new Blob([e], { type: "application/javascript" })), { type: "module" }) : e instanceof Blob || e instanceof File ? new Worker(URL.createObjectURL(e), { type: "module" }) : e ?? (typeof self < "u" ? self : null);
 	}
-	const St = /* @__PURE__ */ new Map();
-	function xt(e = {}) {
-		const t = new bt(e);
-		return e.name && St.set(e.name, t), t;
+	const xt = /* @__PURE__ */ new Map();
+	function kt(e = {}) {
+		const t = new Ct(e);
+		return e.name && xt.set(e.name, t), t;
 	}
-	var kt = class {
+	var Et = class {
 		_context;
 		_config;
 		_subscriptions = [];
@@ -2414,7 +2417,7 @@
 				defaultOptions: e.defaultOptions ?? {},
 				isolatedStorage: e.isolatedStorage ?? !1,
 				...e
-			}, this._context = xt({
+			}, this._context = kt({
 				name: this._config.name,
 				useGlobalSelf: !0,
 				defaultOptions: e.defaultOptions
@@ -2584,10 +2587,10 @@
 		}
 	};
 	let Q = null;
-	function Et(e) {
-		return Q || (Q = new kt(e)), Q;
+	function Pt(e) {
+		return Q || (Q = new Et(e)), Q;
 	}
-	Et({ name: "worker" });
+	Pt({ name: "worker" });
 	var W = class {
 		_channelName;
 		_config;
@@ -2715,7 +2718,7 @@
 			transfer: () => n.port2
 		};
 	}
-	var ve = class {
+	var Te = class {
 		_target;
 		_channelName;
 		_config;
@@ -2768,21 +2771,21 @@
 			return this._transport;
 		}
 	};
-	ve.listen;
-	const Te = (e, t = "worker") => {
-		const n = rt(t ?? "worker");
+	Te.listen;
+	const Re = (e, t = "worker") => {
+		const n = ot(t ?? "worker");
 		return Object.keys(e).forEach((s) => {
 			e[s];
 		}), n;
 	};
-	var Rt = De({
+	var At = Ne({
 		getDirHandle: () => O,
 		getFileSystemRoot: () => A,
 		handlers: () => T,
 		normalizePath: () => I,
-		resolveFileSystemHandle: () => Re
-	}), B, q, A, I, Re, O, T, Ae, M, Ie = Me((() => {
-		B = /* @__PURE__ */ new Map(), q = /* @__PURE__ */ new Map(), A = async (e = "") => e && B.has(e) ? B.get(e) : await navigator.storage.getDirectory(), I = (e) => e?.trim?.()?.replace(/\/+/g, "/") || "/", Re = async (e, t, n = !1) => {
+		resolveFileSystemHandle: () => Ae
+	}), B, q, A, I, Ae, O, T, Ie, M, Oe = De((() => {
+		B = /* @__PURE__ */ new Map(), q = /* @__PURE__ */ new Map(), A = async (e = "") => e && B.has(e) ? B.get(e) : await navigator.storage.getDirectory(), I = (e) => e?.trim?.()?.replace(/\/+/g, "/") || "/", Ae = async (e, t, n = !1) => {
 			const s = I(t).split("/").filter((i) => i && i !== ".");
 			let r = e;
 			for (let i = 0; i < s.length; i++) {
@@ -2894,9 +2897,9 @@
 					return console.warn("Worker copy error:", n), !1;
 				}
 			}
-		}, Ae = "opfs-sw-bridge-v1", M = null;
+		}, Ie = "opfs-sw-bridge-v1", M = null;
 		try {
-			typeof BroadcastChannel < "u" && (M = new BroadcastChannel(Ae), M.onmessage = async (e) => {
+			typeof BroadcastChannel < "u" && (M = new BroadcastChannel(Ie), M.onmessage = async (e) => {
 				const t = e?.data || {};
 				if (!t || typeof t != "object" || t?.type !== "opfs-sw-request") return;
 				const n = String(t?.requestId || ""), s = String(t?.action || ""), r = t?.payload;
@@ -2952,29 +2955,29 @@
 			});
 		});
 	}));
-	Ie(), T && Te(T);
-	const At = async (e) => {
+	Oe(), T && Re(T);
+	const It = async (e) => {
 		try {
 			if (e.type === "batch") {
 				const t = [];
 				for (const n of e.payload) {
-					const s = await Oe(n);
+					const s = await Me(n);
 					t.push(s);
 				}
 				return t;
-			} else return await Oe(e);
+			} else return await Me(e);
 		} catch (t) {
 			throw console.error("[OPFS Worker] Message processing error:", t), t;
 		}
-	}, Oe = async (e) => {
+	}, Me = async (e) => {
 		const t = T[e.type];
 		if (!t) throw new Error(`Unknown message type: ${e.type}`);
 		return await t(e.payload);
 	};
-	globalThis.processMessage = At, (async () => {
+	globalThis.processMessage = It, (async () => {
 		try {
-			const e = (await Promise.resolve().then(() => (Ie(), Rt))).handlers;
-			e && Te(e), console.log("[OPFS Worker] Initialized with handlers:", Object.keys(e || {}));
+			const e = (await Promise.resolve().then(() => (Oe(), At))).handlers;
+			e && Re(e), console.log("[OPFS Worker] Initialized with handlers:", Object.keys(e || {}));
 		} catch (e) {
 			console.error("[OPFS Worker] Failed to initialize:", e);
 		}

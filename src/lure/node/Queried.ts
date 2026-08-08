@@ -115,6 +115,11 @@ function createPseudoElementProxy(
 }
 
 //
+const isWeakCompatible = (element: any) => {
+    return (typeof element == "object" || typeof element == "function") && element != null;
+}
+
+//
 class UniversalPseudoElementHandler implements ProxyHandler<object> {
     self!: PseudoElementProxy;
 
@@ -239,7 +244,9 @@ class UniversalPseudoElementHandler implements ProxyHandler<object> {
             this.self,
         );
 
-        this.children.set(normalized, child);
+        if (isWeakCompatible(normalized)) {
+            this.children.set(normalized, child);
+        }
         return child;
     }
 
