@@ -1,3 +1,9 @@
+/*
+ * Filename: Utils.ts
+ * FullPath: modules/projects/lur.e/src/lure/context/Utils.ts
+ * Change date and time: 15.40.00_08.08.2026
+ * Reason for changes: Stop sharing Symbol.for("lur.e@elMap") with Binding DoubleWeakMap (C() Invalid weak map key).
+ */
 import { unwrap, affected } from "@fest-lib/object";
 import { $virtual, $mapped } from "../core/Binding";
 import { isElement, isValidParent } from "@fest-lib/dom";
@@ -19,8 +25,12 @@ const __nodeGuard = globalThis[__nodeGuardSymbol] ??= new WeakSet<any>();
 export { __nodeGuard };
 
 //
-const elMapSymbol = Symbol.for("lur.e@elMap");
-export const elMap = globalThis[elMapSymbol] ??= new WeakMap<any, any>();
+/* INVARIANT: must NOT reuse `lur.e@elMap` — Binding owns that Symbol as DoubleWeakMap([el, handler]→bank).
+ * WHY: Utils/C() key by a single object; pair-map #splitPair(non-array) → null → "Invalid value used as weak map key". */
+const nodeElMapSymbol = Symbol.for("lur.e@nodeElMap");
+/** Observable / object → cached lure node (Changeable, Text, …). Single-key WeakMap. */
+export const elMap = globalThis[nodeElMapSymbol] ??= new WeakMap<any, any>();
+export { elMap as nodeElMap };
 
 //
 const tmMapSymbol = Symbol.for("lur.e@tmMap");

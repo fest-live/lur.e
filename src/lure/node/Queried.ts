@@ -783,8 +783,10 @@ class UniversalElementHandler implements ProxyHandler<object> {
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
                 const query: any = existsQueries?.get?.(target)?.get?.(this.selector) ?? selected;
-                if (elMap?.get?.(query)?.get?.(handleAttribute)?.has?.(key)) {
-                    return elMap?.get?.(query)?.get?.(handleAttribute)?.get?.(key)?.[0];
+                // COMPAT: Binding bank is DoubleWeakMap([el, handler] → Record), not nested WeakMaps.
+                const bank = elMap?.get?.([query, handleAttribute]);
+                if (bank?.[key]) {
+                    return bank[key]?.[0];
                 }
                 return selected?.getAttribute?.(key);
             }
@@ -811,8 +813,9 @@ class UniversalElementHandler implements ProxyHandler<object> {
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
                 const query: any = existsQueries?.get?.(target)?.get?.(this.selector) ?? selected;
-                if (elMap?.get?.(query)?.get?.(handleAttribute)?.has?.(key)) {
-                    return elMap?.get?.(query)?.get?.(handleAttribute)?.get?.(key)?.[1]?.();
+                const bank = elMap?.get?.([query, handleAttribute]);
+                if (bank?.[key]) {
+                    return bank[key]?.[1]?.();
                 }
                 return selected?.removeAttribute?.(key);
             }
@@ -824,7 +827,8 @@ class UniversalElementHandler implements ProxyHandler<object> {
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
                 const query: any = existsQueries?.get?.(target)?.get?.(this.selector) ?? selected;
-                if (elMap?.get?.(query)?.get?.(handleAttribute)?.has?.(key)) {
+                const bank = elMap?.get?.([query, handleAttribute]);
+                if (bank?.[key]) {
                     return true;
                 }
                 return selected?.hasAttribute?.(key);
