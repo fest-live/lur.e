@@ -4,8 +4,16 @@ import { $affected, observe } from "@fest-lib/object";
 import { appendChild, removeChild, replaceOrSwap } from "../context/Utils";
 
 //
-const existsQueries = new WeakMap<any, Map<string|HTMLElement, any>>();
-const alreadyUsed   = new WeakMap();
+const existsQueriesSymbol = Symbol.for("lure.existsQueries");
+globalThis[existsQueriesSymbol] ??= new WeakMap<any, Map<string|HTMLElement, any>>();
+const existsQueries = globalThis[existsQueriesSymbol];
+
+//
+const alreadyUsedSymbol = Symbol.for("lure.alreadyUsed");
+globalThis[alreadyUsedSymbol] ??= new WeakMap();
+const alreadyUsed = globalThis[alreadyUsedSymbol];
+
+//
 const queryExtensions = {
     logAll (ctx) { return ()=> console.log("attributes:", [...ctx?.attributes].map(x => ({ name: x.name, value: x.value })) ); },
     append (ctx) { return (...args)=> args?.forEach?.((e)=>appendChild(ctx, e, null, -1)) },
