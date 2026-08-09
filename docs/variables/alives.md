@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: alives
 
 ```ts
-const alives: FinalizationRegistry<any>;
+const alives: any;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:58
+Defined in: lur.e/src/lure/core/Binding.ts:77

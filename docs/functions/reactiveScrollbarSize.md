@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function reactiveScrollbarSize(
    contentSize): any;
 ```
 
-Defined in: lur.e/src/lure/core/Refs.ts:72
+Defined in: lur.e/src/lure/core/Refs.ts:79
 
 ## Parameters
 

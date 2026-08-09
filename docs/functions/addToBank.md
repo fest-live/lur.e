@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function addToBank(
    forLink): boolean;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:166
+Defined in: lur.e/src/lure/core/Binding.ts:187
 
 ## Parameters
 

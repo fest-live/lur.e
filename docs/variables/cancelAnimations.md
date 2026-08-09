@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 const cancelAnimations: (element) => void = cancelElementAnimations;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:422
+Defined in: lur.e/src/lure/core/Binding.ts:443
 
 Cleanup function to cancel all animations for an element
 

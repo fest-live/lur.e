@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: CustomElementLifecycle
 
-Defined in: lur.e/src/lure/misc/Glit.ts:97
+Defined in: lur.e/src/lure/misc/Glit.ts:116
 
 Интерфейс lifecycle callbacks для Custom Elements
 
@@ -23,7 +23,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:97
 optional adoptedCallback(): void | CustomElementLifecycle | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:100
+Defined in: lur.e/src/lure/misc/Glit.ts:119
 
 #### Returns
 
@@ -40,7 +40,7 @@ optional attributeChangedCallback(
    newValue): void | CustomElementLifecycle | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:101
+Defined in: lur.e/src/lure/misc/Glit.ts:120
 
 #### Parameters
 
@@ -68,7 +68,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:101
 optional connectedCallback(): void | CustomElementLifecycle | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:98
+Defined in: lur.e/src/lure/misc/Glit.ts:117
 
 #### Returns
 
@@ -82,7 +82,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:98
 optional disconnectedCallback(): void | CustomElementLifecycle | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:99
+Defined in: lur.e/src/lure/misc/Glit.ts:118
 
 #### Returns
 

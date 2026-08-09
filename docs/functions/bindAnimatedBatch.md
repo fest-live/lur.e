@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function bindAnimatedBatch(element, bindings): () => void;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:441
+Defined in: lur.e/src/lure/core/Binding.ts:462
 
 ## Parameters
 

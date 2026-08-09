@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: JunctionDragMixin
 
-Defined in: lur.e/src/interactive/mixins/Junction.ts:189
+Defined in: lur.e/src/interactive/mixins/Junction.ts:191
 
 ## Extends
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/interactive/mixins/Junction.ts:189
 new JunctionDragMixin(): JunctionDragMixin;
 ```
 
-Defined in: lur.e/src/interactive/mixins/Junction.ts:190
+Defined in: lur.e/src/interactive/mixins/Junction.ts:192
 
 #### Returns
 
@@ -42,7 +42,7 @@ DOMMixin.constructor
 get elements(): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:134](https://github.com/fest-live/dom.ts/blob/fe46392c2e3d4fe4a91465a33731e148ed7bf1ae/src/mixin/Mixins.ts#L134)
+Defined in: [dom.ts/src/mixin/Mixins.ts:142](https://github.com/fest-live/dom.ts/blob/58b33c172cd13b9c6ec31a05c0bf12084bc99024/src/mixin/Mixins.ts#L142)
 
 ##### Returns
 
@@ -61,14 +61,14 @@ DOMMixin.elements
 #### Get Signature
 
 ```ts
-get name(): string | undefined;
+get name(): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:136](https://github.com/fest-live/dom.ts/blob/fe46392c2e3d4fe4a91465a33731e148ed7bf1ae/src/mixin/Mixins.ts#L136)
+Defined in: [dom.ts/src/mixin/Mixins.ts:144](https://github.com/fest-live/dom.ts/blob/58b33c172cd13b9c6ec31a05c0bf12084bc99024/src/mixin/Mixins.ts#L144)
 
 ##### Returns
 
-`string` \| `undefined`
+`any`
 
 #### Inherited from
 
@@ -83,14 +83,14 @@ DOMMixin.name
 #### Get Signature
 
 ```ts
-get storage(): WeakMap<any, any> | undefined;
+get storage(): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:135](https://github.com/fest-live/dom.ts/blob/fe46392c2e3d4fe4a91465a33731e148ed7bf1ae/src/mixin/Mixins.ts#L135)
+Defined in: [dom.ts/src/mixin/Mixins.ts:143](https://github.com/fest-live/dom.ts/blob/58b33c172cd13b9c6ec31a05c0bf12084bc99024/src/mixin/Mixins.ts#L143)
 
 ##### Returns
 
-`WeakMap`\<`any`, `any`\> \| `undefined`
+`any`
 
 #### Inherited from
 
@@ -106,7 +106,7 @@ DOMMixin.storage
 connect(wEl): this;
 ```
 
-Defined in: lur.e/src/interactive/mixins/Junction.ts:194
+Defined in: lur.e/src/interactive/mixins/Junction.ts:196
 
 #### Parameters
 
@@ -132,7 +132,7 @@ DOMMixin.connect
 disconnect(wEl): this;
 ```
 
-Defined in: lur.e/src/interactive/mixins/Junction.ts:279
+Defined in: lur.e/src/interactive/mixins/Junction.ts:281
 
 #### Parameters
 
@@ -158,7 +158,7 @@ DOMMixin.disconnect
 relatedForElement(element): object;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:131](https://github.com/fest-live/dom.ts/blob/fe46392c2e3d4fe4a91465a33731e148ed7bf1ae/src/mixin/Mixins.ts#L131)
+Defined in: [dom.ts/src/mixin/Mixins.ts:139](https://github.com/fest-live/dom.ts/blob/58b33c172cd13b9c6ec31a05c0bf12084bc99024/src/mixin/Mixins.ts#L139)
 
 #### Parameters
 
@@ -179,7 +179,7 @@ behaviorSet: any;
 ##### mixinSet
 
 ```ts
-mixinSet: WeakSet<any> | undefined;
+mixinSet: any;
 ```
 
 ##### storeSet
@@ -202,7 +202,7 @@ DOMMixin.relatedForElement
 storeForElement(element): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:130](https://github.com/fest-live/dom.ts/blob/fe46392c2e3d4fe4a91465a33731e148ed7bf1ae/src/mixin/Mixins.ts#L130)
+Defined in: [dom.ts/src/mixin/Mixins.ts:138](https://github.com/fest-live/dom.ts/blob/58b33c172cd13b9c6ec31a05c0bf12084bc99024/src/mixin/Mixins.ts#L138)
 
 #### Parameters
 

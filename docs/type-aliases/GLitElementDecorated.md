@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type GLitElementDecorated<T> = InstanceType<GLitElementClass<T>>;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:732
+Defined in: lur.e/src/lure/misc/Glit.ts:754
 
 Тип для использования в декораторах классов
 

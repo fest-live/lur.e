@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function $observeAttribute(
    prop?): MutationObserver;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:124
+Defined in: lur.e/src/lure/core/Binding.ts:145
 
 ## Parameters
 

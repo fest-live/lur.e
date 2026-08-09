@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: elMap
 
 ```ts
-const elMap: DoubleWeakMap;
+const elMap: any;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:57
+Defined in: lur.e/src/lure/core/Binding.ts:70

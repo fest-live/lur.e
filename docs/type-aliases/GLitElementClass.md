@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type GLitElementClass<T> = GLitElementConstructor<T> & (...args) => T & GLitElementInstance & CustomElementLifecycle;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:153
+Defined in: lur.e/src/lure/misc/Glit.ts:172
 
 Тип для класса, который можно расширять
 

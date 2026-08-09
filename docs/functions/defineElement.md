@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function defineElement(name, options?): <T>(target, _key?) => T;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:216
+Defined in: lur.e/src/lure/misc/Glit.ts:235
 
 ## Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function $observeInput(
    prop?): () => () => void;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:107
+Defined in: lur.e/src/lure/core/Binding.ts:128
 
 ## Parameters
 

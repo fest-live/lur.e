@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ type GLitElementConstructor<T> = {
 } & CustomElementStatic;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:145
+Defined in: lur.e/src/lure/misc/Glit.ts:164
 
 Тип для результата GLitElement - конструктор с полной поддержкой lifecycle
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function paddingBoxSize(
    inputChange?): any;
 ```
 
-Defined in: lur.e/src/lure/core/Refs.ts:85
+Defined in: lur.e/src/lure/core/Refs.ts:92
 
 ## Parameters
 

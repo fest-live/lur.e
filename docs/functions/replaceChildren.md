@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -15,7 +15,7 @@ function replaceChildren(
    old?): void;
 ```
 
-Defined in: lur.e/src/lure/context/Utils.ts:222
+Defined in: lur.e/src/lure/context/Utils.ts:244
 
 ## Parameters
 

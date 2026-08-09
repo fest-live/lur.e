@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const $mapped: typeof $mapped;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:61
+Defined in: lur.e/src/lure/core/Binding.ts:81

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 const createAnimatedRef: (initialValue, animationType, options) => any = animatedRef;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:420
+Defined in: lur.e/src/lure/core/Binding.ts:441
 
 Utility to create animated reactive references
 

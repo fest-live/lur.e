@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type ObservedAttributes<T> = object;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:738
+Defined in: lur.e/src/lure/misc/Glit.ts:760
 
 Хелпер для типизации observedAttributes
 
@@ -28,7 +28,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:738
 observedAttributes: T;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:739
+Defined in: lur.e/src/lure/misc/Glit.ts:761
 
 ## Methods
 
@@ -41,7 +41,7 @@ attributeChangedCallback(
    newValue): void;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:740
+Defined in: lur.e/src/lure/misc/Glit.ts:762
 
 #### Parameters
 

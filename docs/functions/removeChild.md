@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function removeChild(
    index?): any;
 ```
 
-Defined in: lur.e/src/lure/context/Utils.ts:250
+Defined in: lur.e/src/lure/context/Utils.ts:272
 
 ## Parameters
 

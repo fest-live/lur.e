@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: PropertyOptions
 
-Defined in: lur.e/src/lure/misc/Glit.ts:235
+Defined in: lur.e/src/lure/misc/Glit.ts:254
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:235
 optional attribute?: string | boolean;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:236
+Defined in: lur.e/src/lure/misc/Glit.ts:255
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:236
 optional from?: any;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:239
+Defined in: lur.e/src/lure/misc/Glit.ts:258
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:239
 optional name?: string | null;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:238
+Defined in: lur.e/src/lure/misc/Glit.ts:257
 
 ***
 
@@ -46,4 +46,4 @@ Defined in: lur.e/src/lure/misc/Glit.ts:238
 optional source?: any;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:237
+Defined in: lur.e/src/lure/misc/Glit.ts:256

@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.3**
+**@fest-lib/lure v0.1.15**
 
 ***
 
-# @fest-lib/lure v0.1.3
+# @fest-lib/lure v0.1.15
 
 ## Enumerations
 
@@ -25,6 +25,7 @@
 - [DecorWith](classes/DecorWith.md)
 - [DOMMatrixAdapter](classes/DOMMatrixAdapter.md)
 - [DragHandler](classes/DragHandler.md)
+- [EventHandler](classes/EventHandler.md)
 - [FileHandler](classes/FileHandler.md)
 - [GridAnimationUtils](classes/GridAnimationUtils.md)
 - [GridCellUtils](classes/GridCellUtils.md)
@@ -148,9 +149,11 @@
 - [$mapped](variables/$mapped.md)
 - [$virtual](variables/$virtual.md)
 - [alives](variables/alives.md)
+- [bank](variables/bank.md)
 - [bindPreset](variables/bindPreset.md)
 - [cancelAnimations](variables/cancelAnimations.md)
 - [createAnimatedRef](variables/createAnimatedRef.md)
+- [CSM](variables/CSM.md)
 - [currentHandleMap](variables/currentHandleMap.md)
 - [customElement](variables/customElement.md)
 - [DESKTOP\_DRAFT\_KEY](variables/DESKTOP_DRAFT_KEY.md)
@@ -173,12 +176,16 @@
 - [JUNCTION\_SELECT\_EVENTS](variables/JUNCTION_SELECT_EVENTS.md)
 - [localStorageLinkMap](variables/localStorageLinkMap.md)
 - [mappedRoots](variables/mappedRoots.md)
+- [mixinDisposers](variables/mixinDisposers.md)
 - [originalBack](variables/originalBack.md)
 - [originalForward](variables/originalForward.md)
 - [originalGo](variables/originalGo.md)
 - [originalPush](variables/originalPush.md)
 - [originalReplace](variables/originalReplace.md)
+- [propStore](variables/propStore.md)
 - [scrollbarThemes](variables/scrollbarThemes.md)
+- [styleCache](variables/styleCache.md)
+- [styleElementCache](variables/styleElementCache.md)
 
 ## Functions
 

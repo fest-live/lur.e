@@ -4006,43 +4006,43 @@ var Oy = (e) => (typeof e == "object" || typeof e == "function") && e != null, I
     this.target = e, this.currentTarget = t, this.selector = n, this.eventName = r, this.callback = i;
   }
   get(e, t, n) {
-    return t === "currentTarget" && typeof this.selector == "string" ? Fr(this.target, this.selector) : t === "currentTarget" && typeof this.selector != "string" ? this.currentTarget ?? this.selector : Reflect.get(this.target, t, n);
+    return t === "currentTarget" && typeof this.selector == "string" ? Fr(this.target, this.selector) : t === "currentTarget" && typeof this.selector != "string" ? this.currentTarget ?? this.selector : typeof e?.[t] == "function" ? e?.[t]?.bind?.(e) : Reflect.get(e, t, n);
   }
   set(e, t, n) {
-    return Reflect.set(this.target, t, n);
+    return Reflect.set(e, t, n);
   }
   has(e, t) {
-    return Reflect.has(this.target, t);
+    return Reflect.has(e, t);
   }
   deleteProperty(e, t) {
-    return Reflect.deleteProperty(this.target, t);
+    return Reflect.deleteProperty(e, t);
   }
   ownKeys(e) {
-    return Reflect.ownKeys(this.target);
+    return Reflect.ownKeys(e);
   }
   defineProperty(e, t, n) {
-    return Reflect.defineProperty(this.target, t, n);
+    return Reflect.defineProperty(e, t, n);
   }
   apply(e, t, n) {
-    return Reflect.apply(this.target, t, n);
+    return Reflect.apply(e, t, n);
   }
   construct(e, t) {
-    return Reflect.construct(this.target, t);
+    return Reflect.construct(e, t);
   }
   getPrototypeOf(e) {
-    return Reflect.getPrototypeOf(this.target);
+    return Reflect.getPrototypeOf(e);
   }
   setPrototypeOf(e, t) {
-    return Reflect.setPrototypeOf(this.target, t);
+    return Reflect.setPrototypeOf(e, t);
   }
   isExtensible(e) {
-    return Reflect.isExtensible(this.target);
+    return Reflect.isExtensible(e);
   }
   preventExtensions(e) {
-    return Reflect.preventExtensions(this.target);
+    return Reflect.preventExtensions(e);
   }
   getOwnPropertyDescriptor(e, t) {
-    return Reflect.getOwnPropertyDescriptor(this.target, t);
+    return Reflect.getOwnPropertyDescriptor(e, t);
   }
 }, ro = class {
   direction = "children";
@@ -4124,7 +4124,8 @@ var Oy = (e) => (typeof e == "object" || typeof e == "function") && e != null, I
   }
   _addEventListener(e, t, n, r) {
     const i = this._selector(e), s = (u) => {
-      n?.call?.(u?.target ?? e, new Proxy(u, new Ny(u?.target ?? e, u?.currentTarget ?? e, typeof i == "string" ? i : "", t, n)));
+      const d = new Proxy(u, new Ny(u?.target ?? e, u?.currentTarget ?? e, typeof i == "string" ? i : "", t, n));
+      return n?.call?.(u?.target ?? e, d), d;
     };
     if (this._callbackMap.set(n, {
       wrap: s,

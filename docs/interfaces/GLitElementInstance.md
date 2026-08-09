@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.3**](../README.md)
+[**@fest-lib/lure v0.1.15**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: GLitElementInstance
 
-Defined in: lur.e/src/lure/misc/Glit.ts:120
+Defined in: lur.e/src/lure/misc/Glit.ts:139
 
 Интерфейс для расширенных свойств GLitElement
 
@@ -22,7 +22,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:120
 adoptedStyleSheets: CSSStyleSheet[];
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:124
+Defined in: lur.e/src/lure/misc/Glit.ts:143
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:124
 optional initialAttributes?: Record<string, any> | (() => Record<string, any>);
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:122
+Defined in: lur.e/src/lure/misc/Glit.ts:141
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:122
 styleLibs: HTMLStyleElement[];
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:123
+Defined in: lur.e/src/lure/misc/Glit.ts:142
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:123
 optional styles?: any;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:121
+Defined in: lur.e/src/lure/misc/Glit.ts:140
 
 ## Methods
 
@@ -62,7 +62,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:121
 optional $init(): void;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:131
+Defined in: lur.e/src/lure/misc/Glit.ts:150
 
 #### Returns
 
@@ -76,7 +76,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:131
 optional adoptedCallback(): void | GLitElementInstance | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:100
+Defined in: lur.e/src/lure/misc/Glit.ts:119
 
 #### Returns
 
@@ -97,7 +97,7 @@ optional attributeChangedCallback(
    newValue): void | GLitElementInstance | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:101
+Defined in: lur.e/src/lure/misc/Glit.ts:120
 
 #### Parameters
 
@@ -129,7 +129,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:101
 optional connectedCallback(): void | GLitElementInstance | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:98
+Defined in: lur.e/src/lure/misc/Glit.ts:117
 
 #### Returns
 
@@ -147,7 +147,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:98
 createShadowRoot(): ShadowRoot;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:130
+Defined in: lur.e/src/lure/misc/Glit.ts:149
 
 #### Returns
 
@@ -161,7 +161,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:130
 optional disconnectedCallback(): void | GLitElementInstance | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:99
+Defined in: lur.e/src/lure/misc/Glit.ts:118
 
 #### Returns
 
@@ -179,7 +179,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:99
 loadStyleLibrary(module): void | GLitElementInstance | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:129
+Defined in: lur.e/src/lure/misc/Glit.ts:148
 
 #### Parameters
 
@@ -199,7 +199,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:129
 onInitialize(weak?): void | GLitElementInstance | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:127
+Defined in: lur.e/src/lure/misc/Glit.ts:146
 
 #### Parameters
 
@@ -219,7 +219,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:127
 onRender(weak?): void | GLitElementInstance | undefined;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:128
+Defined in: lur.e/src/lure/misc/Glit.ts:147
 
 #### Parameters
 
@@ -239,7 +239,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:128
 render(weak?): Node | HTMLElement | DocumentFragment;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:126
+Defined in: lur.e/src/lure/misc/Glit.ts:145
 
 #### Parameters
 
@@ -259,7 +259,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:126
 styleLayers(): string[];
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:125
+Defined in: lur.e/src/lure/misc/Glit.ts:144
 
 #### Returns
 
