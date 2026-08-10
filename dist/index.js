@@ -785,8 +785,10 @@ var kt = (e, t) => (e = e instanceof WeakRef ? e.deref() : e, [...Object.entries
   const r = (h) => {
     const f = Array.from(h || []) || [];
     return f.push(...Array.from(h || []).flatMap((p) => Array.from(p?.querySelectorAll?.(t) || []))), [...Array.from(new Set(f).values())].filter((p) => p?.matches?.(t));
-  }, i = (h) => {
-    const f = u?.deref?.(), p = r(h.addedNodes), y = r(h.removedNodes);
+  };
+  let i = null;
+  const s = (h) => {
+    const f = i?.deref?.(), p = r(h.addedNodes), y = r(h.removedNodes);
     (p.length > 0 || y.length > 0) && n?.({
       type: h.type,
       target: h.target,
@@ -798,51 +800,51 @@ var kt = (e, t) => (e = e instanceof WeakRef ? e.deref() : e, [...Object.entries
       addedNodes: p,
       removedNodes: y
     }, f);
-  }, s = (h) => {
-    i({
+  }, o = (h) => {
+    s({
       addedNodes: [h?.target].filter((f) => !!f),
       removedNodes: [h?.relatedTarget].filter((f) => !!f),
       type: "childList",
       target: h?.currentTarget
     });
-  }, o = (h) => {
-    i({
+  }, a = (h) => {
+    s({
       addedNodes: [h?.relatedTarget].filter((f) => !!f),
       removedNodes: [h?.target].filter((f) => !!f),
       type: "childList",
       target: h?.currentTarget
     });
-  }, a = (h) => {
-    i({
+  }, l = (h) => {
+    s({
       addedNodes: [h?.target].filter((f) => !!f),
       removedNodes: [h?.relatedTarget || document?.activeElement].filter((f) => !!f),
       type: "childList",
       target: h?.currentTarget
     });
-  }, l = {
+  }, c = {
     passive: !0,
     capture: !1
   };
   if (t?.includes?.(":hover") && t?.includes?.(":active"))
-    return e.addEventListener("pointerover", s, l), e.addEventListener("pointerout", o, l), e.addEventListener("pointerdown", s, l), e.addEventListener("pointerup", o, l), e.addEventListener("pointercancel", o, l), { disconnect: () => {
-      e.removeEventListener("pointerover", s, l), e.removeEventListener("pointerout", o, l), e.removeEventListener("pointerdown", s, l), e.removeEventListener("pointerup", o, l), e.removeEventListener("pointercancel", o, l);
+    return e.addEventListener("pointerover", o, c), e.addEventListener("pointerout", a, c), e.addEventListener("pointerdown", o, c), e.addEventListener("pointerup", a, c), e.addEventListener("pointercancel", a, c), { disconnect: () => {
+      e.removeEventListener("pointerover", o, c), e.removeEventListener("pointerout", a, c), e.removeEventListener("pointerdown", o, c), e.removeEventListener("pointerup", a, c), e.removeEventListener("pointercancel", a, c);
     } };
   if (t?.includes?.(":hover"))
-    return e.addEventListener("pointerover", s, l), e.addEventListener("pointerout", o, l), { disconnect: () => {
-      e.removeEventListener("pointerover", s, l), e.removeEventListener("pointerout", o, l);
+    return e.addEventListener("pointerover", o, c), e.addEventListener("pointerout", a, c), { disconnect: () => {
+      e.removeEventListener("pointerover", o, c), e.removeEventListener("pointerout", a, c);
     } };
   if (t?.includes?.(":active"))
-    return e.addEventListener("pointerdown", s, l), e.addEventListener("pointerup", o, l), e.addEventListener("pointercancel", o, l), { disconnect: () => {
-      e.removeEventListener("pointerdown", s, l), e.removeEventListener("pointerup", o, l), e.removeEventListener("pointercancel", o, l);
+    return e.addEventListener("pointerdown", o, c), e.addEventListener("pointerup", a, c), e.addEventListener("pointercancel", a, c), { disconnect: () => {
+      e.removeEventListener("pointerdown", o, c), e.removeEventListener("pointerup", a, c), e.removeEventListener("pointercancel", a, c);
     } };
   if (t?.includes?.(":focus") && t?.includes?.(":focus-within") && t?.includes?.(":focus-visible"))
-    return e.addEventListener("focusin", s, l), e.addEventListener("focusout", o, l), e.addEventListener("click", a, l), { disconnect: () => {
-      e.removeEventListener("focusin", s, l), e.removeEventListener("focusout", o, l), e.removeEventListener("click", a, l);
+    return e.addEventListener("focusin", o, c), e.addEventListener("focusout", a, c), e.addEventListener("click", l, c), { disconnect: () => {
+      e.removeEventListener("focusin", o, c), e.removeEventListener("focusout", a, c), e.removeEventListener("click", l, c);
     } };
-  const c = new MutationObserver((h, f) => {
-    for (const p of h) p.type == "childList" && i(p);
-  }), u = new WeakRef(c);
-  (e?.element ?? e) instanceof Node && c.observe(e = ys(e), {
+  const u = new MutationObserver((h, f) => {
+    for (const p of h) p.type == "childList" && s(p);
+  });
+  i = new WeakRef(u), (e?.element ?? e) instanceof Node && u.observe(e = ys(e), {
     childList: !0,
     subtree: !0
   });
@@ -850,7 +852,7 @@ var kt = (e, t) => (e = e instanceof WeakRef ? e.deref() : e, [...Object.entries
   return d.length > 0 && n?.({
     addedNodes: d,
     removedNodes: []
-  }, c), c;
+  }, u), u;
 }, nu = () => typeof globalThis < "u" && typeof globalThis.CSSStyleSheet == "function", Al = (e) => typeof e == "string" && /@import\b/i.test(e), Ba = "DOM", Bs = typeof document < "u" ? document.createElement("style") : null;
 Bs && (typeof document < "u" && document.querySelector("head")?.appendChild?.(Bs), Bs.dataset.owner = Ba);
 var Tl = (e, t, n = "") => {
