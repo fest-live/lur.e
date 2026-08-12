@@ -675,20 +675,32 @@ class UniversalElementHandler implements ProxyHandler<object> {
             // Use composedPath() for shadow DOM compatibility
             let tg: any = null;
             if (ev?.composedPath && typeof ev.composedPath === 'function') {
-                const path = ev.composedPath();
+                let path = ev.composedPath() ?? [ev?.target ?? ev?.currentTarget];
+                if (path?.length < 1) { path = [ev?.target ?? ev?.currentTarget]; }
+
                 // Find the first element in the composed path that matches our selector or is within our target
                 for (const node of path) {
                     if (node instanceof HTMLElement || node instanceof Element) {
                         const nodeEl = (node as any)?.element ?? node;
-                        if (typeof sel == "string") {
-                            if (MOCElement(nodeEl, sel, ev)) {
-                                tg = nodeEl;
-                                break;
-                            }
+                        const evName = name || ev?.type;
+
+                        // workaround for non-bubbling events
+                        if (evName == "pointerenter" || 
+                            evName == "pointerleave" || 
+                            evName == "mouseenter" || 
+                            evName == "mouseleave" || 
+                            evName == "focus" || 
+                            evName == "blur"
+                        ) {
+                            if (typeof sel == "string" && nodeEl?.matches?.(sel)) 
+                                { tg = nodeEl; break; } else 
+                            if (typeof sel != "string" && containsOrSelf(sel, nodeEl, ev)) 
+                                { tg = nodeEl; break; }
                         } else {
-                            if (containsOrSelf(sel, nodeEl, ev)) {
-                                tg = nodeEl;
-                                break;
+                            if (typeof sel == "string") {
+                                if (MOCElement(nodeEl, sel, ev)) { tg = nodeEl; break; }
+                            } else {
+                                if (containsOrSelf(sel, nodeEl, ev)) { tg = nodeEl; break; }
                             }
                         }
                     }
