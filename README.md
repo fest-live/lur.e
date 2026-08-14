@@ -52,13 +52,13 @@ The core API provides a concise and powerful way to work with the DOM:
   - Create or wrap a DOM element with specified properties and children (binding).
 - `M(Array|Set, generateCb)`
   - Map arrays or sets to DOM elements.
-- `H(DOMCode)` or `H\`DOMCode\``
+- `H(DOMCode)` or `H``DOMCode```
   - Create static DOM HTML from code.
-- `T(String|StringRef)` or `T\`Code\``
+- `T(String|StringRef)` or `T``Code```
   - Create a TextNode object (with reactive support).
 - `C(ref, whatToMake)`
   - Create changeable DOM element (include for texts).
-- `S(CSSCode)` or `S\`CSSCode\``
+- `S(CSSCode)` or `S``CSSCode```
   - Create controllable CSS code for elements
 - `Q(selector, root)`
   - Make dynamically query selected wrapper
