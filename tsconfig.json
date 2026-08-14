@@ -11,6 +11,7 @@
         "./src/**/*.jsx"
     ],
     "compilerOptions": {
+        "rootDir": "../",
         "outDir": "./dist/",
         "paths": {
             "@phosphor-icons/core/assets/*": [
