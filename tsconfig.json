@@ -20,52 +20,40 @@
                 "../../shared/assets/fonts/*"
             ],
             "@fest-lib/*": [
-                "../../subsystem/fest/*",
-                "./node_modules/@fest-lib/*"
+                "../../subsystem/fest/*"
             ],
             "@fest-lib/cdnImport": [
-                "../../cdnImport.mjs",
-                "./node_modules/@fest-lib/cdnImport"
+                "../../cdnImport.mjs"
             ],
             "@fest-lib/dom": [
-                "../dom.ts/src/index.ts",
-                "./node_modules/@fest-lib/dom/src/index.ts"
+                "../dom.ts/src/index.ts"
             ],
             "@fest-lib/lure": [
-                "../lur.e/src/index.ts",
-                "./node_modules/@fest-lib/lure/src/index.ts"
+                "../lur.e/src/index.ts"
             ],
             "@fest-lib/object": [
-                "../object.ts/src/index.ts",
-                "./node_modules/@fest-lib/object/src/index.ts"
+                "../object.ts/src/index.ts"
             ],
             "@fest-lib/fl-ui": [
-                "../fl.ui/src/index.ts",
-                "./node_modules/@fest-lib/fl-ui/src/index.ts"
+                "../fl.ui/src/index.ts"
             ],
             "@fest-lib/ui": [
-                "../fl.ui/src/index.ts",
-                "./node_modules/@fest-lib/ui/src/index.ts"
+                "../fl.ui/src/index.ts"
             ],
             "@fest-lib/uniform": [
-                "../uniform.ts/src/index.ts",
-                "./node_modules/@fest-lib/uniform/src/index.ts"
+                "../uniform.ts/src/index.ts"
             ],
             "@fest-lib/theme": [
-                "../theme.core/src/index.ts",
-                "./node_modules/@fest-lib/theme/src/index.ts"
+                "../theme.core/src/index.ts"
             ],
             "@fest-lib/core": [
-                "../core.ts/src/index.ts",
-                "./node_modules/@fest-lib/core/src/index.ts"
+                "../core.ts/src/index.ts"
             ],
             "@fest-lib/polyfill/*": [
-                "../../subsystem/fest/polyfill/*",
-                "./node_modules/@fest-lib/polyfill/*/src/index.ts"
+                "../../subsystem/fest/polyfill/*"
             ],
             "polyfill/*": [
-                "../../subsystem/fest/polyfill/*",
-                "./node_modules/polyfill/*/src/index.ts"
+                "../../subsystem/fest/polyfill/*"
             ]
         },
         "target": "ESNext",
@@ -89,11 +77,11 @@
         "allowUnreachableCode": true,
         "allowUnusedLabels": true,
         "noImplicitAny": false,
-        "declaration": false,
         "noImplicitThis": false,
+        "declaration": true,
+        "declarationMap": true,
         "inlineSources": true,
         "inlineSourceMap": true,
-        "sourceMap": false,
         "typeRoots": [
             "plugins/global.d.ts"
         ],

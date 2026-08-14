@@ -1,7 +1,7 @@
 {
     "name": "@fest-lib/lure",
     "description": "LURE reactive DOM framework (fest-lib)",
-    "version": "0.1.18",
+    "version": "0.1.19",
     "license": "MIT",
     "type": "module",
     "sideEffects": true,
@@ -68,14 +68,23 @@
         "docs:md:clean": "rm -rf ./docs-md && typedoc --options ./typedoc.md.json"
     },
     "devDependencies": {
+        "@gerrit0/mini-shiki": "^3.23.0",
         "@praha/vite-plugin-external": ">=1.1.1",
         "@types/node": ">=22.8.1",
         "cbor-x": ">=1.6.0",
+        "linkify-it": "^5.0.2",
+        "lunr": "^2.3.9",
+        "markdown-it": "^14.3.0",
+        "mdurl": "^2.1.0",
+        "punycode.js": "^2.3.1",
+        "tsconfig": "^7.0.0",
         "typedoc": "^0.28.20",
         "typedoc-plugin-markdown": "^4.12.0",
         "typescript": ">=6.0.0-beta",
+        "uc.micro": "^2.1.0",
         "vite": "^8.0.7",
         "vite-plugin-external": ">=6.2.2",
-        "vite-plugin-optimizer": ">=1.4.3"
+        "vite-plugin-optimizer": ">=1.4.3",
+        "yaml": "^2.9.0"
     }
 }
