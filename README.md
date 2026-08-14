@@ -29,18 +29,40 @@
 
 ---
 
+## 📦 Installation
+
+```
+npm install @fest-lib/core
+npm install @fest-lib/object
+npm install @fest-lib/dom
+npm install @fest-lib/uniform
+npm install @fest-lib/lure
+```
+
+- Where last line is main library...
+- Other previously is dependencies.
+
+---
+
 ## 🔌 API Overview
 
 The core API provides a concise and powerful way to work with the DOM:
 
 - `E(Element|Selector, { attributes, dataset, style, ... }, children[] | mapped)`
-  - Create a DOM element with specified properties and children.
+  - Create or wrap a DOM element with specified properties and children (binding).
 - `M(Array|Set, generateCb)`
   - Map arrays or sets to DOM elements.
-- `H(DOMCode)`
+- `H(DOMCode)` or `H\`DOMCode\``
   - Create static DOM HTML from code.
-- `T(String|StringRef)`
-  - Create a TextNode object.
+- `T(String|StringRef)` or `T\`Code\``
+  - Create a TextNode object (with reactive support).
+- `C(ref, whatToMake)`
+  - Create changeable DOM element (include for texts).
+- `S(CSSCode)` or `S\`CSSCode\``
+  - Create controllable CSS code for elements
+- `Q(selector, root)`
+  - Make dynamically query selected wrapper
+  - Alternative of JQuery features, which is static
 
 ---
 
