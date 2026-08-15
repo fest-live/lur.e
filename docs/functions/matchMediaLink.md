@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function matchMediaLink(
    condition?): (() => void) | undefined;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:282
+Defined in: lur.e/src/lure/core/Links.ts:285
 
 ## Parameters
 

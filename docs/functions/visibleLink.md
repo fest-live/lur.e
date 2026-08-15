@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function visibleLink(
    initial?): (() => void) | undefined;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:291
+Defined in: lur.e/src/lure/core/Links.ts:294
 
 ## Parameters
 

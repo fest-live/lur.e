@@ -1,9 +1,3 @@
-/*
- * Filename: Refs.ts
- * FullPath: modules/projects/lur.e/src/lure/core/Refs.ts
- * Change date and time: 15.40.00_08.08.2026
- * Reason for changes: Read attr bank via DoubleWeakMap pair key [host, handleAttribute].
- */
 import type { refType } from "@fest-lib/object";
 import { stringRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger, ref } from "@fest-lib/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink, pointerEventLink, radioValueLink, type Linker } from "./Links";
@@ -17,8 +11,7 @@ import type { observeValid } from "@fest-lib/object";
 //
 export const makeRef = <T = any>(host?: any, type?: any, link?: any, ...args): T extends object ? observeValid<T> | refType<T> : refType<T> => {
     if (link == attrLink || link == handleAttribute) {
-        // COMPAT: pair-keyed bank (Binding), not nested WeakMap chain.
-        const exists = elMap?.get?.([host, handleAttribute])?.[args[0]]?.[0];
+        const exists = elMap?.get?.(host)?.get?.(handleAttribute)?.get?.(args[0])?.[0];
         if (exists) { return exists; };
     }
     const rf = (type ?? ref)?.(null), result = link?.(host, rf, ...args);

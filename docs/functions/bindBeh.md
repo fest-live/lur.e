@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function bindBeh(
    behavior): any;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:91
+Defined in: lur.e/src/lure/core/Binding.ts:87
 
 ## Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const bank: any;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:64
+Defined in: lur.e/src/lure/core/Binding.ts:60

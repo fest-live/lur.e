@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: LinkOptions\<T\>
 
-Defined in: lur.e/src/lure/core/Links.ts:24
+Defined in: lur.e/src/lure/core/Links.ts:27
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Defined in: lur.e/src/lure/core/Links.ts:24
 optional affectTypes?: string[];
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:32
+Defined in: lur.e/src/lure/core/Links.ts:35
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: lur.e/src/lure/core/Links.ts:32
 optional bindImmediately?: boolean;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:34
+Defined in: lur.e/src/lure/core/Links.ts:37
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: lur.e/src/lure/core/Links.ts:34
 optional forProp?: string;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:31
+Defined in: lur.e/src/lure/core/Links.ts:34
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: lur.e/src/lure/core/Links.ts:31
 optional getter?: LinkGetter<T>;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:27
+Defined in: lur.e/src/lure/core/Links.ts:30
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: lur.e/src/lure/core/Links.ts:27
 optional ref?: any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:26
+Defined in: lur.e/src/lure/core/Links.ts:29
 
 ***
 
@@ -72,7 +72,7 @@ Defined in: lur.e/src/lure/core/Links.ts:26
 optional setter?: LinkSetter<T>;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:28
+Defined in: lur.e/src/lure/core/Links.ts:31
 
 ***
 
@@ -82,7 +82,7 @@ Defined in: lur.e/src/lure/core/Links.ts:28
 optional source?: any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:25
+Defined in: lur.e/src/lure/core/Links.ts:28
 
 ***
 
@@ -92,7 +92,7 @@ Defined in: lur.e/src/lure/core/Links.ts:25
 optional store?: LinkStore<T>;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:30
+Defined in: lur.e/src/lure/core/Links.ts:33
 
 ***
 
@@ -102,7 +102,7 @@ Defined in: lur.e/src/lure/core/Links.ts:30
 optional trigger?: LinkTrigger<T>;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:29
+Defined in: lur.e/src/lure/core/Links.ts:32
 
 ***
 
@@ -112,4 +112,4 @@ Defined in: lur.e/src/lure/core/Links.ts:29
 optional triggerImmediately?: boolean;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:33
+Defined in: lur.e/src/lure/core/Links.ts:36

@@ -1,3 +1,9 @@
+/*
+ * Filename: Utils.ts
+ * FullPath: modules/projects/lur.e/src/lure/context/Utils.ts
+ * Change date and time: 15.40.00_08.08.2026
+ * Reason for changes: Stop sharing Symbol.for("lur.e@elMap") with Binding DoubleWeakMap (C() Invalid weak map key).
+ */
 import { unwrap, affected } from "@fest-lib/object";
 import { $virtual, $mapped } from "../core/Binding";
 import { isElement, isValidParent } from "@fest-lib/dom";
@@ -14,18 +20,35 @@ export const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
 export const isElementValue = (el: any, requestor?: any | null) => { return KIDNAP_WITHOUT_HANG(el, requestor) ?? (hasValue(el) && isElement(el?.value) ? el?.value : el); }
 
 //
-export const elMap = new WeakMap();
-export const tmMap = new WeakMap();
+const __nodeGuardSymbol = Symbol.for("lur.e@__nodeGuard");
+const __nodeGuard = globalThis[__nodeGuardSymbol] ??= new WeakSet<any>();
+export { __nodeGuard };
+
+//
+/* INVARIANT: must NOT reuse `lur.e@elMap` — Binding owns that Symbol as DoubleWeakMap([el, handler]→bank).
+ * WHY: Utils/C() key by a single object; pair-map #splitPair(non-array) → null → "Invalid value used as weak map key". */
+const nodeElMapSymbol = Symbol.for("lur.e@nodeElMap");
+/** Observable / object → cached lure node (Changeable, Text, …). Single-key WeakMap. */
+export const elMap = globalThis[nodeElMapSymbol] ??= new WeakMap<any, any>();
+export { elMap as nodeElMap };
+
+//
+const tmMapSymbol = Symbol.for("lur.e@tmMap");
+export const tmMap = globalThis[tmMapSymbol] ??= new WeakMap<any, any>();
 
 //
 const getMapped = (obj: any)=>{
     if (isPrimitive(obj)) return obj;
-    if (hasValue(obj) && isPrimitive(obj?.value)) return tmMap?.get(obj);
-    return elMap?.get?.(obj);
+    if (hasValue(obj) && isPrimitive(obj?.value) && obj != null) return tmMap?.get(obj);
+    return ((typeof obj == "object" || typeof obj == "function") && obj != null) ? elMap?.get?.(obj) : obj;
 }
 
 //
-const $promiseResolvedMap = new WeakMap();
+const $promiseResolvedMapSymbol = Symbol.for("lur.e@$promiseResolvedMap");
+globalThis[$promiseResolvedMapSymbol] ??= new WeakMap();
+export const $promiseResolvedMap = globalThis[$promiseResolvedMapSymbol];
+
+//
 const $makePromisePlaceholder = (promised, getNodeCb)=>{
     if ($promiseResolvedMap?.has?.(promised)) {
         return $promiseResolvedMap?.get?.(promised);
@@ -100,7 +123,6 @@ const isWeakCompatible = (el: any)=>{
 }
 
 //
-const __nodeGuard = new WeakSet<any>();
 const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?: any | null)=>{
     if (el instanceof WeakRef || typeof (el as any)?.deref == "function") { el = el.deref(); }
     if (el instanceof Promise || typeof (el as any)?.then == "function") { return $makePromisePlaceholder(el, (nd)=>__getNode(nd, mapper, index, requestor)); };
@@ -110,7 +132,7 @@ const __getNode = (el, mapper?: Function | null, index: number = -1, requestor?:
             return $getLeaf(obj instanceof WeakRef ? obj?.deref?.() : obj, requestor);
         };
         const $node = $getBase(el, mapper, index, requestor);
-        if (!mapper && $node != null && $node != el && isWeakCompatible(el) && !isElement(el)) { elMap.set(el, $node); };
+        if (!mapper && $node != null && $node != el && isWeakCompatible(el) && !isElement(el) && el != null) { elMap.set(el, $node); };
         return $getLeaf($node, requestor);
     }
     return $getNode(el, mapper, index, requestor);
@@ -269,15 +291,17 @@ export const T = (ref) => {
     if (ref == null) return document.createComment(":NULL:");
 
     // @ts-ignore
-    return tmMap.getOrInsertComputed(ref, () => {
-        const element = document.createTextNode(((hasValue(ref) ? ref?.value : ref) ?? "")?.trim?.() ?? "");
-        //affected([ref, "value"], (val) => (element.textContent = (val?.innerText ?? val?.textContent ?? val ?? "")?.trim?.() ?? ""));
-        affected([ref, "value"], (val) => {
-            const untrimmed = "" + (val?.innerText ?? val?.textContent ?? val?.value ?? val ?? "");
-            (element.textContent = untrimmed?.trim?.() ?? "");
+    if (isWeakCompatible(ref)) {
+        return tmMap.getOrInsertComputed(ref, () => {
+            const element = document.createTextNode(((hasValue(ref) ? ref?.value : ref) ?? "")?.trim?.() ?? "");
+            //affected([ref, "value"], (val) => (element.textContent = (val?.innerText ?? val?.textContent ?? val ?? "")?.trim?.() ?? ""));
+            affected([ref, "value"], (val) => {
+                const untrimmed = "" + (val?.innerText ?? val?.textContent ?? val?.value ?? val ?? "");
+                (element.textContent = untrimmed?.trim?.() ?? "");
+            });
+            return element;
         });
-        return element;
-    });
+    }
 }
 
 //

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function scrollLink(
    initial?): () => void;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:336
+Defined in: lur.e/src/lure/core/Links.ts:339
 
 ## Parameters
 

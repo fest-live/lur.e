@@ -5,8 +5,11 @@ import { setChecked } from "@fest-lib/dom";
 import { getIgnoreNextPopState, setIgnoreNextPopState } from "../../interactive/tasking/BackNavigation";
 
 //
-export const localStorageLinkMap = new Map<string, any>();
+const localStorageLinkMapSymbol = Symbol.for("lure@localStorageLinkMap");
+globalThis[localStorageLinkMapSymbol] ??= new Map<string, any>();
+export const localStorageLinkMap = globalThis[localStorageLinkMapSymbol];
 
+//
 type Cleanup = (() => void) | { disconnect?: () => void } | { unsubscribe?: () => void } | void;
 type LinkContext<T = any> = {
     source: any;

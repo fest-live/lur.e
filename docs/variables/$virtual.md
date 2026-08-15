@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const $virtual: typeof $virtual;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:82
+Defined in: lur.e/src/lure/core/Binding.ts:78

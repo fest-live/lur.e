@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function pointerEventRef(host?, ...args): any;
 ```
 
-Defined in: lur.e/src/lure/core/Refs.ts:108
+Defined in: lur.e/src/lure/core/Refs.ts:101
 
 ## Parameters
 

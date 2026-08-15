@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function bindMorph(
    options?): () => void;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:437
+Defined in: lur.e/src/lure/core/Binding.ts:433
 
 ## Parameters
 

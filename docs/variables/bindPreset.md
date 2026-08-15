@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 const bindPreset: object;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:494
+Defined in: lur.e/src/lure/core/Binding.ts:490
 
 ## Type Declaration
 

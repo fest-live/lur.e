@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function makeLinker<T>(options): Linker<T>;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:137
+Defined in: lur.e/src/lure/core/Links.ts:140
 
 ## Type Parameters
 

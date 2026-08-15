@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function bindAnimated(
    options?): () => void;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:415
+Defined in: lur.e/src/lure/core/Binding.ts:411
 
 ## Parameters
 

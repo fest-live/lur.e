@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.22**](../README.md)
+[**@fest-lib/lure v0.1.24**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function withInsetWithPointer(exists, pRef): () => void;
 ```
 
-Defined in: lur.e/src/lure/core/Binding.ts:566
+Defined in: lur.e/src/lure/core/Binding.ts:562
 
 ## Parameters
 
