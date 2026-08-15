@@ -1,9 +1,3 @@
-/*
- * Filename: Binding.ts
- * FullPath: modules/projects/lur.e/src/lure/core/Binding.ts
- * Change date and time: 15.40.00_08.08.2026
- * Reason for changes: Document that lur.e@elMap is Binding-only DoubleWeakMap (not Utils node cache).
- */
 import { addToCallChain, observe, affected, unaffected } from "@fest-lib/object";
 import {
     handleAttribute,
@@ -60,29 +54,14 @@ type BankEntry = [any, Unsub];
 type Bank = Record<string | symbol, BankEntry>;
 
 //
-const bankSymbol = Symbol.for("lur.e@bank");
-const bank = globalThis[bankSymbol] ??= new DoubleWeakMap();
-
-//
-/* INVARIANT: `lur.e@elMap` is ONLY the Binding bank DoubleWeakMap([el, handler] → Bank).
- * Node/Changeable caches use `lur.e@nodeElMap` in context/Utils.ts — do not share this Symbol. */
-const elMapSymbol = Symbol.for("lur.e@elMap");
-const elMap = globalThis[elMapSymbol] ??= new DoubleWeakMap();
-
-//
-export { bank, elMap };
-
-//
-const alivesSymbol = Symbol.for("lur.e@alives");
-const alives = globalThis[alivesSymbol] ??= new FinalizationRegistry((unsub: any) => unsub?.());
-export { alives };
+export const elMap = new DoubleWeakMap();
+export const alives = new FinalizationRegistry((unsub: any) => unsub?.());
 
 //
 export const $mapped = Symbol.for("@mapped");
 export const $virtual = Symbol.for("@virtual");
 export const $behavior = Symbol.for("@behavior");
 
-//
 const isLinkerLike = (value: any) => {
     return !!value && typeof value == "object" && "ref" in value && typeof value?.unbind == "function";
 }

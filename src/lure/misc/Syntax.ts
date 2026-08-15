@@ -46,15 +46,10 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
             return [name, -1];
         }
 
-        //
+
         const specialEntryNames = [
-            "dataset",
-            "style",
-            "classList",
-            "visible",
-            "aria",
-            "value",
-            "placeholder",
+            "dataset", "style", "classList", "visible", "aria",
+            "value", "checked", "valueAsNumber", "placeholder",   // + checked, valueAsNumber
             "ref",
         ];
         
@@ -117,9 +112,10 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         // remove entries that are already in properties or on
         //attributesEntries = attributesEntries?.filter?.((pair) => !(propertiesEntries?.some?.((p) => p[0] == pair[0]) || onEntries?.some?.((p) => p[0] == pair[0]) || refEntries?.some?.((p) => p[0] == pair[0]))) ?? [];
 
+        // ...и исключаем их из атрибутных биндингов:
         let attributesEntries: [string, any][] = makeEntries(
             ["attr:", ""],
-            ["ref", "value", "placeholder"],
+            ["ref", "value", "placeholder", "checked", "valueAsNumber"],  // +
         );
         
         if (inlineStylePlan != null) {
@@ -171,6 +167,30 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         bindings.attributes = Object.fromEntries(attributesEntries?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
         bindings.properties = Object.fromEntries(propertiesEntries?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
         bindings.on = Object.fromEntries(onEntries?.filter?.((pair) => pair[1]?.some?.((idx: number) => idx >= 0))?.map?.((pair) => [pair[0], pair[1]?.map?.((idx: number) => atb?.[idx]).filter((v: any) => v != null)]) ?? []);
+
+        // two-way: пишем изменения input'а обратно в ref
+        const isRef = (v: any) => v != null && typeof v == "object" && "value" in v;
+        if (el?.matches?.("input, select, textarea")) {
+            const writeBack = () => {
+                const input = el as HTMLInputElement;
+                if (isRef(bindings.value)) {
+                    // для radio пишем value только когда он выбран
+                    if (input.type !== "radio" || input.checked) {
+                        const vn = input.valueAsNumber;
+                        const v = (vn != null && !Number.isNaN(vn)) ? vn : input.value;
+                        if (!Object.is(bindings.value.value, v)) bindings.value.value = v;
+                    }
+                }
+                if (isRef(bindings.checked) && !Object.is(bindings.checked.value, input.checked)) {
+                    bindings.checked.value = input.checked;
+                }
+                if (isRef(bindings.valueAsNumber) && !Object.is(bindings.valueAsNumber.value, input.valueAsNumber)) {
+                    bindings.valueAsNumber.value = input.valueAsNumber;
+                }
+            };
+            el.addEventListener("input",  writeBack, { passive: true });
+            el.addEventListener("change", writeBack, { passive: true });
+        }
 
         //
         const refIndex = entriesIdc?.find?.((pair) => (pair[0] == "ref" && pair[1] >= 0))?.[1];
@@ -384,7 +404,7 @@ export function htmlBuilder({ createElement = null } = {}) {
 
         //
         walkedNodes?.filter((node: any) => node.nodeType == Node.ELEMENT_NODE)?.map?.((node) => {
-            connectElement(node as HTMLElement, atb, psh, mapped);
+            connectElement(node as HTMLElement, atb, psh, mapped as WeakMap<HTMLElement, any>);
         });
 
         // Final whitespace cleanup to ensure :empty works even after dynamic insertions

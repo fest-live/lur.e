@@ -512,6 +512,12 @@ export class EventHandler implements ProxyHandler<object> {
     }
 }
 
+// helper: определяем «инпутоподобный» селектор/элемент
+const isInputLike = (sel: any) =>
+    typeof sel == "string"
+        ? /(^|[\s>+~(,])(input|select|textarea)\b|:checked|\[type=/.test(sel)
+        : !!(sel?.matches?.("input, select, textarea"));
+
 //
 class UniversalElementHandler implements ProxyHandler<object> {
     direction: "children" | "parent" = "children";
@@ -525,6 +531,48 @@ class UniversalElementHandler implements ProxyHandler<object> {
     //
     private _callbackMap = new WeakMap<Function, {wrap: Function, option: any}>();
     private _eventMap = new WeakMap<object, Map<string, WeakMap<Function, {wrap: Function, option: any}>>>();
+
+    // Для :checked и прочих динамических состояний — всегда живой запрос,
+    // минуя кэшированный массив (MutationObserver не видит property-изменений).
+    private _freshSelected(target: any) {
+        const live = this._getSelected(target);
+        if (live) return live?.element ?? live;
+        const array = this._getArray(target);
+        const sel = array[this.index];
+        return sel?.element ?? sel;
+    }
+
+    private _readInputState(target: any) {
+        const node: any = this._freshSelected(target);
+        return {
+            node,
+            value: node?.value,
+            checked: node?.checked,
+            valueAsNumber: node?.valueAsNumber,
+        };
+    }
+
+    // Единая точка подписки: слушаем host в capture-фазе БЕЗ фильтра по селектору,
+    // т.к. при снятии чекбокса элемент уже не матчит ":checked".
+    private _subscribeInput(target: any, cb: (v: any, prop: string, old: any) => void) {
+        const host = target?.self ?? target;
+        let prev = this._readInputState(target);
+        const handler = () => {
+            const cur = this._readInputState(target);
+            if (!Object.is(cur.value, prev.value))     cb?.(cur.value, "value", prev.value);
+            if (!Object.is(cur.checked, prev.checked)) cb?.(cur.checked, "checked", prev.checked);
+            if (!Object.is(cur.valueAsNumber, prev.valueAsNumber))
+                cb?.(cur.valueAsNumber, "valueAsNumber", prev.valueAsNumber);
+            prev = cur;
+        };
+        const opt = { passive: true, capture: true };
+        host?.addEventListener?.("input",  handler, opt);
+        host?.addEventListener?.("change", handler, opt);
+        return () => {
+            host?.removeEventListener?.("input",  handler, opt);
+            host?.removeEventListener?.("change", handler, opt);
+        };
+    }
 
     //
     constructor(selector: string | HTMLElement, index = 0, direction: "children" | "parent" = "children") {
@@ -920,36 +968,36 @@ class UniversalElementHandler implements ProxyHandler<object> {
             }
         }
 
-        //
-        if (name == "checked") {
-            if ((this.selector as any)?.includes?.("input") || (this.selector as any)?.matches?.("input")) {
-                return (selected?.element ?? selected)?.checked;
-            }
+        // всегда актуальное значение (важно для radio-групп с :checked)
+        if (name == "value" && isInputLike(this.selector)) {
+            const node: any = this._freshSelected(target);
+            const vn = node?.valueAsNumber;
+            return (vn != null && !Number.isNaN(vn)) ? vn : (node?.value ?? node?.checked);
+        }
+        if (name == "checked" && isInputLike(this.selector)) {
+            return this._freshSelected(target)?.checked;
+        }
+        if (name == "valueAsNumber" && isInputLike(this.selector)) {
+            return this._freshSelected(target)?.valueAsNumber;
         }
 
-        //
-        if (name == "value") {
-            if ((this.selector as any)?.includes?.("input") || (this.selector as any)?.matches?.("input")) {
-                return (selected?.element ?? selected)?.valueAsNumber ?? (selected?.element ?? selected)?.valueAsDate ?? (selected?.element ?? selected)?.value ?? (selected?.element ?? selected)?.checked;
-            }
+        // реактивная подписка
+        if (name == $affected && isInputLike(this.selector)) {
+            return (cb) => this._subscribeInput(target, cb);
         }
 
-        // can be subscribed
-        if (name == $affected) {
-            if ((this.selector as any)?.includes?.("input") || (this.selector as any)?.matches?.("input")) {
-                return (cb) => {
-                    let oldValue = selected?.value;
-                    const evt: [any, any] = [
-                        (ev)=>{
-                            const input = this._getSelected(ev?.target);
-                            cb?.(input?.value, "value", oldValue);
-                            oldValue = input?.value;
-                        }, {passive: true}
-                    ];
-                    this._addEventListener(target, "change", ...evt)
-                    return ()=>this._removeEventListener(target, "change", ...evt)
-                }
-            }
+        // готовый реактивный ref: const v = Q('input[name=g]:checked').valueRef();
+        if ((name == "valueRef" || name == "checkedRef") && isInputLike(this.selector)) {
+            return () => {
+                const prop = name == "checkedRef" ? "checked" : "value";
+                const state = this._readInputState(target);
+                const ref: any = observe({ value: state[prop] });
+                const unsub = this._subscribeInput(target, (v, p) => {
+                    if (p == prop) ref.value = v;
+                });
+                ref[Symbol.dispose] = unsub;
+                return ref;
+            };
         }
 
         //
