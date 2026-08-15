@@ -74,7 +74,9 @@ export const E = (selector: string | HTMLElement | Node | DocumentFragment | Doc
         if (params.aria != null) reflectARIA(element, params.aria);
 
         //
+        if ("checked" in params) bindWith(element, "checked", params.checked, handleProperty, params, true);
         if ("value" in params) bindWith(element, "value", params.value, handleProperty, params, true);
+        if ("valueAsNumber" in params) bindWith(element, "valueAsNumber", params.valueAsNumber, handleProperty, params, true);
         if ("placeholder" in params) bindWith(element, "placeholder", params.placeholder, handleProperty, params, true);
         if (params.is != null) bindWith(element, "is", params.is, handleAttribute, params, true);
         if (params.role != null) bindWith(element, "role", params.role, handleProperty, params);
