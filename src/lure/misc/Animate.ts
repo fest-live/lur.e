@@ -33,6 +33,11 @@ interface PropertyAnimation {
  * Main animation options.
  */
 interface AnimationOptions {
+    keyframes?: AnimationKeyframes;
+    /** */
+    properties: Record<string, any>[] | string,
+    /** */
+    offsets?: number[],
     /** Duration in milliseconds or CSS time string */
     duration?: number | string;
     /** Delay before animation starts */
@@ -51,6 +56,34 @@ interface AnimationOptions {
     timeline?: AnimationTimeline;
 }
 
+/*
+{
+    offsets?: number[],
+    properties: Record<string, any[]> | string;
+    duration?: number | string;
+    delay?: number | string;
+    iterationCount?: number;
+    fillMode?: FillMode;
+    direction?: PlaybackDirection;
+    easing?: TimingFunction;
+    composite?: "replace" | "add" | "accumulate";
+}
+*/
+
+/*
+{
+    keyframes: AnimationKeyframes;
+    duration?: number | string;
+    delay?: number | string;
+    iterationCount?: number;
+    fillMode?: FillMode;
+    direction?: PlaybackDirection;
+    easing?: TimingFunction;
+    composite?: "replace" | "add" | "accumulate";
+    timeline?: AnimationTimeline;
+}
+*/
+
 /**
  * Keyframe configuration from A template literal.
  */
@@ -63,6 +96,7 @@ interface AnimationKeyframes {
 type FillMode = "none" | "forwards" | "backwards" | "both";
 type PlaybackDirection = "normal" | "reverse" | "alternate" | "alternate-reverse";
 
+//
 let animationTemplateId = 0;
 
 /**
@@ -101,6 +135,28 @@ const camelToKebab = (str: string): string => {
     return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
 };
 
+
+//
+const parsePropertyList = (options: AnimationOptions)=>{
+    const fromString: (Record<string, string> | Keyframe)[] = [];
+    if (typeof options.properties == "string") {
+        const props: string[] = options.properties?.trim?.()?.split?.(";");
+        fromString.push(...(Array.from(props || [])?.map?.(($pair: string)=>{
+            if ($pair?.includes?.(":")) {
+                const pair = $pair?.split?.(":") ?? [];
+                const value = pair?.slice?.(1, -1)?.join?.(":");
+                const property = $pair?.[0];
+                return { [property?.trim?.()]: value?.trim?.() };
+            }
+            return null;
+        })?.filter?.((a)=>a != null) || []));
+    }
+
+    //
+    const propertyList: (Record<string, any> | Keyframe)[] = Array.from(Array.isArray(options.properties) ? options.properties : fromString);
+    return propertyList;
+}
+
 /**
  * Parse A template literal into animation keyframes.
  * 
@@ -109,10 +165,7 @@ const camelToKebab = (str: string): string => {
  * - `A`transform:${[translateX(0), translateX(100px)]};`
  * - `A`background:${[CSS.rgb(255,0,0), CSS.rgb(0,0,255)]};`
  */
-const parseAnimationTemplate = (
-    strings: TemplateStringsArray,
-    values: any[],
-): AnimationKeyframes => {
+const parseAnimationTemplate = (strings: TemplateStringsArray, values: any[]): AnimationKeyframes => {
     const properties = new Map<string, PropertyAnimation>();
     
     // Reconstruct the full CSS-like text
@@ -131,16 +184,12 @@ const parseAnimationTemplate = (
         .filter(Boolean);
     
     for (const declaration of declarations) {
-        const colonIndex = declaration.indexOf(":");
-        if (colonIndex === -1) continue;
-        
+        const colonIndex = declaration.indexOf(":"); if (colonIndex === -1) continue;
         const property = declaration.slice(0, colonIndex).trim();
         const valueText = declaration.slice(colonIndex + 1).trim();
         
         // Find slot markers
-        const slotMatch = /__SLOT_(\d+)__/.exec(valueText);
-        if (!slotMatch) continue;
-        
+        const slotMatch = /__SLOT_(\d+)__/.exec(valueText); if (!slotMatch) continue;
         const slotIndex = parseInt(slotMatch[1], 10);
         const slotValue = values[slotIndex];
         
@@ -164,9 +213,7 @@ const parseAnimationTemplate = (
  * Process reactive values in animation keyframes.
  * Returns both static values and reactive bindings.
  */
-const processAnimationValues = (
-    values: any[],
-): { 
+const processAnimationValues = (values: any[],): { 
     resolved: any[];
     hasReactive: boolean;
     reactiveIndices: number[];
@@ -192,35 +239,30 @@ const processAnimationValues = (
     return { resolved, hasReactive, reactiveIndices };
 };
 
+
 /**
  * Build Web Animations API keyframes from parsed template.
  */
-const buildWebAnimationKeyframes = (
-    keyframes: AnimationKeyframes,
-    globalOffsets?: number[],
-): Keyframe[] => {
-    const propertyList = Array.from(keyframes.properties.values());
-    
+const buildWebAnimationKeyframes = (options: AnimationOptions): Keyframe[] => {
+    const globalOffsets = options?.offsets;
+    const propertyList = parsePropertyList(options);
+
     if (propertyList.length === 0) {
         throw new Error("No animatable properties found in A template");
     }
     
     // Determine number of keyframes (max length across all properties)
-    const maxLength = Math.max(
-        ...propertyList.map(p => p.values.length)
-    );
+    const maxLength = Math.max(...propertyList.map(p => p.values.length));
     
     // Generate offsets if not provided
-    const offsets = globalOffsets || 
-        Array.from({ length: maxLength }, (_, i) => i / (maxLength - 1));
+    // @ts-ignore
+    const offsets = (globalOffsets?.length > 1 ? globalOffsets : null) || Array.from({ length: maxLength }, (_, i) => i / (maxLength - 1));
     
     // Build keyframe objects
     const frames: Keyframe[] = [];
     
     for (let i = 0; i < maxLength; i++) {
-        const frame: Keyframe = {
-            offset: offsets[i] ?? i / (maxLength - 1),
-        };
+        const frame: Keyframe = { offset: offsets[i] ?? i / (maxLength - 1) };
         
         for (const prop of propertyList) {
             const { resolved } = processAnimationValues(prop.values);
@@ -247,9 +289,7 @@ const buildWebAnimationKeyframes = (
 /**
  * Build timing configuration for Web Animations API.
  */
-const buildAnimationTiming = (
-    options: AnimationOptions,
-): KeyframeAnimationOptions => {
+const buildAnimationTiming = (options: AnimationOptions): KeyframeAnimationOptions => {
     const duration = parseTime(options.duration ?? 300);
     const delay = parseTime(options.delay ?? 0);
     const iterations = normalizeIterationCount(options.iterationCount);
@@ -273,14 +313,13 @@ const buildAnimationTiming = (
  */
 const createReactiveAnimation = (
     element: HTMLElement,
-    keyframes: AnimationKeyframes,
     options: AnimationOptions,
 ): { animation: Animation; cleanup: Cleanup } => {
-    const propertyList = Array.from(keyframes.properties.values());
+    const propertyList = parsePropertyList(options);
     const subscriptions: Cleanup[] = [];
     
     // Initial animation
-    const frames = buildWebAnimationKeyframes(keyframes, keyframes.offsets);
+    const frames = buildWebAnimationKeyframes(options);
     const timing = buildAnimationTiming(options);
     const animation = element.animate(frames, timing);
     
@@ -300,7 +339,7 @@ const createReactiveAnimation = (
                 reactiveValue,
                 () => {
                     // Rebuild keyframes with updated values
-                    const newFrames = buildWebAnimationKeyframes(keyframes, keyframes.offsets);
+                    const newFrames = buildWebAnimationKeyframes(options);
                     
                     // Update animation without restarting
                     const currentTime = animation.currentTime;
@@ -316,7 +355,7 @@ const createReactiveAnimation = (
                 },
             );
             
-            subscriptions.push(subscription);
+            subscriptions.push(subscription as any);
         }
     }
     
@@ -342,10 +381,7 @@ const createReactiveAnimation = (
  * ]};`
  * ```
  */
-export const A = (
-    strings: TemplateStringsArray,
-    ...values: any[]
-): AnimationKeyframes => {
+export const A = (strings: TemplateStringsArray, ...values: any[]): AnimationKeyframes => {
     return parseAnimationTemplate(strings, values);
 };
 
@@ -364,43 +400,22 @@ export const A = (
  * // Later: animation.pause(), animation.play(), animation.cleanup()
  * ```
  */
-export const doAnimation = (
-    element: HTMLElement,
-    config: {
-        keyframes: AnimationKeyframes;
-        duration?: number | string;
-        delay?: number | string;
-        iterationCount?: number;
-        fillMode?: FillMode;
-        direction?: PlaybackDirection;
-        easing?: TimingFunction;
-        composite?: "replace" | "add" | "accumulate";
-    },
-): { animation: Animation; cleanup: Cleanup } => {
-    const options: AnimationOptions = {
-        duration: config.duration,
-        delay: config.delay,
-        iterationCount: config.iterationCount,
-        fillMode: config.fillMode,
-        direction: config.direction,
-        composite: config.composite,
-        easing: config.easing,
-    };
+export const doAnimation = (element: HTMLElement, config: AnimationOptions, keyframes?: Map<string, PropertyAnimation>): { animation: Animation; cleanup: Cleanup } => {
     
     // Check if any values are reactive
-    const propertyList = Array.from(config.keyframes.properties.values());
+    const propertyList = parsePropertyList(config);
     const hasAnyReactive = propertyList.some(prop => {
         const { hasReactive } = processAnimationValues(prop.values);
         return hasReactive;
     });
     
     if (hasAnyReactive) {
-        return createReactiveAnimation(element, config.keyframes, options);
+        return createReactiveAnimation(element, config);
     }
     
     // Static animation
-    const frames = buildWebAnimationKeyframes(config.keyframes, config.keyframes.offsets);
-    const timing = buildAnimationTiming(options);
+    const frames = buildWebAnimationKeyframes(config);
+    const timing = buildAnimationTiming(config);
     const animation = element.animate(frames, timing);
     
     const cleanup = () => {
@@ -426,16 +441,13 @@ export const doAnimation = (
  */
 export const animate = (
     element: HTMLElement,
-    keyframesObj: Record<string, any[]>,
-    options?: AnimationOptions,
+    options: AnimationOptions,
 ): { animation: Animation; cleanup: Cleanup } => {
     const properties = new Map<string, PropertyAnimation>();
     
-    for (const [property, values] of Object.entries(keyframesObj)) {
+    for (const [property, values] of Object.entries(options.properties)) {
         if (!Array.isArray(values)) {
-            throw new TypeError(
-                `animate() expects arrays of values, got ${typeof values} for ${property}`
-            );
+            throw new TypeError(`animate() expects arrays of values, got ${typeof values} for ${property}`);
         }
         
         properties.set(property, {
@@ -444,12 +456,8 @@ export const animate = (
         });
     }
     
-    const keyframes: AnimationKeyframes = { properties };
-    
-    return doAnimation(element, {
-        keyframes,
-        ...options,
-    });
+    //const keyframes: AnimationKeyframes = { properties };
+    return doAnimation(element, {...options}, properties);
 };
 
 /**
@@ -466,16 +474,8 @@ export const animate = (
  * fadeIn(element2);
  * ```
  */
-export const defineAnimation = (
-    keyframes: AnimationKeyframes,
-    options?: AnimationOptions,
-) => {
-    return (element: HTMLElement) => {
-        return doAnimation(element, {
-            keyframes,
-            ...options,
-        });
-    };
+export const defineAnimation = (options: AnimationOptions) => {
+    return (element: HTMLElement) => { return doAnimation(element, options); };
 };
 
 /**
@@ -491,17 +491,7 @@ export const defineAnimation = (
  */
 export const sequenceAnimations = async (
     element: HTMLElement,
-    sequence: Array<{
-        keyframes: AnimationKeyframes;
-        duration?: number | string;
-        delay?: number | string;
-        iterationCount?: number;
-        fillMode?: FillMode;
-        direction?: PlaybackDirection;
-        easing?: TimingFunction;
-        composite?: "replace" | "add" | "accumulate";
-        timeline?: AnimationTimeline;
-    }>,
+    sequence: Array<AnimationOptions>,
 ): Promise<void> => {
     for (const config of sequence) {
         const { animation } = doAnimation(element, config);
@@ -522,30 +512,11 @@ export const sequenceAnimations = async (
  */
 export const parallelAnimations = (
     element: HTMLElement,
-    animations: Array<{
-        keyframes: AnimationKeyframes;
-        duration?: number | string;
-        delay?: number | string;
-        composite?: "replace" | "add" | "accumulate";
-        iterationCount?: number;
-        fillMode?: FillMode;
-        direction?: PlaybackDirection;
-        easing?: TimingFunction;
-        timeline?: AnimationTimeline;
-    }>,
+    animations: Array<AnimationOptions>
 ): { animations: Animation[]; cleanup: Cleanup } => {
-    const results = animations.map(config => 
-        doAnimation(element, config)
-    );
-    
-    const cleanup = () => {
-        results.forEach(r => r.cleanup());
-    };
-    
-    return {
-        animations: results.map(r => r.animation),
-        cleanup,
-    };
+    const results = animations.map(config => doAnimation(element, config));
+    const cleanup = () => { results.forEach(r => r.cleanup()); };
+    return { animations: results.map(r => r.animation), cleanup, };
 };
 
 /**
@@ -563,18 +534,12 @@ export const parallelAnimations = (
  */
 export const staggerAnimation = (
     elements: HTMLElement[],
-    keyframes: AnimationKeyframes,
     options?: AnimationOptions,
     staggerDelay: number = 100,
 ): Array<{ animation: Animation; cleanup: Cleanup }> => {
     return elements.map((element, index) => {
-        const delay = parseTime(options?.delay ?? 0) + (index * staggerDelay);
-        
-        return doAnimation(element, {
-            keyframes,
-            ...options,
-            delay,
-        });
+        const delay = parseTime(options?.delay ?? 0) + (index * staggerDelay); // @ts-ignore
+        return doAnimation(element, { ...options, delay });
     });
 };
 
