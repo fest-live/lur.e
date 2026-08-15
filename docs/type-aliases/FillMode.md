@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.32**](../README.md)
+[**@fest-lib/lure v0.1.33**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type FillMode = "none" | "forwards" | "backwards" | "both";
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:139
+Defined in: lur.e/src/lure/misc/Animate.ts:69

@@ -1,7 +1,6 @@
 import { bindWith } from "../core/Binding";
 import { handleStyleChange } from "@fest-lib/dom";
-import { isAnimatableValue, AnimatableValue, AnimatableApplyPlan, type AnimatableStyleSlot } from "./Animate";
-
+import { isAnimatableValue, type AnimatableApplyPlan } from "./Animatable";
 
 type Cleanup = () => void;
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.32**](../README.md)
+[**@fest-lib/lure v0.1.33**](../README.md)
 
 ***
 
@@ -12,7 +12,7 @@ function compileInlineStyleAttribute(source, attributes):
   | null;
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:2350
+Defined in: lur.e/src/lure/misc/Styles.ts:2349
 
 Converts an H style attribute containing internal #{n}
 placeholders into static CSS, a direct legacy binding, or S.

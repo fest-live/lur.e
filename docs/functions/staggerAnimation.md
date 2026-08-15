@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.32**](../README.md)
+[**@fest-lib/lure v0.1.33**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function staggerAnimation(
    staggerDelay?): object[];
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:578
+Defined in: lur.e/src/lure/misc/Animate.ts:502
 
 Stagger animations across multiple elements.
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.32**](../README.md)
+[**@fest-lib/lure v0.1.33**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type StyleBinding = [(element) => Cleanup, string[], Map<string, any>];
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:48
+Defined in: lur.e/src/lure/misc/Styles.ts:47

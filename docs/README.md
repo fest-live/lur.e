@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.32**
+**@fest-lib/lure v0.1.33**
 
 ***
 
-# @fest-lib/lure v0.1.32
+# @fest-lib/lure v0.1.33
 
 ## Enumerations
 
@@ -10,7 +10,6 @@
 
 ## Classes
 
-- [AnimatableValue](classes/AnimatableValue.md)
 - [CSSAnchor](classes/CSSAnchor.md)
 - [CSSBinder](classes/CSSBinder.md)
 - [CSSCalc](classes/CSSCalc.md)
@@ -65,8 +64,6 @@
 
 ## Interfaces
 
-- [AnimatableApplyPlan](interfaces/AnimatableApplyPlan.md)
-- [AnimatableOptions](interfaces/AnimatableOptions.md)
 - [AnimationKeyframes](interfaces/AnimationKeyframes.md)
 - [AnimationOptions](interfaces/AnimationOptions.md)
 - [AppendAsLayerOptions](interfaces/AppendAsLayerOptions.md)
@@ -103,12 +100,10 @@
 - [ScrollBarInit](interfaces/ScrollBarInit.md)
 - [ScrollBarStatus](interfaces/ScrollBarStatus.md)
 - [ScrollbarTheme](interfaces/ScrollbarTheme.md)
-- [ScrollDrivenOptions](interfaces/ScrollDrivenOptions.md)
 - [SelectionOptions](interfaces/SelectionOptions.md)
 - [SwitchedParams](interfaces/SwitchedParams.md)
 - [TemplateManagerOptions](interfaces/TemplateManagerOptions.md)
 - [UnderlyingShadowOptions](interfaces/UnderlyingShadowOptions.md)
-- [ViewDrivenOptions](interfaces/ViewDrivenOptions.md)
 - [VoiceInputOptions](interfaces/VoiceInputOptions.md)
 - [WriteSmartOptions](interfaces/WriteSmartOptions.md)
 
@@ -116,11 +111,10 @@
 
 - [AnchorableDragBindOptions](type-aliases/AnchorableDragBindOptions.md)
 - [AnchorNameTriple](type-aliases/AnchorNameTriple.md)
-- [AnimatableStyleSlot](type-aliases/AnimatableStyleSlot.md)
-- [AnimatableTrigger](type-aliases/AnimatableTrigger.md)
 - [Base64Alphabet](type-aliases/Base64Alphabet.md)
 - [Base64LastChunkHandling](type-aliases/Base64LastChunkHandling.md)
 - [BlobToStringOptions](type-aliases/BlobToStringOptions.md)
+- [Cleanup](type-aliases/Cleanup.md)
 - [ClipboardDataType](type-aliases/ClipboardDataType.md)
 - [DataAsset](type-aliases/DataAsset.md)
 - [DataAssetInput](type-aliases/DataAssetInput.md)
@@ -162,7 +156,6 @@
 - [$mapped](variables/$mapped.md)
 - [$virtual](variables/$virtual.md)
 - [alives](variables/alives.md)
-- [ANIMATABLE\_BRAND](variables/ANIMATABLE_BRAND.md)
 - [bank](variables/bank.md)
 - [bindPreset](variables/bindPreset.md)
 - [cancelAnimations](variables/cancelAnimations.md)
@@ -217,7 +210,6 @@
 - [addVector3D](functions/addVector3D.md)
 - [addVector4D](functions/addVector4D.md)
 - [agWrapEvent](functions/agWrapEvent.md)
-- [animatable](functions/animatable.md)
 - [animate](functions/animate.md)
 - [appendAsLayer](functions/appendAsLayer.md)
 - [appendAsOverlay](functions/appendAsOverlay.md)
@@ -413,7 +405,6 @@
 - [initGlobalClipboard](functions/initGlobalClipboard.md)
 - [initHistory](functions/initHistory.md)
 - [intersectionBoxAnchorRef](functions/intersectionBoxAnchorRef.md)
-- [isAnimatableValue](functions/isAnimatableValue.md)
 - [isBase64Like](functions/isBase64Like.md)
 - [isChromeExtension](functions/isChromeExtension.md)
 - [isClipboardAvailable](functions/isClipboardAvailable.md)
@@ -482,8 +473,6 @@
 - [observeConnect](functions/observeConnect.md)
 - [observeDisconnect](functions/observeDisconnect.md)
 - [observeSizeLink](functions/observeSizeLink.md)
-- [onScroll](functions/onScroll.md)
-- [onView](functions/onView.md)
 - [OOBTrigger](functions/OOBTrigger.md)
 - [openDirectory](functions/openDirectory.md)
 - [openFile](functions/openFile.md)
@@ -500,6 +489,7 @@
 - [parseDataUrl](functions/parseDataUrl.md)
 - [parseDesktopItemCompact](functions/parseDesktopItemCompact.md)
 - [parseJsonSafely](functions/parseJsonSafely.md)
+- [parseTime](functions/parseTime.md)
 - [persistDesktopDraft](functions/persistDesktopDraft.md)
 - [persistDesktopMain](functions/persistDesktopMain.md)
 - [pickBgColor](functions/pickBgColor.md)

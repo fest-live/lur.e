@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.32**](../README.md)
+[**@fest-lib/lure v0.1.33**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function isNativeCSSStyleValue(value): boolean;
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:224
+Defined in: lur.e/src/lure/misc/Styles.ts:223
 
 Detects CSSUnitValue, CSSMathValue and other CSSStyleValue
 descendants, including values created in another Window.
