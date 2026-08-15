@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.31**](../README.md)
+[**@fest-lib/lure v0.1.32**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: AnimationOptions
 
-Defined in: lur.e/src/lure/misc/Animate.ts:35
+Defined in: lur.e/src/lure/misc/Animate.ts:78
 
 Main animation options.
 
@@ -15,10 +15,10 @@ Main animation options.
 ### composite?
 
 ```ts
-optional composite?: "add" | "replace" | "accumulate";
+optional composite?: "accumulate" | "add" | "replace";
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:54
+Defined in: lur.e/src/lure/misc/Animate.ts:97
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: lur.e/src/lure/misc/Animate.ts:54
 optional delay?: string | number;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:44
+Defined in: lur.e/src/lure/misc/Animate.ts:87
 
 Delay before animation starts
 
@@ -40,7 +40,7 @@ Delay before animation starts
 optional direction?: PlaybackDirection;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:50
+Defined in: lur.e/src/lure/misc/Animate.ts:93
 
 Direction: 'normal' | 'reverse' | 'alternate' | 'alternate-reverse'
 
@@ -52,7 +52,7 @@ Direction: 'normal' | 'reverse' | 'alternate' | 'alternate-reverse'
 optional duration?: string | number;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:42
+Defined in: lur.e/src/lure/misc/Animate.ts:85
 
 Duration in milliseconds or CSS time string
 
@@ -64,7 +64,7 @@ Duration in milliseconds or CSS time string
 optional easing?: TimingFunction;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:52
+Defined in: lur.e/src/lure/misc/Animate.ts:95
 
 Global easing (overridden by property-specific easing)
 
@@ -76,7 +76,7 @@ Global easing (overridden by property-specific easing)
 optional fillMode?: FillMode;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:48
+Defined in: lur.e/src/lure/misc/Animate.ts:91
 
 Fill mode: 'none' | 'forwards' | 'backwards' | 'both'
 
@@ -88,7 +88,7 @@ Fill mode: 'none' | 'forwards' | 'backwards' | 'both'
 optional iterationCount?: number;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:46
+Defined in: lur.e/src/lure/misc/Animate.ts:89
 
 Iteration count (-1 for infinite)
 
@@ -100,7 +100,7 @@ Iteration count (-1 for infinite)
 optional keyframes?: AnimationKeyframes;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:36
+Defined in: lur.e/src/lure/misc/Animate.ts:79
 
 ***
 
@@ -110,7 +110,7 @@ Defined in: lur.e/src/lure/misc/Animate.ts:36
 optional offsets?: number[];
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:40
+Defined in: lur.e/src/lure/misc/Animate.ts:83
 
 ***
 
@@ -120,7 +120,7 @@ Defined in: lur.e/src/lure/misc/Animate.ts:40
 properties: string | Record<string, any>[];
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:38
+Defined in: lur.e/src/lure/misc/Animate.ts:81
 
 ***
 
@@ -130,4 +130,4 @@ Defined in: lur.e/src/lure/misc/Animate.ts:38
 optional timeline?: AnimationTimeline;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:56
+Defined in: lur.e/src/lure/misc/Animate.ts:99

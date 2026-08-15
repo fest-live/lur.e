@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.31**](../README.md)
+[**@fest-lib/lure v0.1.32**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function isReactiveStyleValue(value): boolean;
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:268
+Defined in: lur.e/src/lure/misc/Styles.ts:270
 
 Detects the existing reactive `{ value: ... }` contract.
 

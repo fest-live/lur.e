@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.31**](../README.md)
+[**@fest-lib/lure v0.1.32**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function pruneEmptyStyleAttribute(element): void;
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:187
+Defined in: lur.e/src/lure/misc/Styles.ts:189
 
 Removes a useless style attribute left by empty interpolation.
 

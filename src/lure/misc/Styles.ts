@@ -1,5 +1,7 @@
 import { bindWith } from "../core/Binding";
 import { handleStyleChange } from "@fest-lib/dom";
+import { isAnimatableValue, AnimatableValue, AnimatableApplyPlan, type AnimatableStyleSlot } from "./Animate";
+
 
 type Cleanup = () => void;
 
@@ -731,7 +733,7 @@ class NumericTypedOMParser {
             value: infer SymbolValue;
         }
             ? SymbolValue
-            : never,
+            : string,
     ): void {
         const token = this.consume();
 
@@ -751,7 +753,7 @@ class NumericTypedOMParser {
             value: infer SymbolValue;
         }
             ? SymbolValue
-            : never,
+            : string,
     ): boolean {
         const token = this.current();
 
@@ -1226,18 +1228,10 @@ const buildTransformTypedOMTree = (
         const args: any[] = [];
         consumeSymbol("(");
 
-        if (
-            !(
-                current()?.kind === "symbol" &&
-                current()?.value === ")"
-            )
-        ) {
-            args.push(parseArgument());
-
-            while (
-                current()?.kind === "symbol" &&
-                current()?.value === ","
-            ) {
+        //@ts-ignore
+        if (!(current()?.kind === "symbol" && current()?.value === ")")) {
+            args.push(parseArgument()); //@ts-ignore
+            while (current()?.kind === "symbol" && current()?.value === ",") {
                 consume();
                 args.push(parseArgument());
             }
@@ -1515,6 +1509,7 @@ const applyStyleTemplate = (
     typedSlots: readonly TypedStyleSlot[],
     reactiveSlots: readonly ReactiveStyleSlot[],
     variables: ReadonlyMap<string, any>,
+    animatableSlots: any[]
 ): Cleanup => {
     const probe =
         element.ownerDocument.createElement("span");
@@ -1547,6 +1542,55 @@ const applyStyleTemplate = (
         new Set<string>();
 
     const subscriptions: any[] = [];
+
+    // --- внутри applyStyleTemplate, после основного цикла по декларациям: ---
+    /**
+     * Привязка animatable-слотов.
+     *
+     * Выбор режима:
+     * - слот занимает всю декларацию целиком (`opacity:${anim}`) ->
+     *   mode:"property" — браузер анимирует само свойство. Дешевле,
+     *   и работает даже без CSS.registerProperty.
+     * - слот внутри выражения (`translateX(${anim}px)`, calc, clamp) ->
+     *   mode:"custom-property" — анимируем зарегистрированное число,
+     *   а декларация "подтягивает" его через var()/calc().
+     */
+
+    for (const slot of animatableSlots) {
+        let plan: AnimatableApplyPlan | null = null;
+    
+        // Ищем декларацию, где слот — прямое значение
+        for (let i = 0; i < probe.style.length; i++) {
+            const property = probe.style.item(i);
+            const parsedValue = probe.style.getPropertyValue(property);
+    
+            if (isDirectSlotValue(parsedValue, slot.marker)) {
+                plan = { mode: "property", target: property };
+                // прямое значение: декларацию из style убираем,
+                // ей полностью владеет анимация (fill: both)
+                element.style.removeProperty(property);
+                break;
+            }
+    
+            if (isDirectSlotUnitProduct(parsedValue, slot.marker, slot.multipliedByUnit)) {
+                plan = {
+                    mode: "property",
+                    target: property,
+                    unit: slot.multipliedByUnit,
+                };
+                element.style.removeProperty(property);
+                break;
+            }
+        }
+    
+        // Слот участвует в сложном выражении -> анимируем custom property
+        if (!plan) {
+            ensureRegisteredNumberProperty(win, slot.marker, Number(slot.value.value) || 0);
+            plan = { mode: "custom-property", target: slot.marker };
+        }
+    
+        subscriptions.push(slot.value.attach(element, plan));
+    }
 
     for (
         let index = 0;
@@ -2019,6 +2063,9 @@ export const S = (
 
     const parts: string[] = [];
 
+    const animatableSlots: any[] = [];
+
+
     /*
      * `${value}px` consumes "px" from the next static fragment.
      */
@@ -2076,6 +2123,41 @@ export const S = (
                 );
             }
 
+            continue;
+        }
+
+        // --- внутри S(), в цикле по values, ПЕРЕД isReactiveStyleValue: ---
+        
+        if (isAnimatableValue(value)) {
+            const marker = `--fest-anim-${templateId}-${animatableSlots.length}`;
+
+            if (attachedUnit) {
+                // translateX(${anim}px) -> calc(var(--fest-anim-*) * 1px)
+                parts.push(`calc(var(${marker}) * 1${attachedUnit.authored})`);
+                consumed[index + 1] += attachedUnit.length;
+            } else {
+                parts.push(`var(${marker})`);
+            }
+        
+            /*
+             * КРИТИЧНО: @property с syntax "<number>" делает custom property
+             * ИНТЕРПОЛИРУЕМЫМ. Без регистрации WAAPI-анимация custom property
+             * будет дискретной (50% flip) вместо плавной.
+             */
+            properties.push(
+                `@property ${marker} { ` +
+                `syntax: "<number>"; ` +
+                `initial-value: ${Number(value.value) || 0}; ` +
+                `inherits: false; ` +
+                `};`,
+            );
+
+            animatableSlots.push({
+                marker,
+                value,
+                multipliedByUnit: attachedUnit?.normalized,
+            });
+        
             continue;
         }
 
@@ -2157,6 +2239,7 @@ export const S = (
                 typedSlots,
                 reactiveSlots,
                 variables,
+                animatableSlots
             );
         },
         properties,
@@ -2379,4 +2462,30 @@ export const bindStyle = (
 
         result?.unbind?.();
     };
+};
+// патч style.ts
+
+// --- регистрация через CSS.registerProperty (надёжнее, чем текст @property) ---
+
+const registeredProperties = new Set<string>();
+
+const ensureRegisteredNumberProperty = (
+    win: any,
+    name: string,
+    initialValue: number,
+): void => {
+    if (registeredProperties.has(name)) return;
+    registeredProperties.add(name);
+
+    try {
+        (win?.CSS ?? CSS)?.registerProperty?.({
+            name,
+            syntax: "<number>",
+            initialValue: String(initialValue),
+            inherits: false,
+        });
+    } catch {
+        // Уже зарегистрировано или не поддерживается —
+        // остаётся @property-текст из properties[].
+    }
 };
