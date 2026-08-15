@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.33**](../README.md)
+[**@fest-lib/lure v0.1.34**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function $createElement(selector): any;
 ```
 
-Defined in: lur.e/src/lure/node/Bindings.ts:49
+Defined in: lur.e/src/lure/node/Bindings.ts:50
 
 ## Parameters
 

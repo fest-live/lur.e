@@ -7,6 +7,7 @@ import { affected } from "@fest-lib/object";
 import { Q } from "./Queried";
 import { M } from "./Mapped";
 import { getNode } from "../context/Utils";
+import { bindStyle } from "../misc/Styles";
 
 //
 interface Params {
@@ -70,10 +71,18 @@ export const E = (selector: string | HTMLElement | Node | DocumentFragment | Doc
         if (params.dataset != null) reflectDataset(element, params.dataset);
         if (params.stores != null) reflectStores(element, params.stores);
         if (params.mixins != null) reflectMixins(element, params.mixins);
-        if (params.style != null) reflectStyles(element, params.style);
+        if (params.style != null) {
+            const apply =
+                Array.isArray(params?.style)
+                    ? params?.style[0]
+                    : params?.style;
+            if (apply != null && typeof apply == "function") {
+                bindStyle(element, params.style);
+            } else {
+                reflectStyles(element, params.style);
+            }
+        }
         if (params.aria != null) reflectARIA(element, params.aria);
-
-        //
         if ("checked" in params) bindWith(element, "checked", params.checked, handleProperty, params, true);
         if ("value" in params) bindWith(element, "value", params.value, handleProperty, params, true);
         if ("valueAsNumber" in params) bindWith(element, "valueAsNumber", params.valueAsNumber, handleProperty, params, true);
