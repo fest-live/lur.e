@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.36**](../README.md)
+[**@fest-lib/lure v0.1.38**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: AnimatableValue
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:116
+Defined in: lur.e/src/lure/misc/Animatable.ts:123
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:116
 new AnimatableValue(steps, options?): AnimatableValue;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:207
+Defined in: lur.e/src/lure/misc/Animatable.ts:214
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:207
 readonly [ANIMATABLE_BRAND]: true = true;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:117
+Defined in: lur.e/src/lure/misc/Animatable.ts:124
 
 ***
 
@@ -50,7 +50,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:117
 readonly id: number;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:118
+Defined in: lur.e/src/lure/misc/Animatable.ts:125
 
 ## Accessors
 
@@ -62,7 +62,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:118
 get finished(): Promise<void>;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:495
+Defined in: lur.e/src/lure/misc/Animatable.ts:521
 
 Promise завершения всех активных анимаций.
 
@@ -80,7 +80,7 @@ Promise завершения всех активных анимаций.
 get options(): AnimatableOptions;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:292
+Defined in: lur.e/src/lure/misc/Animatable.ts:318
 
 ##### Returns
 
@@ -96,7 +96,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:292
 set playbackRate(rate): void;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:492
+Defined in: lur.e/src/lure/misc/Animatable.ts:518
 
 ##### Parameters
 
@@ -118,7 +118,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:492
 get steps(): any[];
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:293
+Defined in: lur.e/src/lure/misc/Animatable.ts:319
 
 ##### Returns
 
@@ -134,7 +134,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:293
 get value(): any;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:280
+Defined in: lur.e/src/lure/misc/Animatable.ts:287
 
 Последнее известное значение (первый шаг до старта).
 
@@ -148,7 +148,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:280
 set value(next): void;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:282
+Defined in: lur.e/src/lure/misc/Animatable.ts:289
 
 ##### Parameters
 
@@ -162,13 +162,33 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:282
 
 ## Methods
 
+### \[toPrimitive\]()
+
+```ts
+toPrimitive: string | number;
+```
+
+Defined in: lur.e/src/lure/misc/Animatable.ts:305
+
+#### Parameters
+
+##### hint
+
+`string`
+
+#### Returns
+
+`string` \| `number`
+
+***
+
 ### attach()
 
 ```ts
 attach(element, plan): Cleanup;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:352
+Defined in: lur.e/src/lure/misc/Animatable.ts:378
 
 #### Parameters
 
@@ -192,7 +212,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:352
 cancel(): AnimatableValue;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:489
+Defined in: lur.e/src/lure/misc/Animatable.ts:515
 
 #### Returns
 
@@ -206,7 +226,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:489
 finish(): AnimatableValue;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:490
+Defined in: lur.e/src/lure/misc/Animatable.ts:516
 
 #### Returns
 
@@ -220,7 +240,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:490
 pause(): AnimatableValue;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:487
+Defined in: lur.e/src/lure/misc/Animatable.ts:513
 
 #### Returns
 
@@ -234,7 +254,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:487
 play(): AnimatableValue;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:486
+Defined in: lur.e/src/lure/misc/Animatable.ts:512
 
 #### Returns
 
@@ -248,7 +268,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:486
 reverse(): AnimatableValue;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:488
+Defined in: lur.e/src/lure/misc/Animatable.ts:514
 
 #### Returns
 
@@ -262,7 +282,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:488
 subscribe(cb): Cleanup;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:287
+Defined in: lur.e/src/lure/misc/Animatable.ts:313
 
 #### Parameters
 
@@ -273,3 +293,34 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:287
 #### Returns
 
 [`Cleanup`](../type-aliases/Cleanup.md)
+
+***
+
+### toString()
+
+```ts
+toString(): string;
+```
+
+Defined in: lur.e/src/lure/misc/Animatable.ts:300
+
+#### Returns
+
+`string`
+
+***
+
+### valueOf()
+
+```ts
+valueOf(): any;
+```
+
+Defined in: lur.e/src/lure/misc/Animatable.ts:298
+
+First/current step for style coercion (`S\`opacity: ${anim}\`` probes,
+Number(), String()). INVARIANT: constructor seeds #current from steps[0].
+
+#### Returns
+
+`any`

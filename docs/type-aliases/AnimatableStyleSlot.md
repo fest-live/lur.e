@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.36**](../README.md)
+[**@fest-lib/lure v0.1.38**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type AnimatableStyleSlot = object;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:513
+Defined in: lur.e/src/lure/misc/Animatable.ts:539
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:513
 marker: string;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:514
+Defined in: lur.e/src/lure/misc/Animatable.ts:540
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:514
 optional multipliedByUnit?: string;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:516
+Defined in: lur.e/src/lure/misc/Animatable.ts:542
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:516
 value: AnimatableValue;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:515
+Defined in: lur.e/src/lure/misc/Animatable.ts:541

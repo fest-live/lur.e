@@ -179,7 +179,7 @@ console.log("✅ LUR-E Demo loaded successfully");
 
 // animation testing
 const withAnimatedStyle = () => {
-    const opacity = animatable([0.5, 1], { duration: 1000, trigger: "click" });
+    const opacity = animatable([0.5, 1], { duration: 1000, trigger: "hover", fill: "both" });
     return E("div", { style: S`opacity: ${opacity};inline-size:100px;block-size:100px;background:black;` }, "Hello");
 }
 container.appendChild(withAnimatedStyle()?.element);

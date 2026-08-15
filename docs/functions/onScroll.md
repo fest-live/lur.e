@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.36**](../README.md)
+[**@fest-lib/lure v0.1.38**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function onScroll(o?): ScrollDrivenOptions;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:102
+Defined in: lur.e/src/lure/misc/Animatable.ts:109
 
 ## Parameters
 

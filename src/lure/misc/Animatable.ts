@@ -1,3 +1,10 @@
+/*
+ * Filename: Animatable.ts
+ * FullPath: modules/projects/lur.e/src/lure/misc/Animatable.ts
+ * Change date and time: 21.05.00_15.08.2026
+ * Reason for changes: Expose first step via toString/valueOf for style syntax;
+ * Styles seeds that value as base before click/hover WAAPI.
+ */
 import { parseTime, type Cleanup } from "./Animate";
 
 // animatable.ts
@@ -282,6 +289,25 @@ export class AnimatableValue {
     set value(next: any) {
         this.#current = next;
         for (const cb of this.#subscribers) cb(next);
+    }
+
+    /**
+     * First/current step for style coercion (`S\`opacity: ${anim}\`` probes,
+     * Number(), String()). INVARIANT: constructor seeds #current from steps[0].
+     */
+    valueOf(): any { return this.#current; }
+
+    toString(): string {
+        const v = this.#current;
+        return v == null ? "" : String(v);
+    }
+
+    [Symbol.toPrimitive](hint: string): string | number {
+        if (hint === "number") {
+            const n = Number(this.#current);
+            return Number.isFinite(n) ? n : 0;
+        }
+        return this.toString();
     }
 
     subscribe(cb: (v: any) => void): Cleanup {

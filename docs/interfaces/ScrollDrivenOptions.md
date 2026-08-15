@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.36**](../README.md)
+[**@fest-lib/lure v0.1.38**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ScrollDrivenOptions
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:74
+Defined in: lur.e/src/lure/misc/Animatable.ts:81
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:74
 optional axis?: "block" | "inline" | "x" | "y";
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:84
+Defined in: lur.e/src/lure/misc/Animatable.ts:91
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:84
 kind: "scroll";
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:75
+Defined in: lur.e/src/lure/misc/Animatable.ts:82
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:75
 optional rangeEnd?: string;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:87
+Defined in: lur.e/src/lure/misc/Animatable.ts:94
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:87
 optional rangeStart?: string;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:86
+Defined in: lur.e/src/lure/misc/Animatable.ts:93
 
 animation-range: "0%" / "100px" / "contain 0%" и т.п.
 
@@ -65,7 +65,7 @@ optional source?:
 };
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:83
+Defined in: lur.e/src/lure/misc/Animatable.ts:90
 
 Источник скролла:
 - "nearest" (default) — ближайший скроллируемый предок

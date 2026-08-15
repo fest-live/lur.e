@@ -482,6 +482,33 @@ const isDirectSlotValue = (
     ).test(cssValue.trim());
 };
 
+/**
+ * Serialize animatable's first/current step for base inline style.
+ * WHY: triggers like click/hover/manual do not start WAAPI yet; without a
+ * base value, `opacity:${anim}` stays empty after we drop the var() probe.
+ */
+const serializeAnimatableCssValue = (
+    raw: any,
+    unit?: string,
+): string => {
+    let value = raw;
+    if (
+        value != null &&
+        typeof value === "object" &&
+        "value" in value &&
+        !(value instanceof Element)
+    ) {
+        value = value.value;
+    }
+    if (value == null || value === "") {
+        return unit ? `0${unit}` : "0";
+    }
+    if (unit != null && typeof value === "number") {
+        return `${value}${unit}`;
+    }
+    return String(value);
+};
+
 const isDirectSlotUnitProduct = (
     cssValue: string,
     marker: string,
@@ -1555,6 +1582,10 @@ const applyStyleTemplate = (
      *   а декларация "подтягивает" его через var()/calc().
      */
 
+    // Properties fully owned by property-mode animatables (seeded below).
+    // INVARIANT: main loop must not re-apply `var(--fest-anim-*)` over them.
+    const propertyModeOwned = new Set<string>();
+
     for (const slot of animatableSlots) {
         let plan: AnimatableApplyPlan | null = null;
     
@@ -1565,9 +1596,12 @@ const applyStyleTemplate = (
     
             if (isDirectSlotValue(parsedValue, slot.marker)) {
                 plan = { mode: "property", target: property };
-                // прямое значение: декларацию из style убираем,
-                // ей полностью владеет анимация (fill: both)
-                element.style.removeProperty(property);
+                // Seed first step as base; WAAPI fill overlays after trigger.
+                element.style.setProperty(
+                    property,
+                    serializeAnimatableCssValue(slot.value.value),
+                );
+                propertyModeOwned.add(property);
                 break;
             }
     
@@ -1577,14 +1611,24 @@ const applyStyleTemplate = (
                     target: property,
                     unit: slot.multipliedByUnit,
                 };
-                element.style.removeProperty(property);
+                element.style.setProperty(
+                    property,
+                    serializeAnimatableCssValue(
+                        slot.value.value,
+                        slot.multipliedByUnit,
+                    ),
+                );
+                propertyModeOwned.add(property);
                 break;
             }
         }
     
         // Слот участвует в сложном выражении -> анимируем custom property
         if (!plan) {
-            ensureRegisteredNumberProperty(win, slot.marker, Number(slot.value.value) || 0);
+            const initialNumber = Number(slot.value.value) || 0;
+            ensureRegisteredNumberProperty(win, slot.marker, initialNumber);
+            // WHY: var(--fest-anim-*) must resolve before click/hover starts WAAPI.
+            element.style.setProperty(slot.marker, String(initialNumber));
             plan = { mode: "custom-property", target: slot.marker };
         }
     
@@ -1598,6 +1642,11 @@ const applyStyleTemplate = (
     ) {
         const property =
             probe.style.item(index);
+
+        // Already seeded with first animatable step — do not write var() back.
+        if (propertyModeOwned.has(property)) {
+            continue;
+        }
 
         const parsedValue =
             probe.style.getPropertyValue(

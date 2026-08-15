@@ -5,13 +5,13 @@ import { appendChild, removeChild, replaceOrSwap } from "../context/Utils";
 
 //
 const existsQueriesSymbol = Symbol.for("lure.existsQueries");
-globalThis[existsQueriesSymbol] ??= new WeakMap<any, Map<string|HTMLElement, any>>();
-const existsQueries = globalThis[existsQueriesSymbol];
+// WHY: `??=` survived Vite HMR and kept Q proxies built with selector:"" (matches crash).
+// Rebind on module load so hot updates drop stale UniversalElementHandler instances.
+const existsQueries = (globalThis[existsQueriesSymbol] = new WeakMap<any, Map<string|HTMLElement, any>>());
 
 //
 const alreadyUsedSymbol = Symbol.for("lure.alreadyUsed");
-globalThis[alreadyUsedSymbol] ??= new WeakMap();
-const alreadyUsed = globalThis[alreadyUsedSymbol];
+const alreadyUsed = (globalThis[alreadyUsedSymbol] = new WeakMap());
 
 /** INVARIANT: never call matches/querySelectorAll with "". */
 const usableSelector = (sel: any): sel is string =>
@@ -19,7 +19,7 @@ const usableSelector = (sel: any): sel is string =>
 
 const safeMatches = (el: any, sel: any): boolean => {
     if (!usableSelector(sel) || typeof el?.matches !== "function") return !usableSelector(sel) && !!el;
-    try { return !!el.matches(sel.trim()); } catch { return false; }
+    try { return !!el?.matches?.(sel.trim()); } catch { return false; }
 };
 
 //
@@ -454,16 +454,19 @@ class UniversalPseudoElementHandler implements ProxyHandler<object> {
 
 //
 export class EventHandler implements ProxyHandler<object> {
-    constructor(private readonly target: any, private readonly currentTarget: any, private readonly selector: string | HTMLElement, private readonly eventName: string, private readonly callback: (event: Event) => void) {
+    constructor(private readonly target: any, private readonly currentTarget: any, private readonly selector: string | HTMLElement | null, private readonly eventName: string, private readonly callback: (event: Event) => void) {
     }
 
     get(_target: object, name: PropertyKey, ctx: any): any {
-        if (name === "currentTarget" && typeof this.selector == "string") {
-            return MOCElement(this.target, this.selector);
-        }
-
-        if (name === "currentTarget" && typeof this.selector != "string") {
-            return this.currentTarget ?? this.selector;
+        if (name === "currentTarget") {
+            // WHY: `typeof "" === "string"` and matches("") throws; treat blank as host target.
+            if (usableSelector(this.selector)) {
+                return MOCElement(this.target, this.selector.trim()) ?? this.currentTarget ?? this.target;
+            }
+            if (this.selector != null && typeof this.selector !== "string") {
+                return this.currentTarget ?? this.selector;
+            }
+            return this.currentTarget ?? this.target;
         }
 
         if (typeof _target?.[name] == "function") {
@@ -584,9 +587,16 @@ class UniversalElementHandler implements ProxyHandler<object> {
     }
 
     //
-    constructor(selector: string | HTMLElement, index = 0, direction: "children" | "parent" = "children") {
+    constructor(selector: string | HTMLElement | null = null, index = 0, direction: "children" | "parent" = "children") {
         this.index     = index;
-        this.selector  = typeof selector == "string" ? selector : null;
+        // WHY: Q(el) used to pass "" — typeof "" === "string" forced the matches()/MOC
+        // event-wrap path and threw "selector is empty" on click. Blank ⇒ null (host itself).
+        if (typeof selector === "string") {
+            const trimmed = selector.trim();
+            this.selector = trimmed.length > 0 ? trimmed : null;
+        } else {
+            this.selector = selector ?? null;
+        }
         this.direction = direction;
     }
 
@@ -715,20 +725,31 @@ class UniversalElementHandler implements ProxyHandler<object> {
     //
     _addEventListener(target: any, name: any, $cb: (event: Event) => any, option?: any) {
         const selector = this._selector(target);
-        const cb = (ev: any): any => { 
-            const evp = new Proxy(ev, new EventHandler(ev?.target ?? target, ev?.currentTarget ?? target, typeof selector == "string" ? selector : "", name, $cb));
+        // Host Q (null selector) or non-string → native listener, no matches()/MOC wrap.
+        if (selector == null || typeof selector != "string") {
+            const el = target?.self ?? target;
+            el?.addEventListener?.(name, $cb, option);
+            this._callbackMap.set($cb, {wrap: $cb, option: option});
+            return $cb;
+        }
+
+        // INVARIANT: never hand EventHandler an empty string selector (matches "" throws).
+        const handlerSelector: string | HTMLElement | null =
+            usableSelector(selector) ? selector.trim() : null;
+
+        const cb = (ev: any): any => {
+            const evp = new Proxy(ev, new EventHandler(ev?.target ?? target, ev?.currentTarget ?? target, handlerSelector, name, $cb));
             $cb?.call?.(ev?.target ?? target, evp); return evp;
         }
         this._callbackMap.set($cb, {wrap: cb, option: option});
 
         //
-        if (typeof selector != "string") { selector?.addEventListener?.(name, cb, option); return cb; }
-
-        //
         const eventName = this._redirectToBubble(name);
         const parent = target?.self ?? target;
         const wrap = (ev) => {
-            const sel: any = this._selector(target);
+            // Prefer live selector, but never call matches/MOC with blank.
+            const rawSel: any = this._selector(target);
+            const sel: any = usableSelector(rawSel) ? rawSel.trim() : (typeof rawSel === "string" ? null : rawSel);
             const rot = ev?.currentTarget ?? parent;
 
             // Use composedPath() for shadow DOM compatibility
@@ -753,17 +774,17 @@ class UniversalElementHandler implements ProxyHandler<object> {
                         ) {
                             if (usableSelector(sel) && safeMatches(nodeEl, sel))
                                 { tg = nodeEl; break; } else
-                            if (!usableSelector(sel) && typeof sel != "string" && containsOrSelf(sel, nodeEl, ev))
+                            if (sel != null && typeof sel != "string" && containsOrSelf(sel, nodeEl, ev))
                                 { tg = nodeEl; break; } else
-                            if (!usableSelector(sel) && typeof sel == "string")
+                            if (sel == null || (typeof sel == "string" && !usableSelector(sel)))
                                 { tg = nodeEl; break; }
                         } else {
                             if (usableSelector(sel)) {
                                 if (MOCElement(nodeEl, sel, ev)) { tg = nodeEl; break; }
-                            } else if (typeof sel != "string") {
+                            } else if (sel != null && typeof sel != "string") {
                                 if (containsOrSelf(sel, nodeEl, ev)) { tg = nodeEl; break; }
                             } else {
-                                // empty string selector → treat as self/any in path
+                                // empty/null selector → first element in path
                                 { tg = nodeEl; break; }
                             }
                         }
@@ -779,7 +800,7 @@ class UniversalElementHandler implements ProxyHandler<object> {
 
             if (usableSelector(sel))
                 { if (containsOrSelf(rot, MOCElement(tg, sel, ev), ev)) { this._callbackMap.get($cb)?.wrap?.call?.(tg, ev); } } else
-            if (typeof sel == "string")
+            if (sel == null || typeof sel == "string")
                 { this._callbackMap.get($cb)?.wrap?.call?.(tg, ev); } else
                 { if (containsOrSelf(rot, sel, ev) && containsOrSelf(sel, tg, ev)) { this._callbackMap.get($cb)?.wrap?.call?.(tg, ev); }
             }
@@ -914,7 +935,7 @@ class UniversalElementHandler implements ProxyHandler<object> {
             return (key)=>{
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
-                const query: any = existsQueries?.get?.(target)?.get?.(this.selector) ?? selected;
+                const query: any = existsQueries?.get?.(target)?.get?.(this.selector as string) ?? selected;
                 // COMPAT: Binding bank is DoubleWeakMap([el, handler] → Record), not nested WeakMaps.
                 const bank = elMap?.get?.([query, handleAttribute]);
                 if (bank?.[key]) {
@@ -944,7 +965,7 @@ class UniversalElementHandler implements ProxyHandler<object> {
             return (key)=>{
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
-                const query: any = existsQueries?.get?.(target)?.get?.(this.selector) ?? selected;
+                const query: any = existsQueries?.get?.(target)?.get?.(this.selector as string) ?? selected;
                 const bank = elMap?.get?.([query, handleAttribute]);
                 if (bank?.[key]) {
                     return bank[key]?.[1]?.();
@@ -958,7 +979,7 @@ class UniversalElementHandler implements ProxyHandler<object> {
             return (key)=>{
                 const array = this._getArray(target);
                 const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
-                const query: any = existsQueries?.get?.(target)?.get?.(this.selector) ?? selected;
+                const query: any = existsQueries?.get?.(target)?.get?.(this.selector as string) ?? selected;
                 const bank = elMap?.get?.([query, handleAttribute]);
                 if (bank?.[key]) {
                     return true;
@@ -1090,13 +1111,14 @@ export const Q = (selector: any, host = document.documentElement, index = 0, dir
     // is wrapped element or element itself
     if ((selector?.element ?? selector) instanceof HTMLElement) {
         const el = selector?.element ?? selector; // @ts-ignore
-        return alreadyUsed.getOrInsert(el, new Proxy(el, new UniversalElementHandler("", index, direction) as ProxyHandler<any>));
+        // INVARIANT: host-element Q has null selector (not ""), so addEventListener is native.
+        return alreadyUsed.getOrInsert(el, new Proxy(el, new UniversalElementHandler(null, index, direction) as ProxyHandler<any>));
     }
 
     // is "ref" hook!
     if (typeof selector == "function") {
         const el = selector; // @ts-ignore
-        return alreadyUsed.getOrInsert(el, new Proxy(el, new UniversalElementHandler("", index, direction) as ProxyHandler<any>));
+        return alreadyUsed.getOrInsert(el, new Proxy(el, new UniversalElementHandler(null, index, direction) as ProxyHandler<any>));
     }
 
     //
