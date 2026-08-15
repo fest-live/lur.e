@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.35**](../README.md)
+[**@fest-lib/lure v0.1.36**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: EventHandler
 
-Defined in: lur.e/src/lure/node/Queried.ts:447
+Defined in: lur.e/src/lure/node/Queried.ts:456
 
 ## Implements
 
@@ -25,7 +25,7 @@ new EventHandler(
    callback): EventHandler;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:448
+Defined in: lur.e/src/lure/node/Queried.ts:457
 
 #### Parameters
 
@@ -64,7 +64,7 @@ apply(
    args): any;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:486
+Defined in: lur.e/src/lure/node/Queried.ts:495
 
 A trap method for a function call.
 
@@ -100,7 +100,7 @@ ProxyHandler.apply
 construct(_target, args): any;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:490
+Defined in: lur.e/src/lure/node/Queried.ts:499
 
 A trap for the `new` operator.
 
@@ -135,7 +135,7 @@ defineProperty(
    desc): boolean;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:482
+Defined in: lur.e/src/lure/node/Queried.ts:491
 
 A trap for `Object.defineProperty()`.
 
@@ -173,7 +173,7 @@ ProxyHandler.defineProperty
 deleteProperty(_target, name): boolean;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:474
+Defined in: lur.e/src/lure/node/Queried.ts:483
 
 A trap for the `delete` operator.
 
@@ -210,7 +210,7 @@ get(
    ctx): any;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:451
+Defined in: lur.e/src/lure/node/Queried.ts:460
 
 A trap for getting a property value.
 
@@ -246,7 +246,7 @@ ProxyHandler.get
 getOwnPropertyDescriptor(_target, name): PropertyDescriptor | undefined;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:510
+Defined in: lur.e/src/lure/node/Queried.ts:519
 
 A trap for `Object.getOwnPropertyDescriptor()`.
 
@@ -278,7 +278,7 @@ ProxyHandler.getOwnPropertyDescriptor
 getPrototypeOf(_target): any;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:494
+Defined in: lur.e/src/lure/node/Queried.ts:503
 
 A trap for the `[[GetPrototypeOf]]` internal method.
 
@@ -306,7 +306,7 @@ ProxyHandler.getPrototypeOf
 has(_target, name): boolean;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:470
+Defined in: lur.e/src/lure/node/Queried.ts:479
 
 A trap for the `in` operator.
 
@@ -338,7 +338,7 @@ ProxyHandler.has
 isExtensible(_target): boolean;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:502
+Defined in: lur.e/src/lure/node/Queried.ts:511
 
 A trap for `Object.isExtensible()`.
 
@@ -366,7 +366,7 @@ ProxyHandler.isExtensible
 ownKeys(_target): (string | symbol)[];
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:478
+Defined in: lur.e/src/lure/node/Queried.ts:487
 
 A trap for `Reflect.ownKeys()`.
 
@@ -394,7 +394,7 @@ ProxyHandler.ownKeys
 preventExtensions(_target): boolean;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:506
+Defined in: lur.e/src/lure/node/Queried.ts:515
 
 A trap for `Object.preventExtensions()`.
 
@@ -425,7 +425,7 @@ set(
    value): boolean;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:466
+Defined in: lur.e/src/lure/node/Queried.ts:475
 
 A trap for setting a property value.
 
@@ -463,7 +463,7 @@ ProxyHandler.set
 setPrototypeOf(_target, proto): boolean;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:498
+Defined in: lur.e/src/lure/node/Queried.ts:507
 
 A trap for `Object.setPrototypeOf()`.
 

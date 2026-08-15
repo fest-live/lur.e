@@ -13,6 +13,15 @@ const alreadyUsedSymbol = Symbol.for("lure.alreadyUsed");
 globalThis[alreadyUsedSymbol] ??= new WeakMap();
 const alreadyUsed = globalThis[alreadyUsedSymbol];
 
+/** INVARIANT: never call matches/querySelectorAll with "". */
+const usableSelector = (sel: any): sel is string =>
+    typeof sel === "string" && sel.trim().length > 0;
+
+const safeMatches = (el: any, sel: any): boolean => {
+    if (!usableSelector(sel) || typeof el?.matches !== "function") return !usableSelector(sel) && !!el;
+    try { return !!el.matches(sel.trim()); } catch { return false; }
+};
+
 //
 const queryExtensions = {
     logAll (ctx) { return ()=> console.log("attributes:", [...ctx?.attributes].map(x => ({ name: x.name, value: x.value })) ); },
@@ -628,12 +637,14 @@ class UniversalElementHandler implements ProxyHandler<object> {
     _getArrayPrimary(target: any) {
         if (typeof target == "function") { target = this.selector || target?.(this.selector); }; if (!this.selector) return [target];
         if (typeof this.selector == "string") {
-            const inclusion = ((typeof target?.matches == "function" && target?.element != null) && target?.matches?.(this.selector)) ? [target] : [];
+            const inclusion = ((typeof target?.matches == "function" && target?.element != null) && safeMatches(target, this.selector)) ? [target] : [];
             if (this.direction == "children") {
-                const list = (typeof target?.querySelectorAll == "function" && target?.element != null) ? [...target?.querySelectorAll?.(this.selector)] : [];
+                const list = (typeof target?.querySelectorAll == "function" && target?.element != null && usableSelector(this.selector))
+                    ? [...target?.querySelectorAll?.(this.selector.trim())]
+                    : [];
                 return list?.length >= 1 ? [...list] : inclusion;
             } else if (this.direction == "parent") {
-                const closest = target?.closest?.(this.selector);
+                const closest = usableSelector(this.selector) ? target?.closest?.(this.selector.trim()) : null;
                 return closest ? [closest] : inclusion;
             }
             return inclusion;
@@ -678,9 +689,9 @@ class UniversalElementHandler implements ProxyHandler<object> {
     _getSelected(target: any) {
         const tg = target?.self ?? target;
         const sel = this._selector(target);
-        if (typeof sel == "string") {
-            if (this.direction == "children") { return tg?.matches?.(sel) ? tg : tg?.querySelector?.(sel); }
-            if (this.direction == "parent"  ) { return tg?.matches?.(sel) ? tg : tg?.closest?.(sel); }
+        if (usableSelector(sel)) {
+            if (this.direction == "children") { return safeMatches(tg, sel) ? tg : tg?.querySelector?.(sel.trim()); }
+            if (this.direction == "parent"  ) { return safeMatches(tg, sel) ? tg : tg?.closest?.(sel.trim()); }
         }
         return tg == ((sel as any)?.element ?? sel) ? ((sel as any)?.element ?? sel) : null;
     }
@@ -740,15 +751,20 @@ class UniversalElementHandler implements ProxyHandler<object> {
                             evName == "focus" || 
                             evName == "blur"
                         ) {
-                            if (typeof sel == "string" && nodeEl?.matches?.(sel)) 
-                                { tg = nodeEl; break; } else 
-                            if (typeof sel != "string" && containsOrSelf(sel, nodeEl, ev)) 
+                            if (usableSelector(sel) && safeMatches(nodeEl, sel))
+                                { tg = nodeEl; break; } else
+                            if (!usableSelector(sel) && typeof sel != "string" && containsOrSelf(sel, nodeEl, ev))
+                                { tg = nodeEl; break; } else
+                            if (!usableSelector(sel) && typeof sel == "string")
                                 { tg = nodeEl; break; }
                         } else {
-                            if (typeof sel == "string") {
+                            if (usableSelector(sel)) {
                                 if (MOCElement(nodeEl, sel, ev)) { tg = nodeEl; break; }
-                            } else {
+                            } else if (typeof sel != "string") {
                                 if (containsOrSelf(sel, nodeEl, ev)) { tg = nodeEl; break; }
+                            } else {
+                                // empty string selector → treat as self/any in path
+                                { tg = nodeEl; break; }
                             }
                         }
                     }
@@ -761,8 +777,10 @@ class UniversalElementHandler implements ProxyHandler<object> {
                 tg = tg?.element ?? tg;
             }
 
-            if (typeof sel == "string")
+            if (usableSelector(sel))
                 { if (containsOrSelf(rot, MOCElement(tg, sel, ev), ev)) { this._callbackMap.get($cb)?.wrap?.call?.(tg, ev); } } else
+            if (typeof sel == "string")
+                { this._callbackMap.get($cb)?.wrap?.call?.(tg, ev); } else
                 { if (containsOrSelf(rot, sel, ev) && containsOrSelf(sel, tg, ev)) { this._callbackMap.get($cb)?.wrap?.call?.(tg, ev); }
             }
         };
