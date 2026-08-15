@@ -1,5 +1,5 @@
 import { affected } from "@fest-lib/object";
-import { appendFix, elMap, getNode, T } from "../context/Utils";
+import { elMap, getNode, T } from "../context/Utils";
 import { makeUpdater } from "../context/ReflectChildren";
 import { isPrimitive, hasValue } from "@fest-lib/core";
 import { indexOf, isValidParent } from "@fest-lib/dom";
