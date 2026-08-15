@@ -86,12 +86,15 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
 // TODO! support observe styles
 export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (!styles) return element;
+
+    const apply = Array.isArray(styles?.style) ? styles?.style?.[0] : styles?.style;
     if (typeof styles == "string") { applyNormalizedInlineStyle(element, styles); } else
     if (typeof styles?.value == "string") { affected([styles, "value"], (val) => { applyNormalizedInlineStyle(element, val ?? ""); }); } else
     if (isStyleBindingTuple(styles) || typeof styles == "function") {
         // S`...` / css`...` applicator (and optional StyleBinding tuple).
         bindStyle(element, styles);
     } else
+    if (apply != null && typeof apply == "function") { bindStyle(element, styles.style); } else
     if (typeof styles == "object") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
         $entries(styles).forEach(([prop, value])=>{
