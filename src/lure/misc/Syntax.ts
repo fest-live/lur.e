@@ -9,10 +9,14 @@ import {
     applyNormalizedInlineStyle,
     compileInlineStyleAttribute,
     pruneEmptyStyleAttribute,
-} from "../misc/Styles";
+} from "./Styles";
 
 //
-const EMap = new WeakMap(), parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
+const EMapSymbol = Symbol.for("lure@EMap");
+globalThis[EMapSymbol] ??= new WeakMap()
+
+//
+const EMap = globalThis[EMapSymbol], parseTag = (str) => { const match = str.match(/^([a-zA-Z0-9\-]+)?(?:#([a-zA-Z0-9\-_]+))?((?:\.[a-zA-Z0-9\-_]+)*)$/); if (!match) return { tag: str, id: null, className: null }; const [, tag = 'div', id, classStr] = match; const className = classStr ? classStr.replace(/\./g, ' ').trim() : null; return { tag, id, className }; }
 const preserveWhitespaceTags = new Set(["PRE", "TEXTAREA", "SCRIPT", "STYLE"]);
 
 //
