@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.34**](../README.md)
+[**@fest-lib/lure v0.1.35**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function E(
    children?): any;
 ```
 
-Defined in: lur.e/src/lure/node/Bindings.ts:62
+Defined in: lur.e/src/lure/node/Bindings.ts:85
 
 ## Parameters
 

@@ -1,9 +1,17 @@
+/*
+ * Filename: Bindings.ts
+ * FullPath: modules/projects/lur.e/src/lure/node/Bindings.ts
+ * Change date and time: 20.36.00_15.08.2026
+ * Reason for changes: Wrap primitive/Node children before M() so strings are not
+ * treated as iterated observables (WeakMap key crash + empty #collection).
+ */
 import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden, addEventsList, createElementVanilla } from "@fest-lib/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectProperties, reflectWithStyleRules, reflectARIA } from '../context/Reflect';
 import { reflectControllers, bindWith } from '../core/Binding';
 
 //
 import { affected } from "@fest-lib/object";
+import { isObservable as isCollection } from "@fest-lib/core";
 import { Q } from "./Queried";
 import { M } from "./Mapped";
 import { getNode } from "../context/Utils";
@@ -59,9 +67,25 @@ export const $createElement = (selector: string | HTMLElement | Node | DocumentF
 }
 
 //
+/** Normalize E() children into a Mapped source (array / collection / observable). */
+const childrenAsMappedSource = (children: any): any => {
+    if (children == null || children === false) return null;
+    // WHY: bare strings/numbers/Nodes are content items, not iterable sources.
+    // Passing "Hello" to M() makes iterated() use a string as a WeakMap key.
+    if (isCollection(children)) return children;
+    if (children instanceof Node) return [children];
+    if (typeof children === "object" || typeof children === "function") {
+        // Observable refs / custom iterators stay as-is for Mapped.
+        return children;
+    }
+    return [children];
+};
+
+//
 export const E = (selector: string | HTMLElement | Node | DocumentFragment | Document | Element, params: Params = {}, children?: any[]|any|null) => {
     const element = getNode(typeof selector == "string" ? $createElement(selector) : selector, null, -1);
-    if (element && children) { M(children, (el)=>el, element); /*reflectChildren(element, children);*/ }
+    const mappedSource = childrenAsMappedSource(children);
+    if (element && mappedSource != null) { M(mappedSource, (el)=>el, element); /*reflectChildren(element, children);*/ }
     if (element && params) {
         if (params.ctrls != null) reflectControllers(element, params.ctrls);
         if (params.attributes != null) reflectAttributes(element, params.attributes);

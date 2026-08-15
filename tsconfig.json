@@ -20,9 +20,6 @@
             "fonts/*": [
                 "../../shared/assets/fonts/*"
             ],
-            "@fest-lib/*": [
-                "../../subsystem/fest/*"
-            ],
             "@fest-lib/cdnImport": [
                 "../../cdnImport.mjs"
             ],
@@ -31,6 +28,12 @@
             ],
             "@fest-lib/lure": [
                 "../lur.e/src/index.ts"
+            ],
+            "@fest-lib/lure/src/lure/node": [
+                "./src/lure/node"
+            ],
+            "@fest-lib/lure/src/lure/node/*": [
+                "./src/lure/node/*"
             ],
             "@fest-lib/object": [
                 "../object.ts/src/index.ts"
@@ -53,6 +56,9 @@
             "@fest-lib/polyfill/*": [
                 "../../subsystem/fest/polyfill/*"
             ],
+            "@fest-lib/*": [
+                "../../subsystem/fest/*"
+            ],
             "polyfill/*": [
                 "../../subsystem/fest/polyfill/*"
             ]
@@ -66,6 +72,7 @@
             "WebWorker"
         ],
         "jsx": "preserve",
+        "jsxImportSource": "@fest-lib/lure/src/lure/node",
         "jsxFactory": "createElement",
         "jsxFragmentFactory": "Fragment",
         "esModuleInterop": true,

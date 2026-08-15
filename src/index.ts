@@ -4,7 +4,7 @@ export * from "./lure/node/Switched"
 export * from "./lure/node/Mapped"
 export * from "./lure/node/Changeable"
 export * from "./lure/node/Queried"
-export * from "./lure/node/JSX"
+export * from "./lure/node/jsx-runtime"
 export { T, replaceChildren, removeChild, appendChild } from "./lure/context/Utils"
 
 //
@@ -12,6 +12,7 @@ export * from "./lure/misc/Glit"
 export * from "./lure/misc/Styles"
 export * from "./lure/misc/Syntax"
 export * from "./lure/misc/Animate"
+export * from "./lure/misc/Animatable"
 
 //
 export * from "./interactive/tasking/Manager"

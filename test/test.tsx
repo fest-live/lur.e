@@ -7,7 +7,7 @@
 
 // @ts-ignore
 import { observe, ref, numberRef } from "@fest-lib/object";
-import { defineElement, GLitElement, property, S, E, H, M } from "@fest-lib/lure";
+import { defineElement, GLitElement, property, S, E, H, M, animatable } from "@fest-lib/lure";
 import { Vector2D, vector2Ref, operated, magnitude2D } from "../src/utils/math/index";
 import { appendAsUnderlying, appendAsOverlay } from "../src/design/layers/AnchorOverlay";
 
@@ -21,17 +21,19 @@ export class XBlock extends GLitElement() {
     @property({ source: "attr" }) tetris = 1;
     @property() opacity = 1;
 
-    protected styles = function(this: XBlock) {
+    // INVARIANT: GLitElementInstance.styles is public; keep visibility compatible.
+    styles = function(this: XBlock) {
         return S`:host { opacity: ${this.opacity}; display: block; }`;
     }
 
-    protected render() {
+    // INVARIANT: GLitElementInstance.render / onInitialize are public.
+    render() {
         // Update opacity based on tetris value
         this.opacity = this.tetris;
         return H`<slot>`; // Return slot for child content
     }
 
-    protected onInitialize(): any {
+    onInitialize(): any {
         super.onInitialize?.();
         return this;
     }
@@ -174,3 +176,10 @@ appendAsUnderlying(mainEl, underEl, { stackMode: "shift" });
 appendAsOverlay(mainEl, overEl, null, { stackMode: "shift", placement: "fill" });
 
 console.log("✅ LUR-E Demo loaded successfully");
+
+// animation testing
+const withAnimatedStyle = () => {
+    const opacity = animatable([0.5, 1], { duration: 1000, trigger: "click" });
+    return E("div", { style: S`opacity: ${opacity};inline-size:100px;block-size:100px;background:black;` }, "Hello");
+}
+container.appendChild(withAnimatedStyle()?.element);

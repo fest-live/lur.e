@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.34**](../README.md)
+[**@fest-lib/lure v0.1.35**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function css(strings, ...values): StyleBinding;
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:2249
+Defined in: lur.e/src/lure/misc/Styles.ts:2281
 
 ## Parameters
 

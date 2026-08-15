@@ -2041,12 +2041,18 @@ const applyStyleTemplate = (
 };
 
 /**
- * Inline-style tagged template.
+ * Compiles the static CSS text from the StyleBinding.
+ * @param forReturn - The StyleBinding to compile.
+ * @returns The static CSS text.
  */
-export const S = (
-    strings: TemplateStringsArray,
-    ...values: any[]
-): StyleBinding => {
+const complileStaticCSSText = (forReturn: any[]) => {
+    const [apply, properties, variables] = forReturn;
+    const element = document.createElement("div");
+    apply(element); return element.style.cssText;
+    //return properties.join("\n") + "\n" + Array.from(variables.values()).map((value: any) => `${value?.marker}: ${value?.value?.toString() ?? ""};`).join("\n");
+};
+
+export const S = (strings: TemplateStringsArray, ...values: any[]): StyleBinding => {
     const templateId =
         styleTemplateId++;
 
@@ -2230,7 +2236,7 @@ export const S = (
         }
     }
 
-    return [
+    const forReturn = [
         (element: HTMLElement): Cleanup => {
             return applyStyleTemplate(
                 element,
@@ -2244,6 +2250,32 @@ export const S = (
         properties,
         variables,
     ];
+
+    // make settable for `cssText` as static CSS text
+    forReturn[Symbol.toStringTag] = () => complileStaticCSSText(forReturn as any[]);
+    forReturn[Symbol.toPrimitive] = (type: string) => {
+        if (type === "string") {
+            return complileStaticCSSText(forReturn as any[]);
+        }
+        return forReturn[0];
+    };
+    forReturn.toString = () => complileStaticCSSText(forReturn as any[]);
+    forReturn.valueOf = () => complileStaticCSSText(forReturn as any[]);
+
+    // INVARIANT: accessor descriptors cannot include `writable` / `value`.
+    Object.defineProperty(forReturn, "cssText", {
+        get: () => complileStaticCSSText(forReturn as any[]),
+        set: (value: string) => {
+            console.log("set cssText", value);
+            const [apply, properties, variables] = forReturn as [any, string[], Map<string, any>] | any[];
+            const element = document.createElement("div");
+            apply(element); element.style.cssText = value;
+        },
+        configurable: true,
+        enumerable: true,
+    });
+
+    return forReturn as StyleBinding;
 };
 
 export const css = (

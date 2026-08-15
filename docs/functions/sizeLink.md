@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.34**](../README.md)
+[**@fest-lib/lure v0.1.35**](../README.md)
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: lur.e/src/lure/core/Links.ts:324
 
 ### axis?
 
-`"inline"` \| `"block"`
+`"block"` \| `"inline"`
 
 ### box?
 

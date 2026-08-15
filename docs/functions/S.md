@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.34**](../README.md)
+[**@fest-lib/lure v0.1.35**](../README.md)
 
 ***
 
@@ -10,9 +10,7 @@
 function S(strings, ...values): StyleBinding;
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:2046
-
-Inline-style tagged template.
+Defined in: lur.e/src/lure/misc/Styles.ts:2055
 
 ## Parameters
 

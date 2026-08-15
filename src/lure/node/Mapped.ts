@@ -186,7 +186,13 @@ class Mp {
         this.#pmMap = new Map<any, any>(); // make 'mapper' compatible with React syntax ('mapper' property instead of function)
         this.#mapEntries = new Map();
         this.#mapCb = (mapCb != null ? (typeof mapCb == "function" ? mapCb : (typeof mapCb == "object" ? mapCb?.mapper : null)) : null) ?? ((el) => el);
-        this.#observable = (isObservable(observable) ? observable : (observable?.iterator ?? mapCb?.iterator ?? observable)) ?? [];
+        let source = (isObservable(observable) ? observable : (observable?.iterator ?? mapCb?.iterator ?? observable)) ?? [];
+        // INVARIANT: Mapped sources must be object/array keys safe for iterated()'s WeakMap.
+        // WHY: E("div", props, "text") historically passed a bare string into M().
+        if (isPrimitive(source) || typeof source === "string") {
+            source = [source];
+        }
+        this.#observable = source;
         this.#fragments = document.createDocumentFragment();
 
         //
