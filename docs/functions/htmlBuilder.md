@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.39**](../README.md)
+[**@fest-lib/lure v0.1.40**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function htmlBuilder(__namedParameters?): (strings, ...values) => ChildNode | DocumentFragment;
 ```
 
-Defined in: lur.e/src/lure/misc/Syntax.ts:312
+Defined in: lur.e/src/lure/misc/Syntax.ts:318
 
 ## Parameters
 

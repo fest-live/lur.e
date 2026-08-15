@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.39**](../README.md)
+[**@fest-lib/lure v0.1.40**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function jsx(
    _key?): any;
 ```
 
-Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:74
+Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:84
 
 Automatic runtime entry used by TS `jsxImportSource` + Vite plugin-react.
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.39**](../README.md)
+[**@fest-lib/lure v0.1.40**](../README.md)
 
 ***
 
@@ -22,4 +22,4 @@ type InlineStyleAttributePlan =
 };
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:53
+Defined in: lur.e/src/lure/misc/Styles.ts:64

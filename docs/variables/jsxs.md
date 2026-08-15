@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.39**](../README.md)
+[**@fest-lib/lure v0.1.40**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 const jsxs: (type, props, _key?) => any = jsx;
 ```
 
-Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:75
+Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:85
 
 Automatic runtime entry used by TS `jsxImportSource` + Vite plugin-react.
 

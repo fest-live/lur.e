@@ -1,10 +1,17 @@
+/*
+ * Filename: Reflect.ts
+ * FullPath: modules/projects/lur.e/src/lure/context/Reflect.ts
+ * Change date and time: 21.55.00_15.08.2026
+ * Reason for changes: Route style=${S`...`} / attr style StyleBinding through
+ * reflectStyles/bindStyle (same as E({ style: S`...` })).
+ */
 import { addToCallChain, affected, iterated } from "@fest-lib/object";
 import { isNotEqual, isPrimitive } from "@fest-lib/core";
 
 //
 import { bindHandler, bindWith } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "@fest-lib/dom";
-import { applyNormalizedInlineStyle, bindStyle } from "../misc/Styles";
+import { applyNormalizedInlineStyle, bindStyle, isStyleBinding } from "../misc/Styles";
 import Q from "../node/Queried";
 import { setChecked } from "@fest-lib/dom";
 
@@ -21,12 +28,18 @@ const $entries = (obj: any) => {
     return Array.from(Object.entries(obj));
 }
 
-/**
- * Detect StyleBinding from S`...` / css`...`: [apply, @property rules, variables].
- * WHY: treating the tuple as a plain array made reflectStyles write indices 0/1/2 as CSS props.
- */
-const isStyleBindingTuple = (styles: any): boolean => {
-    return Array.isArray(styles) && typeof styles[0] === "function";
+/** Apply one attribute; style StyleBinding uses reflectStyles, not setAttribute. */
+const reflectOneAttribute = (element: HTMLElement | null | undefined, prop: any, value: any) => {
+    if (!element || prop == null) return;
+    const name = prop?.toString?.() || prop;
+    if (
+        (name === "style" || name === "cssText") &&
+        (isStyleBinding(value) || typeof value === "function")
+    ) {
+        reflectStyles(element, value);
+        return;
+    }
+    handleAttribute(element, prop, value);
 };
 
 //
@@ -35,10 +48,17 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
     const weak = new WeakRef(attributes), wel = new WeakRef(element);
     if (typeof attributes == "object" || typeof attributes == "function") {
         $entries(attributes).forEach(([prop, value])=>{
-            handleAttribute(wel?.deref?.(), prop, value);
+            reflectOneAttribute(wel?.deref?.(), prop, value);
         });
         const usub = affected(attributes, (value, prop: any)=>{
-            handleAttribute(wel?.deref?.(), prop, value);
+            reflectOneAttribute(wel?.deref?.(), prop, value);
+            // StyleBinding is applied via reflectStyles; skip attribute bank.
+            if (
+                (prop === "style" || prop === "cssText") &&
+                (isStyleBinding(value) || typeof value === "function")
+            ) {
+                return;
+            }
             bindHandler(wel?.deref?.(), value, prop, handleAttribute, weak, true);
         });
         addToCallChain(attributes, Symbol.dispose, usub);
@@ -83,16 +103,39 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
     { console.warn("Invalid dataset object:", dataset); }; return element;
 }
 
-// TODO! support observe styles
+// TODO! support observe styles (reactive StyleBinding swap)
 export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
     if (!styles) return element;
 
+    // Nested `{ style: S`...` }` (e.g. mistaken double-wrap).
+    if (
+        styles?.style != null &&
+        !isStyleBinding(styles) &&
+        (isStyleBinding(styles.style) || typeof styles.style === "function")
+    ) {
+        return reflectStyles(element, styles.style);
+    }
+
     const apply = Array.isArray(styles?.style) ? styles?.style?.[0] : styles?.style;
     if (typeof styles == "string") { applyNormalizedInlineStyle(element, styles); } else
-    if (typeof styles?.value == "string") { affected([styles, "value"], (val) => { applyNormalizedInlineStyle(element, val ?? ""); }); } else
-    if (isStyleBindingTuple(styles) || typeof styles == "function") {
+    if (isStyleBinding(styles) || typeof styles == "function") {
         // S`...` / css`...` applicator (and optional StyleBinding tuple).
         bindStyle(element, styles);
+    } else
+    if (typeof styles?.value == "string") { affected([styles, "value"], (val) => { applyNormalizedInlineStyle(element, val ?? ""); }); } else
+    // Ref whose .value is StyleBinding (style=${ref} where ref.value = S`...`).
+    if (
+        styles != null &&
+        typeof styles == "object" &&
+        "value" in styles &&
+        (isStyleBinding(styles.value) || typeof styles.value === "function")
+    ) {
+        bindStyle(element, styles.value);
+        const usub = affected([styles, "value"], (val) => {
+            if (isStyleBinding(val) || typeof val === "function") bindStyle(element, val);
+        });
+        addToCallChain(styles, Symbol.dispose, usub);
+        addToCallChain(element, Symbol.dispose, usub);
     } else
     if (apply != null && typeof apply == "function") { bindStyle(element, styles.style); } else
     if (typeof styles == "object") {

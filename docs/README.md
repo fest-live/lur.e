@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.39**
+**@fest-lib/lure v0.1.40**
 
 ***
 
-# @fest-lib/lure v0.1.39
+# @fest-lib/lure v0.1.40
 
 ## Enumerations
 
@@ -430,6 +430,7 @@
 - [isNotExtended](functions/isNotExtended.md)
 - [isReactiveStyleValue](functions/isReactiveStyleValue.md)
 - [isSpeechRecognitionAvailable](functions/isSpeechRecognitionAvailable.md)
+- [isStyleBinding](functions/isStyleBinding.md)
 - [isTextFile](functions/isTextFile.md)
 - [itemClickHandle](functions/itemClickHandle.md)
 - [jsx](functions/jsx.md)

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.39**](../README.md)
+[**@fest-lib/lure v0.1.40**](../README.md)
 
 ***
 
@@ -10,6 +10,6 @@
 const Fragment: typeof Fragment;
 ```
 
-Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:16
+Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:15
 
 INVARIANT: Symbol identity is shared via jsx-dev-runtime → jsx-runtime symlink.

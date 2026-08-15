@@ -8,6 +8,7 @@ import { checkInsideTagBlock, cleanupInterTagWhitespaceAndIndent } from "./Norma
 import {
     applyNormalizedInlineStyle,
     compileInlineStyleAttribute,
+    isStyleBinding,
     pruneEmptyStyleAttribute,
 } from "./Styles";
 
@@ -161,16 +162,21 @@ const connectElement = (el: HTMLElement | null, atb: any[], psh: any[], mapped: 
         );
         
         if (inlineStylePlan?.kind === "direct") {
+            // style=${obj} or style=${S`...`} if detected as direct — StyleBinding → bindStyle.
             bindings.style = inlineStylePlan.value;
         } else if (inlineStylePlan?.kind === "template") {
-            // This is precisely the value returned by an explicit S`...`.
+            // This is precisely the value returned by an explicit S`...` / css`...`.
             bindings.style = inlineStylePlan.binding;
         }
-        
-        //
-        bindings.attributes = Object.fromEntries(attributesEntries?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
-        bindings.properties = Object.fromEntries(propertiesEntries?.filter?.((pair) => pair[1] >= 0)?.map?.((pair) => [pair[0], atb?.[pair[1]] ?? null]) ?? []);
-        bindings.on = Object.fromEntries(onEntries?.filter?.((pair) => pair[1]?.some?.((idx: number) => idx >= 0))?.map?.((pair) => [pair[0], pair[1]?.map?.((idx: number) => atb?.[idx]).filter((v: any) => v != null)]) ?? []);
+
+        // Safety: whole-attribute StyleBinding that slipped into attributes.
+        if (
+            bindings.style == null &&
+            isStyleBinding(bindings.attributes?.style)
+        ) {
+            bindings.style = bindings.attributes.style;
+            delete bindings.attributes.style;
+        }
 
         // two-way: пишем изменения input'а обратно в ref
         const isRef = (v: any) => v != null && typeof v == "object" && "value" in v;

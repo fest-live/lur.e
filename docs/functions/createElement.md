@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.39**](../README.md)
+[**@fest-lib/lure v0.1.40**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function createElement(
    others): any;
 ```
 
-Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:20
+Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:19
 
 ## Parameters
 

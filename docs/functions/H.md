@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.39**](../README.md)
+[**@fest-lib/lure v0.1.40**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function H(str, ...values): any;
 ```
 
-Defined in: lur.e/src/lure/misc/Syntax.ts:420
+Defined in: lur.e/src/lure/misc/Syntax.ts:426
 
 ## Parameters
 

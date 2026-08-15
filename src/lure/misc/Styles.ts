@@ -50,6 +50,17 @@ export type StyleBinding = [
     variables: Map<string, any>,
 ];
 
+/**
+ * Detect S`...` / css`...` StyleBinding tuple.
+ * WHY: arrays must not be treated as `{ 0, 1, 2 }` style objects in reflectStyles /
+ * reflectAttributes — that was breaking `style=${S\`...\`}`.
+ */
+export const isStyleBinding = (
+    styles: any,
+): styles is StyleBinding => {
+    return Array.isArray(styles) && typeof styles[0] === "function";
+};
+
 export type InlineStyleAttributePlan =
     | {
         kind: "static";
@@ -2452,14 +2463,21 @@ export const compileInlineStyleAttribute = (
         (strings[1] ?? "").trim() === "";
 
     /*
-     * Preserve the existing style="${styleObject}" contract.
-     * There is no <property>: <value> declaration to parse here.
+     * Preserve style="${styleObject}" and style=${S`...`} / css`...`.
+     * StyleBinding must stay a template plan (bindStyle), not a plain object.
      */
     if (
         isWholeAttributeValue &&
         !isStaticStyleInterpolation(values[0]) &&
         !isNativeCSSStyleValue(values[0])
     ) {
+        if (isStyleBinding(values[0])) {
+            return {
+                kind: "template",
+                binding: values[0],
+            };
+        }
+
         return {
             kind: "direct",
             value: values[0],

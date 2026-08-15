@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.39**](../README.md)
+[**@fest-lib/lure v0.1.40**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function applyNormalizedInlineStyle(element, cssText): void;
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:206
+Defined in: lur.e/src/lure/misc/Styles.ts:217
 
 Sets inline CSS or removes the style attribute when it is empty.
 
