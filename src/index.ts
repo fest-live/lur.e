@@ -11,6 +11,7 @@ export { T, replaceChildren, removeChild, appendChild } from "./lure/context/Uti
 export * from "./lure/misc/Glit"
 export * from "./lure/misc/Styles"
 export * from "./lure/misc/Syntax"
+export * from "./lure/misc/Animate"
 
 //
 export * from "./interactive/tasking/Manager"

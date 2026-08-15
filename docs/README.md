@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.30**
+**@fest-lib/lure v0.1.31**
 
 ***
 
-# @fest-lib/lure v0.1.30
+# @fest-lib/lure v0.1.31
 
 ## Enumerations
 
@@ -64,6 +64,8 @@
 
 ## Interfaces
 
+- [AnimationKeyframes](interfaces/AnimationKeyframes.md)
+- [AnimationOptions](interfaces/AnimationOptions.md)
 - [AppendAsLayerOptions](interfaces/AppendAsLayerOptions.md)
 - [ClipboardProvider](interfaces/ClipboardProvider.md)
 - [ClipboardResult](interfaces/ClipboardResult.md)
@@ -91,6 +93,7 @@
 - [LinkOptions](interfaces/LinkOptions.md)
 - [MenuItem](interfaces/MenuItem.md)
 - [PromptTemplate](interfaces/PromptTemplate.md)
+- [PropertyAnimation](interfaces/PropertyAnimation.md)
 - [PropertyOptions](interfaces/PropertyOptions.md)
 - [Rect2D](interfaces/Rect2D.md)
 - [RefBool](interfaces/RefBool.md)
@@ -120,6 +123,7 @@
 - [DesktopItemLike](type-aliases/DesktopItemLike.md)
 - [DesktopPersistFile](type-aliases/DesktopPersistFile.md)
 - [EncodeBase64Options](type-aliases/EncodeBase64Options.md)
+- [FillMode](type-aliases/FillMode.md)
 - [FX](type-aliases/FX.md)
 - [GLitElementClass](type-aliases/GLitElementClass.md)
 - [GLitElementConstructor](type-aliases/GLitElementConstructor.md)
@@ -137,11 +141,13 @@
 - [NavigationAction](type-aliases/NavigationAction.md)
 - [NormalizeDataAssetOptions](type-aliases/NormalizeDataAssetOptions.md)
 - [ObservedAttributes](type-aliases/ObservedAttributes.md)
+- [PlaybackDirection](type-aliases/PlaybackDirection.md)
 - [ScrollBarLayout](type-aliases/ScrollBarLayout.md)
 - [StackMode](type-aliases/StackMode.md)
 - [StringToBinaryOptions](type-aliases/StringToBinaryOptions.md)
 - [StyleBinding](type-aliases/StyleBinding.md)
 - [StyleTuple](type-aliases/StyleTuple.md)
+- [TimingFunction](type-aliases/TimingFunction.md)
 
 ## Variables
 
@@ -192,6 +198,7 @@
 - [$createElement](functions/$createElement.md)
 - [$observeAttribute](functions/$observeAttribute.md)
 - [$observeInput](functions/$observeInput.md)
+- [A](functions/A.md)
 - [absolutePosition](functions/absolutePosition.md)
 - [absoluteRef](functions/absoluteRef.md)
 - [acosRef](functions/acosRef.md)
@@ -202,6 +209,7 @@
 - [addVector3D](functions/addVector3D.md)
 - [addVector4D](functions/addVector4D.md)
 - [agWrapEvent](functions/agWrapEvent.md)
+- [animate](functions/animate.md)
 - [appendAsLayer](functions/appendAsLayer.md)
 - [appendAsOverlay](functions/appendAsOverlay.md)
 - [appendAsUnderlying](functions/appendAsUnderlying.md)
@@ -299,6 +307,7 @@
 - [decodeDesktopState](functions/decodeDesktopState.md)
 - [defaultLogger](functions/defaultLogger.md)
 - [defaultZIndexShift](functions/defaultZIndexShift.md)
+- [defineAnimation](functions/defineAnimation.md)
 - [defineElement](functions/defineElement.md)
 - [detectTypeByRelPath](functions/detectTypeByRelPath.md)
 - [disposeCachedComponents](functions/disposeCachedComponents.md)
@@ -306,6 +315,7 @@
 - [divideVector2D](functions/divideVector2D.md)
 - [divideVector3D](functions/divideVector3D.md)
 - [divideVector4D](functions/divideVector4D.md)
+- [doAnimation](functions/doAnimation.md)
 - [doObserve](functions/doObserve.md)
 - [dotProduct2D](functions/dotProduct2D.md)
 - [dotProduct3D](functions/dotProduct3D.md)
@@ -474,6 +484,7 @@
 - [orientRef](functions/orientRef.md)
 - [packHrefInline](functions/packHrefInline.md)
 - [paddingBoxSize](functions/paddingBoxSize.md)
+- [parallelAnimations](functions/parallelAnimations.md)
 - [parseDataUrl](functions/parseDataUrl.md)
 - [parseDesktopItemCompact](functions/parseDesktopItemCompact.md)
 - [parseJsonSafely](functions/parseJsonSafely.md)
@@ -555,6 +566,7 @@
 - [scrollLink](functions/scrollLink.md)
 - [scrollRef](functions/scrollRef.md)
 - [scrollSize](functions/scrollSize.md)
+- [sequenceAnimations](functions/sequenceAnimations.md)
 - [serializeDesktopItemCompact](functions/serializeDesktopItemCompact.md)
 - [setIgnoreNextPopState](functions/setIgnoreNextPopState.md)
 - [setInputValue](functions/setInputValue.md)
@@ -570,6 +582,7 @@
 - [smoothValueTransition](functions/smoothValueTransition.md)
 - [snapToGridCell](functions/snapToGridCell.md)
 - [squareRootRef](functions/squareRootRef.md)
+- [staggerAnimation](functions/staggerAnimation.md)
 - [stopAllWatchers](functions/stopAllWatchers.md)
 - [stringToBlob](functions/stringToBlob.md)
 - [stringToBlobOrFile](functions/stringToBlobOrFile.md)
