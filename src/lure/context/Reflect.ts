@@ -30,16 +30,17 @@ const $entries = (obj: any) => {
 
 /** Apply one attribute; style StyleBinding uses reflectStyles, not setAttribute. */
 const reflectOneAttribute = (element: HTMLElement | null | undefined, prop: any, value: any) => {
-    if (!element || prop == null) return;
+    if (!element || prop == null) return element;
     const name = prop?.toString?.() || prop;
     if (
         (name === "style" || name === "cssText") &&
         (isStyleBinding(value) || typeof value === "function")
     ) {
         reflectStyles(element, value);
-        return;
+        return element;
     }
     handleAttribute(element, prop, value);
+    return element;
 };
 
 //
@@ -65,6 +66,9 @@ export const reflectAttributes = (element: HTMLElement, attributes: any)=>{
         addToCallChain(element, Symbol.dispose, usub);
     } else
     { console.warn("Invalid attributes object:", attributes); }
+
+    //
+    return element;
 }
 
 //
@@ -82,7 +86,10 @@ export const reflectARIA = (element: HTMLElement, aria: any)=>{
         addToCallChain(aria, Symbol.dispose, usub);
         addToCallChain(element, Symbol.dispose, usub);
     } else
-    { console.warn("Invalid ARIA object:", aria);}; return element;
+    { console.warn("Invalid ARIA object:", aria);};
+
+    //
+    return element;
 }
 
 //
@@ -100,7 +107,10 @@ export const reflectDataset = (element: HTMLElement, dataset: any)=>{
         addToCallChain(dataset, Symbol.dispose, usub);
         addToCallChain(element, Symbol.dispose, usub);
     } else
-    { console.warn("Invalid dataset object:", dataset); }; return element;
+    { console.warn("Invalid dataset object:", dataset); }; 
+
+    //
+    return element;
 }
 
 // TODO! support observe styles (reactive StyleBinding swap)
@@ -112,17 +122,35 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
         styles?.style != null &&
         !isStyleBinding(styles) &&
         (isStyleBinding(styles.style) || typeof styles.style === "function")
-    ) {
-        return reflectStyles(element, styles.style);
-    }
+    ) { return reflectStyles(element, styles.style); }
 
+    //
     const apply = Array.isArray(styles?.style) ? styles?.style?.[0] : styles?.style;
-    if (typeof styles == "string") { applyNormalizedInlineStyle(element, styles); } else
+    if (typeof styles == "string") { 
+        const dispose = applyNormalizedInlineStyle(element, styles);
+        addToCallChain(styles, Symbol.dispose, dispose);
+        addToCallChain(element, Symbol.dispose, dispose);
+        return element;
+    } else
     if (isStyleBinding(styles) || typeof styles == "function") {
         // S`...` / css`...` applicator (and optional StyleBinding tuple).
-        bindStyle(element, styles);
+        const dispose = bindStyle(element, styles);
+        addToCallChain(styles, Symbol.dispose, dispose);
+        addToCallChain(element, Symbol.dispose, dispose);
+        return element;
     } else
-    if (typeof styles?.value == "string") { affected([styles, "value"], (val) => { applyNormalizedInlineStyle(element, val ?? ""); }); } else
+    if (typeof styles?.value == "string") { 
+        const usub = affected([styles, "value"], (val) => { 
+            const dispose = applyNormalizedInlineStyle(element, val ?? "");
+            addToCallChain(styles, Symbol.dispose, dispose);
+            addToCallChain(element, Symbol.dispose, dispose);
+        });
+
+        //
+        addToCallChain(styles, Symbol.dispose, usub);
+        addToCallChain(element, Symbol.dispose, usub);
+        return element;
+    } else
     // Ref whose .value is StyleBinding (style=${ref} where ref.value = S`...`).
     if (
         styles != null &&
@@ -130,19 +158,37 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
         "value" in styles &&
         (isStyleBinding(styles.value) || typeof styles.value === "function")
     ) {
-        bindStyle(element, styles.value);
+        const dispose = bindStyle(element, styles.value);
+        addToCallChain(styles, Symbol.dispose, dispose);
+        addToCallChain(element, Symbol.dispose, dispose);
+
+        //
         const usub = affected([styles, "value"], (val) => {
-            if (isStyleBinding(val) || typeof val === "function") bindStyle(element, val);
+            if (isStyleBinding(val) || typeof val === "function") {
+                const dispose = bindStyle(element, val);
+                addToCallChain(styles, Symbol.dispose, dispose);
+                addToCallChain(element, Symbol.dispose, dispose);
+            }
         });
+
+        //
         addToCallChain(styles, Symbol.dispose, usub);
         addToCallChain(element, Symbol.dispose, usub);
+        return element;
     } else
-    if (apply != null && typeof apply == "function") { bindStyle(element, styles.style); } else
+    if (apply != null && typeof apply == "function") {
+        const dispose = bindStyle(element, styles.style); 
+        addToCallChain(styles, Symbol.dispose, dispose); 
+        addToCallChain(element, Symbol.dispose, dispose); 
+        return element; 
+    } else
     if (typeof styles == "object") {
         const weak = new WeakRef(styles), wel = new WeakRef(element);
         $entries(styles).forEach(([prop, value])=>{
             handleStyleChange(wel?.deref?.(), prop, value);
         });
+
+        //
         const usub = affected(styles, (value, prop: any)=>{
             handleStyleChange(wel?.deref?.(), prop, value);
             bindHandler(wel?.deref?.(), value, prop, handleStyleChange, weak?.deref?.());
@@ -151,8 +197,12 @@ export const reflectStyles = (element: HTMLElement, styles: string|any)=>{
         //
         addToCallChain(styles, Symbol.dispose, usub);
         addToCallChain(element, Symbol.dispose, usub);
+        return element;
     } else
-    { console.warn("Invalid styles object:", styles); } return element;
+    { console.warn("Invalid styles object:", styles); } 
+
+    //
+    return element;
 }
 
 // one-shot update
@@ -186,7 +236,12 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
     });
 
     //
-    addToCallChain(properties, Symbol.dispose, usub); addToCallChain(element, Symbol.dispose, usub); element.addEventListener("change", onChange); return element;
+    addToCallChain(properties, Symbol.dispose, usub); 
+    addToCallChain(element, Symbol.dispose, usub); 
+
+    //
+    element.addEventListener("change", onChange); 
+    return element;
 }
 
 //
@@ -214,5 +269,6 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
 
     //
     addToCallChain(classList, Symbol.dispose, usub);
-    addToCallChain(element, Symbol.dispose, usub); return element;
+    addToCallChain(element, Symbol.dispose, usub); 
+    return element;
 }
