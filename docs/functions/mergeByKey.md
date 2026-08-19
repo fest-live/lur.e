@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.42**](../README.md)
+[**@fest-lib/lure v0.1.43**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function mergeByKey(items, key?): any;
 ```
 
-Defined in: lur.e/src/interactive/modules/UIState.ts:243
+Defined in: lur.e/src/interactive/modules/UIState.ts:244
 
 ## Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.42**](../README.md)
+[**@fest-lib/lure v0.1.43**](../README.md)
 
 ***
 
@@ -16,7 +16,7 @@ function makeUIState(
    saveInterval?): null;
 ```
 
-Defined in: lur.e/src/interactive/modules/UIState.ts:273
+Defined in: lur.e/src/interactive/modules/UIState.ts:274
 
 ## Parameters
 
