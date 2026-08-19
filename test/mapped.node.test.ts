@@ -349,3 +349,32 @@ test("Mapped tracks observable Set values through add and delete", async () => {
     await tick();
     assert.deepEqual(readItems(list), ["B", "C"]);
 });
+
+test("Mapped keeps DocumentFragment children when a new item is pushed", async () => {
+    const items = observe([
+        { id: "a", label: "A" },
+        { id: "b", label: "B" }
+    ]);
+    const parent = document.createElement("div");
+    const mapped: any = M(items, (item: { id: string; label: string }) => {
+        const frag = document.createDocumentFragment();
+        const icon = document.createElement("span");
+        icon.dataset.role = "icon";
+        icon.dataset.id = item.id;
+        icon.textContent = item.label;
+        const shadow = document.createElement("i");
+        shadow.dataset.role = "shadow";
+        shadow.dataset.id = item.id;
+        frag.append(icon, shadow);
+        return frag;
+    }, parent);
+
+    await tick();
+    const ids = () => Array.from(parent.querySelectorAll("[data-id]")).map((node) => `${node.getAttribute("data-role")}:${node.getAttribute("data-id")}`);
+    assert.deepEqual(ids(), ["icon:a", "shadow:a", "icon:b", "shadow:b"]);
+
+    items.push({ id: "c", label: "C" });
+    await tick();
+    assert.deepEqual(ids(), ["icon:a", "shadow:a", "icon:b", "shadow:b", "icon:c", "shadow:c"]);
+    mapped?.[Symbol.dispose]?.();
+});

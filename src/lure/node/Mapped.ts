@@ -1,8 +1,8 @@
 /*
  * Filename: Mapped.ts
  * FullPath: modules/projects/lur.e/src/lure/node/Mapped.ts
- * Change date and time: 23.29.00_28.07.2026
- * Reason for changes: Bound mapped collections retain anchors and dispose observers safely.
+ * Change date and time: 09.20.00_19.08.2026
+ * Reason for changes: Keep fragment child nodes across collection inserts (Speed Dial icon+shadow).
  */
 
 import { iterated } from "@fest-lib/object";
@@ -33,6 +33,35 @@ const isElementParent = (value: any): value is HTMLElement =>
     value.nodeType === 1 &&
     value.nodeName !== "BODY" &&
     typeof value.insertBefore === "function";
+
+/*
+ * WHY: `insertBefore`/`append` empty a DocumentFragment. Mapped caches the
+ * fragment object, so a later reconcile would see zero children and drop the
+ * already-mounted siblings (Speed Dial icon + under-shadow).
+ */
+const $fragKids = Symbol("mapped.fragKids");
+
+const rememberFragmentKids = (node: any): any => {
+    if (node instanceof DocumentFragment) {
+        const stored = (node as any)[$fragKids];
+        if (!Array.isArray(stored) || stored.length === 0) {
+            const kids = Array.from(node.childNodes);
+            if (kids.length) (node as any)[$fragKids] = kids;
+        }
+    }
+    return node;
+};
+
+const flattenMappedNode = (node: any): Node[] => {
+    if (node instanceof DocumentFragment) {
+        rememberFragmentKids(node);
+        const stored = (node as any)[$fragKids];
+        if (Array.isArray(stored) && stored.length) return stored as Node[];
+        return Array.from(node.childNodes);
+    }
+    if (node instanceof Node) return [node];
+    return [];
+};
 
 //
 class Mp {
@@ -94,11 +123,7 @@ class Mp {
         const desiredNodes: Node[] = [];
         this.#collection().forEach((value, index) => {
             const node = getNode(value, this.mapper.bind(this), index, parent);
-            if (node instanceof DocumentFragment) {
-                desiredNodes.push(...Array.from(node.childNodes));
-            } else if (node instanceof Node) {
-                desiredNodes.push(node);
-            }
+            desiredNodes.push(...flattenMappedNode(node));
         });
 
         const desired = new Set(desiredNodes);
@@ -328,7 +353,7 @@ class Mp {
                 const mapArgs = [args?.[0], mapKey, ...args.slice(2)];
                 const cached = this.#mapEntries.get(mapKey);
                 if (cached && Object.is(cached.value, args?.[0])) return cached.node;
-                const node = this.#mapCb(...mapArgs);
+                const node = rememberFragmentKids(this.#mapCb(...mapArgs));
                 this.#mapEntries.set(mapKey, { value: args?.[0], node });
                 return node;
             }
@@ -341,17 +366,17 @@ class Mp {
 
             //
             if (args?.[0] != null && (typeof args?.[0] == "object" || typeof args?.[0] == "function" || typeof args?.[0] == "symbol")) // @ts-ignore
-                { return this.#reMap.getOrInsert(args?.[0], this.#mapCb(...args)); }
+                { return this.#reMap.getOrInsertComputed(args?.[0], () => rememberFragmentKids(this.#mapCb(...args))); }
 
             // prevalence of Set typed
             if (args?.[0] != null && source instanceof Set) // @ts-ignore
-                { return this.#pmMap.getOrInsert(args?.[0], this.#mapCb(...args)); }
+                { return this.#pmMap.getOrInsertComputed(args?.[0], () => rememberFragmentKids(this.#mapCb(...args))); }
 
             // array may has same values twice, no viable solution...
             if (args?.[0] != null) {
                 if (this.#options?.uniquePrimitives && isPrimitive(args?.[0])) // @ts-ignore
-                    { return this.#pmMap.getOrInsert(args?.[0], this.#mapCb(...args)); } else
-                    { return this.#mapCb(...args); }
+                    { return this.#pmMap.getOrInsertComputed(args?.[0], () => rememberFragmentKids(this.#mapCb(...args))); } else
+                    { return rememberFragmentKids(this.#mapCb(...args)); }
             }
         }
     }

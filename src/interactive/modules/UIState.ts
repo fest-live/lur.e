@@ -56,8 +56,9 @@ const mergePlainObject = (target: Record<PropertyKey, any>, source: Record<Prope
             mergePlainObject(currentValue, nextValue);
             continue;
         }
-        if (currentValue !== nextValue) {
-            target[key] = nextValue;
+        const merged = mergeValue(currentValue, nextValue);
+        if (target[key] !== merged) {
+            target[key] = merged;
         }
     }
     return target;
@@ -303,9 +304,13 @@ export const makeUIState = (storageKey, initialCb, unpackCb, packCb = (items) =>
     }
 
     // Save function
+    // WHY: chrome.storage.onChanged fires in the same document that wrote.
+    // Echo reloadInto() replaced live cell/label refs and broke already-mounted tiles.
+    let lastPackedEcho = "";
     const saveInStorage = (ev?: any)=>{
         if (!hydrated) return;
         const packed = JSOX.stringify(packCb(mergeByKey(state, key)));
+        lastPackedEcho = packed;
         if (hasChromeStorage()) {
             chrome.storage.local.set({ [storageKey]: packed });
         } else if (typeof localStorage !== "undefined") {
@@ -340,9 +345,9 @@ export const makeUIState = (storageKey, initialCb, unpackCb, packCb = (items) =>
         const listener = (changes, area) => {
             if (area === 'local' && changes[storageKey]) {
                 const newValue = changes[storageKey].newValue;
-                if (newValue) {
-                    reloadInto(state, unpackCb(JSOX.parse(newValue)));
-                }
+                if (!newValue || newValue === lastPackedEcho) return;
+                lastPackedEcho = typeof newValue === "string" ? newValue : JSOX.stringify(newValue);
+                reloadInto(state, unpackCb(typeof newValue === "string" ? JSOX.parse(newValue) : newValue));
             }
         };
         chrome.storage.onChanged.addListener(listener);
