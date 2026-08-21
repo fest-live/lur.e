@@ -200,27 +200,25 @@ const handleBackNavigation = (ev: PopStateEvent): boolean => {
 
         //
         // try to close the highest priority active closeable
-        const closed = closeHighestPriority(closingView) ?? true;
+        const closed = closeHighestPriority(closingView);
 
-        // now, in negative, if isn't closed, may be forward back navigation...
-        if (!closed) {
-            // Prevent actual back navigation by going forward
-            // This preserves the current URL/hash without modification
+        /*
+         * WHY: `finally { return false }` used to discard this result, so overlays
+         * closed AND the browser still left Home. Consume the gesture when a
+         * closeable handled it.
+         */
+        if (closed) {
             ev.preventDefault?.();
             ignoreNextPopState = true;
             originalForward?.();
             setTimeout(() => { ignoreNextPopState = false; }, 0);
-            processingBack = false;
             return true;
         }
 
         ignoreNextPopState = false;
-        processingBack = false;
         return false;
     } finally {
-        ignoreNextPopState = false;
         processingBack = false;
-        return false;
     }
 };
 
@@ -301,7 +299,7 @@ export const registerContextMenu = (
         close: () => {
             visibleRef.value = false;
             onClose?.();
-            return false;
+            return true;
         }
     });
 };
@@ -328,7 +326,7 @@ export const registerModal = (
         close: () => {
             onClose?.();
             element?.remove?.();
-            return false;
+            return true;
         }
     });
 };

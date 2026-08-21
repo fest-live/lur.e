@@ -307,6 +307,90 @@ export const mappedRoots = new Map<string, () => Promise<any>>([
 //
 export const currentHandleMap = new Map<string, any>()
 
+/** Virtual Explorer / OPFS roots that `provide()` can read without HTTP. */
+export const isVirtualFsPath = (path: string): boolean => {
+    const raw = String(path || "").trim();
+    if (!raw) return false;
+    let p = raw;
+    try {
+        if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(raw)) p = new URL(raw).pathname;
+    } catch { /* keep raw */ }
+    if (!p.startsWith("/")) p = `/${p}`;
+    if (
+        p === "/user" || p.startsWith("/user/") ||
+        p === "/mounts" || p.startsWith("/mounts/") ||
+        p === "/sdcard" || p.startsWith("/sdcard/") ||
+        p === "/saf" || p.startsWith("/saf/")
+    ) return true;
+    for (const root of mappedRoots.keys()) {
+        if (p === root || p.startsWith(root) || `${p}/` === root) return true;
+    }
+    return false;
+};
+
+export const matchMappedRoot = (path: string): { root: string; resolver: () => Promise<any> } | null => {
+    let p = String(path || "").trim() || "/";
+    try {
+        if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(p)) p = new URL(p).pathname || p;
+    } catch { /* keep */ }
+    if (!p.startsWith("/")) p = `/${p}`;
+    let best: { root: string; resolver: () => Promise<any> } | null = null;
+    let bestLen = -1;
+    for (const [root, resolver] of mappedRoots.entries()) {
+        if (p === root || p.startsWith(root) || `${p}/` === root) {
+            if (root.length > bestLen) {
+                best = { root, resolver };
+                bestLen = root.length;
+            }
+        }
+    }
+    return best;
+};
+
+/**
+ * WHY: `getFileHandle` hyphen-rewrites OPFS `/user/` names. Local
+ * `showDirectoryPicker` trees must keep exact filenames (`My Image.png`).
+ */
+export const walkExactFile = async (
+    root: FileSystemDirectoryHandle,
+    rel: string
+): Promise<FileSystemFileHandle | null> => {
+    const parts = String(rel || "").split("/").filter(Boolean);
+    if (!parts.length) return null;
+    let dir: FileSystemDirectoryHandle = root;
+    for (const seg of parts.slice(0, -1)) {
+        try {
+            dir = await dir.getDirectoryHandle(seg, { create: false });
+        } catch {
+            return null;
+        }
+    }
+    try {
+        return await dir.getFileHandle(parts[parts.length - 1], { create: false });
+    } catch {
+        return null;
+    }
+};
+
+/** Register a directory handle as a virtual root (`/mounts/<id>/`, etc.). */
+export const registerDirectoryRoot = (root: string, handle: FileSystemDirectoryHandle): void => {
+    if (!handle) return;
+    const key = String(root || "").endsWith("/") ? String(root) : `${root}/`;
+    if (!key.startsWith("/")) return;
+    mappedRoots.set(key, async () => handle);
+    const segs = key.split("/").filter(Boolean);
+    if (segs[0] === "mounts" && segs[1]) currentHandleMap.set(segs[1], handle);
+    currentHandleMap.set(key, handle);
+};
+
+export const unregisterDirectoryRoot = (root: string): void => {
+    const key = String(root || "").endsWith("/") ? String(root) : `${root}/`;
+    mappedRoots.delete(key);
+    currentHandleMap.delete(key);
+    const segs = key.split("/").filter(Boolean);
+    if (segs[0] === "mounts" && segs[1]) currentHandleMap.delete(segs[1]);
+};
+
 //
 export const mountAsRoot = async (forId: string, copyFromInternal?: boolean) => {
     const cleanId = forId?.trim?.()?.replace?.(/^\//, "")?.trim?.()?.split?.("/")?.filter?.(p => !!p?.trim?.())?.at?.(0);
@@ -980,11 +1064,28 @@ export const provide = async (req: string | Request = "", rw = false) => {
         return handle?.getFile?.();
     }
 
+    const mapped = matchMappedRoot(cleanPath);
+    if (mapped && mapped.root !== "/user/" && mapped.root !== "/") {
+        const dir = await mapped.resolver().catch(() => null);
+        if (dir instanceof FileSystemDirectoryHandle) {
+            const rel = cleanPath.startsWith(mapped.root)
+                ? cleanPath.slice(mapped.root.length)
+                : cleanPath.replace(/^\/+/, "");
+            const fileHandle = await walkExactFile(dir, rel);
+            if (!fileHandle) return null;
+            if (rw) return fileHandle.createWritable?.();
+            return fileHandle.getFile?.();
+        }
+        return null;
+    }
+
     //
     if (rw) {
         // Non-user scopes are treated as read-only for provide().
         return null;
     }
+
+    if (isVirtualFsPath(cleanPath)) return null;
 
     //
     try {
