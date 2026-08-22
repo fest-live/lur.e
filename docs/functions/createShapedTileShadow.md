@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.44**](../README.md)
+[**@fest-lib/lure v0.1.45**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function createShapedTileShadow(target, options?): UnderlyingShadow;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:416
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:413
 
 Shaped under-glow for glass tiles (`backdrop-filter` on main).
 INVARIANT: `target` is the grid `.ui-ws-item` (under is a preceding sibling in the grid);

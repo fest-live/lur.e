@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.44**](../README.md)
+[**@fest-lib/lure v0.1.45**](../README.md)
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:56
 destroy(): void;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:343
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:340
 
 #### Returns
 
@@ -50,7 +50,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:343
 getShadowElement(): HTMLElement;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:339
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:336
 
 #### Returns
 
@@ -64,7 +64,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:339
 setVisible(visible): void;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:335
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:332
 
 #### Parameters
 
@@ -84,7 +84,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:335
 updateOptions(newOptions): void;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:327
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:324
 
 #### Parameters
 

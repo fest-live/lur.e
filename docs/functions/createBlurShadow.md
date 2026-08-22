@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.44**](../README.md)
+[**@fest-lib/lure v0.1.45**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function createBlurShadow(target, options?): UnderlyingShadow;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:378
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:375
 
 ## Parameters
 

@@ -1,8 +1,8 @@
 /*
  * Filename: UnderlyingShadow.ts
  * FullPath: modules/projects/lur.e/src/design/layers/UnderlyingShadow.ts
- * Change date and time: 16.56.00_30.07.2026
- * Reason for changes: Tile under as grid sibling of `.ui-ws-item` (CSS-anchor); optional geometrySource.
+ * Change date and time: 23.15.00_22.08.2026
+ * Reason for changes: Fixed under-shadow must keep negative z-index; box-shadow on the clone, not the slab.
  */
 import { setProperty, handleStyleChange } from "@fest-lib/dom";
 import { bindWith } from "../../lure/core/Binding";
@@ -262,12 +262,12 @@ export class UnderlyingShadow {
             }
         } else if (shadowType === "box-shadow") {
             const boxShadowValue = `${CSSUnitUtils.asPx(shadowOffsetX || 0)} ${CSSUnitUtils.asPx(shadowOffsetY || 0)} ${CSSUnitUtils.asPx(shadowBlur || 0)} ${CSSUnitUtils.asPx(spreadRadius || 0)} ${shadowColor}`;
-            // Apply on the shaped clone so radius/squircle matches.
+            this.shadowContainer!.style.background = "transparent";
+            this.shadowContainer!.style.boxShadow = "none";
             if (this.geometryClone) {
-                this.shadowContainer.style.background = "transparent";
-                this.shadowContainer.style.boxShadow = boxShadowValue;
-            } else {
-                this.shadowContainer!.style.boxShadow = boxShadowValue;
+                this.geometryClone.style.boxShadow = boxShadowValue;
+            } else if (this.shadowElement) {
+                this.shadowElement.style.boxShadow = boxShadowValue;
             }
             this.shadowContainer!.style.filter = "none";
             this.shadowContainer!.style.opacity = opacity!.toString() || "1";
@@ -286,11 +286,8 @@ export class UnderlyingShadow {
             layer.style.pointerEvents = "none";
             const shift = this.options.zIndexShift ?? -1;
             const mainZ = Number.parseInt(getComputedStyle(this.target).zIndex || "0", 10);
-            if (Number.isFinite(mainZ)) {
-                layer.style.zIndex = String(Math.max(mainZ + shift, 0));
-            } else {
-                layer.style.zIndex = String(Math.max(shift, 0));
-            }
+            // WHY: `Math.max(..., 0)` painted a 40px taskbar-under slab over PWA windows.
+            layer.style.zIndex = String(Number.isFinite(mainZ) ? mainZ + shift : shift);
             const insert = () => {
                 if (!this.target.isConnected) return;
                 this.target.before(layer);
