@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function addProxiedEvent<E>(
    config?): (_element, _handler) => () => void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/LazyEvents.ts:108
+Defined in: lur.e/src/interactive/controllers/LazyEvents.ts:117
 
 Proxied events:
 - Installs **one** real DOM listener on `root` (per event/options/config), but only after the first element handler registers.

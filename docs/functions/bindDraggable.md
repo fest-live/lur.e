@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -20,7 +20,7 @@ function bindDraggable(
   | undefined;
 ```
 
-Defined in: lur.e/src/interactive/controllers/PointerAPI.ts:327
+Defined in: lur.e/src/interactive/controllers/PointerAPI.ts:329
 
 ## Parameters
 

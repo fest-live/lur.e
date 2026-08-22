@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function visibleRef(host?, ...args): any;
 ```
 
-Defined in: lur.e/src/lure/core/Refs.ts:44
+Defined in: lur.e/src/lure/core/Refs.ts:47
 
 ## Parameters
 

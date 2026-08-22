@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function createBackNavigableModal(content, options?): object;
 ```
 
-Defined in: lur.e/src/interactive/tasking/BackNavigation.ts:387
+Defined in: lur.e/src/interactive/tasking/BackNavigation.ts:385
 
 Create a modal backdrop with back navigation support
 Wraps an existing modal creation pattern

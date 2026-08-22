@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -19,7 +19,7 @@ new LongPressHandler(
    fx?): LongPressHandler;
 ```
 
-Defined in: lur.e/src/interactive/controllers/LongPress.ts:27
+Defined in: lur.e/src/interactive/controllers/LongPress.ts:28
 
 #### Parameters
 
@@ -47,7 +47,7 @@ Defined in: lur.e/src/interactive/controllers/LongPress.ts:27
 defaultHandler(ev, weakRef): boolean | undefined;
 ```
 
-Defined in: lur.e/src/interactive/controllers/LongPress.ts:38
+Defined in: lur.e/src/interactive/controllers/LongPress.ts:39
 
 #### Parameters
 
@@ -65,13 +65,29 @@ Defined in: lur.e/src/interactive/controllers/LongPress.ts:38
 
 ***
 
+### dispose()
+
+```ts
+dispose(): void;
+```
+
+Defined in: lur.e/src/interactive/controllers/LongPress.ts:79
+
+Release root listeners and any pending long-press state.
+
+#### Returns
+
+`void`
+
+***
+
 ### longPress()
 
 ```ts
-longPress(options?, fx?): void;
+longPress(options?, fx?): () => void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/LongPress.ts:43
+Defined in: lur.e/src/interactive/controllers/LongPress.ts:44
 
 #### Parameters
 
@@ -85,4 +101,4 @@ Defined in: lur.e/src/interactive/controllers/LongPress.ts:43
 
 #### Returns
 
-`void`
+() => `void`

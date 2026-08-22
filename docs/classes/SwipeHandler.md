@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/interactive/controllers/Swipe.ts:4
 new SwipeHandler(holder, options?): SwipeHandler;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Swipe.ts:8
+Defined in: lur.e/src/interactive/controllers/Swipe.ts:9
 
 #### Parameters
 
@@ -34,13 +34,29 @@ Defined in: lur.e/src/interactive/controllers/Swipe.ts:8
 
 ## Methods
 
+### dispose()
+
+```ts
+dispose(): void;
+```
+
+Defined in: lur.e/src/interactive/controllers/Swipe.ts:99
+
+Release root listeners and discard in-progress swipe state.
+
+#### Returns
+
+`void`
+
+***
+
 ### swipe()
 
 ```ts
-swipe(options): void;
+swipe(options): (() => void) | undefined;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Swipe.ts:15
+Defined in: lur.e/src/interactive/controllers/Swipe.ts:16
 
 #### Parameters
 
@@ -50,4 +66,4 @@ Defined in: lur.e/src/interactive/controllers/Swipe.ts:15
 
 #### Returns
 
-`void`
+(() => `void`) \| `undefined`

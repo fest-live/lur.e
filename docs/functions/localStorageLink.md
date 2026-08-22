@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function localStorageLink(
    initial?): any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:195
+Defined in: lur.e/src/lure/core/Links.ts:204
 
 ## Parameters
 

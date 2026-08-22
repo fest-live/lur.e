@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const directoryCacheMap: Map<string, DirectoryState>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:576
+Defined in: lur.e/src/utils/opfs/OPFS.ts:660

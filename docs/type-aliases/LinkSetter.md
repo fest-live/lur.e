@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type LinkSetter<T> = (value, ctx) => void;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:23
+Defined in: lur.e/src/lure/core/Links.ts:28
 
 ## Type Parameters
 

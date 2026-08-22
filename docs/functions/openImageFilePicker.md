@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function openImageFilePicker(): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:906
+Defined in: lur.e/src/utils/opfs/OPFS.ts:990
 
 ## Returns
 

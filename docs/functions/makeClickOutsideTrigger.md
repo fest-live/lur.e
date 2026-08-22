@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function makeClickOutsideTrigger(
    options?): RefBool;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Trigger.ts:156
+Defined in: lur.e/src/interactive/controllers/Trigger.ts:228
 
 ## Parameters
 

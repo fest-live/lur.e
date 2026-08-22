@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function eventTrigger(events, options?): LinkTrigger;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:105
+Defined in: lur.e/src/lure/core/Links.ts:112
 
 ## Parameters
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/lure/core/Links.ts:105
 
 ### options?
 
-`AddEventListenerOptions`
+[`EventTriggerOptions`](../type-aliases/EventTriggerOptions.md) = `{}`
 
 ## Returns
 

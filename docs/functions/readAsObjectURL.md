@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function readAsObjectURL(
 logger?): Promise<string | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:828
+Defined in: lur.e/src/utils/opfs/OPFS.ts:912
 
 ## Parameters
 

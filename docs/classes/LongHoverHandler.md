@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -19,7 +19,7 @@ new LongHoverHandler(
    fx?): LongHoverHandler;
 ```
 
-Defined in: lur.e/src/interactive/controllers/LongHover.ts:8
+Defined in: lur.e/src/interactive/controllers/LongHover.ts:9
 
 #### Parameters
 
@@ -47,7 +47,7 @@ Defined in: lur.e/src/interactive/controllers/LongHover.ts:8
 defaultHandler(ev, weakRef): boolean | undefined;
 ```
 
-Defined in: lur.e/src/interactive/controllers/LongHover.ts:15
+Defined in: lur.e/src/interactive/controllers/LongHover.ts:16
 
 #### Parameters
 
@@ -65,13 +65,29 @@ Defined in: lur.e/src/interactive/controllers/LongHover.ts:15
 
 ***
 
+### dispose()
+
+```ts
+dispose(): void;
+```
+
+Defined in: lur.e/src/interactive/controllers/LongHover.ts:64
+
+Release root listeners and cancel a pending hover timer.
+
+#### Returns
+
+`void`
+
+***
+
 ### longHover()
 
 ```ts
-longHover(options, fx?): void;
+longHover(options, fx?): () => void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/LongHover.ts:20
+Defined in: lur.e/src/interactive/controllers/LongHover.ts:21
 
 #### Parameters
 
@@ -85,4 +101,4 @@ Defined in: lur.e/src/interactive/controllers/LongHover.ts:20
 
 #### Returns
 
-`void`
+() => `void`

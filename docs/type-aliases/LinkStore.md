@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type LinkStore<T> = (value, ctx) => any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:24
+Defined in: lur.e/src/lure/core/Links.ts:29
 
 ## Type Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function normalizePath(basePath?, relPath): string;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:400
+Defined in: lur.e/src/utils/opfs/OPFS.ts:484
 
 ## Parameters
 

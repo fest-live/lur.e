@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function OOBTrigger(
    root?): () => void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Trigger.ts:196
+Defined in: lur.e/src/interactive/controllers/Trigger.ts:268
 
 ## Parameters
 

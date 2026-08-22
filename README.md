@@ -10,9 +10,9 @@
   <a href="https://github.com/fest-live/lur.e/issues"><img src="https://img.shields.io/github/issues/fest-live/lur.e?style=flat-square" alt="Issues"/></a>
 </p>
 
-## *Overview*
+## Overview
 
-**LUR-E** is an experimental UI library focused on efficient memory management, advanced reactivity, and compatibility with modern web standards. It provides a low-level API for DOM manipulation, enhanced CSS integration, and supports web components out of the box.
+`@fest-lib/lure` (LUR.E) is the fest-lib reactive DOM layer. It binds `@fest-lib/object` refs to real nodes (`E`, `H`, `M`, `Q`, `T`, `C`, `S`), form/input observers, overlay placement, and drag helpers. Web components and CSS-in-JS (`S`) are first-class.
 
 ---
 

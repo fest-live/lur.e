@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const localStorageLinkMap: any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:10
+Defined in: lur.e/src/lure/core/Links.ts:15

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function registerModal(
    onClose?): () => void;
 ```
 
-Defined in: lur.e/src/interactive/tasking/BackNavigation.ts:312
+Defined in: lur.e/src/interactive/tasking/BackNavigation.ts:310
 
 Register a modal dialog as closeable
 

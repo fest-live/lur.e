@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.43**](../README.md)
+[**@fest-lib/lure v0.1.44**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function registerOverlay(
    priority?): () => void;
 ```
 
-Defined in: lur.e/src/interactive/tasking/BackNavigation.ts:364
+Defined in: lur.e/src/interactive/tasking/BackNavigation.ts:362
 
 Register an overlay/panel as closeable
 
