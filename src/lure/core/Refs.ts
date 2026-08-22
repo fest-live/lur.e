@@ -1,6 +1,6 @@
 import type { refType } from "@fest-lib/object";
 import { stringRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger, ref } from "@fest-lib/object";
-import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink, pointerEventLink, radioValueLink, type Linker } from "./Links";
+import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink, pointerEventLink, radioValueLink, datasetLink, stylePropLink, cssVarLink, type Linker } from "./Links";
 import { addEvent, getPadding, handleAttribute } from "@fest-lib/dom";
 import { elMap } from "./Binding";
 import { isValidObj, WRef } from "@fest-lib/core";
@@ -25,6 +25,9 @@ export const makeRef = <T = any>(host?: any, type?: any, link?: any, ...args): T
 //
 export const orientRef = (host?: any, ...args)=>makeRef(host, numberRef, orientLink, ...args);
 export const attrRef = (host?: any, ...args)=>makeRef(host, stringRef, attrLink, ...args);
+export const datasetRef = (host?: any, ...args)=>makeRef(host, stringRef, datasetLink, ...args);
+export const stylePropRef = (host?: any, ...args)=>makeRef(host, stringRef, stylePropLink, ...args);
+export const cssVarRef = (host?: any, ...args)=>makeRef(host, stringRef, cssVarLink, ...args);
 export const valueRef = (host?: any, ...args)=>makeRef(host, stringRef, valueLink, ...args);
 export const radioValueRef = (host?: any, ...args)=>makeRef(host, stringRef, radioValueLink, ...args);
 export const valueAsNumberRef = (host?: any, ...args)=>makeRef(host, numberRef, valueAsNumberLink, ...args);

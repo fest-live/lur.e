@@ -1,10 +1,27 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
+class FakeStyle {
+    #values = new Map<string, string>();
+
+    setProperty(name: string, value: any) {
+        this.#values.set(name, String(value));
+    }
+
+    getPropertyValue(name: string) {
+        return this.#values.get(name) ?? "";
+    }
+
+    removeProperty(name: string) {
+        this.#values.delete(name);
+    }
+}
+
 class FakeNode extends EventTarget {
     isConnected = true;
     parentNode: any = null;
     children: any[] = [];
+    style = new FakeStyle();
     contains(node: any) { return node === this; }
     append(...nodes: any[]) {
         for (const node of nodes) {
@@ -63,10 +80,18 @@ class FakeInput extends FakeNode {
     getAttribute(name: string) { return this.attributes.get(name) ?? null; }
     setAttribute(name: string, value: any) {
         this.attributes.set(name, String(value));
+        if (name.startsWith("data-")) {
+            const key = name.slice(5).replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+            this.dataset[key] = String(value);
+        }
         FakeMutationObserver.flush(this, name);
     }
     removeAttribute(name: string) {
         this.attributes.delete(name);
+        if (name.startsWith("data-")) {
+            const key = name.slice(5).replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+            delete this.dataset[key];
+        }
         FakeMutationObserver.flush(this, name);
     }
 }
@@ -108,7 +133,7 @@ const { getOrInsert: installUpsertPolyfills } = await import("../../core.ts/src/
 installUpsertPolyfills(new Map(), "__upsert_polyfill__", () => null);
 
 const { stringRef } = await import("@fest-lib/object");
-const { attrLink, checkedLink, eventTrigger, makeLinker, radioValueLink, valueLink } = await import("../src/lure/core/Links");
+const { attrLink, checkedLink, cssVarLink, datasetLink, eventTrigger, formLink, makeLinker, radioValueLink, selectLink, valueLink } = await import("../src/lure/core/Links");
 
 const tick = async () => {
     await Promise.resolve();
@@ -256,4 +281,62 @@ test("radioValueLink reflects checked radio value by group name", async () => {
     assert.equal(a.checked, true);
 
     cleanup?.();
+});
+
+test("datasetLink reflects ref writes and data attribute mutations", async () => {
+    const input = new FakeInput();
+    const column = stringRef("2");
+    const cleanup = datasetLink(input, column, "cellColumn");
+
+    await tick();
+    assert.equal(input.dataset.cellColumn, "2");
+
+    input.setAttribute("data-cell-column", "3");
+    await tick();
+    assert.equal(column.value, "3");
+
+    cleanup?.();
+    input.setAttribute("data-cell-column", "4");
+    await tick();
+    assert.equal(column.value, "3");
+});
+
+test("cssVarLink writes a ref to an inline custom property", async () => {
+    const input = new FakeInput();
+    const offset = stringRef("12px");
+    const cleanup = cssVarLink(input, offset, "--test-offset");
+
+    await tick();
+    assert.equal(input.style.getPropertyValue("--test-offset"), "12px");
+
+    offset.value = "24px";
+    await tick();
+    assert.equal(input.style.getPropertyValue("--test-offset"), "24px");
+    cleanup?.();
+});
+
+test("selectLink and formLink synchronize select values and cleanup", async () => {
+    const select = new FakeInput();
+    select.type = "select-one";
+    select.value = "one";
+    const selected = stringRef("one");
+    const cleanup = selectLink(select, selected);
+
+    select.value = "two";
+    select.dispatchEvent(new Event("change"));
+    await tick();
+    assert.equal(selected.value, "two");
+
+    selected.value = "three";
+    await tick();
+    assert.equal(select.value, "three");
+    cleanup?.();
+
+    const viaKind = stringRef("initial");
+    const kindCleanup = formLink(select, viaKind, "select");
+    select.value = "kind";
+    select.dispatchEvent(new Event("change"));
+    await tick();
+    assert.equal(viaKind.value, "kind");
+    kindCleanup?.();
 });

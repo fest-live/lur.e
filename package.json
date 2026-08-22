@@ -57,8 +57,13 @@
         "@fest-lib/uniform": ">=0.1.0"
     },
     "scripts": {
-        "test": "npm run test:linker",
+        "test": "npm run test:linker && npm run test:interaction && npm run test:placement && npm run test:overlay-host && npm run test:trigger-core && npm run test:form-binding",
         "test:linker": "node ./scripts/run-linker-tests.mjs",
+        "test:interaction": "node ./scripts/run-interaction-tests.mjs",
+        "test:placement": "node ./scripts/run-placement-tests.mjs",
+        "test:overlay-host": "node ./scripts/run-overlay-host-tests.mjs",
+        "test:trigger-core": "node ./scripts/run-trigger-core-tests.mjs",
+        "test:form-binding": "node ./scripts/run-form-binding-tests.mjs",
         "test:mapped": "node ./scripts/run-mapped-tests.mjs",
         "test:dev": "npm run demo",
         "dev": "npm run demo",

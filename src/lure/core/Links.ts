@@ -1,8 +1,13 @@
-import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, getPadding, addEvent } from "@fest-lib/dom";
+import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, handleDataset, handleStyleChange, getPadding, addEvent } from "@fest-lib/dom";
 import { observe, booleanRef, numberRef, affected, stringRef, ref, $triggerControl } from "@fest-lib/object";
 import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref, hasValue } from "@fest-lib/core";
 import { setChecked } from "@fest-lib/dom";
 import { getIgnoreNextPopState, setIgnoreNextPopState } from "../../interactive/tasking/BackNavigation";
+import {
+    listenerOptionsFor,
+    withTriggerModifiers,
+    type TriggerModifiers,
+} from "./TriggerCore";
 
 //
 const localStorageLinkMapSymbol = Symbol.for("lure@localStorageLinkMap");
@@ -102,15 +107,19 @@ const radioByValueIn = (source: any, value: any, name?: string | null) => {
     return radios.find((radio: any) => radio?.value == value) ?? null;
 }
 
-export const eventTrigger = (events: string | string[], options?: AddEventListenerOptions): LinkTrigger => {
+export type EventTriggerOptions = AddEventListenerOptions & TriggerModifiers;
+
+export const eventTrigger = (events: string | string[], options: EventTriggerOptions = {}): LinkTrigger => {
     const eventList = Array.isArray(events) ? events : [events];
-    return ({ source, commit }) => {
+    const listenerOptions = listenerOptionsFor(options);
+    const base: LinkTrigger = ({ source, commit }) => {
         const target = source?.element ?? source?.self ?? source;
         if (!target?.addEventListener) return;
         const listener = (event: any) => commit(event);
-        eventList.forEach((name) => target.addEventListener(name, listener, options));
-        return () => eventList.forEach((name) => target.removeEventListener?.(name, listener, options));
+        eventList.forEach((name) => target.addEventListener(name, listener, listenerOptions));
+        return () => eventList.forEach((name) => target.removeEventListener?.(name, listener, listenerOptions));
     };
+    return withTriggerModifiers(base, options);
 }
 
 export const mutationTrigger = (attribute?: string): LinkTrigger => {
@@ -320,6 +329,56 @@ export const attrLink = (element?: any|null, exists?: any|null, attribute?: stri
     return () => linker.unbind();
 }
 
+const datasetKeyOf = (key = ""): string => key
+    .replace(/^data-/, "")
+    .replace(/-([a-z])/g, (_, char) => char.toUpperCase());
+
+const datasetAttributeOf = (key: string): string =>
+    `data-${datasetKeyOf(key).replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)}`;
+
+/**
+ * Bidirectionally link a reactive ref to one `data-*` entry.
+ * Dataset writes flow through `handleDataset`; external attribute mutations
+ * commit back through the normal Linker lifecycle.
+ */
+export const datasetLink = (element?: any | null, exists?: any | null, key = "", initial?: any | null) => {
+    if (!element || !key) return;
+    const datasetKey = datasetKeyOf(key);
+    const attribute = datasetAttributeOf(datasetKey);
+    const def = element?.dataset?.[datasetKey] ?? getValue(initial) ?? "";
+    const val = isValueRef(exists) ? exists : stringRef(def);
+    if (isObject(val) && val.value == null) val.value = def;
+    const linker = makeLinker<string>({
+        source: element,
+        ref: val,
+        getter: ({ source }) => source?.dataset?.[datasetKey] ?? "",
+        setter: (value, { source }) => handleDataset(source, datasetKey, normalizePrimitive(value)),
+        trigger: mutationTrigger(attribute),
+    }).bind();
+    return () => linker.unbind();
+}
+
+/**
+ * One-way explicit binding for an inline CSS property or custom property.
+ * Reverse style-attribute observation is intentionally deferred: style is a
+ * shared write surface where one mutation can contain unrelated properties.
+ */
+export const stylePropLink = (element?: any | null, exists?: any | null, property = "", initial?: any | null) => {
+    if (!element || !property) return;
+    const def = element?.style?.getPropertyValue?.(property) ?? getValue(initial) ?? "";
+    const val = isValueRef(exists) ? exists : stringRef(def);
+    if (isObject(val) && val.value == null) val.value = def;
+    const linker = makeLinker<string>({
+        source: element,
+        ref: val,
+        setter: (value, { source }) => handleStyleChange(source, property, value),
+    }).bind();
+    return () => linker.unbind();
+}
+
+/** Alias for `stylePropLink` that documents a `--custom-property` binding. */
+export const cssVarLink = stylePropLink;
+
 //
 export const sizeLink = (element?: any|null, exists?: any|null, axis?: "inline" | "block", box?: ResizeObserverBoxOptions) => {
     const def = box == "border-box" ? element?.[axis == "inline" ? "offsetWidth" : "offsetHeight"] : (element?.[axis == "inline" ? "clientWidth" : "clientHeight"] - getPadding(element, axis));
@@ -426,6 +485,56 @@ export const valueLink = (element?: any|null, exists?: any|null) => {
         trigger: eventTrigger(["click", "input", "change"]),
     }).bind();
     return () => linker.unbind();
+}
+
+/**
+ * Two-way value binding specialized for `<select>` controls.
+ * Unlike `valueLink`, source updates are driven only by `change`.
+ */
+export const selectLink = (element?: any | null, exists?: any | null, initial?: any | null) => {
+    if (isPrimitive(element)) return;
+    if (!element || !(element instanceof Node || element?.element instanceof Node)) return;
+    const def = element?.value ?? getValue(initial) ?? "";
+    const val = isValueRef(exists) ? exists : stringRef(def);
+    if (isObject(val) && val.value == null) val.value = def;
+    const linker = makeLinker<string>({
+        source: element,
+        ref: val,
+        getter: ({ source }) => source?.value ?? "",
+        setter: (value, { source }) => {
+            const next = $getValue(value) ?? "";
+            if (source && isNotEqual(source.value, next)) source.value = next;
+        },
+        trigger: eventTrigger("change"),
+    }).bind();
+    return () => linker.unbind();
+}
+
+export type FormKind = "text" | "number" | "checked" | "radio" | "select";
+
+export type FormLinkOptions = {
+    name?: string | null;
+    initial?: any;
+};
+
+/**
+ * Select a canonical Linker preset for common form control families.
+ * This is additive: the existing specialized links remain public APIs.
+ */
+export const formLink = (
+    element?: any | null,
+    exists?: any | null,
+    kind: FormKind = "text",
+    options: FormLinkOptions = {},
+) => {
+    switch (kind) {
+        case "number": return valueAsNumberLink(element, exists);
+        case "checked": return checkedLink(element, exists);
+        case "radio": return radioValueLink(element, exists, options.name, options.initial);
+        case "select": return selectLink(element, exists, options.initial);
+        case "text":
+        default: return valueLink(element, exists);
+    }
 }
 
 //

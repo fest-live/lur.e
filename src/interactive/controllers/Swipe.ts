@@ -3,6 +3,7 @@ import { ROOT, addEvents } from "@fest-lib/dom";
 //
 export class SwipeHandler {
     #holder: HTMLElement;
+    #dispose: (() => void) | null = null;
 
     //
     constructor(holder, options?) {
@@ -13,6 +14,7 @@ export class SwipeHandler {
 
     //
     swipe(options) {
+        this.dispose();
         if (options?.handler) {
             const swipes = new Map<number, any>([]);
             const swipes_w = new WeakRef(swipes);
@@ -79,13 +81,25 @@ export class SwipeHandler {
             })
 
             //
-            addEvents(ROOT, {
+            const bindings = addEvents(ROOT, {
                 "pointerdown"  : takeAction   ,
                 "pointermove"  : registerMove ,
                 "pointerup"    : completeSwipe,
                 "pointercancel": completeSwipe,
             });
+            this.#dispose = () => {
+                bindings?.forEach?.((unbind: (() => void) | undefined) => unbind?.());
+                swipes.clear();
+            };
+            return this.#dispose;
         }
+    }
+
+    /** Release root listeners and discard in-progress swipe state. */
+    dispose(): void {
+        const dispose = this.#dispose;
+        this.#dispose = null;
+        dispose?.();
     }
 }
 

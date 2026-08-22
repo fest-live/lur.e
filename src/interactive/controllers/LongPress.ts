@@ -23,6 +23,7 @@ const preventor: [(ev: PointerEvent) => void, AddEventListenerOptions] = [
 export class LongPressHandler {
     #holder: HTMLElement;
     #preventedPointers: Set<number>;
+    #dispose: (() => void) | null = null;
     //
     constructor(holder,  options: any = {...defaultOptions}, fx?: (ev: PointerEvent) => void) {
         (this.#holder = holder)["@control"] = this;
@@ -41,6 +42,7 @@ export class LongPressHandler {
 
     //
     longPress(options: any = {...defaultOptions}, fx?: (ev: PointerEvent) => void) {
+        this.dispose();
         const ROOT = document.documentElement;
         const weakRef = new WeakRef(this.#holder);
         const actionState = this.initializeActionState();
@@ -57,12 +59,27 @@ export class LongPressHandler {
         const pointerUpListener   = (ev: PointerEvent) => this.onPointerUp(this.holding, ev);
 
         //
-        addEvents(ROOT, {
+        const bindings = addEvents(ROOT, {
             "pointerdown": pointerDownListener,
             "pointermove": pointerMoveListener,
             "pointerup"  : pointerUpListener,
             "pointercancel": pointerUpListener
         });
+        this.#dispose = () => {
+            bindings?.forEach?.((unbind: (() => void) | undefined) => unbind?.());
+            clearTimeout(actionState.timerId);
+            clearTimeout(actionState.immediateTimerId);
+            this.releasePreventing(this.#holder, actionState.pointerId);
+            actionState.pointerId = -1;
+        };
+        return this.#dispose;
+    }
+
+    /** Release root listeners and any pending long-press state. */
+    dispose(): void {
+        const dispose = this.#dispose;
+        this.#dispose = null;
+        dispose?.();
     }
 
     //

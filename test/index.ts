@@ -9,6 +9,7 @@
  * 5. Integration - Combined reactive math + DOM examples
  * 6. Linker - Observable linker and integration contracts
  * 7. Reactive DOM - M, C, I/SwM, bindings, events, and GLit elements
+ * 8. Interactive Events - listener lifecycle and composed-path triggers
  */
 
 // Test utilities
@@ -97,6 +98,7 @@ import { runIntegrationTests } from "./suites/integration.test";
 import { runLinkerTests } from "./suites/linker.test";
 import { runReactiveDOMTests } from "./suites/reactive-dom.test";
 import { runLayersTests } from "./suites/layers.test";
+import { runInteractiveEventTests } from "./suites/interactive-events.test";
 
 // Main test runner
 export async function runAllTests() {
@@ -113,6 +115,7 @@ export async function runAllTests() {
     await runRefsTests(TestRunner);
     await runIntegrationTests(TestRunner);
     await runLinkerTests(TestRunner);
+    await runInteractiveEventTests(TestRunner);
     await runReactiveDOMTests(TestRunner);
     await runLayersTests(TestRunner);
 

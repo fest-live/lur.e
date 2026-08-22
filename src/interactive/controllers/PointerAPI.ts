@@ -4,7 +4,7 @@
  */
 import { getBoundingOrientRect, orientOf, addEvent, addEvents, removeEvent } from "@fest-lib/dom";
 import { cvt_cs_to_os, withCtx } from "@fest-lib/core";
-import { vector2Ref } from "../../utils/math";
+import { vector2Ref } from "../../utils/math/Point2D";
 
 //
 export class DecorWith {
@@ -291,8 +291,10 @@ export const grabForDrag = (
             bindings?.forEach?.(binding => binding?.());
             try { elm?.releasePointerCapture?.(evc?.pointerId); } catch { /* noop */ }
             try { elm?.releaseCapturePointer?.(evc?.pointerId); } catch { /* noop */ }
+            // INVARIANT: `canceled` describes the terminal pointer event visible to m-dragend listeners.
+            hm.canceled = evc?.type == "pointercancel";
             elm?.dispatchEvent?.(new PointerEventDrag("m-dragend", { ...evc, bubbles: true, holding: hm, event: evc }));
-            hm.canceled = true; try { ex.pointerId = -1; } catch (_) { /* noop */ }
+            try { ex.pointerId = -1; } catch (_) { /* noop */ }
         }
     }), {capture: true}];
 

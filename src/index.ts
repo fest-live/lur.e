@@ -43,6 +43,7 @@ export * from "./design/layers/stacking"
 export * from "./design/layers/AnchorOverlay"
 export * from "./design/layers/Register"
 export * from "./design/layers/UnderlyingShadow"
+export * from "./design/overlays/OverlayHost"
 
 //
 export * from "./interactive/modules/CtxMenu"
@@ -65,6 +66,7 @@ export * from "./design/anchor/BBoxAnchor"
 export * from "./design/anchor/IntersectionAnchor"
 export * from "./design/anchor/CSSAdapter"
 export * from "./design/anchor/Utils"
+export * from "./design/anchor/Placement"
 
 //
 export * from "./design/color/Renderer"
@@ -77,6 +79,8 @@ export * from "./design/color/DynamicEngine"
 export * from "./lure/core/Binding"
 export * from "./lure/core/Links"
 export * from "./lure/core/Refs"
+export * from "./lure/core/TriggerCore"
+export * from "./lure/core/FormBinding"
 
 //
 export * from "./design/color/DynamicEngine";

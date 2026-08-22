@@ -1,7 +1,7 @@
 type AnyHandler<E extends Event = Event> = (ev: E) => any;
 
 type Hub = {
-    handlers: Set<AnyHandler>;
+    handlers: Map<AnyHandler, number>;
     listener: (ev: Event) => void;
     options: AddEventListenerOptions;
 };
@@ -37,9 +37,9 @@ export const lazyAddEventListener = <E extends Event = Event>(
 
     let hub = hubs.get(key);
     if (!hub) {
-        const handlers = new Set<AnyHandler>();
+        const handlers = new Map<AnyHandler, number>();
         const listener = (ev: Event) => {
-            for (const cb of Array.from(handlers)) {
+            for (const cb of Array.from(handlers.keys())) {
                 try {
                     cb(ev);
                 } catch (e) {
@@ -51,14 +51,23 @@ export const lazyAddEventListener = <E extends Event = Event>(
         (target as any).addEventListener(type, listener, normalized);
     }
 
-    hub.handlers.add(handler as AnyHandler);
+    const subscribed = handler as AnyHandler;
+    hub.handlers.set(subscribed, (hub.handlers.get(subscribed) ?? 0) + 1);
+    let disposed = false;
 
     return () => {
+        if (disposed) return;
+        disposed = true;
         const hubsNow = hubsByTarget.get(target);
         const hubNow = hubsNow?.get(key);
         if (!hubNow) return;
 
-        hubNow.handlers.delete(handler as AnyHandler);
+        const subscribers = hubNow.handlers.get(subscribed) ?? 0;
+        if (subscribers > 1) {
+            hubNow.handlers.set(subscribed, subscribers - 1);
+            return;
+        }
+        hubNow.handlers.delete(subscribed);
         if (hubNow.handlers.size > 0) return;
 
         (target as any).removeEventListener(type, hubNow.listener, hubNow.options);

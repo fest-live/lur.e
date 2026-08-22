@@ -20,3 +20,27 @@ export const handleAttribute = (element: any, attribute: string, value: any) => 
     if (value == null || value === false) element.removeAttribute?.(attribute);
     else element.setAttribute?.(attribute, value === true ? "" : String(value));
 };
+export const handleDataset = (element: any, key: string, value: any) => {
+    if (!element?.dataset || !key) return;
+    if (value == null || value === false) delete element.dataset[key];
+    else element.dataset[key] = String(value);
+};
+export const handleStyleChange = (element: any, property: string, value: any) => {
+    if (!element?.style || !property) return;
+    if (value == null) element.style.removeProperty?.(property);
+    else element.style.setProperty?.(property, String(value));
+};
+export const handleProperty = (element: any, property: string, value: any) => {
+    if (element && property) element[property] = value?.value ?? value;
+    return element;
+};
+export const namedStoreMaps = {};
+export const observeAttribute = () => () => {};
+export const observeBySelector = () => ({ disconnect() {} });
+export const includeSelf = (element: any, selector: string) =>
+    element?.matches?.(selector) ? element : element?.querySelector?.(selector) ?? null;
+export const getEventTarget = (event: any) => event?.target ?? null;
+export const makeRAFCycle = () => ({ cancel() {}, shedule() {} });
+export const setProperty = (element: any, property: string, value: any) => {
+    if (element?.style?.setProperty) element.style.setProperty(property, String(value));
+};

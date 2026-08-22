@@ -19,6 +19,8 @@ import {
     SwM,
     T,
     defineElement,
+    cssVarRef,
+    datasetRef,
     property,
 } from "../../src/index";
 import { bindWith } from "../../src/lure/core/Binding";
@@ -210,6 +212,20 @@ export async function runReactiveDOMTests(TestRunner: typeof TestRunnerType) {
     templateButton.click();
     TestRunner.assertEqual(templateClicks, 1, "H() attaches on: events");
 
+    TestRunner.setCategory("7.6a TriggerCore event modifiers");
+    let modifiedClicks = 0;
+    const modifierQuery = E("button", {
+        on: {
+            click: [() => { modifiedClicks++; }, { once: true, prevent: true }]
+        }
+    }) as any;
+    const modifierButton = unwrap(modifierQuery) as HTMLButtonElement;
+    const modifiedEvent = new MouseEvent("click", { bubbles: true, cancelable: true });
+    modifierButton.dispatchEvent(modifiedEvent);
+    modifierButton.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+    TestRunner.assertEqual(modifiedClicks, 1, "E() accepts a once modifier handler tuple");
+    TestRunner.assertEqual(modifiedEvent.defaultPrevented, true, "E() modifier tuple prevents the source event");
+
     const attributes = observe({ title: "initial" });
     const properties = observe({ value: "one" });
     const dataset = observe({ role: "field" });
@@ -297,6 +313,30 @@ export async function runReactiveDOMTests(TestRunner: typeof TestRunnerType) {
     TestRunner.assertEqual(boundAttribute.value, "after", "bindWith() observes attribute mutations");
     unbindAttribute?.();
     boundElement.remove();
+
+    TestRunner.setCategory("7.7a CSS DOM links");
+    const cssLinkElement = document.createElement("div");
+    document.body.append(cssLinkElement);
+    const linkedDataset = datasetRef(cssLinkElement, "cellColumn");
+    linkedDataset.value = "2";
+    await tick();
+    TestRunner.assertEqual(cssLinkElement.dataset.cellColumn, "2", "datasetRef writes a camel-case dataset key");
+
+    cssLinkElement.setAttribute("data-cell-column", "3");
+    await tick();
+    TestRunner.assertEqual(linkedDataset.value, "3", "datasetRef observes data attribute mutations");
+
+    const linkedCssVar = cssVarRef(cssLinkElement, "--test-offset");
+    linkedCssVar.value = "12px";
+    await tick();
+    TestRunner.assertEqual(
+        cssLinkElement.style.getPropertyValue("--test-offset"),
+        "12px",
+        "cssVarRef writes an inline custom property",
+    );
+    (linkedDataset as any)[Symbol.dispose]?.();
+    (linkedCssVar as any)[Symbol.dispose]?.();
+    cssLinkElement.remove();
 
     let elementClicks = 0;
     const eventButton = unwrap(E("button", {

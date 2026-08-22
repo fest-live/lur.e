@@ -5,17 +5,18 @@
  * Reason for changes: Wrap primitive/Node children before M() so strings are not
  * treated as iterated observables (WeakMap key crash + empty #collection).
  */
-import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden, addEventsList, createElementVanilla } from "@fest-lib/dom";
+import { reflectBehaviors, reflectStores, reflectMixins, handleProperty, handleAttribute, handleHidden, createElementVanilla } from "@fest-lib/dom";
 import { reflectClassList, reflectStyles, reflectDataset, reflectAttributes, reflectProperties, reflectWithStyleRules, reflectARIA } from '../context/Reflect';
 import { reflectControllers, bindWith } from '../core/Binding';
 
 //
-import { affected } from "@fest-lib/object";
+import { addToCallChain, affected } from "@fest-lib/object";
 import { isObservable as isCollection } from "@fest-lib/core";
 import { Q } from "./Queried";
 import { M } from "./Mapped";
 import { getNode } from "../context/Utils";
 import { bindStyle } from "../misc/Styles";
+import { bindTriggerHandlers } from "../core/TriggerCore";
 
 //
 interface Params {
@@ -110,7 +111,9 @@ export const E = (selector: string | HTMLElement | Node | DocumentFragment | Doc
         if (params.icon != null) bindWith(element, "icon", params.icon, handleAttribute, params, true);
         if (params.inert != null) bindWith(element, "inert", params.inert, handleAttribute, params, true);
         if (params.hidden != null) bindWith(element, "hidden", params.visible ?? params.hidden, handleHidden, params);
-        if (params.on != null) addEventsList(element, params.on);
+        if (params.on != null) {
+            addToCallChain(element, Symbol.dispose, bindTriggerHandlers(element, params.on));
+        }
 
         //
         if (params.rules != null) params.rules.forEach?.((rule) => reflectWithStyleRules(element, rule));

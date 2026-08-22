@@ -152,6 +152,78 @@ function isInside(target: Event | Node, container: Element): boolean {
     return node ? deepContains(container, node) : false;
 }
 
+export type OutsideDismissReason = "outside" | "escape";
+
+export type OutsideDismissOptions = {
+    root?: EventTarget | null;
+    inside: Element | Element[];
+    except?: Element | Element[];
+    exceptSelectors?: string[];
+    isInside?: (event: Event) => boolean;
+    closeEvents?: string[];
+    closeOnEscape?: boolean;
+    capture?: boolean;
+    onDismiss: (reason: OutsideDismissReason, event?: Event) => void;
+};
+
+const asElements = (value: Element | Element[] | undefined): Element[] =>
+    (Array.isArray(value) ? value : value ? [value] : [])
+        .map((element: any) => element?.element ?? element)
+        .filter(Boolean);
+
+const matchesExceptionSelector = (event: Event, selectors: string[]): boolean => {
+    if (!selectors.length) return false;
+    const path = typeof (event as any).composedPath === "function"
+        ? (event as any).composedPath()
+        : [(event as any).target];
+    return path.some((node: any) => selectors.some((selector) =>
+        node?.matches?.(selector) || node?.closest?.(selector)
+    ));
+};
+
+/**
+ * Bind composed-path-aware outside/Escape dismissal for transient UI surfaces.
+ * INVARIANT: all root listeners are released by the returned idempotent disposer.
+ */
+export const bindOutsideDismiss = ({
+    root = typeof document !== "undefined" ? document.documentElement : null,
+    inside,
+    except,
+    exceptSelectors = [],
+    isInside: isCustomInside,
+    closeEvents = ["pointerdown"],
+    closeOnEscape = true,
+    capture = true,
+    onDismiss,
+}: OutsideDismissOptions): (() => void) => {
+    if (!root || !onDismiss) return () => {};
+    const insideElements = asElements(inside);
+    const exceptElements = asElements(except);
+    let disposed = false;
+    const dismissOutside = (event: Event) => {
+        if (disposed) return;
+        if (isCustomInside?.(event)) return;
+        if (insideElements.some((element) => isInside(event, element))) return;
+        if (exceptElements.some((element) => isInside(event, element))) return;
+        if (matchesExceptionSelector(event, exceptSelectors)) return;
+        onDismiss("outside", event);
+    };
+    const dismissEscape = (event: KeyboardEvent) => {
+        if (disposed || !closeOnEscape || event.key !== "Escape") return;
+        onDismiss("escape", event);
+    };
+    const options: AddEventListenerOptions = { capture, passive: false };
+    const unbinders = [
+        ...closeEvents.map((type) => lazyAddEventListener(root, type, dismissOutside, options)),
+        ...(closeOnEscape ? [lazyAddEventListener(root, "keydown", dismissEscape, options)] : []),
+    ];
+    return () => {
+        if (disposed) return;
+        disposed = true;
+        unbinders.forEach((unbind) => unbind());
+    };
+};
+
 //
 export function makeClickOutsideTrigger(ref: RefBool, except: any = null, element: any, options: TriggerOptions = {}) {
     const {

@@ -7,7 +7,23 @@
 
 // @ts-ignore
 import { observe, ref, numberRef } from "@fest-lib/object";
-import { defineElement, GLitElement, property, S, E, H, M, animatable } from "@fest-lib/lure";
+import {
+    defineElement,
+    GLitElement,
+    property,
+    S,
+    E,
+    H,
+    M,
+    animatable,
+    cssVarRef,
+    datasetRef,
+    grabForDrag,
+    refTrigger,
+    lazyAddEventListener,
+    makeClickOutsideTrigger,
+    makeShiftTrigger,
+} from "@fest-lib/lure";
 import { Vector2D, vector2Ref, operated, magnitude2D } from "../src/utils/math/index";
 import { appendAsUnderlying, appendAsOverlay } from "../src/design/layers/AnchorOverlay";
 
@@ -183,3 +199,151 @@ const withAnimatedStyle = () => {
     return E("div", { style: S`opacity: ${opacity};inline-size:100px;block-size:100px;background:black;` }, "Hello");
 }
 container.appendChild(withAnimatedStyle()?.element);
+
+// ============================================================================
+// Demo 6: Interactive trigger lifecycle
+// ============================================================================
+const interactionDemo = document.createElement("section");
+interactionDemo.style.cssText =
+    "margin-top:1.25rem;padding:1rem;border:1px solid rgba(255,255,255,.18);border-radius:12px;background:rgba(255,255,255,.06);";
+const interactionTitle = document.createElement("h2");
+interactionTitle.textContent = "Interactive triggers";
+interactionTitle.style.cssText = "margin:0 0 .75rem;font-size:1rem;";
+
+const panelToggle = document.createElement("button");
+const panel = document.createElement("div");
+const panelState = { value: true };
+panelToggle.type = "button";
+panel.style.cssText =
+    "margin-top:.5rem;padding:.6rem .75rem;border-radius:8px;background:rgba(110,231,183,.14);outline:1px solid rgba(110,231,183,.4);";
+panel.textContent = "Click outside this surface to dismiss it.";
+const reflectPanelState = () => {
+    panel.hidden = !panelState.value;
+    panelToggle.textContent = panelState.value ? "Dismissible surface is open" : "Open dismissible surface";
+};
+makeClickOutsideTrigger(panelState, panelToggle, panel, {
+    root: document.documentElement,
+    closeEvents: ["pointerdown"],
+});
+lazyAddEventListener(document.documentElement, "pointerdown", () => queueMicrotask(reflectPanelState));
+panelToggle.addEventListener("click", () => {
+    panelState.value = !panelState.value;
+    reflectPanelState();
+});
+reflectPanelState();
+
+const dragStatus = document.createElement("p");
+dragStatus.textContent = "Move the tile more than 2px to start dragging.";
+dragStatus.style.cssText = "margin:.9rem 0 .4rem;font-size:.8rem;opacity:.8;";
+const dragSurface = document.createElement("div");
+dragSurface.style.cssText =
+    "position:relative;block-size:8rem;border-radius:8px;background:rgba(0,0,0,.2);overflow:hidden;";
+const dragTile = document.createElement("button");
+dragTile.type = "button";
+dragTile.textContent = "Threshold drag";
+dragTile.style.cssText =
+    "position:absolute;inset:3rem auto auto 1rem;padding:.5rem .75rem;border:0;border-radius:999px;background:#6ee7b7;color:#10231c;font-weight:700;cursor:grab;touch-action:none;";
+const startThresholdDrag = makeShiftTrigger((downEvent: PointerEvent) => {
+    dragStatus.textContent = "Drag started — m-dragstart dispatched.";
+    grabForDrag(dragTile, downEvent).catch(console.warn);
+}, dragTile);
+dragTile.addEventListener("pointerdown", startThresholdDrag);
+dragTile.addEventListener("m-dragging", (event) => {
+    const [x = 0, y = 0] = (event as any).modified ?? [0, 0];
+    dragTile.style.transform = `translate(${x}px, ${y}px)`;
+    dragStatus.textContent = `Dragging: ${Math.round(x)}, ${Math.round(y)}`;
+});
+dragTile.addEventListener("m-dragend", (event) => {
+    dragStatus.textContent = (event as any).canceled
+        ? "Drag cancelled — pointer capture released."
+        : "Drag completed — pointer capture released.";
+    window.setTimeout(() => { dragTile.style.transform = ""; }, 300);
+});
+dragSurface.append(dragTile);
+interactionDemo.append(interactionTitle, panelToggle, panel, dragStatus, dragSurface);
+container.appendChild(interactionDemo);
+
+// ============================================================================
+// Demo 7: Link Trigger Core
+// ============================================================================
+const triggerCoreDemo = document.createElement("section");
+triggerCoreDemo.style.cssText =
+    "margin-top:1.25rem;padding:1rem;border:1px solid rgba(110,231,183,.35);border-radius:12px;background:rgba(110,231,183,.06);";
+const triggerCoreTitle = document.createElement("h2");
+triggerCoreTitle.textContent = "Link Trigger Core";
+triggerCoreTitle.style.cssText = "margin:0 0 .75rem;font-size:1rem;";
+const modifierButton = document.createElement("button");
+modifierButton.type = "button";
+modifierButton.textContent = "Once + prevent click";
+const triggerCoreStatus = document.createElement("p");
+triggerCoreStatus.style.cssText = "margin:.65rem 0;font:0.8rem ui-monospace,monospace;color:#9bb6df;";
+let modifierCalls = 0;
+E(modifierButton, {
+    on: {
+        click: [() => {
+            modifierCalls++;
+            triggerCoreStatus.textContent = `DOM modifier handler called: ${modifierCalls}`;
+        }, { once: true, prevent: true }],
+    },
+});
+
+const refButton = document.createElement("button");
+refButton.type = "button";
+refButton.textContent = "Emit reactive ref change";
+const refState = numberRef(0);
+let refCommits = 0;
+refTrigger(refState, "value", { affectTypes: ["setter"], triggerImmediately: false })({
+    source: null,
+    ref: refState,
+    linker: null,
+    forProp: "value",
+    reason: "initial",
+    commit: () => {
+        refCommits++;
+        triggerCoreStatus.textContent = `Reactive trigger: value=${refState.value}, commits=${refCommits}`;
+    },
+});
+refButton.addEventListener("click", () => { refState.value++; });
+triggerCoreDemo.append(triggerCoreTitle, modifierButton, refButton, triggerCoreStatus);
+container.appendChild(triggerCoreDemo);
+
+// ============================================================================
+// Demo 8: Explicit CSS / dataset links
+// ============================================================================
+const cssDomDemo = document.createElement("section");
+cssDomDemo.style.cssText =
+    "margin-top:1.25rem;padding:1rem;border:1px solid rgba(147,197,253,.35);border-radius:12px;background:rgba(147,197,253,.06);";
+const cssDomTitle = document.createElement("h2");
+cssDomTitle.textContent = "CSS DOM Links";
+cssDomTitle.style.cssText = "margin:0 0 .75rem;font-size:1rem;";
+const cssDomTarget = document.createElement("div");
+cssDomTarget.style.cssText =
+    "inline-size:var(--demo-width,8rem);block-size:2.5rem;display:grid;place-items:center;border-radius:8px;background:#60a5fa;color:#10213e;transition:inline-size 160ms ease;";
+const cssDomStatus = document.createElement("p");
+cssDomStatus.style.cssText = "margin:.65rem 0;font:0.8rem ui-monospace,monospace;color:#bfdbfe;";
+const datasetState = datasetRef(cssDomTarget, "demoState");
+const widthState = cssVarRef(cssDomTarget, "--demo-width");
+datasetState.value = "initial";
+widthState.value = "8rem";
+const reflectCssDomStatus = () => {
+    cssDomTarget.textContent = `data-demo-state: ${datasetState.value || "(empty)"}`;
+    cssDomStatus.textContent = `dataset=${datasetState.value} · --demo-width=${widthState.value}`;
+};
+const mutateDataset = document.createElement("button");
+mutateDataset.type = "button";
+mutateDataset.textContent = "Mutate data-* from DOM";
+mutateDataset.addEventListener("click", () => {
+    cssDomTarget.setAttribute("data-demo-state", `dom-${Date.now() % 1000}`);
+    queueMicrotask(reflectCssDomStatus);
+});
+const growCssVar = document.createElement("button");
+growCssVar.type = "button";
+growCssVar.textContent = "Update CSS var from ref";
+growCssVar.addEventListener("click", () => {
+    const width = (parseFloat(widthState.value || "8") || 8) + 1;
+    widthState.value = `${width}rem`;
+    queueMicrotask(reflectCssDomStatus);
+});
+reflectCssDomStatus();
+cssDomDemo.append(cssDomTitle, mutateDataset, growCssVar, cssDomStatus, cssDomTarget);
+container.appendChild(cssDomDemo);

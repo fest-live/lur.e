@@ -3,6 +3,7 @@ import { ROOT, addEvents } from "@fest-lib/dom";
 //
 export class LongHoverHandler {
     #holder: HTMLElement;
+    #dispose: (() => void) | null = null;
 
     //
     constructor(holder, options?, fx = (ev) => {ev.target.dispatchEvent(new PointerEvent("long-hover", {...ev, bubbles: true}));}) {
@@ -18,6 +19,7 @@ export class LongHoverHandler {
 
     //
     longHover(options, fx = (ev) => {ev.target.dispatchEvent(new PointerEvent("long-hover", {...ev, bubbles: true}));}) {
+        this.dispose();
         const action: any = { pointerId: -1, timer: null };
         const initiate = ((evc)=>{
             const ev = evc;
@@ -42,13 +44,27 @@ export class LongHoverHandler {
         });
 
         //
-        addEvents(ROOT, {
+        const bindings = addEvents(ROOT, {
             "pointerover"  : initiate,
             "pointerdown"  : initiate,
             "pointerout"   : cancelEv,
             "pointerup"    : cancelEv,
             "pointercancel": cancelEv
         });
+        this.#dispose = () => {
+            bindings?.forEach?.((unbind: (() => void) | undefined) => unbind?.());
+            clearTimeout(action.timer);
+            action.timer = null;
+            action.pointerId = -1;
+        };
+        return this.#dispose;
+    }
+
+    /** Release root listeners and cancel a pending hover timer. */
+    dispose(): void {
+        const dispose = this.#dispose;
+        this.#dispose = null;
+        dispose?.();
     }
 }
 
