@@ -311,6 +311,10 @@ export const currentHandleMap = new Map<string, any>()
 export const isVirtualFsPath = (path: string): boolean => {
     const raw = String(path || "").trim();
     if (!raw) return false;
+    // WHY: mappedRoots includes `/`, so treating URL.pathname as virtual made
+    // `https://img.shields.io/…` and `./assets/logo.png` look like OPFS — viewer then stripped `src`.
+    if (/^(?:https?:|blob:|data:|file:|mailto:)/i.test(raw)) return false;
+    if (!raw.startsWith("/")) return false;
     let p = raw;
     try {
         if (/^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(raw)) p = new URL(raw).pathname;
@@ -323,6 +327,9 @@ export const isVirtualFsPath = (path: string): boolean => {
         p === "/saf" || p.startsWith("/saf/")
     ) return true;
     for (const root of mappedRoots.keys()) {
+        // WHY: `/` is OPFS; `/assets/` is an unimplemented stub. Treating it as
+        // virtual made `./assets/logo.png` (page URL `/assets/…`) skip the bound folder.
+        if (root === "/" || root === "/user/" || root === "/assets/") continue;
         if (p === root || p.startsWith(root) || `${p}/` === root) return true;
     }
     return false;
@@ -1065,7 +1072,7 @@ export const provide = async (req: string | Request = "", rw = false) => {
     }
 
     const mapped = matchMappedRoot(cleanPath);
-    if (mapped && mapped.root !== "/user/" && mapped.root !== "/") {
+    if (mapped && mapped.root !== "/user/" && mapped.root !== "/" && mapped.root !== "/assets/") {
         const dir = await mapped.resolver().catch(() => null);
         if (dir instanceof FileSystemDirectoryHandle) {
             const rel = cleanPath.startsWith(mapped.root)

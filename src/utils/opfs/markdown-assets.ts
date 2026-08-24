@@ -10,7 +10,74 @@
  * COMPAT: FileSystemObserver is Chromium-experimental; callers must tolerate null.
  */
 
-import { registerDirectoryRoot } from "./OPFS";
+import { registerDirectoryRoot, walkExactFile } from "./OPFS";
+
+/** `assets/logo/x.png` → also `logo/x.png`, `x.png` (picker was `assets/` or `logo/`). */
+export const relPathCandidates = (rel: string): string[] => {
+    const clean = String(rel || "").trim().replace(/^\.\//, "").replace(/^\/+/, "");
+    if (!clean || /^(?:[a-zA-Z][a-zA-Z\d+\-.]*:|\/\/)/.test(clean)) return [];
+    const parts = clean.split(/[\\/]/).filter(Boolean);
+    return parts.map((_, i) => parts.slice(i).join("/"));
+};
+
+const findFileByBasename = async (
+    dir: FileSystemDirectoryHandle,
+    basename: string,
+    depth = 5
+): Promise<File | null> => {
+    try {
+        return await (await dir.getFileHandle(basename, { create: false })).getFile();
+    } catch { /* walk children */ }
+    if (depth <= 0) return null;
+    for await (const [, handle] of dir.entries()) {
+        if (handle.kind !== "directory") continue;
+        const found = await findFileByBasename(handle, basename, depth - 1);
+        if (found) return found;
+    }
+    return null;
+};
+
+export type IndexedDirFile = { rel: string; file: File };
+
+/** Walk a picked folder so the viewer can resolve `./assets/…` by relative path or basename. */
+export const indexDirectoryFiles = async (
+    dir: FileSystemDirectoryHandle,
+    prefix = "",
+    depth = 8,
+    acc: IndexedDirFile[] = []
+): Promise<IndexedDirFile[]> => {
+    if (depth < 0) return acc;
+    for await (const [name, handle] of dir.entries()) {
+        const rel = prefix ? `${prefix}/${name}` : name;
+        if (handle.kind === "file") {
+            try {
+                acc.push({ rel, file: await handle.getFile() });
+            } catch { /* skip unreadable */ }
+        } else if (handle.kind === "directory") {
+            await indexDirectoryFiles(handle, rel, depth - 1, acc);
+        }
+    }
+    return acc;
+};
+
+/** Read a markdown-relative file from a picked directory (any ancestor of the file). */
+export const resolveFileUnderDirectory = async (
+    dir: FileSystemDirectoryHandle | null | undefined,
+    rel: string
+): Promise<File | null> => {
+    if (!dir) return null;
+    const candidates = relPathCandidates(rel);
+    for (const candidate of candidates) {
+        const handle = await walkExactFile(dir, candidate);
+        if (!handle) continue;
+        try {
+            return await handle.getFile();
+        } catch { /* next suffix */ }
+    }
+    const base = candidates.at(-1);
+    if (!base || base.includes("/")) return null;
+    return findFileByBasename(dir, base);
+};
 
 export type AssetDirectoryPickOptions = {
     startIn?: FileSystemHandle;
@@ -60,7 +127,8 @@ export const observeFileSystemHandle = (
     if (typeof Ctor !== "function" || !handle) return null;
     try {
         const observer = new Ctor((records) => onRecords(records));
-        void observer.observe(handle);
+        // WHY: `observe()` can reject InvalidModificationError on some Chromium/FSA handles.
+        Promise.resolve(observer.observe(handle)).catch(() => { /* optional watch */ });
         return { disconnect: () => observer.disconnect?.() };
     } catch {
         return null;
