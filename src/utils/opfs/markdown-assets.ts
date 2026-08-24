@@ -10,7 +10,54 @@
  * COMPAT: FileSystemObserver is Chromium-experimental; callers must tolerate null.
  */
 
-import { registerDirectoryRoot, walkExactFile } from "./OPFS";
+import { registerDirectoryRoot, walkExactFile, provide, normalizePath, getDir, isVirtualFsPath } from "./OPFS";
+
+/** True for `./assets/x`, `docs/a.md` — not http(s)/blob/data/#. */
+export const isMarkdownRelativeRef = (value: string): boolean => {
+    const raw = String(value || "").trim();
+    return Boolean(raw) && !/^(?:[a-zA-Z][a-zA-Z\d+\-.]*:|\/\/|#|data:|blob:)/.test(raw);
+};
+
+/** Keep the markdown-relative token (`./assets/x.png`) even after the browser resolved it to the PWA origin. */
+export const originalRelFromRef = (value: string): string => {
+    const raw = String(value || "").trim();
+    if (!raw || raw.startsWith("#") || raw.startsWith("blob:") || raw.startsWith("data:")) return "";
+    if (isMarkdownRelativeRef(raw)) return raw;
+    try {
+        const url = new URL(raw, globalThis.location?.href || "http://localhost/");
+        if (globalThis.location?.origin && url.origin === globalThis.location.origin) {
+            return url.pathname.replace(/^\/+/, "");
+        }
+    } catch { /* not a URL */ }
+    return "";
+};
+
+/**
+ * Main-thread `provide()` of a bound relative path (`/mounts/md-xxx/` + `./assets/logo.png`).
+ * WHY: skips OPFS worker + HTTP fetch (JXL hooks those). Mapped `/mounts/` uses `walkExactFile`.
+ */
+export const provideBoundRelative = async (
+    mountRoot: string | null | undefined,
+    originalRel: string,
+    sourceUrl?: string | null
+): Promise<File | null> => {
+    const rel = originalRelFromRef(originalRel) || String(originalRel || "").trim();
+    if (!rel) return null;
+    const bases: string[] = [];
+    if (sourceUrl && isVirtualFsPath(sourceUrl)) bases.push(getDir(sourceUrl));
+    if (mountRoot) bases.push(mountRoot);
+    const seen = new Set<string>();
+    for (const base of bases) {
+        for (const candidate of relPathCandidates(rel)) {
+            const path = normalizePath(base, candidate);
+            if (!path || seen.has(path)) continue;
+            seen.add(path);
+            const file = await provide(path).catch(() => null);
+            if (file) return file;
+        }
+    }
+    return null;
+};
 
 /** `assets/logo/x.png` → also `logo/x.png`, `x.png` (picker was `assets/` or `logo/`). */
 export const relPathCandidates = (rel: string): string[] => {
