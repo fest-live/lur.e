@@ -96,6 +96,7 @@ export * from "./utils/opfs/FileOps"
 export * from "./utils/opfs/WriteFileSmart-v2"
 export * from "./utils/opfs/FsWatch"
 export * from "./utils/opfs/FileHandling"
+export * from "./utils/opfs/markdown-assets"
 
 //
 export * from "./interactive/modules/LazyLoader"
