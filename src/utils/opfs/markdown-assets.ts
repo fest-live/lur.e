@@ -174,8 +174,11 @@ export const observeFileSystemHandle = (
     if (typeof Ctor !== "function" || !handle) return null;
     try {
         const observer = new Ctor((records) => onRecords(records));
-        // WHY: `observe()` can reject InvalidModificationError on some Chromium/FSA handles.
-        Promise.resolve(observer.observe(handle)).catch(() => { /* optional watch */ });
+        const obs = observer as { observe: (h: FileSystemHandle, opts?: { recursive?: boolean }) => Promise<void> | void };
+        // WHY: without `{ recursive: true }` nested `assets/logo/x.png` writes never notify.
+        Promise.resolve(obs.observe(handle, { recursive: true }))
+            .catch(() => Promise.resolve(obs.observe(handle)))
+            .catch(() => { /* optional watch */ });
         return { disconnect: () => observer.disconnect?.() };
     } catch {
         return null;
