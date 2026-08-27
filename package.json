@@ -42,7 +42,8 @@
         "./dist/index.js": "./dist/lure.js",
         "./index.js": "./dist/lure.js",
         "./src/lure/node/jsx-runtime": "./src/lure/node/jsx-runtime/index.ts",
-        "./src/lure/node/jsx-dev-runtime": "./src/lure/node/jsx-dev-runtime/index.ts"
+        "./src/lure/node/jsx-dev-runtime": "./src/lure/node/jsx-dev-runtime/index.ts",
+        "./markdown-assets": "./src/utils/opfs/markdown-assets.ts"
     },
     "dependencies": {
         "@fest-lib/core": ">=0.1.0",

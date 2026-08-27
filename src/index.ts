@@ -88,7 +88,25 @@ export * from "./design/color/StyleRules"
 export * from "./design/color/ThemeEngine"
 
 //
-export * from "./utils/opfs/file-utils"
+// WHY: star-exporting file-utils + markdown-assets collided on pickMarkdownFile (Rolldown).
+export {
+    isMarkdownFile,
+    isTextFile,
+    isImageFile,
+    isCodeFile,
+    readFileAsText,
+    readFileAsDataURL,
+    readFileAsArrayBuffer,
+    createTextFile,
+    createMarkdownFile,
+    createJsonFile,
+    downloadTextFile,
+    downloadMarkdown,
+    pickFile,
+    pickFiles,
+    saveFile,
+    openFile
+} from "./utils/opfs/file-utils"
 export * from "./utils/opfs/Base64Data"
 export * from "./utils/opfs/OPFS"
 export * from "./utils/opfs/OPFSMod"

@@ -301,3 +301,162 @@ export const bindDirectoryForLaunchedFiles = async (options: {
     }
     return { root, virtualPath: `${root}${rel}` };
 };
+
+const MARKDOWN_INPUT_ACCEPT =
+    ".md,.markdown,.mdown,.mkd,.mkdn,.mdtxt,.mdtext,.txt,text/markdown,text/plain";
+
+const pickFilesViaInput = (options: {
+    accept?: string;
+    multiple?: boolean;
+    directory?: boolean;
+}): Promise<File[]> =>
+    new Promise((resolve) => {
+        const input = document.createElement("input");
+        input.type = "file";
+        if (options.accept) input.accept = options.accept;
+        if (options.multiple) input.multiple = true;
+        if (options.directory) {
+            input.setAttribute("webkitdirectory", "");
+            input.setAttribute("directory", "");
+            input.multiple = true;
+        }
+        const finish = (files: File[]) => resolve(files);
+        input.addEventListener("change", () => finish(Array.from(input.files || [])), { once: true });
+        input.addEventListener("cancel", () => finish([]), { once: true });
+        input.click();
+    });
+
+export type PickedMarkdownFile = {
+    file: File;
+    sidecars: File[];
+    directory?: FileSystemDirectoryHandle | null;
+    virtualPath?: string | null;
+};
+
+/** FSA when present; Capacitor / CRX / Firefox fall back to `<input type=file>`. */
+export const pickMarkdownFile = async (): Promise<PickedMarkdownFile | null> => {
+    const pickFile = (
+        globalThis as {
+            showOpenFilePicker?: (opts?: Record<string, unknown>) => Promise<FileSystemFileHandle[]>;
+        }
+    ).showOpenFilePicker;
+    if (typeof pickFile === "function") {
+        try {
+            const [handle] = await pickFile({
+                multiple: false,
+                types: [{
+                    description: "Markdown",
+                    accept: {
+                        "text/markdown": [".md", ".markdown", ".mdown", ".mkd"],
+                        "text/plain": [".txt"]
+                    }
+                }]
+            });
+            if (!handle) return null;
+            return { file: await handle.getFile(), sidecars: [] };
+        } catch (error) {
+            if ((error as DOMException)?.name === "AbortError") return null;
+        }
+    }
+    const files = await pickFilesViaInput({ accept: MARKDOWN_INPUT_ACCEPT });
+    return files[0] ? { file: files[0], sidecars: [] } : null;
+};
+
+/**
+ * Folder of images / includes. Chromium FSA first; otherwise `webkitdirectory`
+ * (Capacitor WebView + CRX) so relative `![](./assets/…)` can resolve from sidecars.
+ */
+export const pickSidecarDirectoryFiles = async (): Promise<{
+    files: File[];
+    directory: FileSystemDirectoryHandle | null;
+    root: string | null;
+}> => {
+    const dir = await pickAssetDirectory({ id: "markdown-assets", mode: "read" });
+    if (dir) {
+        const indexed = await indexDirectoryFiles(dir);
+        const files = indexed.map((row) => {
+            try {
+                Object.defineProperty(row.file, "webkitRelativePath", { value: row.rel });
+            } catch {
+                /* immutable File */
+            }
+            return row.file;
+        });
+        return { files, directory: dir, root: mountPickedDirectory(dir, "md") };
+    }
+    const files = await pickFilesViaInput({ directory: true });
+    return { files, directory: null, root: null };
+};
+
+export type MarkdownSaveResult = "saved" | "downloaded" | "shared" | "cancelled" | "failed";
+
+/** PWA FSA → CRX `chrome.downloads` → Web Share (Capacitor) → `<a download>`. */
+export const saveMarkdownBlob = async (
+    content: string,
+    filename: string
+): Promise<MarkdownSaveResult> => {
+    const name = String(filename || "document.md").trim() || "document.md";
+    const savePicker = (
+        globalThis as {
+            showSaveFilePicker?: (opts?: Record<string, unknown>) => Promise<{
+                createWritable: () => Promise<{ write: (data: string) => Promise<void>; close: () => Promise<void> }>;
+            }>;
+        }
+    ).showSaveFilePicker;
+    if (typeof savePicker === "function") {
+        try {
+            const handle = await savePicker({
+                suggestedName: name,
+                types: [{
+                    description: "Markdown files",
+                    accept: { "text/markdown": [".md", ".markdown"] }
+                }]
+            });
+            const writable = await handle.createWritable();
+            await writable.write(content);
+            await writable.close();
+            return "saved";
+        } catch (error) {
+            if ((error as DOMException)?.name === "AbortError") return "cancelled";
+        }
+    }
+
+    const chromeDl = (globalThis as { chrome?: { downloads?: { download?: (opts: Record<string, unknown>) => Promise<number> } } })
+        .chrome?.downloads?.download;
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    if (typeof chromeDl === "function") {
+        const url = URL.createObjectURL(blob);
+        try {
+            await chromeDl({ url, filename: name, saveAs: true });
+            return "downloaded";
+        } catch {
+            URL.revokeObjectURL(url);
+        }
+    }
+
+    const file = new File([blob], name, { type: "text/markdown" });
+    const nav = navigator as Navigator & {
+        canShare?: (data: { files?: File[] }) => boolean;
+        share?: (data: { files?: File[]; title?: string }) => Promise<void>;
+    };
+    if (typeof nav.share === "function" && (!nav.canShare || nav.canShare({ files: [file] }))) {
+        try {
+            await nav.share({ files: [file], title: name });
+            return "shared";
+        } catch (error) {
+            if ((error as DOMException)?.name === "AbortError") return "cancelled";
+        }
+    }
+
+    try {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 250);
+        return "downloaded";
+    } catch {
+        return "failed";
+    }
+};

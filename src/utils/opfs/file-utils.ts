@@ -191,12 +191,8 @@ export async function pickFiles(accept = "*"): Promise<File[]> {
     });
 }
 
-/**
- * Open a markdown file picker
- */
-export async function pickMarkdownFile(): Promise<File | null> {
-    return pickFile(".md,.markdown,.txt,text/markdown,text/plain");
-}
+// WHY: pickMarkdownFile lives in markdown-assets (PickedMarkdownFile + FSA).
+// Barrel-exporting a File|null twin here trips Rolldown AMBIGUOUS_EXTERNAL_NAMESPACES.
 
 // ============================================================================
 // FILE SYSTEM ACCESS API
