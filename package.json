@@ -1,7 +1,7 @@
 {
     "name": "@fest-lib/lure",
     "description": "fest-lib LUR.E: reactive DOM (E/H/M/Q), form bind, overlays, drag",
-    "version": "0.1.48",
+    "version": "0.1.49",
     "license": "MIT",
     "type": "module",
     "sideEffects": true,
