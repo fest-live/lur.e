@@ -10,7 +10,7 @@
 function uploadDirectory(dest?, id?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1139
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1146
 
 ## Parameters
 

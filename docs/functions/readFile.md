@@ -14,7 +14,7 @@ function readFile(
 logger?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:900
+Defined in: lur.e/src/utils/opfs/OPFS.ts:907
 
 ## Parameters
 

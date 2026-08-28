@@ -14,7 +14,7 @@ function copyFromOneHandlerToAnother(
 logger?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1227
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1234
 
 ## Parameters
 

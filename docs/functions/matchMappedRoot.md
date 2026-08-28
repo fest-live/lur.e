@@ -15,7 +15,7 @@ function matchMappedRoot(path):
   | null;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:331
+Defined in: lur.e/src/utils/opfs/OPFS.ts:338
 
 ## Parameters
 

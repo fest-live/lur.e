@@ -16,7 +16,7 @@ function resolvePath(
 }>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:517
+Defined in: lur.e/src/utils/opfs/OPFS.ts:524
 
 ## Parameters
 

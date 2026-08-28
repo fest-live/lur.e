@@ -7,13 +7,13 @@
 # Function: pickMarkdownFile()
 
 ```ts
-function pickMarkdownFile(): Promise<File | null>;
+function pickMarkdownFile(): Promise<PickedMarkdownFile | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/file-utils.ts:197
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:340
 
-Open a markdown file picker
+FSA when present; Capacitor / CRX / Firefox fall back to `<input type=file>`.
 
 ## Returns
 
-`Promise`\<`File` \| `null`\>
+`Promise`\<[`PickedMarkdownFile`](../type-aliases/PickedMarkdownFile.md) \| `null`\>

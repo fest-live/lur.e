@@ -10,7 +10,7 @@
 function walkExactFile(root, rel): Promise<FileSystemFileHandle | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:354
+Defined in: lur.e/src/utils/opfs/OPFS.ts:361
 
 WHY: `getFileHandle` hyphen-rewrites OPFS `/user/` names. Local
 `showDirectoryPicker` trees must keep exact filenames (`My Image.png`).

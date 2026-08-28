@@ -14,7 +14,7 @@ function handleIncomingEntries(
 onItemHandled?): Promise<void>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1233
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1240
 
 ## Parameters
 

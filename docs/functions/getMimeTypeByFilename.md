@@ -10,7 +10,7 @@
 function getMimeTypeByFilename(filename): any;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:536
+Defined in: lur.e/src/utils/opfs/OPFS.ts:543
 
 ## Parameters
 

@@ -14,7 +14,7 @@ function remove(
 logger?): Promise<boolean | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:983
+Defined in: lur.e/src/utils/opfs/OPFS.ts:990
 
 ## Parameters
 

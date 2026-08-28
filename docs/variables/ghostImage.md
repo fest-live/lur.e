@@ -10,4 +10,4 @@
 const ghostImage: HTMLImageElement | null;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1172
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1179

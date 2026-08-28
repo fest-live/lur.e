@@ -19,7 +19,7 @@ function getHandler(
 | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:621
+Defined in: lur.e/src/utils/opfs/OPFS.ts:628
 
 ## Parameters
 

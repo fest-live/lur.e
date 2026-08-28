@@ -10,7 +10,7 @@
 function detectTypeByRelPath(relPath): "file" | "directory";
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:535
+Defined in: lur.e/src/utils/opfs/OPFS.ts:542
 
 ## Parameters
 

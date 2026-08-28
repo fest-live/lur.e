@@ -14,7 +14,7 @@ function getDirectoryHandle(
 logger?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:575
+Defined in: lur.e/src/utils/opfs/OPFS.ts:582
 
 ## Parameters
 

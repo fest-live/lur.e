@@ -10,7 +10,7 @@
 function hasFileExtension(path): boolean;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:569
+Defined in: lur.e/src/utils/opfs/OPFS.ts:576
 
 ## Parameters
 

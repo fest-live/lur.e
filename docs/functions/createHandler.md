@@ -14,7 +14,7 @@ function createHandler(
 logger?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:637
+Defined in: lur.e/src/utils/opfs/OPFS.ts:644
 
 ## Parameters
 

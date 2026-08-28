@@ -14,7 +14,7 @@ function removeFile(
 logger?): Promise<boolean | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:961
+Defined in: lur.e/src/utils/opfs/OPFS.ts:968
 
 ## Parameters
 

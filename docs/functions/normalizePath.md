@@ -10,7 +10,7 @@
 function normalizePath(basePath?, relPath): string;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:484
+Defined in: lur.e/src/utils/opfs/OPFS.ts:491
 
 ## Parameters
 

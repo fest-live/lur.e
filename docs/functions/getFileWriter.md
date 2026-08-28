@@ -14,7 +14,7 @@ function getFileWriter(
 logger?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:949
+Defined in: lur.e/src/utils/opfs/OPFS.ts:956
 
 ## Parameters
 

@@ -10,7 +10,7 @@
 function provide(req?, rw?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1046
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1053
 
 ## Parameters
 

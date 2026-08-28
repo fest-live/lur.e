@@ -10,7 +10,7 @@
 function defaultLogger(status, message): void;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:533
+Defined in: lur.e/src/utils/opfs/OPFS.ts:540
 
 ## Parameters
 

@@ -13,7 +13,7 @@ function saveFile(
 types?): Promise<boolean>;
 ```
 
-Defined in: lur.e/src/utils/opfs/file-utils.ts:208
+Defined in: lur.e/src/utils/opfs/file-utils.ts:204
 
 Save file using File System Access API (with fallback)
 

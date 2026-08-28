@@ -10,7 +10,7 @@
 function mountAsRoot(forId, copyFromInternal?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:395
+Defined in: lur.e/src/utils/opfs/OPFS.ts:402
 
 ## Parameters
 

@@ -1,7 +1,7 @@
 {
     "name": "@fest-lib/lure",
     "description": "fest-lib LUR.E: reactive DOM (E/H/M/Q), form bind, overlays, drag",
-    "version": "0.1.47",
+    "version": "0.1.48",
     "license": "MIT",
     "type": "module",
     "sideEffects": true,
@@ -75,7 +75,7 @@
         "prepack": "npm run build:publish",
         "preview": "vite preview",
         "release": "PUPPETEER_SKIP_DOWNLOAD=1 npm run build:publish && npm publish --access public --ignore-scripts",
-        "publish": "npm run release",
+        "publish": "node ../scripts/bump-patch-version.mjs && npm run release",
         "docs": "typedoc ./src/index.ts --options ./typedoc.json --out ./docs --tsconfig ./tsconfig.json --excludeExternals --excludePrivate --excludeProtected --skipErrorChecking",
         "docs:clean": "rm -rf ./docs && typedoc --options ./typedoc.json",
         "docs:md": "typedoc --options ./typedoc.md.json",

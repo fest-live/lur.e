@@ -10,7 +10,7 @@
 function uploadFile(dest?, current?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1158
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1165
 
 ## Parameters
 

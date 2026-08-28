@@ -14,7 +14,7 @@ function readAsObjectURL(
 logger?): Promise<string | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:912
+Defined in: lur.e/src/utils/opfs/OPFS.ts:919
 
 ## Parameters
 

@@ -13,7 +13,7 @@ function mayNotPromise(
    errCb?): any;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:664
+Defined in: lur.e/src/utils/opfs/OPFS.ts:671
 
 ## Parameters
 

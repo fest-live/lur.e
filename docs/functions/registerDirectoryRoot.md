@@ -10,7 +10,7 @@
 function registerDirectoryRoot(root, handle): void;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:376
+Defined in: lur.e/src/utils/opfs/OPFS.ts:383
 
 Register a directory handle as a virtual root (`/mounts/<id>/`, etc.).
 

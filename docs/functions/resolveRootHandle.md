@@ -10,7 +10,7 @@
 function resolveRootHandle(rootHandle, relPath?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:436
+Defined in: lur.e/src/utils/opfs/OPFS.ts:443
 
 ## Parameters
 

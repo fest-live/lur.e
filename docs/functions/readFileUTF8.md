@@ -14,7 +14,7 @@ function readFileUTF8(
 logger?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:920
+Defined in: lur.e/src/utils/opfs/OPFS.ts:927
 
 ## Parameters
 

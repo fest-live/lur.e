@@ -13,7 +13,7 @@ function attachFile(
    path?): void;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1193
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1200
 
 ## Parameters
 

@@ -14,7 +14,7 @@ function removeDirectory(
 logger?): Promise<boolean | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:975
+Defined in: lur.e/src/utils/opfs/OPFS.ts:982
 
 ## Parameters
 

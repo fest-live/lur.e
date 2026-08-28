@@ -14,7 +14,7 @@ function getFileHandle(
 logger?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:601
+Defined in: lur.e/src/utils/opfs/OPFS.ts:608
 
 ## Parameters
 

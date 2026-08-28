@@ -10,7 +10,7 @@
 function unmountAsRoot(forId): Promise<void>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:427
+Defined in: lur.e/src/utils/opfs/OPFS.ts:434
 
 ## Parameters
 

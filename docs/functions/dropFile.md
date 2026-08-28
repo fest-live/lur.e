@@ -13,7 +13,7 @@ function dropFile(
 current?): Promise<string>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1121
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1128
 
 ## Parameters
 

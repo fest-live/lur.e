@@ -10,7 +10,7 @@
 function openImageFilePicker(): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:990
+Defined in: lur.e/src/utils/opfs/OPFS.ts:997
 
 ## Returns
 

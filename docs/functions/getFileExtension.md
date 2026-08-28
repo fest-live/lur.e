@@ -10,7 +10,7 @@
 function getFileExtension(path): any;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:534
+Defined in: lur.e/src/utils/opfs/OPFS.ts:541
 
 ## Parameters
 

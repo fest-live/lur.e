@@ -10,7 +10,7 @@
 function downloadFile(file, filename?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:997
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1004
 
 ## Parameters
 

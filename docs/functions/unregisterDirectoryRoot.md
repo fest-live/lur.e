@@ -10,7 +10,7 @@
 function unregisterDirectoryRoot(root): void;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:386
+Defined in: lur.e/src/utils/opfs/OPFS.ts:393
 
 ## Parameters
 

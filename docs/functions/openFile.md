@@ -15,7 +15,7 @@ function openFile(types?): Promise<
 | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/file-utils.ts:238
+Defined in: lur.e/src/utils/opfs/file-utils.ts:234
 
 Open file using File System Access API (with fallback)
 

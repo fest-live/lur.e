@@ -10,7 +10,7 @@
 function dropAsTempFile(data): Promise<string>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1208
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1215
 
 ## Parameters
 

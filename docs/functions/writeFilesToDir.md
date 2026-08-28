@@ -22,7 +22,7 @@ Write every provided file into the target directory using the canonical smart-wr
 
 ### files
 
-`File`[] \| `FileList`
+`FileList` \| `File`[]
 
 ## Returns
 

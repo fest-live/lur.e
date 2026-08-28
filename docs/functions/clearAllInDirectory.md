@@ -14,7 +14,7 @@ function clearAllInDirectory(
 logger?): Promise<null | undefined>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1217
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1224
 
 ## Parameters
 

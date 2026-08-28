@@ -13,7 +13,7 @@ function handleError(
    message): null;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:532
+Defined in: lur.e/src/utils/opfs/OPFS.ts:539
 
 ## Parameters
 

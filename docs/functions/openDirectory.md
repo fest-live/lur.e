@@ -14,7 +14,7 @@ function openDirectory(
    logger?): any;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:678
+Defined in: lur.e/src/utils/opfs/OPFS.ts:685
 
 ## Parameters
 

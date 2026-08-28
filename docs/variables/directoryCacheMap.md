@@ -10,4 +10,4 @@
 const directoryCacheMap: Map<string, DirectoryState>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:660
+Defined in: lur.e/src/utils/opfs/OPFS.ts:667
