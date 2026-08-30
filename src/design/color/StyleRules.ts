@@ -5,10 +5,26 @@
  * Reason for changes: Bridge --primary → --color-primary / --base-color for veela/shell.
  */
 
-import { E, localStorageRef } from "@fest-lib/lure";
+import { E, localStorageRef, Q } from "@fest-lib/lure";
+import { parse } from "culori";
 
 //
 export type StyleTuple = [selector: string, sheet: object];
+export const isValidColor = (color: string): boolean => Boolean(parse(color));
+
+//
+export const registerColorProperty = (name: string, initialValue: string = "#5a9ec8")=>{
+    try {
+        CSS?.registerProperty?.({
+            name,
+            syntax: "<color>",
+            inherits: true,
+            initialValue,
+        });
+    } catch (error) {
+        console.debug(error);
+    }
+}
 
 /**
  * Set brand seed on `:root`. Prefer {@link applyThemeFromWallpaper} from `fest/image`
@@ -18,6 +34,13 @@ export const updateThemeBase = async (originColor: string | null = null) => {
     const primaryRef = localStorageRef("--primary", originColor);
     if (originColor != null && primaryRef.value != originColor) primaryRef.value = originColor;
     const seed = String(primaryRef.value || originColor || "").trim();
+    
+    //
+    if (!isValidColor(seed)) return;
+    registerColorProperty("--color-primary", seed);
+    registerColorProperty("--base-color", seed);
+    registerColorProperty("--wf-md-primary", seed);
+    registerColorProperty("--wf-md-seed", seed);
     E(document.documentElement, {
         style: {
             "--primary": primaryRef,
@@ -31,6 +54,11 @@ export const updateThemeBase = async (originColor: string | null = null) => {
                 : {}),
         },
     });
+    const globalQuery = Q("body, html, .wf-demo-root, ui-window, .view-explorer, [data-view='explorer'], .view-viewer, [data-view='viewer'], .view-settings, [data-view='settings'], .cw-network-view, .cw-network-view-host");
+    globalQuery.style.setProperty("--color-primary", seed);
+    globalQuery.style.setProperty("--base-color", seed);
+    globalQuery.style.setProperty("--wf-md-primary", seed);
+    globalQuery.style.setProperty("--wf-md-seed", seed);
     if (seed) {
         document.dispatchEvent(
             new CustomEvent("u2-theme-change", { detail: { source: "style-rules", primary: seed } })

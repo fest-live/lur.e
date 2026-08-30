@@ -1,12 +1,20 @@
 /*
  * Filename: Glit.ts
  * FullPath: modules/projects/lur.e/src/lure/misc/Glit.ts
- * Change date and time: 12.20.00_30.08.2026
- * Reason for changes: Re-attach cached adopted sheets after Android WebView resume.
+ * Change date and time: 16.25.00_30.08.2026
+ * Reason for changes: Do not statically import new fest/dom names — stale /fest/dom.js blanks Capacitor.
+ * FIND:glit-styles
+ * TAG:glit-styles,style-tree
  */
 // @ts-ignore
 import { ref } from "@fest-lib/object";
-import { addRoot, isElement, loadAsAdopted, loadInlineStyle, setAttributesIfNull } from "@fest-lib/dom";
+import {
+    addRoot,
+    isElement,
+    loadAsAdopted,
+    loadInlineStyle,
+    setAttributesIfNull,
+} from "@fest-lib/dom";
 
 import {
     valueAsNumberRef,
@@ -101,8 +109,9 @@ const getDef = (source?: string | any | null): any => {
 };
 
 if (defaultStyle) {
+    // WHY: `:host { display: none }` hid Explorer when FileManager adopted CSS missed the first paint.
     defaultStyle.innerHTML = `@layer ux-preload {
-        :host { display: none; }
+        :host { box-sizing: border-box; }
     }`;
 }
 
@@ -339,6 +348,37 @@ export function property(options: PropertyOptions = {}) {
 // ============================================
 
 const adoptedStyleSheetsCache = new WeakMap<object, CSSStyleSheet[]>();
+const HOST_CSS_FALLBACK = "data-glit-host-css";
+
+/** COMPAT: stale `/fest/dom.js` has no cssTextForAdoptedSheet / ensureAdoptedSheetContent. */
+const ensureAdoptedSheetContent = (sheet: CSSStyleSheet | null | undefined): boolean => {
+    if (!sheet) return false;
+    try {
+        return sheet.cssRules.length > 0;
+    } catch {
+        return false;
+    }
+};
+
+const cssTextForAdoptedSheet = (_sheet: unknown): string | null => null;
+
+const syncAdoptedSheetsToShadow = (bTo: any): void => {
+    const root = bTo?.shadowRoot;
+    if (!root) return;
+    const adoptedSheets = adoptedStyleSheetsCache.get(bTo) || [];
+    for (const sheet of adoptedSheets) {
+        ensureAdoptedSheetContent(sheet);
+    }
+    try {
+        const live = root.adoptedStyleSheets || [];
+        root.adoptedStyleSheets = [
+            ...adoptedSheets.filter((s: CSSStyleSheet) => !live.includes(s)),
+            ...new Set([...live])
+        ];
+    } catch {
+        /* ignore */
+    }
+};
 
 const addAdoptedSheetToElement = (bTo: any, sheet: CSSStyleSheet) => {
     let adoptedSheets = adoptedStyleSheetsCache.get(bTo);
@@ -348,17 +388,35 @@ const addAdoptedSheetToElement = (bTo: any, sheet: CSSStyleSheet) => {
     if (sheet && adoptedSheets.indexOf(sheet) < 0) {
         adoptedSheets.push(sheet);
     }
-    if (bTo.shadowRoot) {
-        bTo.shadowRoot.adoptedStyleSheets = [
-            ...(bTo.shadowRoot.adoptedStyleSheets || []),
-            ...adoptedSheets.filter((s: CSSStyleSheet) => !bTo.shadowRoot.adoptedStyleSheets?.includes(s))
-        ];
-    }
+    ensureAdoptedSheetContent(sheet);
+    syncAdoptedSheetsToShadow(bTo);
 };
 
-/** WHY: Capacitor WebView drops `shadowRoot.adoptedStyleSheets` after background; cache still holds them. */
+const ensureShadowCssFallback = (bTo: any, cssText: string | null | undefined): HTMLStyleElement | null => {
+    const root = bTo?.shadowRoot;
+    if (!root || !cssText) return null;
+    // WHY: icon/library sheets stay non-empty; they must not block host CSS. Always keep a shadow copy —
+    // Capacitor adopted sheets often miss `:host` after replaceSync fails on `@function`.
+    let style = root.querySelector?.(`style[${HOST_CSS_FALLBACK}]`) as HTMLStyleElement | null;
+    if (!style) {
+        style = loadInlineStyle(cssText, root, "") as HTMLStyleElement | null;
+        if (style) style.setAttribute(HOST_CSS_FALLBACK, "");
+    } else if (style.textContent !== cssText) {
+        style.textContent = cssText;
+    }
+    return style;
+};
+
+/** WHY: Capacitor WebView drops `shadowRoot.adoptedStyleSheets` or empties cssRules; cache + source text restore them. */
 export const rehydrateAdoptedStyleSheets = (root: ParentNode | Document | null = typeof document !== "undefined" ? document : null): void => {
     if (!root) return;
+    const restore = (host: any): void => {
+        if (!host?.shadowRoot) return;
+        /* WHY: resume must not loadAsAdopted/replaceSync — that wiped live sheets. */
+        ensureShadowCssFallback(host, hostCssText(host));
+        syncAdoptedSheetsToShadow(host);
+    };
+    if ((root as Element).nodeType === 1) restore(root);
     const visit = (node: ParentNode): void => {
         let children: ArrayLike<Element> = [];
         try {
@@ -367,25 +425,63 @@ export const rehydrateAdoptedStyleSheets = (root: ParentNode | Document | null =
             return;
         }
         for (let i = 0; i < children.length; i++) {
-            const host = children[i] as HTMLElement & { shadowRoot?: ShadowRoot | null };
-            const sr = host.shadowRoot;
-            if (!sr) continue;
-            const cached = adoptedStyleSheetsCache.get(host);
-            if (cached?.length) {
-                try {
-                    sr.adoptedStyleSheets = [
-                        ...cached.filter((s: CSSStyleSheet) => !sr.adoptedStyleSheets?.includes(s)),
-                        ...new Set([...(sr.adoptedStyleSheets || [])])
-                    ];
-                } catch {
-                    /* ignore */
-                }
+            const host = children[i] as HTMLElement;
+            if (host.shadowRoot) {
+                restore(host);
+                visit(host.shadowRoot);
             }
-            visit(sr);
         }
     };
     visit(root);
 };
+
+const hostCssText = (bTo: any): string | null => {
+    const src = bTo?.styles;
+    if (typeof src === "string") return src;
+    if (typeof src === "function") {
+        try {
+            const out = src.call(bTo);
+            if (typeof out === "string") return out;
+            return cssTextForAdoptedSheet(out);
+        } catch {
+            return null;
+        }
+    }
+    return cssTextForAdoptedSheet(src);
+};
+
+export const ensureHostStyles = (bTo: any): void => {
+    if (!bTo) return;
+    if (bTo.styles != null) loadCachedStyles(bTo, bTo.styles);
+    syncAdoptedSheetsToShadow(bTo);
+    ensureShadowCssFallback(bTo, hostCssText(bTo));
+};
+
+const styleFlushPending = new WeakSet<Element>();
+let styleFlushBatch: Element[] = [];
+let styleFlushScheduled = false;
+
+/** WHY: connect / childList / theme attrs often land in the same turn — one apply before paint. */
+export const scheduleEnsureHostStyles = (bTo: any): void => {
+    if (!bTo || !(bTo instanceof Element) || styleFlushPending.has(bTo)) return;
+    styleFlushPending.add(bTo);
+    styleFlushBatch.push(bTo);
+    if (styleFlushScheduled) return;
+    styleFlushScheduled = true;
+    queueMicrotask(() => {
+        styleFlushScheduled = false;
+        const batch = styleFlushBatch;
+        styleFlushBatch = [];
+        for (const host of batch) {
+            styleFlushPending.delete(host);
+            if (host.isConnected) ensureHostStyles(host);
+        }
+    });
+};
+
+void import("@fest-lib/dom").then((dom: any) => {
+    dom.registerStyleTreeHook?.((el: Element) => scheduleEnsureHostStyles(el));
+}).catch(() => { /* stale fest/dom */ });
 
 export const loadCachedStyles = (bTo: any, src: any): HTMLStyleElement | null => {
     if (!src) return null;
@@ -403,7 +499,7 @@ export const loadCachedStyles = (bTo: any, src: any): HTMLStyleElement | null =>
 
     if (resolvedSrc && typeof CSSStyleSheet != "undefined" && resolvedSrc instanceof CSSStyleSheet) {
         addAdoptedSheetToElement(bTo, resolvedSrc);
-        return null;
+        return ensureShadowCssFallback(bTo, cssTextForAdoptedSheet(resolvedSrc));
     }
 
     if (resolvedSrc instanceof Promise) {
@@ -422,29 +518,23 @@ export const loadCachedStyles = (bTo: any, src: any): HTMLStyleElement | null =>
     if (typeof resolvedSrc == "string" || resolvedSrc instanceof Blob || (resolvedSrc as any) instanceof File) {
         const adopted = loadAsAdopted(resolvedSrc, "");
         if (adopted) {
-            let adoptedSheets = adoptedStyleSheetsCache.get(bTo);
-            if (!adoptedSheets) {
-                adoptedStyleSheetsCache.set(bTo, adoptedSheets = []);
-            }
             const addAdoptedSheet = (sheet: CSSStyleSheet) => {
-                if (sheet && adoptedSheets!.indexOf(sheet) < 0) {
-                    adoptedSheets!.push(sheet);
-                }
-                if (bTo.shadowRoot) {
-                    bTo.shadowRoot.adoptedStyleSheets = [
-                        ...(bTo.shadowRoot.adoptedStyleSheets || []),
-                        ...adoptedSheets!.filter((s: CSSStyleSheet) => !bTo.shadowRoot.adoptedStyleSheets?.includes(s))
-                    ];
-                }
+                addAdoptedSheetToElement(bTo, sheet);
             };
             if (adopted instanceof Promise) {
-                adopted.then(addAdoptedSheet).catch((e: any) => {
+                adopted.then((sheet: CSSStyleSheet) => {
+                    addAdoptedSheet(sheet);
+                    ensureShadowCssFallback(bTo, typeof resolvedSrc == "string" ? resolvedSrc : cssTextForAdoptedSheet(sheet));
+                }).catch((e: any) => {
                     console.warn("Error loading adopted stylesheet:", e);
                 });
                 return null;
             } else {
                 addAdoptedSheet(adopted);
-                return null;
+                return ensureShadowCssFallback(
+                    bTo,
+                    typeof resolvedSrc == "string" ? resolvedSrc : cssTextForAdoptedSheet(adopted),
+                );
             }
         }
     }
@@ -625,40 +715,13 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
                     this.shadowRoot?.prepend?.(module);
                 }
             } else if (module instanceof CSSStyleSheet) {
-                let adoptedSheets = adoptedStyleSheetsCache.get(this);
-                if (!adoptedSheets) {
-                    adoptedStyleSheetsCache.set(this, adoptedSheets = []);
-                }
-                if (adoptedSheets.indexOf(module) < 0) {
-                    adoptedSheets.push(module);
-                }
-                if (root) {
-                    root.adoptedStyleSheets = [
-                        ...(root.adoptedStyleSheets || []),
-                        ...adoptedSheets.filter((s: CSSStyleSheet) => !root.adoptedStyleSheets?.includes(s))
-                    ];
-                }
+                addAdoptedSheetToElement(this, module);
             } else {
                 const adopted = loadAsAdopted(module, "ux-layer");
-                let adoptedSheets = adoptedStyleSheetsCache.get(this);
-                if (!adoptedSheets) {
-                    adoptedStyleSheetsCache.set(this, adoptedSheets = []);
-                }
-                const addAdoptedSheet = (sheet: CSSStyleSheet) => {
-                    if (sheet && adoptedSheets!.indexOf(sheet) < 0) {
-                        adoptedSheets!.push(sheet);
-                    }
-                    if (root) {
-                        root.adoptedStyleSheets = [
-                            ...(root.adoptedStyleSheets || []),
-                            ...adoptedSheets!.filter((s: CSSStyleSheet) => !root.adoptedStyleSheets?.includes(s))
-                        ];
-                    }
-                };
                 if (adopted instanceof Promise) {
-                    adopted.then(addAdoptedSheet).catch(() => { });
+                    adopted.then((sheet: CSSStyleSheet) => addAdoptedSheetToElement(this, sheet)).catch(() => { });
                 } else if (adopted) {
-                    addAdoptedSheet(adopted);
+                    addAdoptedSheetToElement(this, adopted);
                 }
             }
             return this;
@@ -706,7 +769,12 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
 
                 if (isNotExtended(this) && shadowRoot) {
                     const rendered = this.render?.call?.(this, weak) ?? document.createElement("slot");
-                    const styleElement = loadCachedStyles(this, this.styles);
+                    let styleElement: HTMLStyleElement | null = null;
+                    try {
+                        styleElement = loadCachedStyles(this, this.styles);
+                    } catch (error) {
+                        console.warn("Error applying host styles:", error);
+                    }
 
                     if (styleElement instanceof HTMLStyleElement) {
                         this.#styleElement = styleElement;
@@ -737,6 +805,8 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
                     addRoot(shadowRoot);
                 }
             }
+            // WHY: first paint and late upgrade both miss adopted sheets; apply after this turn (icon sheet, H``).
+            scheduleEnsureHostStyles(this);
         }
 
         /**
@@ -755,6 +825,7 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
             if (super.adoptedCallback) {
                 super.adoptedCallback();
             }
+            scheduleEnsureHostStyles(this);
         }
 
         /**
@@ -763,6 +834,14 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
         attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
             if (super.attributeChangedCallback) {
                 super.attributeChangedCallback(name, oldValue, newValue);
+            }
+            if (
+                name === "theme" ||
+                name === "data-theme" ||
+                name === "color-scheme" ||
+                name.endsWith("color-scheme")
+            ) {
+                scheduleEnsureHostStyles(this);
             }
         }
     }
