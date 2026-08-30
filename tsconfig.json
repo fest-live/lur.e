@@ -23,6 +23,9 @@
             "@fest-lib/cdnImport": [
                 "../../cdnImport.mjs"
             ],
+            "@fest-lib/style-lib": [
+                "../style.ts/src/index.ts"
+            ],
             "@fest-lib/dom": [
                 "../dom.ts/src/index.ts"
             ],

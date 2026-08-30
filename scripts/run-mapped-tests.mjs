@@ -25,6 +25,7 @@ await build({
         alias: [
             { find: "@fest-lib/core", replacement: resolve(root, "../core.ts/src/index.ts") },
             { find: "@fest-lib/dom", replacement: resolve(root, "../dom.ts/src/index.ts") },
+            { find: "@fest-lib/style-lib", replacement: resolve(root, "../style.ts/src/index.ts") },
             { find: "@fest-lib/object", replacement: resolve(root, "../object.ts/src/index.ts") },
             { find: "@fest-lib/lure", replacement: resolve(root, "src/index.ts") },
             {

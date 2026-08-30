@@ -1,7 +1,8 @@
 import type { refType } from "@fest-lib/object";
 import { stringRef, numberRef, booleanRef, deref, observe, addToCallChain, affected, computed, $trigger, ref } from "@fest-lib/object";
 import { attrLink, valueLink, checkedLink, valueAsNumberLink, localStorageLink, sizeLink, scrollLink, visibleLink, matchMediaLink, orientLink, localStorageLinkMap, hashTargetLink, pointerEventLink, radioValueLink, datasetLink, stylePropLink, cssVarLink, type Linker } from "./Links";
-import { addEvent, getPadding, handleAttribute } from "@fest-lib/dom";
+import { addEvent, handleAttribute } from "@fest-lib/dom";
+import { getPadding } from "@fest-lib/style-lib";
 import { elMap } from "./Binding";
 import { isValidObj, WRef } from "@fest-lib/core";
 // Keep this low-level ref module independent from the barrel export.

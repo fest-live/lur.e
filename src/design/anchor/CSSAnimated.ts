@@ -5,7 +5,8 @@
 
 import { numberRef, stringRef, affected } from "@fest-lib/object";
 import { toRef, deref, $getValue } from "@fest-lib/core";
-import { makeRAFCycle, setProperty } from "@fest-lib/dom";
+import { makeRAFCycle } from "@fest-lib/dom";
+import { setProperty } from "@fest-lib/style-lib";
 import { $extract } from "./CSSTimeline";
 
 /**

@@ -15,7 +15,7 @@ import { isObservable as isCollection } from "@fest-lib/core";
 import { Q } from "./Queried";
 import { M } from "./Mapped";
 import { getNode } from "../context/Utils";
-import { bindStyle } from "../misc/Styles";
+import { bindStyle } from "@fest-lib/style-lib";
 import { bindTriggerHandlers } from "../core/TriggerCore";
 
 //

@@ -1,4 +1,5 @@
-import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, handleDataset, handleStyleChange, getPadding, addEvent } from "@fest-lib/dom";
+import { boundBehaviors, getCorrectOrientation, orientationNumberMap, whenAnyScreenChanges, handleHidden, handleAttribute, handleDataset, handleStyleChange, addEvent } from "@fest-lib/dom";
+import { getPadding } from "@fest-lib/style-lib";
 import { observe, booleanRef, numberRef, affected, stringRef, ref, $triggerControl } from "@fest-lib/object";
 import { isNotEqual, isValueRef, $avoidTrigger, isObject, getValue, isPrimitive, normalizePrimitive, $getValue, deref, hasValue } from "@fest-lib/core";
 import { setChecked } from "@fest-lib/dom";

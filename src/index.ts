@@ -9,10 +9,8 @@ export { T, replaceChildren, removeChild, appendChild } from "./lure/context/Uti
 
 //
 export * from "./lure/misc/Glit"
-export * from "./lure/misc/Styles"
+export * from "@fest-lib/style-lib"
 export * from "./lure/misc/Syntax"
-export * from "./lure/misc/Animate"
-export * from "./lure/misc/Animatable"
 
 //
 export * from "./interactive/tasking/Manager"
@@ -107,6 +105,7 @@ export {
     saveFile,
     openFile
 } from "./utils/opfs/file-utils"
+export * from "./utils/opfs"
 export * from "./utils/opfs/Base64Data"
 export * from "./utils/opfs/OPFS"
 export * from "./utils/opfs/OPFSMod"

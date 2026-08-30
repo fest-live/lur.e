@@ -10,7 +10,7 @@ import {
     compileInlineStyleAttribute,
     isStyleBinding,
     pruneEmptyStyleAttribute,
-} from "./Styles";
+} from "@fest-lib/style-lib";
 
 //
 const EMapSymbol = Symbol.for("lure@EMap");

@@ -1,4 +1,5 @@
-import { setStyleProperty, RAFBehavior, ROOT } from "@fest-lib/dom";
+import { RAFBehavior, ROOT } from "@fest-lib/dom";
+import { setStyleProperty } from "@fest-lib/style-lib";
 import { makeShiftTrigger, doObserve } from "./Trigger";
 import { bindDraggable } from "./PointerAPI";
 

@@ -49,12 +49,14 @@
         "@fest-lib/core": ">=0.1.0",
         "@fest-lib/dom": ">=0.1.0",
         "@fest-lib/object": ">=0.1.0",
+        "@fest-lib/style-lib": ">=0.1.0",
         "@fest-lib/uniform": ">=0.1.0"
     },
     "peerDependencies": {
         "@fest-lib/core": ">=0.1.0",
         "@fest-lib/dom": ">=0.1.0",
         "@fest-lib/object": ">=0.1.0",
+        "@fest-lib/style-lib": ">=0.1.0",
         "@fest-lib/uniform": ">=0.1.0"
     },
     "scripts": {

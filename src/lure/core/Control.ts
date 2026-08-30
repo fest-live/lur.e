@@ -1,6 +1,7 @@
 import { deref, isNotEqual, toRef, unref } from "@fest-lib/core";
 import { Q } from "../node/Queried";
-import { makeRAFCycle, setProperty } from "@fest-lib/dom";
+import { makeRAFCycle } from "@fest-lib/dom";
+import { setProperty } from "@fest-lib/style-lib";
 import { affected } from "@fest-lib/object";
 
 //

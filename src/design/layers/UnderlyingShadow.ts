@@ -4,7 +4,8 @@
  * Change date and time: 23.15.00_22.08.2026
  * Reason for changes: Fixed under-shadow must keep negative z-index; box-shadow on the clone, not the slab.
  */
-import { setProperty, handleStyleChange } from "@fest-lib/dom";
+import { handleStyleChange } from "@fest-lib/dom";
+import { setProperty } from "@fest-lib/style-lib";
 import { bindWith } from "../../lure/core/Binding";
 import { CSSUnitUtils } from "../anchor/CSSAdapter";
 import { boundingBoxAnchorRef } from "../anchor/BBoxAnchor";

@@ -2,7 +2,7 @@
  * Filename: Glit.ts
  * FullPath: modules/projects/lur.e/src/lure/misc/Glit.ts
  * Change date and time: 16.25.00_30.08.2026
- * Reason for changes: Do not statically import new fest/dom names — stale /fest/dom.js blanks Capacitor.
+ * Reason for changes: Host CSS attach lives in @fest-lib/style-lib/component; GLit only runs lifecycle.
  * FIND:glit-styles
  * TAG:glit-styles,style-tree
  */
@@ -11,10 +11,15 @@ import { ref } from "@fest-lib/object";
 import {
     addRoot,
     isElement,
-    loadAsAdopted,
-    loadInlineStyle,
     setAttributesIfNull,
 } from "@fest-lib/dom";
+import {
+    addAdoptedSheetToElement,
+    adoptedStyleSheetsCache,
+    loadAsAdopted,
+    loadCachedStyles,
+    scheduleEnsureHostStyles,
+} from "@fest-lib/style-lib";
 
 import {
     valueAsNumberRef,
@@ -31,14 +36,6 @@ import H from "./Syntax";
 
 
 //
-const styleCacheSymbol = Symbol.for("lur.e@styleCache");
-globalThis[styleCacheSymbol] ??= new Map();
-export const styleCache = globalThis[styleCacheSymbol];
-
-const styleElementCacheSymbol = Symbol.for("lur.e@styleElementCache");
-globalThis[styleElementCacheSymbol] ??= new WeakMap();
-export const styleElementCache = globalThis[styleElementCacheSymbol];
-
 const propStoreSymbol = Symbol.for("lur.e@propStore");
 globalThis[propStoreSymbol] ??= new WeakMap<object, Map<string, any>>();
 export const propStore = globalThis[propStoreSymbol];
@@ -343,232 +340,6 @@ export function property(options: PropertyOptions = {}) {
     };
 }
 
-// ============================================
-// СТИЛИ
-// ============================================
-
-const adoptedStyleSheetsCache = new WeakMap<object, CSSStyleSheet[]>();
-const HOST_CSS_FALLBACK = "data-glit-host-css";
-
-/** COMPAT: stale `/fest/dom.js` has no cssTextForAdoptedSheet / ensureAdoptedSheetContent. */
-const ensureAdoptedSheetContent = (sheet: CSSStyleSheet | null | undefined): boolean => {
-    if (!sheet) return false;
-    try {
-        return sheet.cssRules.length > 0;
-    } catch {
-        return false;
-    }
-};
-
-const cssTextForAdoptedSheet = (_sheet: unknown): string | null => null;
-
-const syncAdoptedSheetsToShadow = (bTo: any): void => {
-    const root = bTo?.shadowRoot;
-    if (!root) return;
-    const adoptedSheets = adoptedStyleSheetsCache.get(bTo) || [];
-    for (const sheet of adoptedSheets) {
-        ensureAdoptedSheetContent(sheet);
-    }
-    try {
-        const live = root.adoptedStyleSheets || [];
-        root.adoptedStyleSheets = [
-            ...adoptedSheets.filter((s: CSSStyleSheet) => !live.includes(s)),
-            ...new Set([...live])
-        ];
-    } catch {
-        /* ignore */
-    }
-};
-
-const addAdoptedSheetToElement = (bTo: any, sheet: CSSStyleSheet) => {
-    let adoptedSheets = adoptedStyleSheetsCache.get(bTo);
-    if (!adoptedSheets) {
-        adoptedStyleSheetsCache.set(bTo, adoptedSheets = []);
-    }
-    if (sheet && adoptedSheets.indexOf(sheet) < 0) {
-        adoptedSheets.push(sheet);
-    }
-    ensureAdoptedSheetContent(sheet);
-    syncAdoptedSheetsToShadow(bTo);
-};
-
-const ensureShadowCssFallback = (bTo: any, cssText: string | null | undefined): HTMLStyleElement | null => {
-    const root = bTo?.shadowRoot;
-    if (!root || !cssText) return null;
-    // WHY: icon/library sheets stay non-empty; they must not block host CSS. Always keep a shadow copy —
-    // Capacitor adopted sheets often miss `:host` after replaceSync fails on `@function`.
-    let style = root.querySelector?.(`style[${HOST_CSS_FALLBACK}]`) as HTMLStyleElement | null;
-    if (!style) {
-        style = loadInlineStyle(cssText, root, "") as HTMLStyleElement | null;
-        if (style) style.setAttribute(HOST_CSS_FALLBACK, "");
-    } else if (style.textContent !== cssText) {
-        style.textContent = cssText;
-    }
-    return style;
-};
-
-/** WHY: Capacitor WebView drops `shadowRoot.adoptedStyleSheets` or empties cssRules; cache + source text restore them. */
-export const rehydrateAdoptedStyleSheets = (root: ParentNode | Document | null = typeof document !== "undefined" ? document : null): void => {
-    if (!root) return;
-    const restore = (host: any): void => {
-        if (!host?.shadowRoot) return;
-        /* WHY: resume must not loadAsAdopted/replaceSync — that wiped live sheets. */
-        ensureShadowCssFallback(host, hostCssText(host));
-        syncAdoptedSheetsToShadow(host);
-    };
-    if ((root as Element).nodeType === 1) restore(root);
-    const visit = (node: ParentNode): void => {
-        let children: ArrayLike<Element> = [];
-        try {
-            children = node.querySelectorAll("*");
-        } catch {
-            return;
-        }
-        for (let i = 0; i < children.length; i++) {
-            const host = children[i] as HTMLElement;
-            if (host.shadowRoot) {
-                restore(host);
-                visit(host.shadowRoot);
-            }
-        }
-    };
-    visit(root);
-};
-
-const hostCssText = (bTo: any): string | null => {
-    const src = bTo?.styles;
-    if (typeof src === "string") return src;
-    if (typeof src === "function") {
-        try {
-            const out = src.call(bTo);
-            if (typeof out === "string") return out;
-            return cssTextForAdoptedSheet(out);
-        } catch {
-            return null;
-        }
-    }
-    return cssTextForAdoptedSheet(src);
-};
-
-export const ensureHostStyles = (bTo: any): void => {
-    if (!bTo) return;
-    if (bTo.styles != null) loadCachedStyles(bTo, bTo.styles);
-    syncAdoptedSheetsToShadow(bTo);
-    ensureShadowCssFallback(bTo, hostCssText(bTo));
-};
-
-const styleFlushPending = new WeakSet<Element>();
-let styleFlushBatch: Element[] = [];
-let styleFlushScheduled = false;
-
-/** WHY: connect / childList / theme attrs often land in the same turn — one apply before paint. */
-export const scheduleEnsureHostStyles = (bTo: any): void => {
-    if (!bTo || !(bTo instanceof Element) || styleFlushPending.has(bTo)) return;
-    styleFlushPending.add(bTo);
-    styleFlushBatch.push(bTo);
-    if (styleFlushScheduled) return;
-    styleFlushScheduled = true;
-    queueMicrotask(() => {
-        styleFlushScheduled = false;
-        const batch = styleFlushBatch;
-        styleFlushBatch = [];
-        for (const host of batch) {
-            styleFlushPending.delete(host);
-            if (host.isConnected) ensureHostStyles(host);
-        }
-    });
-};
-
-void import("@fest-lib/dom").then((dom: any) => {
-    dom.registerStyleTreeHook?.((el: Element) => scheduleEnsureHostStyles(el));
-}).catch(() => { /* stale fest/dom */ });
-
-export const loadCachedStyles = (bTo: any, src: any): HTMLStyleElement | null => {
-    if (!src) return null;
-
-    let resolvedSrc = src;
-    if (typeof src == "function") {
-        try {
-            const weak = new WeakRef(bTo);
-            resolvedSrc = src.call(bTo, weak);
-        } catch (e) {
-            console.warn("Error calling styles function:", e);
-            return null;
-        }
-    }
-
-    if (resolvedSrc && typeof CSSStyleSheet != "undefined" && resolvedSrc instanceof CSSStyleSheet) {
-        addAdoptedSheetToElement(bTo, resolvedSrc);
-        return ensureShadowCssFallback(bTo, cssTextForAdoptedSheet(resolvedSrc));
-    }
-
-    if (resolvedSrc instanceof Promise) {
-        resolvedSrc.then((result: any) => {
-            if (result instanceof CSSStyleSheet) {
-                addAdoptedSheetToElement(bTo, result);
-            } else if (result != null) {
-                loadCachedStyles(bTo, result);
-            }
-        }).catch((e: any) => {
-            console.warn("Error loading adopted stylesheet:", e);
-        });
-        return null;
-    }
-
-    if (typeof resolvedSrc == "string" || resolvedSrc instanceof Blob || (resolvedSrc as any) instanceof File) {
-        const adopted = loadAsAdopted(resolvedSrc, "");
-        if (adopted) {
-            const addAdoptedSheet = (sheet: CSSStyleSheet) => {
-                addAdoptedSheetToElement(bTo, sheet);
-            };
-            if (adopted instanceof Promise) {
-                adopted.then((sheet: CSSStyleSheet) => {
-                    addAdoptedSheet(sheet);
-                    ensureShadowCssFallback(bTo, typeof resolvedSrc == "string" ? resolvedSrc : cssTextForAdoptedSheet(sheet));
-                }).catch((e: any) => {
-                    console.warn("Error loading adopted stylesheet:", e);
-                });
-                return null;
-            } else {
-                addAdoptedSheet(adopted);
-                return ensureShadowCssFallback(
-                    bTo,
-                    typeof resolvedSrc == "string" ? resolvedSrc : cssTextForAdoptedSheet(adopted),
-                );
-            }
-        }
-    }
-
-    const source = ((typeof src == "function" || typeof src == "object") ? styleElementCache : styleCache);
-    const cached = source.get(src);
-    let styleElement = cached?.styleElement;
-    let vars = cached?.vars;
-
-    if (!cached) {
-        let styles = ``;
-        let props: any[] = [];
-
-        if (typeof resolvedSrc == "string") {
-            styles = resolvedSrc || "";
-        } else if (typeof resolvedSrc == "object" && resolvedSrc != null) {
-            if (resolvedSrc instanceof HTMLStyleElement) {
-                styleElement = resolvedSrc;
-            } else {
-                styles = typeof (resolvedSrc as any).css == "string" ? (resolvedSrc as any).css : (typeof resolvedSrc == "string" ? resolvedSrc : String(resolvedSrc));
-                props = (resolvedSrc as any)?.props ?? props;
-                vars = (resolvedSrc as any)?.vars ?? vars;
-            }
-        }
-
-        if (!styleElement && styles) {
-            styleElement = loadInlineStyle(styles, bTo, "ux-layer");
-        }
-
-        source.set(src, { css: styles, props, vars, styleElement });
-    }
-
-    return styleElement;
-};
 
 export const isNotExtended = (el: HTMLElement): boolean => {
     return !(
@@ -849,7 +620,6 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
     // Применяем withProperties и кэшируем
     const result = withProperties(GLitElementImpl as unknown as HTMLElementConstructor<T & GLitElementInstance>);
     CSM.set(Base, result);
-    console.log("result", result);
 
     return result as unknown as GLitElementClass<T>;
 }

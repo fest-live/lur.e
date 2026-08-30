@@ -11,7 +11,7 @@ import { isNotEqual, isPrimitive } from "@fest-lib/core";
 //
 import { bindHandler, bindWith } from "../core/Binding";
 import { handleDataset, handleProperty, handleAttribute, handleStyleChange } from "@fest-lib/dom";
-import { applyNormalizedInlineStyle, bindStyle, isStyleBinding } from "../misc/Styles";
+import { applyNormalizedInlineStyle, bindStyle, isStyleBinding } from "@fest-lib/style-lib";
 import Q from "../node/Queried";
 import { setChecked } from "@fest-lib/dom";
 

@@ -1,4 +1,5 @@
-import { addEvent, removeEvent, setStyleProperty, getBoundingOrientRect } from "@fest-lib/dom";
+import { addEvent, removeEvent, getBoundingOrientRect } from "@fest-lib/dom";
+import { setStyleProperty } from "@fest-lib/style-lib";
 import { makeShiftTrigger } from "./Trigger";
 import { bindDraggable } from "./PointerAPI";
 import type { Rect2D } from "../../utils/math/Operations";
