@@ -1,8 +1,8 @@
 /*
  * Filename: Glit.ts
  * FullPath: modules/projects/lur.e/src/lure/misc/Glit.ts
- * Change date and time: 17.52.00_08.08.2026
- * Reason for changes: unresolved query/query-shadow props must return null (not Q proxy) outside render.
+ * Change date and time: 12.20.00_30.08.2026
+ * Reason for changes: Re-attach cached adopted sheets after Android WebView resume.
  */
 // @ts-ignore
 import { ref } from "@fest-lib/object";
@@ -354,6 +354,37 @@ const addAdoptedSheetToElement = (bTo: any, sheet: CSSStyleSheet) => {
             ...adoptedSheets.filter((s: CSSStyleSheet) => !bTo.shadowRoot.adoptedStyleSheets?.includes(s))
         ];
     }
+};
+
+/** WHY: Capacitor WebView drops `shadowRoot.adoptedStyleSheets` after background; cache still holds them. */
+export const rehydrateAdoptedStyleSheets = (root: ParentNode | Document | null = typeof document !== "undefined" ? document : null): void => {
+    if (!root) return;
+    const visit = (node: ParentNode): void => {
+        let children: ArrayLike<Element> = [];
+        try {
+            children = node.querySelectorAll("*");
+        } catch {
+            return;
+        }
+        for (let i = 0; i < children.length; i++) {
+            const host = children[i] as HTMLElement & { shadowRoot?: ShadowRoot | null };
+            const sr = host.shadowRoot;
+            if (!sr) continue;
+            const cached = adoptedStyleSheetsCache.get(host);
+            if (cached?.length) {
+                try {
+                    sr.adoptedStyleSheets = [
+                        ...cached.filter((s: CSSStyleSheet) => !sr.adoptedStyleSheets?.includes(s)),
+                        ...new Set([...(sr.adoptedStyleSheets || [])])
+                    ];
+                } catch {
+                    /* ignore */
+                }
+            }
+            visit(sr);
+        }
+    };
+    visit(root);
 };
 
 export const loadCachedStyles = (bTo: any, src: any): HTMLStyleElement | null => {
