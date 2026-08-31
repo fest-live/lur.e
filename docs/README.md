@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.52**
+**@fest-lib/lure v0.1.53**
 
 ***
 
-# @fest-lib/lure v0.1.52
+# @fest-lib/lure v0.1.53
 
 ## Enumerations
 
