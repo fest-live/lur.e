@@ -374,3 +374,5 @@ export const historyStorage = new IDBStorage("rs-history", "entries");
 
 /** Settings/config storage */
 export const settingsStorage = new IDBStorage("rs-settings", "config");
+
+export * from "./content-addressed-store";

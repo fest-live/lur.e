@@ -68,6 +68,7 @@
         "test:trigger-core": "node ./scripts/run-trigger-core-tests.mjs",
         "test:form-binding": "node ./scripts/run-form-binding-tests.mjs",
         "test:mapped": "node ./scripts/run-mapped-tests.mjs",
+        "test:opfs-content-store": "node ./scripts/run-opfs-content-store-tests.mjs",
         "test:dev": "npm run demo",
         "dev": "npm run demo",
         "demo": "vite --host 0.0.0.0",
