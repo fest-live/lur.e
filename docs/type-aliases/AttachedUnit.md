@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type AttachedUnit = object;
 ```
 
-Defined in: style.ts/src/types.ts:69
+Defined in: style.ts/src/types.ts:81
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: style.ts/src/types.ts:69
 authored: string;
 ```
 
-Defined in: style.ts/src/types.ts:70
+Defined in: style.ts/src/types.ts:82
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: style.ts/src/types.ts:70
 length: number;
 ```
 
-Defined in: style.ts/src/types.ts:72
+Defined in: style.ts/src/types.ts:84
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: style.ts/src/types.ts:72
 normalized: string;
 ```
 
-Defined in: style.ts/src/types.ts:71
+Defined in: style.ts/src/types.ts:83

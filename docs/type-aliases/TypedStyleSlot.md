@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type TypedStyleSlot = object;
 ```
 
-Defined in: style.ts/src/types.ts:57
+Defined in: style.ts/src/types.ts:69
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: style.ts/src/types.ts:57
 marker: string;
 ```
 
-Defined in: style.ts/src/types.ts:58
+Defined in: style.ts/src/types.ts:70
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: style.ts/src/types.ts:58
 optional multipliedByUnit?: string;
 ```
 
-Defined in: style.ts/src/types.ts:60
+Defined in: style.ts/src/types.ts:72
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: style.ts/src/types.ts:60
 value: any;
 ```
 
-Defined in: style.ts/src/types.ts:59
+Defined in: style.ts/src/types.ts:71

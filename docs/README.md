@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.51**
+**@fest-lib/lure v0.1.52**
 
 ***
 
-# @fest-lib/lure v0.1.51
+# @fest-lib/lure v0.1.52
 
 ## Enumerations
 
@@ -124,6 +124,7 @@
 - [AnimatableTrigger](type-aliases/AnimatableTrigger.md)
 - [AssetDirectoryPickOptions](type-aliases/AssetDirectoryPickOptions.md)
 - [AttachedUnit](type-aliases/AttachedUnit.md)
+- [BakeAlsoHit](type-aliases/BakeAlsoHit.md)
 - [BakeCategory](type-aliases/BakeCategory.md)
 - [BakedCacheEntry](type-aliases/BakedCacheEntry.md)
 - [BakedStyleSheet](type-aliases/BakedStyleSheet.md)
@@ -229,7 +230,13 @@
 - [ANIMATABLE\_BRAND](variables/ANIMATABLE_BRAND.md)
 - [BAKE\_CATEGORIES](variables/BAKE_CATEGORIES.md)
 - [BAKE\_LAYER](variables/BAKE_LAYER.md)
+- [BAKE\_SCREEN\_ALSO](variables/BAKE_SCREEN_ALSO.md)
+- [BAKE\_SCREEN\_ALSO\_EXPLORER](variables/BAKE_SCREEN_ALSO_EXPLORER.md)
+- [BAKE\_SCREEN\_ALSO\_SETTINGS](variables/BAKE_SCREEN_ALSO_SETTINGS.md)
+- [BAKE\_SCREEN\_CHROME](variables/BAKE_SCREEN_CHROME.md)
+- [BAKE\_SCREEN\_MEDIA](variables/BAKE_SCREEN_MEDIA.md)
 - [bakedCache](variables/bakedCache.md)
+- [bakedFollowers](variables/bakedFollowers.md)
 - [bakedLive](variables/bakedLive.md)
 - [bakedStyles](variables/bakedStyles.md)
 - [bank](variables/bank.md)
@@ -341,7 +348,9 @@
 - [attachFile](functions/attachFile.md)
 - [attrLink](functions/attrLink.md)
 - [attrRef](functions/attrRef.md)
+- [bakeAlsoQueriesFor](functions/bakeAlsoQueriesFor.md)
 - [bakeComputedStyle](functions/bakeComputedStyle.md)
+- [bakeScreenColors](functions/bakeScreenColors.md)
 - [bakeThemeFingerprint](functions/bakeThemeFingerprint.md)
 - [batteryStatusRef](functions/batteryStatusRef.md)
 - [bindAnchorableDragResize](functions/bindAnchorableDragResize.md)
@@ -391,7 +400,9 @@
 - [clickPrevention](functions/clickPrevention.md)
 - [closeByGroup](functions/closeByGroup.md)
 - [closeHighestPriority](functions/closeHighestPriority.md)
+- [collectBakeAlsoHosts](functions/collectBakeAlsoHosts.md)
 - [collectBakedDeclarations](functions/collectBakedDeclarations.md)
+- [collectBakeScreenHosts](functions/collectBakeScreenHosts.md)
 - [collectRelativeMarkdownAssetRefs](functions/collectRelativeMarkdownAssetRefs.md)
 - [colorScheme](functions/colorScheme.md)
 - [compactIconSrcForStorage](functions/compactIconSrcForStorage.md)
@@ -728,6 +739,7 @@
 - [pruneEmptyStyleAttribute](functions/pruneEmptyStyleAttribute.md)
 - [Q](functions/Q.md)
 - [Qp](functions/Qp.md)
+- [queryFirstDeep](functions/queryFirstDeep.md)
 - [radioValueLink](functions/radioValueLink.md)
 - [radioValueRef](functions/radioValueRef.md)
 - [reactiveInputHandleTransform](functions/reactiveInputHandleTransform.md)
@@ -800,6 +812,7 @@
 - [saveUIState](functions/saveUIState.md)
 - [scale2D](functions/scale2D.md)
 - [scaleRectAroundCenter](functions/scaleRectAroundCenter.md)
+- [scheduleBakeScreenColors](functions/scheduleBakeScreenColors.md)
 - [scheduleEnsureHostStyles](functions/scheduleEnsureHostStyles.md)
 - [screenToControlValue](functions/screenToControlValue.md)
 - [scrollbarMetrics](functions/scrollbarMetrics.md)
@@ -856,6 +869,7 @@
 - [transformRect2D](functions/transformRect2D.md)
 - [translate2D](functions/translate2D.md)
 - [unbakeComputedStyle](functions/unbakeComputedStyle.md)
+- [unbakeScreenColors](functions/unbakeScreenColors.md)
 - [unmountAsRoot](functions/unmountAsRoot.md)
 - [unpackHrefInline](functions/unpackHrefInline.md)
 - [unregisterCloseable](functions/unregisterCloseable.md)

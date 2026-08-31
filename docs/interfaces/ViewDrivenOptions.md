@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ViewDrivenOptions
 
-Defined in: style.ts/src/types.ts:182
+Defined in: style.ts/src/types.ts:194
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: style.ts/src/types.ts:182
 optional axis?: "block" | "inline" | "x" | "y";
 ```
 
-Defined in: style.ts/src/types.ts:186
+Defined in: style.ts/src/types.ts:198
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: style.ts/src/types.ts:186
 optional inset?: string;
 ```
 
-Defined in: style.ts/src/types.ts:187
+Defined in: style.ts/src/types.ts:199
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: style.ts/src/types.ts:187
 kind: "view";
 ```
 
-Defined in: style.ts/src/types.ts:183
+Defined in: style.ts/src/types.ts:195
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: style.ts/src/types.ts:183
 optional rangeEnd?: string;
 ```
 
-Defined in: style.ts/src/types.ts:190
+Defined in: style.ts/src/types.ts:202
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: style.ts/src/types.ts:190
 optional rangeStart?: string;
 ```
 
-Defined in: style.ts/src/types.ts:189
+Defined in: style.ts/src/types.ts:201
 
 "entry 0%", "cover 50%", "exit 100%"...
 
@@ -72,6 +72,6 @@ optional subject?:
 };
 ```
 
-Defined in: style.ts/src/types.ts:185
+Defined in: style.ts/src/types.ts:197
 
 Отслеживаемый subject; по умолчанию сам элемент.

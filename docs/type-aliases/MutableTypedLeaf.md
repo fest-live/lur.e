@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type MutableTypedLeaf = TypedOMLeaf & object;
 ```
 
-Defined in: style.ts/src/types.ts:80
+Defined in: style.ts/src/types.ts:92
 
 ## Type Declaration
 

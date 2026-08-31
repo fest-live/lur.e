@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -61,6 +61,16 @@ fingerprint: string;
 ```
 
 Defined in: style.ts/src/types.ts:37
+
+***
+
+### media
+
+```ts
+media: string | false;
+```
+
+Defined in: style.ts/src/types.ts:40
 
 ***
 

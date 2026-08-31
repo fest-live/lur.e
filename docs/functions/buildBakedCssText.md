@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,10 +10,11 @@
 function buildBakedCssText(
    selector, 
    declarations, 
-   layer?): string;
+   layer?, 
+   media?): string;
 ```
 
-Defined in: style.ts/src/baker.ts:107
+Defined in: style.ts/src/baker.ts:130
 
 ## Parameters
 
@@ -29,6 +30,10 @@ Defined in: style.ts/src/baker.ts:107
 ### layer?
 
 `string` = `BAKE_LAYER`
+
+### media?
+
+`string` \| `false`
 
 ## Returns
 

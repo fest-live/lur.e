@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const DEFAULT_CACHE_MS: 30000 = 30_000;
 ```
 
-Defined in: style.ts/src/constants.ts:136
+Defined in: style.ts/src/constants.ts:137

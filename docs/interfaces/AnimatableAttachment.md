@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: AnimatableAttachment
 
-Defined in: style.ts/src/types.ts:225
+Defined in: style.ts/src/types.ts:237
 
 Одно "прикрепление" animatable к конкретному элементу.
 
@@ -18,7 +18,7 @@ Defined in: style.ts/src/types.ts:225
 animation: Animation | null;
 ```
 
-Defined in: style.ts/src/types.ts:227
+Defined in: style.ts/src/types.ts:239
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: style.ts/src/types.ts:227
 cleanup: Cleanup;
 ```
 
-Defined in: style.ts/src/types.ts:228
+Defined in: style.ts/src/types.ts:240
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: style.ts/src/types.ts:228
 element: HTMLElement;
 ```
 
-Defined in: style.ts/src/types.ts:226
+Defined in: style.ts/src/types.ts:238

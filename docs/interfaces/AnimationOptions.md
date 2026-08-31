@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: AnimationOptions
 
-Defined in: style.ts/src/types.ts:148
+Defined in: style.ts/src/types.ts:160
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: style.ts/src/types.ts:148
 optional composite?: "replace" | "add" | "accumulate";
 ```
 
-Defined in: style.ts/src/types.ts:162
+Defined in: style.ts/src/types.ts:174
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: style.ts/src/types.ts:162
 optional delay?: string | number;
 ```
 
-Defined in: style.ts/src/types.ts:155
+Defined in: style.ts/src/types.ts:167
 
 Delay before animation starts
 
@@ -38,7 +38,7 @@ Delay before animation starts
 optional direction?: PlaybackDirection;
 ```
 
-Defined in: style.ts/src/types.ts:159
+Defined in: style.ts/src/types.ts:171
 
 ***
 
@@ -48,7 +48,7 @@ Defined in: style.ts/src/types.ts:159
 optional duration?: string | number;
 ```
 
-Defined in: style.ts/src/types.ts:153
+Defined in: style.ts/src/types.ts:165
 
 Duration in milliseconds or CSS time string
 
@@ -60,7 +60,7 @@ Duration in milliseconds or CSS time string
 optional easing?: TimingFunction;
 ```
 
-Defined in: style.ts/src/types.ts:161
+Defined in: style.ts/src/types.ts:173
 
 Global easing (overridden by property-specific easing)
 
@@ -72,7 +72,7 @@ Global easing (overridden by property-specific easing)
 optional fillMode?: FillMode;
 ```
 
-Defined in: style.ts/src/types.ts:158
+Defined in: style.ts/src/types.ts:170
 
 ***
 
@@ -82,7 +82,7 @@ Defined in: style.ts/src/types.ts:158
 optional iterationCount?: number;
 ```
 
-Defined in: style.ts/src/types.ts:157
+Defined in: style.ts/src/types.ts:169
 
 Iteration count (-1 for infinite)
 
@@ -94,7 +94,7 @@ Iteration count (-1 for infinite)
 optional keyframes?: AnimationKeyframes;
 ```
 
-Defined in: style.ts/src/types.ts:149
+Defined in: style.ts/src/types.ts:161
 
 ***
 
@@ -104,7 +104,7 @@ Defined in: style.ts/src/types.ts:149
 optional offsets?: number[];
 ```
 
-Defined in: style.ts/src/types.ts:151
+Defined in: style.ts/src/types.ts:163
 
 ***
 
@@ -114,7 +114,7 @@ Defined in: style.ts/src/types.ts:151
 properties: string | Record<string, any>[];
 ```
 
-Defined in: style.ts/src/types.ts:150
+Defined in: style.ts/src/types.ts:162
 
 ***
 
@@ -124,4 +124,4 @@ Defined in: style.ts/src/types.ts:150
 optional timeline?: AnimationTimeline;
 ```
 
-Defined in: style.ts/src/types.ts:163
+Defined in: style.ts/src/types.ts:175

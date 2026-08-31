@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function getBakedStyle(el): BakedStyleSheet | undefined;
 ```
 
-Defined in: style.ts/src/baker.ts:452
+Defined in: style.ts/src/baker.ts:566
 
 ## Parameters
 

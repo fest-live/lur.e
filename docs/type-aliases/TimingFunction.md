@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type TimingFunction = string | ((progress) => number);
 ```
 
-Defined in: style.ts/src/types.ts:123
+Defined in: style.ts/src/types.ts:135

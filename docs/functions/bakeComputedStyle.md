@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function bakeComputedStyle(el, options?): BakedStyleSheet | null;
 ```
 
-Defined in: style.ts/src/baker.ts:378
+Defined in: style.ts/src/baker.ts:487
 
 Bake computed styles for `el` into `@layer ux-baked` scoped by `#id` or `data-style-id`.
 

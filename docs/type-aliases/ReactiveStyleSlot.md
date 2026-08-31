@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type ReactiveStyleSlot = object;
 ```
 
-Defined in: style.ts/src/types.ts:63
+Defined in: style.ts/src/types.ts:75
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: style.ts/src/types.ts:63
 marker: string;
 ```
 
-Defined in: style.ts/src/types.ts:64
+Defined in: style.ts/src/types.ts:76
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: style.ts/src/types.ts:64
 optional multipliedByUnit?: string;
 ```
 
-Defined in: style.ts/src/types.ts:66
+Defined in: style.ts/src/types.ts:78
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: style.ts/src/types.ts:66
 value: any;
 ```
 
-Defined in: style.ts/src/types.ts:65
+Defined in: style.ts/src/types.ts:77

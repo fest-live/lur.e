@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const styleCache: Map<any, any>;
 ```
 
-Defined in: style.ts/src/maps.ts:110
+Defined in: style.ts/src/maps.ts:115

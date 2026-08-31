@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type AnimatableStyleSlot = object;
 ```
 
-Defined in: style.ts/src/types.ts:251
+Defined in: style.ts/src/types.ts:263
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: style.ts/src/types.ts:251
 marker: string;
 ```
 
-Defined in: style.ts/src/types.ts:252
+Defined in: style.ts/src/types.ts:264
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: style.ts/src/types.ts:252
 optional multipliedByUnit?: string;
 ```
 
-Defined in: style.ts/src/types.ts:254
+Defined in: style.ts/src/types.ts:266
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: style.ts/src/types.ts:254
 value: any;
 ```
 
-Defined in: style.ts/src/types.ts:253
+Defined in: style.ts/src/types.ts:265

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: AnimationKeyframes
 
-Defined in: style.ts/src/types.ts:142
+Defined in: style.ts/src/types.ts:154
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: style.ts/src/types.ts:142
 optional offsets?: number[];
 ```
 
-Defined in: style.ts/src/types.ts:144
+Defined in: style.ts/src/types.ts:156
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: style.ts/src/types.ts:144
 properties: Map<string, PropertyAnimation>;
 ```
 
-Defined in: style.ts/src/types.ts:143
+Defined in: style.ts/src/types.ts:155
 
 ***
 
@@ -36,4 +36,4 @@ Defined in: style.ts/src/types.ts:143
 optional timing?: TimingFunction[];
 ```
 
-Defined in: style.ts/src/types.ts:145
+Defined in: style.ts/src/types.ts:157

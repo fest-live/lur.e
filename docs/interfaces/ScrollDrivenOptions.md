@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ScrollDrivenOptions
 
-Defined in: style.ts/src/types.ts:166
+Defined in: style.ts/src/types.ts:178
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: style.ts/src/types.ts:166
 optional axis?: "block" | "inline" | "x" | "y";
 ```
 
-Defined in: style.ts/src/types.ts:176
+Defined in: style.ts/src/types.ts:188
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: style.ts/src/types.ts:176
 kind: "scroll";
 ```
 
-Defined in: style.ts/src/types.ts:167
+Defined in: style.ts/src/types.ts:179
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: style.ts/src/types.ts:167
 optional rangeEnd?: string;
 ```
 
-Defined in: style.ts/src/types.ts:179
+Defined in: style.ts/src/types.ts:191
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: style.ts/src/types.ts:179
 optional rangeStart?: string;
 ```
 
-Defined in: style.ts/src/types.ts:178
+Defined in: style.ts/src/types.ts:190
 
 animation-range: "0%" / "100px" / "contain 0%" и т.п.
 
@@ -65,7 +65,7 @@ optional source?:
 };
 ```
 
-Defined in: style.ts/src/types.ts:175
+Defined in: style.ts/src/types.ts:187
 
 Источник скролла:
 - "nearest" (default) — ближайший скроллируемый предок

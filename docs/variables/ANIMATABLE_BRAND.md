@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const ANIMATABLE_BRAND: typeof ANIMATABLE_BRAND;
 ```
 
-Defined in: style.ts/src/constants.ts:137
+Defined in: style.ts/src/constants.ts:166

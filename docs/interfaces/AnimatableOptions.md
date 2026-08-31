@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: AnimatableOptions
 
-Defined in: style.ts/src/types.ts:204
+Defined in: style.ts/src/types.ts:216
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: style.ts/src/types.ts:204
 optional composite?: CompositeOperation;
 ```
 
-Defined in: style.ts/src/types.ts:216
+Defined in: style.ts/src/types.ts:228
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: style.ts/src/types.ts:216
 optional delay?: string | number;
 ```
 
-Defined in: style.ts/src/types.ts:206
+Defined in: style.ts/src/types.ts:218
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: style.ts/src/types.ts:206
 optional direction?: PlaybackDirection;
 ```
 
-Defined in: style.ts/src/types.ts:214
+Defined in: style.ts/src/types.ts:226
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: style.ts/src/types.ts:214
 optional duration?: string | number;
 ```
 
-Defined in: style.ts/src/types.ts:205
+Defined in: style.ts/src/types.ts:217
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: style.ts/src/types.ts:205
 optional easing?: string | string[];
 ```
 
-Defined in: style.ts/src/types.ts:211
+Defined in: style.ts/src/types.ts:223
 
 Общий easing или easing per-segment.
 
@@ -68,7 +68,7 @@ Defined in: style.ts/src/types.ts:211
 optional endDelay?: number;
 ```
 
-Defined in: style.ts/src/types.ts:207
+Defined in: style.ts/src/types.ts:219
 
 ***
 
@@ -78,7 +78,7 @@ Defined in: style.ts/src/types.ts:207
 optional fill?: FillMode;
 ```
 
-Defined in: style.ts/src/types.ts:215
+Defined in: style.ts/src/types.ts:227
 
 ***
 
@@ -88,7 +88,7 @@ Defined in: style.ts/src/types.ts:215
 optional intersection?: IntersectionObserverInit;
 ```
 
-Defined in: style.ts/src/types.ts:221
+Defined in: style.ts/src/types.ts:233
 
 rootMargin/threshold для trigger:"visible".
 
@@ -100,7 +100,7 @@ rootMargin/threshold для trigger:"visible".
 optional iterations?: number;
 ```
 
-Defined in: style.ts/src/types.ts:213
+Defined in: style.ts/src/types.ts:225
 
 -1 => Infinity
 
@@ -112,7 +112,7 @@ Defined in: style.ts/src/types.ts:213
 optional offsets?: number[];
 ```
 
-Defined in: style.ts/src/types.ts:209
+Defined in: style.ts/src/types.ts:221
 
 Проценты 0..1 для каждого шага (как percentageSteps).
 
@@ -124,7 +124,7 @@ Defined in: style.ts/src/types.ts:209
 optional reverseOnExit?: boolean;
 ```
 
-Defined in: style.ts/src/types.ts:219
+Defined in: style.ts/src/types.ts:231
 
 Для trigger:"hover"/"visible" — реверс при выходе (по умолчанию true).
 
@@ -136,4 +136,4 @@ Defined in: style.ts/src/types.ts:219
 optional trigger?: AnimatableTrigger;
 ```
 
-Defined in: style.ts/src/types.ts:217
+Defined in: style.ts/src/types.ts:229

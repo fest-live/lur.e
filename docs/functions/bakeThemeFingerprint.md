@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function bakeThemeFingerprint(root?, el?): string;
 ```
 
-Defined in: style.ts/src/baker.ts:51
+Defined in: style.ts/src/baker.ts:65
 
 ## Parameters
 

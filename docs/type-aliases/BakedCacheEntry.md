@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type BakedCacheEntry = object;
 ```
 
-Defined in: style.ts/src/types.ts:48
+Defined in: style.ts/src/types.ts:60
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: style.ts/src/types.ts:48
 categories: BakeCategory[];
 ```
 
-Defined in: style.ts/src/types.ts:51
+Defined in: style.ts/src/types.ts:63
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: style.ts/src/types.ts:51
 cssText: string;
 ```
 
-Defined in: style.ts/src/types.ts:49
+Defined in: style.ts/src/types.ts:61
 
 ***
 
@@ -40,7 +40,7 @@ Defined in: style.ts/src/types.ts:49
 expires: number;
 ```
 
-Defined in: style.ts/src/types.ts:53
+Defined in: style.ts/src/types.ts:65
 
 ***
 
@@ -50,7 +50,7 @@ Defined in: style.ts/src/types.ts:53
 fingerprint: string;
 ```
 
-Defined in: style.ts/src/types.ts:50
+Defined in: style.ts/src/types.ts:62
 
 ***
 
@@ -60,7 +60,7 @@ Defined in: style.ts/src/types.ts:50
 selector: string;
 ```
 
-Defined in: style.ts/src/types.ts:52
+Defined in: style.ts/src/types.ts:64
 
 ***
 
@@ -70,4 +70,4 @@ Defined in: style.ts/src/types.ts:52
 optional timer?: ReturnType<typeof setTimeout>;
 ```
 
-Defined in: style.ts/src/types.ts:54
+Defined in: style.ts/src/types.ts:66

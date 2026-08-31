@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type InlineStyleTemplateParts = object;
 ```
 
-Defined in: style.ts/src/types.ts:92
+Defined in: style.ts/src/types.ts:104
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: style.ts/src/types.ts:92
 strings: string[];
 ```
 
-Defined in: style.ts/src/types.ts:93
+Defined in: style.ts/src/types.ts:105
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: style.ts/src/types.ts:93
 values: any[];
 ```
 
-Defined in: style.ts/src/types.ts:94
+Defined in: style.ts/src/types.ts:106

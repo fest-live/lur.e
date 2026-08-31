@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -7,7 +7,9 @@
 # Variable: DEFAULT\_CATEGORIES
 
 ```ts
-const DEFAULT_CATEGORIES: readonly ["tokens", "colors"];
+const DEFAULT_CATEGORIES: readonly ["colors", "tokens"];
 ```
 
-Defined in: style.ts/src/constants.ts:135
+Defined in: style.ts/src/constants.ts:136
+
+Cook colors first; custom properties last. Same set either order.

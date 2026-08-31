@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.51**](../README.md)
+[**@fest-lib/lure v0.1.52**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type NumericTreeResult = object;
 ```
 
-Defined in: style.ts/src/types.ts:87
+Defined in: style.ts/src/types.ts:99
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: style.ts/src/types.ts:87
 leaves: TypedOMLeaf[];
 ```
 
-Defined in: style.ts/src/types.ts:89
+Defined in: style.ts/src/types.ts:101
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: style.ts/src/types.ts:89
 root: any;
 ```
 
-Defined in: style.ts/src/types.ts:88
+Defined in: style.ts/src/types.ts:100
