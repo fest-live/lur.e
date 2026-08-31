@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function parseTime(v, fallback?): number;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:78
+Defined in: style.ts/src/Animate.ts:82
 
 Parse CSS time value to milliseconds.
 

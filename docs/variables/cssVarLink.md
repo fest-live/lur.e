@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 const cssVarLink: (element?, exists?, property, initial?) => (() => void) | undefined = stylePropLink;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:380
+Defined in: lur.e/src/lure/core/Links.ts:381
 
 Alias for `stylePropLink` that documents a `--custom-property` binding.
 

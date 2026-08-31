@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function isStyleBinding(styles): styles is StyleBinding;
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:58
+Defined in: style.ts/src/Styles.ts:65
 
 Detect S`...` / css`...` StyleBinding tuple.
 WHY: arrays must not be treated as `{ 0, 1, 2 }` style objects in reflectStyles /

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: UnderlyingShadowOptions
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:16
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:17
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:16
 optional className?: string;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:43
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:44
 
 Extra class on the shadow container (e.g. hover CSS hooks).
 
@@ -28,7 +28,7 @@ Extra class on the shadow container (e.g. hover CSS hooks).
 optional cloneGeometry?: boolean;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:33
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:34
 
 ***
 
@@ -38,7 +38,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:33
 optional geometrySource?: HTMLElement | null;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:22
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:23
 
 Shape/radius source when different from `target` (e.g. `.ui-ws-item-icon` while
 `target` is the grid `.ui-ws-item` sibling anchor).
@@ -51,7 +51,7 @@ Shape/radius source when different from `target` (e.g. `.ui-ws-item-icon` while
 optional inset?: number;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:30
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:31
 
 ***
 
@@ -61,7 +61,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:30
 optional opacity?: number;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:29
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:30
 
 ***
 
@@ -71,7 +71,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:29
 optional positioning?: LayerPositioning | "fixed";
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:41
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:42
 
 - `contain` — absolute inset:0 sibling in parent (relative hosts).
 - `fixed` — viewport-fixed bbox (context menus / `position:fixed` hosts).
@@ -85,7 +85,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:41
 optional shadowBlur?: number;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:25
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:26
 
 ***
 
@@ -95,7 +95,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:25
 optional shadowColor?: string;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:24
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:25
 
 ***
 
@@ -105,7 +105,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:24
 optional shadowOffsetX?: number;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:26
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:27
 
 ***
 
@@ -115,7 +115,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:26
 optional shadowOffsetY?: number;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:27
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:28
 
 ***
 
@@ -125,7 +125,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:27
 optional shadowType?: "drop-shadow" | "blur" | "box-shadow";
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:23
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:24
 
 ***
 
@@ -135,7 +135,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:23
 optional spreadRadius?: number;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:28
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:29
 
 ***
 
@@ -145,7 +145,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:28
 target: HTMLElement;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:17
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:18
 
 ***
 
@@ -155,7 +155,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:17
 optional updateOnResize?: boolean;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:35
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:36
 
 ***
 
@@ -165,7 +165,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:35
 optional updateOnScroll?: boolean;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:34
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:35
 
 ***
 
@@ -175,7 +175,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:34
 optional useIntersection?: boolean;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:32
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:33
 
 ***
 
@@ -185,4 +185,4 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:32
 optional zIndexShift?: number;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:31
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:32

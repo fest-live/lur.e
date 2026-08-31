@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function sizeLink(
    box?): () => void;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:383
+Defined in: lur.e/src/lure/core/Links.ts:384
 
 ## Parameters
 

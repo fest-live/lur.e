@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type TimingFunction = string | ((progress) => number);
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:13
+Defined in: style.ts/src/Animate.ts:17
 
 Timing function for animation steps.
 Can be a CSS easing string or a custom easing function.

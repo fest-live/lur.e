@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ type HTMLElementConstructor<T> = {
 } & CustomElementStatic;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:156
+Defined in: lur.e/src/lure/misc/Glit.ts:162
 
 Тип конструктора для HTMLElement и его наследников с поддержкой lifecycle
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function datasetLink(
    initial?): (() => void) | undefined;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:344
+Defined in: lur.e/src/lure/core/Links.ts:345
 
 Bidirectionally link a reactive ref to one `data-*` entry.
 Dataset writes flow through `handleDataset`; external attribute mutations

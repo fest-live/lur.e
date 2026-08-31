@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function selectLink(
    initial?): (() => void) | undefined;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:494
+Defined in: lur.e/src/lure/core/Links.ts:495
 
 Two-way value binding specialized for `<select>` controls.
 Unlike `valueLink`, source updates are driven only by `change`.

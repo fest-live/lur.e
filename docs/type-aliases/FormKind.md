@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type FormKind = "text" | "number" | "checked" | "radio" | "select";
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:513
+Defined in: lur.e/src/lure/core/Links.ts:514

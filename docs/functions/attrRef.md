@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function attrRef(host?, ...args): any;
 ```
 
-Defined in: lur.e/src/lure/core/Refs.ts:27
+Defined in: lur.e/src/lure/core/Refs.ts:28
 
 ## Parameters
 

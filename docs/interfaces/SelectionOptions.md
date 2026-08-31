@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: SelectionOptions
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:20
+Defined in: lur.e/src/interactive/controllers/Selection.ts:21
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:20
 optional aspectRatio?: number;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:24
+Defined in: lur.e/src/interactive/controllers/Selection.ts:25
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:24
 optional bounds?: Rect2D;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:26
+Defined in: lur.e/src/interactive/controllers/Selection.ts:27
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:26
 optional maxSize?: Vector2D;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:23
+Defined in: lur.e/src/interactive/controllers/Selection.ts:24
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:23
 optional minSize?: Vector2D;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:22
+Defined in: lur.e/src/interactive/controllers/Selection.ts:23
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:22
 optional onCancel?: () => void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:36
+Defined in: lur.e/src/interactive/controllers/Selection.ts:37
 
 #### Returns
 
@@ -70,7 +70,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:36
 optional onChange?: (rect) => void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:35
+Defined in: lur.e/src/interactive/controllers/Selection.ts:36
 
 #### Parameters
 
@@ -90,7 +90,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:35
 optional onSelect?: (rect) => void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:34
+Defined in: lur.e/src/interactive/controllers/Selection.ts:35
 
 #### Parameters
 
@@ -110,7 +110,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:34
 optional showHandles?: boolean;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:33
+Defined in: lur.e/src/interactive/controllers/Selection.ts:34
 
 ***
 
@@ -120,7 +120,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:33
 optional snapToGrid?: object;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:25
+Defined in: lur.e/src/interactive/controllers/Selection.ts:26
 
 #### offset
 
@@ -142,7 +142,7 @@ size: Vector2D;
 optional style?: object;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:27
+Defined in: lur.e/src/interactive/controllers/Selection.ts:28
 
 #### background?
 
@@ -176,4 +176,4 @@ optional zIndex?: number;
 optional target?: HTMLElement;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:21
+Defined in: lur.e/src/interactive/controllers/Selection.ts:22

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type Cleanup = () => void;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:7
+Defined in: style.ts/src/Animate.ts:11
 
 ## Returns
 

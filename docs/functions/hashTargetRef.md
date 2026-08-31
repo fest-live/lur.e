@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function hashTargetRef(...args): any;
 ```
 
-Defined in: lur.e/src/lure/core/Refs.ts:49
+Defined in: lur.e/src/lure/core/Refs.ts:50
 
 ## Parameters
 

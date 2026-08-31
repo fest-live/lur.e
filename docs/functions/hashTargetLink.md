@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function hashTargetLink(
    withHashCharacter?): () => void;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:239
+Defined in: lur.e/src/lure/core/Links.ts:240
 
 ## Parameters
 

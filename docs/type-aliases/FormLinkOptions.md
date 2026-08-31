@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type FormLinkOptions = object;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:515
+Defined in: lur.e/src/lure/core/Links.ts:516
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/lure/core/Links.ts:515
 optional initial?: any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:517
+Defined in: lur.e/src/lure/core/Links.ts:518
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: lur.e/src/lure/core/Links.ts:517
 optional name?: string | null;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:516
+Defined in: lur.e/src/lure/core/Links.ts:517

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function GLitElement<T>(derivate?): GLitElementClass<T>;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:509
+Defined in: lur.e/src/lure/misc/Glit.ts:401
 
 GLitElement: Создаёт базовый класс для кастомных элементов с расширенными возможностями.
 Поддерживает все lifecycle callbacks Web Components.

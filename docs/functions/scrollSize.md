@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function scrollSize(
    inputChange?): any;
 ```
 
-Defined in: lur.e/src/lure/core/Refs.ts:58
+Defined in: lur.e/src/lure/core/Refs.ts:59
 
 ## Parameters
 

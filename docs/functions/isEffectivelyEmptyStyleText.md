@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function isEffectivelyEmptyStyleText(cssText): boolean;
 ```
 
-Defined in: lur.e/src/lure/misc/Styles.ts:162
+Defined in: style.ts/src/Styles.ts:169
 
 True when there is no declaration with a non-empty value.
 

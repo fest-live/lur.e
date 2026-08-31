@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function orientLink(host?, exists?): () => void;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:594
+Defined in: lur.e/src/lure/core/Links.ts:595
 
 ## Parameters
 

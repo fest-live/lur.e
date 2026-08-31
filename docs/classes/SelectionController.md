@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: SelectionController
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:43
+Defined in: lur.e/src/interactive/controllers/Selection.ts:44
 
 Selection controller for creating snipping rectangles on screen/canvas
 Supports drag-to-create, resize, constraints, and grid snapping
@@ -19,7 +19,7 @@ Supports drag-to-create, resize, constraints, and grid snapping
 new SelectionController(options?): SelectionController;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:54
+Defined in: lur.e/src/interactive/controllers/Selection.ts:55
 
 #### Parameters
 
@@ -39,7 +39,7 @@ Defined in: lur.e/src/interactive/controllers/Selection.ts:54
 clearSelection(): void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:113
+Defined in: lur.e/src/interactive/controllers/Selection.ts:114
 
 Clear current selection
 
@@ -55,7 +55,7 @@ Clear current selection
 destroy(): void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:514
+Defined in: lur.e/src/interactive/controllers/Selection.ts:515
 
 Destroy the selection controller
 
@@ -71,7 +71,7 @@ Destroy the selection controller
 getSelection(): Rect2D | null;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:97
+Defined in: lur.e/src/interactive/controllers/Selection.ts:98
 
 Get current selection rectangle
 
@@ -87,7 +87,7 @@ Get current selection rectangle
 getSelectionImage(): Promise<ImageData | null>;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:503
+Defined in: lur.e/src/interactive/controllers/Selection.ts:504
 
 Get selection as image data (for canvas/screen capture)
 
@@ -103,7 +103,7 @@ Get selection as image data (for canvas/screen capture)
 setSelection(rect): void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:104
+Defined in: lur.e/src/interactive/controllers/Selection.ts:105
 
 Set selection programmatically
 
@@ -125,7 +125,7 @@ Set selection programmatically
 start(): void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:74
+Defined in: lur.e/src/interactive/controllers/Selection.ts:75
 
 Start selection mode - attaches event listeners
 
@@ -141,7 +141,7 @@ Start selection mode - attaches event listeners
 stop(): void;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Selection.ts:85
+Defined in: lur.e/src/interactive/controllers/Selection.ts:86
 
 Stop selection mode - removes event listeners and overlay
 

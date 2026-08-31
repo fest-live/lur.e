@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function createPanelUnderShadow(target, options?): UnderlyingShadow;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:441
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:442
 
 Under-shadow for fixed chrome panels (context menus) that may use backdrop-filter.
 

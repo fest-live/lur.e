@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -15,7 +15,7 @@ function pointerEventLink(
    exists?): (() => void) | undefined;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:611
+Defined in: lur.e/src/lure/core/Links.ts:612
 
 ## Parameters
 

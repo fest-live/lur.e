@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: IHistoryState
 
-Defined in: lur.e/src/interactive/tasking/History.ts:10
+Defined in: lur.e/src/interactive/tasking/History.ts:11
 
 ## Indexable
 
@@ -22,7 +22,7 @@ Defined in: lur.e/src/interactive/tasking/History.ts:10
 action: NavigationAction;
 ```
 
-Defined in: lur.e/src/interactive/tasking/History.ts:13
+Defined in: lur.e/src/interactive/tasking/History.ts:14
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: lur.e/src/interactive/tasking/History.ts:13
 depth: number;
 ```
 
-Defined in: lur.e/src/interactive/tasking/History.ts:12
+Defined in: lur.e/src/interactive/tasking/History.ts:13
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: lur.e/src/interactive/tasking/History.ts:12
 index: number;
 ```
 
-Defined in: lur.e/src/interactive/tasking/History.ts:11
+Defined in: lur.e/src/interactive/tasking/History.ts:12
 
 ***
 
@@ -52,7 +52,7 @@ Defined in: lur.e/src/interactive/tasking/History.ts:11
 timestamp: number;
 ```
 
-Defined in: lur.e/src/interactive/tasking/History.ts:15
+Defined in: lur.e/src/interactive/tasking/History.ts:16
 
 ***
 
@@ -62,4 +62,4 @@ Defined in: lur.e/src/interactive/tasking/History.ts:15
 view: string;
 ```
 
-Defined in: lur.e/src/interactive/tasking/History.ts:14
+Defined in: lur.e/src/interactive/tasking/History.ts:15

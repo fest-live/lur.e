@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -21,4 +21,4 @@ type AnimatableTrigger =
   | ViewDrivenOptions;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:14
+Defined in: style.ts/src/Animatable.ts:14

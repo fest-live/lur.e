@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: CustomElementStatic
 
-Defined in: lur.e/src/lure/misc/Glit.ts:126
+Defined in: lur.e/src/lure/misc/Glit.ts:132
 
 Статические свойства Custom Element
 
@@ -18,7 +18,7 @@ Defined in: lur.e/src/lure/misc/Glit.ts:126
 optional formAssociated?: boolean;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:128
+Defined in: lur.e/src/lure/misc/Glit.ts:134
 
 ***
 
@@ -28,4 +28,4 @@ Defined in: lur.e/src/lure/misc/Glit.ts:128
 optional observedAttributes?: string[];
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:127
+Defined in: lur.e/src/lure/misc/Glit.ts:133

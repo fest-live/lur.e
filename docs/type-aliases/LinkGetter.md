@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type LinkGetter<T> = (ctx) => T;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:27
+Defined in: lur.e/src/lure/core/Links.ts:28
 
 ## Type Parameters
 

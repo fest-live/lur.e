@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: AnimatableOptions
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:25
+Defined in: style.ts/src/Animatable.ts:25
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:25
 optional composite?: CompositeOperation;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:37
+Defined in: style.ts/src/Animatable.ts:37
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:37
 optional delay?: string | number;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:27
+Defined in: style.ts/src/Animatable.ts:27
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:27
 optional direction?: PlaybackDirection;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:35
+Defined in: style.ts/src/Animatable.ts:35
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:35
 optional duration?: string | number;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:26
+Defined in: style.ts/src/Animatable.ts:26
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:26
 optional easing?: string | string[];
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:32
+Defined in: style.ts/src/Animatable.ts:32
 
 Общий easing или easing per-segment.
 
@@ -68,7 +68,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:32
 optional endDelay?: number;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:28
+Defined in: style.ts/src/Animatable.ts:28
 
 ***
 
@@ -78,7 +78,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:28
 optional fill?: FillMode;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:36
+Defined in: style.ts/src/Animatable.ts:36
 
 ***
 
@@ -88,7 +88,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:36
 optional intersection?: IntersectionObserverInit;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:42
+Defined in: style.ts/src/Animatable.ts:42
 
 rootMargin/threshold для trigger:"visible".
 
@@ -100,7 +100,7 @@ rootMargin/threshold для trigger:"visible".
 optional iterations?: number;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:34
+Defined in: style.ts/src/Animatable.ts:34
 
 -1 => Infinity
 
@@ -112,7 +112,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:34
 optional offsets?: number[];
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:30
+Defined in: style.ts/src/Animatable.ts:30
 
 Проценты 0..1 для каждого шага (как percentageSteps).
 
@@ -124,7 +124,7 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:30
 optional reverseOnExit?: boolean;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:40
+Defined in: style.ts/src/Animatable.ts:40
 
 Для trigger:"hover"/"visible" — реверс при выходе (по умолчанию true).
 
@@ -136,4 +136,4 @@ Defined in: lur.e/src/lure/misc/Animatable.ts:40
 optional trigger?: AnimatableTrigger;
 ```
 
-Defined in: lur.e/src/lure/misc/Animatable.ts:38
+Defined in: style.ts/src/Animatable.ts:38

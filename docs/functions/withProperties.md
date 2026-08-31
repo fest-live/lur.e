@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function withProperties<T>(ctr): T;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:181
+Defined in: lur.e/src/lure/misc/Glit.ts:187
 
 ## Type Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function stylePropLink(
    initial?): (() => void) | undefined;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:366
+Defined in: lur.e/src/lure/core/Links.ts:367
 
 One-way explicit binding for an inline CSS property or custom property.
 Reverse style-attribute observation is intentionally deferred: style is a

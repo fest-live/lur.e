@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: DragHandler
 
-Defined in: lur.e/src/interactive/controllers/Draggable.ts:25
+Defined in: lur.e/src/interactive/controllers/Draggable.ts:26
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/interactive/controllers/Draggable.ts:25
 new DragHandler(holder, options): DragHandler;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Draggable.ts:37
+Defined in: lur.e/src/interactive/controllers/Draggable.ts:38
 
 #### Parameters
 
@@ -46,7 +46,7 @@ draggable(options):
   | undefined;
 ```
 
-Defined in: lur.e/src/interactive/controllers/Draggable.ts:118
+Defined in: lur.e/src/interactive/controllers/Draggable.ts:119
 
 #### Parameters
 

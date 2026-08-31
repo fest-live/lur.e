@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: Linker\<T\>
 
-Defined in: lur.e/src/lure/core/Links.ts:45
+Defined in: lur.e/src/lure/core/Links.ts:46
 
 ## Type Parameters
 
@@ -22,7 +22,7 @@ Defined in: lur.e/src/lure/core/Links.ts:45
 forProp: string;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:48
+Defined in: lur.e/src/lure/core/Links.ts:49
 
 ***
 
@@ -32,7 +32,7 @@ Defined in: lur.e/src/lure/core/Links.ts:48
 ref: any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:47
+Defined in: lur.e/src/lure/core/Links.ts:48
 
 ***
 
@@ -42,7 +42,7 @@ Defined in: lur.e/src/lure/core/Links.ts:47
 source: any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:46
+Defined in: lur.e/src/lure/core/Links.ts:47
 
 ## Methods
 
@@ -52,7 +52,7 @@ Defined in: lur.e/src/lure/core/Links.ts:46
 dispose: void;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:55
+Defined in: lur.e/src/lure/core/Links.ts:56
 
 #### Returns
 
@@ -66,7 +66,7 @@ Defined in: lur.e/src/lure/core/Links.ts:55
 bind(): Linker<T>;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:53
+Defined in: lur.e/src/lure/core/Links.ts:54
 
 #### Returns
 
@@ -80,7 +80,7 @@ Defined in: lur.e/src/lure/core/Links.ts:53
 get(event?, forProp?): T;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:49
+Defined in: lur.e/src/lure/core/Links.ts:50
 
 #### Parameters
 
@@ -107,7 +107,7 @@ set(
    forProp?): void;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:50
+Defined in: lur.e/src/lure/core/Links.ts:51
 
 #### Parameters
 
@@ -138,7 +138,7 @@ store(
    forProp?): any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:51
+Defined in: lur.e/src/lure/core/Links.ts:52
 
 #### Parameters
 
@@ -166,7 +166,7 @@ Defined in: lur.e/src/lure/core/Links.ts:51
 trigger(event?, forProp?): any;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:52
+Defined in: lur.e/src/lure/core/Links.ts:53
 
 #### Parameters
 
@@ -190,7 +190,7 @@ Defined in: lur.e/src/lure/core/Links.ts:52
 unbind(): void;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:54
+Defined in: lur.e/src/lure/core/Links.ts:55
 
 #### Returns
 

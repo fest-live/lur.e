@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function mutationTrigger(attribute?): LinkTrigger;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:125
+Defined in: lur.e/src/lure/core/Links.ts:126
 
 ## Parameters
 

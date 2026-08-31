@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -7,10 +7,10 @@
 # Function: updateThemeBase()
 
 ```ts
-function updateThemeBase(originColor?): Promise<any[]>;
+function updateThemeBase(originColor?): Promise<any[] | undefined>;
 ```
 
-Defined in: lur.e/src/design/color/StyleRules.ts:17
+Defined in: lur.e/src/design/color/StyleRules.ts:33
 
 Set brand seed on `:root`. Prefer applyThemeFromWallpaper from `fest/image`
 when the source is a wallpaper; this helper remains for manual / persisted overrides.
@@ -23,4 +23,4 @@ when the source is a wallpaper; this helper remains for manual / persisted overr
 
 ## Returns
 
-`Promise`\<`any`[]\>
+`Promise`\<`any`[] \| `undefined`\>

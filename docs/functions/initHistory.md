@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function initHistory(initialView?): void;
 ```
 
-Defined in: lur.e/src/interactive/tasking/History.ts:93
+Defined in: lur.e/src/interactive/tasking/History.ts:94
 
 ## Parameters
 

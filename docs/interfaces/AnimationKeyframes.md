@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: AnimationKeyframes
 
-Defined in: lur.e/src/lure/misc/Animate.ts:63
+Defined in: style.ts/src/Animate.ts:67
 
 Keyframe configuration from A template literal.
 
@@ -18,7 +18,7 @@ Keyframe configuration from A template literal.
 optional offsets?: number[];
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:65
+Defined in: style.ts/src/Animate.ts:69
 
 ***
 
@@ -28,7 +28,7 @@ Defined in: lur.e/src/lure/misc/Animate.ts:65
 properties: Map<string, PropertyAnimation>;
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:64
+Defined in: style.ts/src/Animate.ts:68
 
 ***
 
@@ -38,4 +38,4 @@ Defined in: lur.e/src/lure/misc/Animate.ts:64
 optional timing?: TimingFunction[];
 ```
 
-Defined in: lur.e/src/lure/misc/Animate.ts:66
+Defined in: style.ts/src/Animate.ts:70

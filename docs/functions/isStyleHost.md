@@ -1,0 +1,25 @@
+[**@fest-lib/lure v0.1.50**](../README.md)
+
+***
+
+[@fest-lib/lure](../README.md) / isStyleHost
+
+# Function: isStyleHost()
+
+```ts
+function isStyleHost(node): node is HTMLElement;
+```
+
+Defined in: style.ts/src/sheets.ts:313
+
+INVARIANT: hyphenated / shadowed hosts are the only nodes that own adopted CSS.
+
+## Parameters
+
+### node
+
+`any`
+
+## Returns
+
+`node is HTMLElement`

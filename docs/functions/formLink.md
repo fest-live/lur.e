@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function formLink(
    options?): (() => void) | undefined;
 ```
 
-Defined in: lur.e/src/lure/core/Links.ts:524
+Defined in: lur.e/src/lure/core/Links.ts:525
 
 Select a canonical Linker preset for common form control families.
 This is additive: the existing specialized links remain public APIs.

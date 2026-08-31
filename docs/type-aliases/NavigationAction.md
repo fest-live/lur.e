@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type NavigationAction = "PUSH" | "REPLACE" | "POP" | "BACK" | "FORWARD" | "MANUAL";
 ```
 
-Defined in: lur.e/src/interactive/tasking/History.ts:7
+Defined in: lur.e/src/interactive/tasking/History.ts:8

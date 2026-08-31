@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.49**](../README.md)
+[**@fest-lib/lure v0.1.50**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: UnderlyingShadow
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:47
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:48
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:47
 new UnderlyingShadow(options): UnderlyingShadow;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:56
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:57
 
 #### Parameters
 
@@ -36,7 +36,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:56
 destroy(): void;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:340
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:341
 
 #### Returns
 
@@ -50,7 +50,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:340
 getShadowElement(): HTMLElement;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:336
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:337
 
 #### Returns
 
@@ -64,7 +64,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:336
 setVisible(visible): void;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:332
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:333
 
 #### Parameters
 
@@ -84,7 +84,7 @@ Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:332
 updateOptions(newOptions): void;
 ```
 
-Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:324
+Defined in: lur.e/src/design/layers/UnderlyingShadow.ts:325
 
 #### Parameters
 
