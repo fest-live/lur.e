@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: adoptedSelectorMap
 
 ```ts
-const adoptedSelectorMap: any;
+const adoptedSelectorMap: Map<string, CSSStyleSheet>;
 ```
 
-Defined in: style.ts/src/cssom.ts:387
+Defined in: style.ts/src/maps.ts:34

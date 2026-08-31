@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function isAnimatableValue(value): value is AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:533
+Defined in: style.ts/src/Animatable.ts:447
 
 ## Parameters
 

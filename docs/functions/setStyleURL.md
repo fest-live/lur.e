@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function setStyleURL(
    layer?): void;
 ```
 
-Defined in: style.ts/src/cssom.ts:48
+Defined in: style.ts/src/cssom.ts:38
 
 ## Parameters
 

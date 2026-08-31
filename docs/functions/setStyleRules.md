@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function setStyleRules(classes): any[];
 ```
 
-Defined in: style.ts/src/cssom.ts:49
+Defined in: style.ts/src/cssom.ts:39
 
 ## Parameters
 

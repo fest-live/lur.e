@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: AnimatableApplyPlan
 
-Defined in: style.ts/src/Animatable.ts:60
+Defined in: style.ts/src/types.ts:235
 
 Описание того, КАК слот применён в шаблоне.
 Это решает `applyStyleTemplate`, а не сам animatable.
@@ -19,7 +19,7 @@ Defined in: style.ts/src/Animatable.ts:60
 mode: "property" | "custom-property";
 ```
 
-Defined in: style.ts/src/Animatable.ts:69
+Defined in: style.ts/src/types.ts:244
 
 "property" — слот занимает всё значение декларации
   (`opacity:${anim}`), анимируем CSS-свойство напрямую.
@@ -36,7 +36,7 @@ Defined in: style.ts/src/Animatable.ts:69
 target: string;
 ```
 
-Defined in: style.ts/src/Animatable.ts:71
+Defined in: style.ts/src/types.ts:246
 
 Имя CSS-свойства ("opacity") или маркера ("--fest-anim-3-0").
 
@@ -48,6 +48,6 @@ Defined in: style.ts/src/Animatable.ts:71
 optional unit?: string;
 ```
 
-Defined in: style.ts/src/Animatable.ts:73
+Defined in: style.ts/src/types.ts:248
 
 Приклеенная единица для сериализации значений в mode:"property".

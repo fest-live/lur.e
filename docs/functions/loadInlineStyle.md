@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function loadInlineStyle(
    layer?): HTMLStyleElement | null;
 ```
 
-Defined in: style.ts/src/sheets.ts:76
+Defined in: style.ts/src/sheets.ts:86
 
 ## Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function onView(o?): ViewDrivenOptions;
 ```
 
-Defined in: style.ts/src/Animatable.ts:112
+Defined in: style.ts/src/Animatable.ts:33
 
 ## Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: layerCounter
 
 ```ts
-const layerCounter: any;
+const layerCounter: number;
 ```
 
-Defined in: style.ts/src/sheets.ts:164
+Defined in: style.ts/src/maps.ts:68

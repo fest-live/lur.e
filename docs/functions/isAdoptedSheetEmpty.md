@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function isAdoptedSheetEmpty(sheet): boolean;
 ```
 
-Defined in: style.ts/src/sheets.ts:133
+Defined in: style.ts/src/utils.ts:173
 
 ## Parameters
 

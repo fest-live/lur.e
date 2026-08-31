@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function scheduleEnsureHostStyles(bTo): void;
 ```
 
-Defined in: style.ts/src/component.ts:132
+Defined in: style.ts/src/component.ts:123
 
 WHY: connect / childList / theme attrs often land in the same turn — one apply before paint.
 

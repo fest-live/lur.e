@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,10 +7,10 @@
 # Function: preloadStyle()
 
 ```ts
-function preloadStyle(styles): any;
+function preloadStyle(styles): CSSStyleSheet | null;
 ```
 
-Defined in: style.ts/src/sheets.ts:89
+Defined in: style.ts/src/sheets.ts:99
 
 ## Parameters
 
@@ -20,4 +20,4 @@ Defined in: style.ts/src/sheets.ts:89
 
 ## Returns
 
-`any`
+`CSSStyleSheet` \| `null`

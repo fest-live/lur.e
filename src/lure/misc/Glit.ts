@@ -4,7 +4,7 @@
  * Change date and time: 16.25.00_30.08.2026
  * Reason for changes: Host CSS attach lives in @fest-lib/style-lib/component; GLit only runs lifecycle.
  * FIND:glit-styles
- * TAG:glit-styles,style-tree
+ * TAG:glit-styles,style-tree,css-layers
  */
 // @ts-ignore
 import { ref } from "@fest-lib/object";
@@ -18,7 +18,9 @@ import {
     adoptedStyleSheetsCache,
     loadAsAdopted,
     loadCachedStyles,
+    makeHostLayerOrder,
     scheduleEnsureHostStyles,
+    UX_PRELOAD_HOST_CSS,
 } from "@fest-lib/style-lib";
 
 import {
@@ -107,9 +109,7 @@ const getDef = (source?: string | any | null): any => {
 
 if (defaultStyle) {
     // WHY: `:host { display: none }` hid Explorer when FileManager adopted CSS missed the first paint.
-    defaultStyle.innerHTML = `@layer ux-preload {
-        :host { box-sizing: border-box; }
-    }`;
+    defaultStyle.innerHTML = UX_PRELOAD_HOST_CSS;
 }
 
 // ============================================
@@ -450,7 +450,7 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
         }
 
         protected $makeLayers(): string {
-            return `@layer ${["ux-preload", "ux-layer", ...(this.styleLayers?.() ?? [])].join?.(",") ?? ""};`;
+            return makeHostLayerOrder(this.styleLayers?.() ?? []);
         }
 
         $init?(): void;

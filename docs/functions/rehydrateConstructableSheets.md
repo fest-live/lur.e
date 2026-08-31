@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function rehydrateConstructableSheets(): void;
 ```
 
-Defined in: style.ts/src/sheets.ts:395
+Defined in: style.ts/src/sheets.ts:337
 
 WHY: Android WebView pause can empty constructable `cssRules`; restore the last applied text.
 

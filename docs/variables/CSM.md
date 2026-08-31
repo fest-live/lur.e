@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const CSM: any;
 ```
 
-Defined in: lur.e/src/lure/misc/Glit.ts:45
+Defined in: lur.e/src/lure/misc/Glit.ts:47

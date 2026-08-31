@@ -1,0 +1,27 @@
+[**@fest-lib/lure v0.1.51**](../README.md)
+
+***
+
+[@fest-lib/lure](../README.md) / unbakeComputedStyle
+
+# Function: unbakeComputedStyle()
+
+```ts
+function unbakeComputedStyle(el, keepCache?): void;
+```
+
+Defined in: style.ts/src/baker.ts:423
+
+## Parameters
+
+### el
+
+`HTMLElement` \| `null` \| `undefined`
+
+### keepCache?
+
+`boolean` = `true`
+
+## Returns
+
+`void`

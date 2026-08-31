@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ViewDrivenOptions
 
-Defined in: style.ts/src/Animatable.ts:97
+Defined in: style.ts/src/types.ts:182
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: style.ts/src/Animatable.ts:97
 optional axis?: "block" | "inline" | "x" | "y";
 ```
 
-Defined in: style.ts/src/Animatable.ts:101
+Defined in: style.ts/src/types.ts:186
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: style.ts/src/Animatable.ts:101
 optional inset?: string;
 ```
 
-Defined in: style.ts/src/Animatable.ts:102
+Defined in: style.ts/src/types.ts:187
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: style.ts/src/Animatable.ts:102
 kind: "view";
 ```
 
-Defined in: style.ts/src/Animatable.ts:98
+Defined in: style.ts/src/types.ts:183
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: style.ts/src/Animatable.ts:98
 optional rangeEnd?: string;
 ```
 
-Defined in: style.ts/src/Animatable.ts:105
+Defined in: style.ts/src/types.ts:190
 
 ***
 
@@ -56,7 +56,7 @@ Defined in: style.ts/src/Animatable.ts:105
 optional rangeStart?: string;
 ```
 
-Defined in: style.ts/src/Animatable.ts:104
+Defined in: style.ts/src/types.ts:189
 
 "entry 0%", "cover 50%", "exit 100%"...
 
@@ -72,6 +72,6 @@ optional subject?:
 };
 ```
 
-Defined in: style.ts/src/Animatable.ts:100
+Defined in: style.ts/src/types.ts:185
 
 Отслеживаемый subject; по умолчанию сам элемент.

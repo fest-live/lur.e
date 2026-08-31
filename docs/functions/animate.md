@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function animate(element, options): object;
 ```
 
-Defined in: style.ts/src/Animate.ts:413
+Defined in: style.ts/src/Animate.ts:332
 
 Simplified animation helper with inline configuration.
 

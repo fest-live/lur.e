@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function notifyStyleTreeHosts(hosts, reason?): void;
 ```
 
-Defined in: style.ts/src/sheets.ts:339
+Defined in: style.ts/src/sheets.ts:281
 
 ## Parameters
 

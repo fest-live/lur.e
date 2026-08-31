@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: cacheMap
 
 ```ts
-const cacheMap: any;
+const cacheMap: Map<string, string | Promise<string>>;
 ```
 
-Defined in: style.ts/src/cssom.ts:284
+Defined in: style.ts/src/maps.ts:20

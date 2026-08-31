@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: adoptedShadowSelectorMap
 
 ```ts
-const adoptedShadowSelectorMap: any;
+const adoptedShadowSelectorMap: WeakMap<ShadowRoot, Map<string, CSSStyleSheet>>;
 ```
 
-Defined in: style.ts/src/cssom.ts:389
+Defined in: style.ts/src/maps.ts:38

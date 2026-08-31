@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function fetchAsInline(url): string | Promise<string>;
 ```
 
-Defined in: style.ts/src/cssom.ts:340
+Defined in: style.ts/src/cssom.ts:272
 
 ## Parameters
 

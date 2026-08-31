@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function parseLength(value, size): number;
 ```
 
-Defined in: style.ts/src/sheets.ts:425
+Defined in: style.ts/src/utils.ts:118
 
 ## Parameters
 

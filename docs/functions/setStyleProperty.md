@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function setStyleProperty(
    importance?): HTMLElement | null | undefined;
 ```
 
-Defined in: style.ts/src/property.ts:547
+Defined in: style.ts/src/property.ts:419
 
 ## Parameters
 

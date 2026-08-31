@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: styleElementCache
 
 ```ts
-const styleElementCache: any;
+const styleElementCache: WeakMap<WeakKey, any>;
 ```
 
-Defined in: style.ts/src/component.ts:28
+Defined in: style.ts/src/maps.ts:114

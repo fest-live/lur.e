@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function getPadding(src, axis): any;
 ```
 
-Defined in: style.ts/src/sheets.ts:476
+Defined in: style.ts/src/sheets.ts:413
 
 ## Parameters
 

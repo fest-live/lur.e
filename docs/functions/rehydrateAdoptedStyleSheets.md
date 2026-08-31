@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function rehydrateAdoptedStyleSheets(root?): void;
 ```
 
-Defined in: style.ts/src/component.ts:78
+Defined in: style.ts/src/component.ts:70
 
 WHY: Capacitor WebView drops `shadowRoot.adoptedStyleSheets` or empties cssRules; cache + source text restore them.
 

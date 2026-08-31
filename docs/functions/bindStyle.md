@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function bindStyle(element, styled): Cleanup;
 ```
 
-Defined in: style.ts/src/Styles.ts:2543
+Defined in: style.ts/src/Styles.ts:2115
 
 Applies an S tuple or a standalone S applicator.
 
@@ -26,4 +26,4 @@ Applies an S tuple or a standalone S applicator.
 
 ## Returns
 
-`Cleanup`
+[`Cleanup`](../type-aliases/Cleanup.md)

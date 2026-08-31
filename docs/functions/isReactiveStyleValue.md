@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,12 +10,7 @@
 function isReactiveStyleValue(value): boolean;
 ```
 
-Defined in: style.ts/src/Styles.ts:287
-
-Detects the existing reactive `{ value: ... }` contract.
-
-Native CSSStyleValue must be checked first because CSSUnitValue
-also contains a `value` property.
+Defined in: style.ts/src/utils.ts:287
 
 ## Parameters
 

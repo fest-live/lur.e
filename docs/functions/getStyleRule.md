@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function getStyleRule(
    basis?): any;
 ```
 
-Defined in: style.ts/src/cssom.ts:169
+Defined in: style.ts/src/cssom.ts:130
 
 ## Parameters
 

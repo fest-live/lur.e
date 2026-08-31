@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: adoptedBlobMap
 
 ```ts
-const adoptedBlobMap: any;
+const adoptedBlobMap: WeakMap<Blob | File, CSSStyleSheet>;
 ```
 
-Defined in: style.ts/src/sheets.ts:98
+Defined in: style.ts/src/maps.ts:56

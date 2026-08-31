@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function addAdoptedSheetToElement(bTo, sheet): void;
 ```
 
-Defined in: style.ts/src/component.ts:50
+Defined in: style.ts/src/component.ts:42
 
 ## Parameters
 

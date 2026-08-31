@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type StyleTuple = [string, object];
 ```
 
-Defined in: style.ts/src/cssom.ts:47
+Defined in: style.ts/src/types.ts:21

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: blobURLMap
 
 ```ts
-const blobURLMap: any;
+const blobURLMap: WeakMap<Blob | File, string | Promise<string>>;
 ```
 
-Defined in: style.ts/src/cssom.ts:282
+Defined in: style.ts/src/maps.ts:16

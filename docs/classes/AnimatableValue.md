@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: AnimatableValue
 
-Defined in: style.ts/src/Animatable.ts:123
+Defined in: style.ts/src/Animatable.ts:37
 
 ## Constructors
 
@@ -16,7 +16,7 @@ Defined in: style.ts/src/Animatable.ts:123
 new AnimatableValue(steps, options?): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:214
+Defined in: style.ts/src/Animatable.ts:128
 
 #### Parameters
 
@@ -40,7 +40,7 @@ Defined in: style.ts/src/Animatable.ts:214
 readonly [ANIMATABLE_BRAND]: true = true;
 ```
 
-Defined in: style.ts/src/Animatable.ts:124
+Defined in: style.ts/src/Animatable.ts:38
 
 ***
 
@@ -50,7 +50,7 @@ Defined in: style.ts/src/Animatable.ts:124
 readonly id: number;
 ```
 
-Defined in: style.ts/src/Animatable.ts:125
+Defined in: style.ts/src/Animatable.ts:39
 
 ## Accessors
 
@@ -62,7 +62,7 @@ Defined in: style.ts/src/Animatable.ts:125
 get finished(): Promise<void>;
 ```
 
-Defined in: style.ts/src/Animatable.ts:521
+Defined in: style.ts/src/Animatable.ts:435
 
 Promise завершения всех активных анимаций.
 
@@ -80,7 +80,7 @@ Promise завершения всех активных анимаций.
 get options(): AnimatableOptions;
 ```
 
-Defined in: style.ts/src/Animatable.ts:318
+Defined in: style.ts/src/Animatable.ts:232
 
 ##### Returns
 
@@ -96,7 +96,7 @@ Defined in: style.ts/src/Animatable.ts:318
 set playbackRate(rate): void;
 ```
 
-Defined in: style.ts/src/Animatable.ts:518
+Defined in: style.ts/src/Animatable.ts:432
 
 ##### Parameters
 
@@ -118,7 +118,7 @@ Defined in: style.ts/src/Animatable.ts:518
 get steps(): any[];
 ```
 
-Defined in: style.ts/src/Animatable.ts:319
+Defined in: style.ts/src/Animatable.ts:233
 
 ##### Returns
 
@@ -134,7 +134,7 @@ Defined in: style.ts/src/Animatable.ts:319
 get value(): any;
 ```
 
-Defined in: style.ts/src/Animatable.ts:287
+Defined in: style.ts/src/Animatable.ts:201
 
 Последнее известное значение (первый шаг до старта).
 
@@ -148,7 +148,7 @@ Defined in: style.ts/src/Animatable.ts:287
 set value(next): void;
 ```
 
-Defined in: style.ts/src/Animatable.ts:289
+Defined in: style.ts/src/Animatable.ts:203
 
 ##### Parameters
 
@@ -168,7 +168,7 @@ Defined in: style.ts/src/Animatable.ts:289
 toPrimitive: string | number;
 ```
 
-Defined in: style.ts/src/Animatable.ts:305
+Defined in: style.ts/src/Animatable.ts:219
 
 #### Parameters
 
@@ -188,7 +188,7 @@ Defined in: style.ts/src/Animatable.ts:305
 attach(element, plan): Cleanup;
 ```
 
-Defined in: style.ts/src/Animatable.ts:378
+Defined in: style.ts/src/Animatable.ts:292
 
 #### Parameters
 
@@ -212,7 +212,7 @@ Defined in: style.ts/src/Animatable.ts:378
 cancel(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:515
+Defined in: style.ts/src/Animatable.ts:429
 
 #### Returns
 
@@ -226,7 +226,7 @@ Defined in: style.ts/src/Animatable.ts:515
 finish(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:516
+Defined in: style.ts/src/Animatable.ts:430
 
 #### Returns
 
@@ -240,7 +240,7 @@ Defined in: style.ts/src/Animatable.ts:516
 pause(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:513
+Defined in: style.ts/src/Animatable.ts:427
 
 #### Returns
 
@@ -254,7 +254,7 @@ Defined in: style.ts/src/Animatable.ts:513
 play(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:512
+Defined in: style.ts/src/Animatable.ts:426
 
 #### Returns
 
@@ -268,7 +268,7 @@ Defined in: style.ts/src/Animatable.ts:512
 reverse(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:514
+Defined in: style.ts/src/Animatable.ts:428
 
 #### Returns
 
@@ -282,7 +282,7 @@ Defined in: style.ts/src/Animatable.ts:514
 subscribe(cb): Cleanup;
 ```
 
-Defined in: style.ts/src/Animatable.ts:313
+Defined in: style.ts/src/Animatable.ts:227
 
 #### Parameters
 
@@ -302,7 +302,7 @@ Defined in: style.ts/src/Animatable.ts:313
 toString(): string;
 ```
 
-Defined in: style.ts/src/Animatable.ts:300
+Defined in: style.ts/src/Animatable.ts:214
 
 #### Returns
 
@@ -316,7 +316,7 @@ Defined in: style.ts/src/Animatable.ts:300
 valueOf(): any;
 ```
 
-Defined in: style.ts/src/Animatable.ts:298
+Defined in: style.ts/src/Animatable.ts:212
 
 First/current step for style coercion (`S\`opacity: ${anim}\`` probes,
 Number(), String()). INVARIANT: constructor seeds #current from steps[0].

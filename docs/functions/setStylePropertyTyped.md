@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function setStylePropertyTyped(
    importance?): HTMLElement | null | undefined;
 ```
 
-Defined in: style.ts/src/property.ts:406
+Defined in: style.ts/src/property.ts:278
 
 Улучшенная версия с парсингом Typed OM выражений
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function ensureAdoptedSheetContent(sheet, cssText?): boolean;
 ```
 
-Defined in: style.ts/src/sheets.ts:141
+Defined in: style.ts/src/sheets.ts:122
 
 ## Parameters
 

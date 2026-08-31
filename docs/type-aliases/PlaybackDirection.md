@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type PlaybackDirection = "normal" | "reverse" | "alternate" | "alternate-reverse";
 ```
 
-Defined in: style.ts/src/Animate.ts:74
+Defined in: style.ts/src/types.ts:127

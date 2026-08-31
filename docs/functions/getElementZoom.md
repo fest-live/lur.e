@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function getElementZoom(element): number;
 ```
 
-Defined in: style.ts/src/sheets.ts:457
+Defined in: style.ts/src/sheets.ts:394
 
 ## Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function setStyleInRule(
    value): HTMLElement | null | undefined;
 ```
 
-Defined in: style.ts/src/sheets.ts:21
+Defined in: style.ts/src/sheets.ts:37
 
 ## Parameters
 

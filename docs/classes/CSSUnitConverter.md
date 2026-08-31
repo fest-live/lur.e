@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -74,7 +74,7 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:39
 
 ##### unit?
 
-`"em"` \| `"px"` \| `"rem"` \| `"%"`
+`"%"` \| `"px"` \| `"em"` \| `"rem"`
 
 #### Returns
 

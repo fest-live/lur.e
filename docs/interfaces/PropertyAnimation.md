@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -6,9 +6,7 @@
 
 # Interface: PropertyAnimation
 
-Defined in: style.ts/src/Animate.ts:22
-
-Animation configuration for a single property.
+Defined in: style.ts/src/types.ts:129
 
 ## Properties
 
@@ -18,7 +16,7 @@ Animation configuration for a single property.
 optional composite?: "replace" | "add" | "accumulate";
 ```
 
-Defined in: style.ts/src/Animate.ts:34
+Defined in: style.ts/src/types.ts:139
 
 ***
 
@@ -30,7 +28,7 @@ optional easing?:
   | TimingFunction[];
 ```
 
-Defined in: style.ts/src/Animate.ts:30
+Defined in: style.ts/src/types.ts:137
 
 Timing function per segment or global
 
@@ -42,7 +40,7 @@ Timing function per segment or global
 optional offsets?: number[];
 ```
 
-Defined in: style.ts/src/Animate.ts:28
+Defined in: style.ts/src/types.ts:135
 
 Optional offset percentages (0.0 to 1.0). If omitted, evenly distributed.
 
@@ -54,7 +52,7 @@ Optional offset percentages (0.0 to 1.0). If omitted, evenly distributed.
 property: string;
 ```
 
-Defined in: style.ts/src/Animate.ts:24
+Defined in: style.ts/src/types.ts:131
 
 Property name (camelCase or kebab-case)
 
@@ -66,7 +64,7 @@ Property name (camelCase or kebab-case)
 optional timeline?: AnimationTimeline;
 ```
 
-Defined in: style.ts/src/Animate.ts:32
+Defined in: style.ts/src/types.ts:138
 
 ***
 
@@ -76,6 +74,6 @@ Defined in: style.ts/src/Animate.ts:32
 values: any[];
 ```
 
-Defined in: style.ts/src/Animate.ts:26
+Defined in: style.ts/src/types.ts:133
 
 Array of keyframe values

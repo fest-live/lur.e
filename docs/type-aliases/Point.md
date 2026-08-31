@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type Point = DOMPoint;
 ```
 
-Defined in: style.ts/src/sheets.ts:423
+Defined in: style.ts/src/types.ts:23

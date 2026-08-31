@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,7 +7,7 @@
 # Variable: adoptedLayerMap
 
 ```ts
-const adoptedLayerMap: any;
+const adoptedLayerMap: Map<string, CSSLayerBlockRule>;
 ```
 
-Defined in: style.ts/src/cssom.ts:391
+Defined in: style.ts/src/maps.ts:42

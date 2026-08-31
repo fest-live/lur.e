@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -7,10 +7,10 @@
 # Function: loadAsAdopted()
 
 ```ts
-function loadAsAdopted(styles, layerName?): any;
+function loadAsAdopted(styles, layerName?): CSSStyleSheet | null;
 ```
 
-Defined in: style.ts/src/sheets.ts:204
+Defined in: style.ts/src/sheets.ts:170
 
 ## Parameters
 
@@ -24,4 +24,4 @@ Defined in: style.ts/src/sheets.ts:204
 
 ## Returns
 
-`any`
+`CSSStyleSheet` \| `null`

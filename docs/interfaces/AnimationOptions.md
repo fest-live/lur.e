@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.50**](../README.md)
+[**@fest-lib/lure v0.1.51**](../README.md)
 
 ***
 
@@ -6,9 +6,7 @@
 
 # Interface: AnimationOptions
 
-Defined in: style.ts/src/Animate.ts:40
-
-Main animation options.
+Defined in: style.ts/src/types.ts:148
 
 ## Properties
 
@@ -18,7 +16,7 @@ Main animation options.
 optional composite?: "replace" | "add" | "accumulate";
 ```
 
-Defined in: style.ts/src/Animate.ts:59
+Defined in: style.ts/src/types.ts:162
 
 ***
 
@@ -28,7 +26,7 @@ Defined in: style.ts/src/Animate.ts:59
 optional delay?: string | number;
 ```
 
-Defined in: style.ts/src/Animate.ts:49
+Defined in: style.ts/src/types.ts:155
 
 Delay before animation starts
 
@@ -40,9 +38,7 @@ Delay before animation starts
 optional direction?: PlaybackDirection;
 ```
 
-Defined in: style.ts/src/Animate.ts:55
-
-Direction: 'normal' | 'reverse' | 'alternate' | 'alternate-reverse'
+Defined in: style.ts/src/types.ts:159
 
 ***
 
@@ -52,7 +48,7 @@ Direction: 'normal' | 'reverse' | 'alternate' | 'alternate-reverse'
 optional duration?: string | number;
 ```
 
-Defined in: style.ts/src/Animate.ts:47
+Defined in: style.ts/src/types.ts:153
 
 Duration in milliseconds or CSS time string
 
@@ -64,7 +60,7 @@ Duration in milliseconds or CSS time string
 optional easing?: TimingFunction;
 ```
 
-Defined in: style.ts/src/Animate.ts:57
+Defined in: style.ts/src/types.ts:161
 
 Global easing (overridden by property-specific easing)
 
@@ -76,9 +72,7 @@ Global easing (overridden by property-specific easing)
 optional fillMode?: FillMode;
 ```
 
-Defined in: style.ts/src/Animate.ts:53
-
-Fill mode: 'none' | 'forwards' | 'backwards' | 'both'
+Defined in: style.ts/src/types.ts:158
 
 ***
 
@@ -88,7 +82,7 @@ Fill mode: 'none' | 'forwards' | 'backwards' | 'both'
 optional iterationCount?: number;
 ```
 
-Defined in: style.ts/src/Animate.ts:51
+Defined in: style.ts/src/types.ts:157
 
 Iteration count (-1 for infinite)
 
@@ -100,7 +94,7 @@ Iteration count (-1 for infinite)
 optional keyframes?: AnimationKeyframes;
 ```
 
-Defined in: style.ts/src/Animate.ts:41
+Defined in: style.ts/src/types.ts:149
 
 ***
 
@@ -110,7 +104,7 @@ Defined in: style.ts/src/Animate.ts:41
 optional offsets?: number[];
 ```
 
-Defined in: style.ts/src/Animate.ts:45
+Defined in: style.ts/src/types.ts:151
 
 ***
 
@@ -120,7 +114,7 @@ Defined in: style.ts/src/Animate.ts:45
 properties: string | Record<string, any>[];
 ```
 
-Defined in: style.ts/src/Animate.ts:43
+Defined in: style.ts/src/types.ts:150
 
 ***
 
@@ -130,4 +124,4 @@ Defined in: style.ts/src/Animate.ts:43
 optional timeline?: AnimationTimeline;
 ```
 
-Defined in: style.ts/src/Animate.ts:61
+Defined in: style.ts/src/types.ts:163
