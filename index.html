@@ -8,25 +8,58 @@
         <title>Vite + TS</title>
 
         <script>
-            WeakMap.prototype.getOrInsert ??= function (key, defaultValue) {
-                if (!this.has(key)) { this.set(key, defaultValue); }
-                return this.get(key);
-            };
-
-            WeakMap.prototype.getOrInsertComputed ??= function (key, callbackFunction) {
-                if (!this.has(key)) { this.set(key, callbackFunction(key)); }
-                return this.get(key);
-            };
-
-            Map.prototype.getOrInsert ??= function (key, defaultValue) {
-                if (!this.has(key)) { this.set(key, defaultValue); }
-                return this.get(key);
-            };
-
-            Map.prototype.getOrInsertComputed ??= function (key, callbackFunction) {
-                if (!this.has(key)) { this.set(key, callbackFunction(key)); }
-                return this.get(key);
-            };
+            (function () {
+                'use strict';
+                function ownEnumerableKeys(obj) {
+                    return Reflect.ownKeys(obj).filter(function (key) {
+                        var desc = Object.getOwnPropertyDescriptor(obj, key);
+                        return desc !== undefined && desc.enumerable;
+                    });
+                }
+                function makeKeyed(name, settled) {
+                    return function (promises) {
+                        var C = this;
+                        if (typeof C !== 'function') {
+                            throw new TypeError('Promise.' + name + ' called on non-constructor');
+                        }
+                        return new C(function (resolve, reject) {
+                            if (promises === null || (typeof promises !== 'object' && typeof promises !== 'function')) {
+                                throw new TypeError('Promise.' + name + ' expects an object, got ' + String(promises));
+                            }
+                            var keys = ownEnumerableKeys(promises);
+                            var result = {};
+                            var remaining = keys.length;
+                            if (remaining === 0) { resolve(result); return; }
+                            keys.forEach(function (key) { result[key] = undefined; });
+                            keys.forEach(function (key) {
+                                C.resolve(promises[key]).then(
+                                    function (v) {
+                                        result[key] = settled ? { status: 'fulfilled', value: v } : v;
+                                        if (--remaining === 0) resolve(result);
+                                    },
+                                    function (r) {
+                                        if (settled) {
+                                            result[key] = { status: 'rejected', reason: r };
+                                            if (--remaining === 0) resolve(result);
+                                        } else {
+                                            reject(r);
+                                        }
+                                    }
+                                );
+                            });
+                        });
+                    };
+                }
+                function define(name, fn) {
+                    if (typeof Promise[name] !== 'function') {
+                        Object.defineProperty(Promise, name, {
+                            value: fn, writable: true, configurable: true, enumerable: false
+                        });
+                    }
+                }
+                define('allKeyed', makeKeyed('allKeyed', false));
+                define('allSettledKeyed', makeKeyed('allSettledKeyed', true));
+            })();
         </script>
 
         <!-- Note: Import map not needed - Vite handles module resolution via vite.config.js -->

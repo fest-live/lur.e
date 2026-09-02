@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.54**](../README.md)
+[**@fest-lib/lure v0.1.55**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function booleanRef(initial?, behavior?): any;
 ```
 
-Defined in: object.ts/src/core/Primitives.ts:62
+Defined in: object.ts/src/core/Primitives.ts:71
 
 Boolean ref with truthy/falsy coercion and optional promise initialization.
 

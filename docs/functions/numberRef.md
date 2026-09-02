@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.54**](../README.md)
+[**@fest-lib/lure v0.1.55**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function numberRef(initial?, behavior?): any;
 ```
 
-Defined in: object.ts/src/core/Primitives.ts:32
+Defined in: object.ts/src/core/Primitives.ts:31
 
 Numeric ref with coercion, primitive conversion hooks, and optional promise initialization.
 

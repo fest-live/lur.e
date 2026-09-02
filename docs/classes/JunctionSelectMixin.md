@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.54**](../README.md)
+[**@fest-lib/lure v0.1.55**](../README.md)
 
 ***
 
@@ -42,7 +42,7 @@ DOMMixin.constructor
 get elements(): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:146](https://github.com/fest-live/dom.ts/blob/c73224f3b90ab5d0f1ed4516871b90d75118ca88/src/mixin/Mixins.ts#L146)
+Defined in: [dom.ts/src/mixin/Mixins.ts:146](https://github.com/fest-live/dom.ts/blob/fea01c06d04a87e898340b27e981d4745703b6df/src/mixin/Mixins.ts#L146)
 
 ##### Returns
 
@@ -64,7 +64,7 @@ DOMMixin.elements
 get name(): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:148](https://github.com/fest-live/dom.ts/blob/c73224f3b90ab5d0f1ed4516871b90d75118ca88/src/mixin/Mixins.ts#L148)
+Defined in: [dom.ts/src/mixin/Mixins.ts:148](https://github.com/fest-live/dom.ts/blob/fea01c06d04a87e898340b27e981d4745703b6df/src/mixin/Mixins.ts#L148)
 
 ##### Returns
 
@@ -84,7 +84,7 @@ Defined in: [dom.ts/src/mixin/Mixins.ts:148](https://github.com/fest-live/dom.ts
 get storage(): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:147](https://github.com/fest-live/dom.ts/blob/c73224f3b90ab5d0f1ed4516871b90d75118ca88/src/mixin/Mixins.ts#L147)
+Defined in: [dom.ts/src/mixin/Mixins.ts:147](https://github.com/fest-live/dom.ts/blob/fea01c06d04a87e898340b27e981d4745703b6df/src/mixin/Mixins.ts#L147)
 
 ##### Returns
 
@@ -156,7 +156,7 @@ DOMMixin.disconnect
 relatedForElement(element): object;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:143](https://github.com/fest-live/dom.ts/blob/c73224f3b90ab5d0f1ed4516871b90d75118ca88/src/mixin/Mixins.ts#L143)
+Defined in: [dom.ts/src/mixin/Mixins.ts:143](https://github.com/fest-live/dom.ts/blob/fea01c06d04a87e898340b27e981d4745703b6df/src/mixin/Mixins.ts#L143)
 
 #### Parameters
 
@@ -200,7 +200,7 @@ DOMMixin.relatedForElement
 storeForElement(element): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:142](https://github.com/fest-live/dom.ts/blob/c73224f3b90ab5d0f1ed4516871b90d75118ca88/src/mixin/Mixins.ts#L142)
+Defined in: [dom.ts/src/mixin/Mixins.ts:142](https://github.com/fest-live/dom.ts/blob/fea01c06d04a87e898340b27e981d4745703b6df/src/mixin/Mixins.ts#L142)
 
 #### Parameters
 
