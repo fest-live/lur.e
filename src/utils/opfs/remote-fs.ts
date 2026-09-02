@@ -5,7 +5,9 @@
  * TAG:provide,opfs
  *
  * Browser client for backend-mounted FS (`/assets/` and extra allowed roots).
- * Prefers WebSocket, then Socket.IO, then HTTPS.
+ * HTTPS first (always quiet). WS / Socket.IO only when the mounts probe
+ * advertises them — a speculative `new WebSocket` always logs
+ * `WebSocket connection failed` in Chromium when `/ssre/fs/ws` is down.
  */
 
 import {
@@ -184,21 +186,32 @@ export const connectRemoteMountedFs = async (options?: {
     wsUrl?: string;
 }): Promise<RemoteFsTransport | null> => {
     const httpPath = options?.httpPath || MOUNTED_FS_HTTP_PATH;
-    const ws = await tryOpenWebSocket(options?.wsUrl || wsUrlFromHttp(httpPath));
-    if (ws) {
-        const transport = createWebSocketFsTransport(ws);
-        const probe = await transport.request({ op: "mounts" }).catch(() => null);
-        if (probe?.ok) return transport;
-        try { ws.close(); } catch { /* ignore */ }
-    }
-    const sio = await tryOpenSocketIo();
-    if (sio) {
-        const probe = await sio.request({ op: "mounts" }).catch(() => null);
-        if (probe?.ok) return sio;
-    }
     const https = createHttpsFsTransport(httpPath);
     const probe = await https.request({ op: "mounts" }).catch(() => null);
-    return probe?.ok ? https : null;
+    if (!probe?.ok) return null;
+
+    // WHY: Chromium always prints `WebSocket connection failed` for a closed
+    // `/ssre/fs/ws`. Only dial when the host advertises `ws` or the caller
+    // passed an explicit URL.
+    if (options?.wsUrl || probe.ws === true) {
+        const ws = await tryOpenWebSocket(options?.wsUrl || wsUrlFromHttp(httpPath));
+        if (ws) {
+            const transport = createWebSocketFsTransport(ws);
+            const wsProbe = await transport.request({ op: "mounts" }).catch(() => null);
+            if (wsProbe?.ok) return transport;
+            try { ws.close(); } catch { /* ignore */ }
+        }
+    }
+
+    if (probe.socketio === true) {
+        const sio = await tryOpenSocketIo();
+        if (sio) {
+            const sioProbe = await sio.request({ op: "mounts" }).catch(() => null);
+            if (sioProbe?.ok) return sio;
+        }
+    }
+
+    return https;
 };
 
 export const createRemoteProvideBackend = (root: string, transport: RemoteFsTransport): ProvideBackend => ({
