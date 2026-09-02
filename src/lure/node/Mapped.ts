@@ -1,16 +1,20 @@
 /*
  * Filename: Mapped.ts
  * FullPath: modules/projects/lur.e/src/lure/node/Mapped.ts
- * Change date and time: 09.20.00_19.08.2026
- * Reason for changes: Keep fragment child nodes across collection inserts (Speed Dial icon+shadow).
+ * FIND:style-anim
+ * TAG:style-anim,lure
+ * AI-READ: _onUpdate does not call #updater. DOM is #syncBoundParent (Utils removeChild + appear).
+ * WHY: Keep fragment child nodes across collection inserts (Speed Dial icon+shadow).
  */
 
 import { iterated } from "@fest-lib/object";
 import { $mapped } from "../core/Binding";
-import { getNode } from "../context/Utils";
+import { appendArray, getNode, removeChild } from "../context/Utils";
 import { makeUpdater, reformChildren } from "../context/ReflectChildren";
 import { canBeInteger, isObservable, isPrimitive } from "@fest-lib/core";
 import { isValidParent } from "@fest-lib/dom";
+import { appear } from "@fest-lib/style-lib";
+import type { AnimationOptions } from "@fest-lib/style-lib";
 
 //
 interface MappedOptions {
@@ -18,6 +22,8 @@ interface MappedOptions {
     removeNotExistsWhenHasPrimitives?: boolean;
     boundParent?: Node | null;
     preMap?: boolean;
+    appear?: AnimationOptions | null;
+    disappear?: AnimationOptions | null;
 }
 
 //
@@ -77,6 +83,8 @@ class Mp {
     #stub = document.createComment("");
     #renderedNodes = new Set<Node>();
     #syncQueued = false;
+    #syncInFlight: Promise<void> | null = null;
+    #disposed = false;
     #parentObserver: MutationObserver | null = null;
 
     //
@@ -115,9 +123,11 @@ class Mp {
     }
 
     //
-    #syncBoundParent(): void {
+    // INVARIANT: outgoing waits Utils removeChild (disappear never detaches).
+    // A second splice must not start until the first remove settles.
+    async #syncBoundParent(): Promise<void> {
         const parent = this.#boundParent;
-        if (!parent) return;
+        if (!parent || this.#disposed) return;
 
         this.#pruneMapEntries();
         const desiredNodes: Node[] = [];
@@ -127,6 +137,10 @@ class Mp {
         });
 
         const desired = new Set(desiredNodes);
+        const lifecycle = {
+            appear: this.#options.appear,
+            disappear: this.#options.disappear,
+        };
         if (this.#stub.parentNode !== parent) {
             const firstExisting = desiredNodes.find((node) => node.parentNode === parent);
             if (firstExisting) parent.insertBefore(this.#stub, firstExisting);
@@ -135,7 +149,14 @@ class Mp {
 
         for (const oldNode of this.#renderedNodes) {
             if (!desired.has(oldNode) && oldNode.parentNode === parent) {
-                oldNode.parentNode.removeChild(oldNode);
+                // INVARIANT: no disappear → raw detach (no u2-before-remove). Dual Utils+sync
+                // would fire cancelable remove then ignore preventDefault.
+                if (lifecycle.disappear) {
+                    await removeChild(parent, oldNode, null, -1, lifecycle);
+                    if (this.#disposed || this.#boundParent !== parent) return;
+                } else {
+                    oldNode.parentNode.removeChild(oldNode);
+                }
             }
         }
 
@@ -144,8 +165,15 @@ class Mp {
         let anchor = this.#stub.nextSibling;
 
         for (const node of desiredNodes) {
+            const wasInParent = node.parentNode === parent;
             if (node.parentNode !== parent || node !== anchor) {
                 parent.insertBefore(node, anchor);
+            }
+            // WHY: appear() still waits getAnimations; no appear option must stay instant
+            // so a disappear mock on the same node cannot block the first sync.
+            if (!wasInParent && node instanceof Element && lifecycle.appear) {
+                await appear(node, lifecycle.appear);
+                if (this.#disposed || this.#boundParent !== parent) return;
             }
             anchor = node.nextSibling;
         }
@@ -155,19 +183,31 @@ class Mp {
 
     //
     #queueBoundParentSync(): void {
-        if (this.#syncQueued) return;
         this.#syncQueued = true;
-        queueMicrotask(() => {
-            this.#syncQueued = false;
-            this.#syncBoundParent();
-        });
+        if (this.#syncInFlight) return;
+        this.#syncInFlight = this.#drainBoundParentSync();
+    }
+
+    async #drainBoundParentSync(): Promise<void> {
+        try {
+            while (this.#syncQueued && !this.#disposed) {
+                this.#syncQueued = false;
+                await this.#syncBoundParent();
+            }
+        } finally {
+            this.#syncInFlight = null;
+            if (this.#syncQueued && !this.#disposed) this.#queueBoundParentSync();
+        }
     }
 
     //
     makeUpdater(basisParent: Node | null = null) {
         if (basisParent) {
             this.#internal?.(); this.#internal = null; this.#updater = null;
-            this.#updater ??= makeUpdater(basisParent, this.mapper.bind(this), true);
+            this.#updater ??= makeUpdater(basisParent, this.mapper.bind(this), true, {
+                appear: this.#options.appear,
+                disappear: this.#options.disappear,
+            });
             this.#internal ??= iterated?.(this.#observable, this._onUpdate.bind(this));
         }
     }
@@ -179,17 +219,26 @@ class Mp {
 
     //
     set boundParent(value: Node | null) {
+        if (this.#disposed) return;
         if (isElementParent(value) && value != this.#boundParent) {
             this.#disconnectParentObserver();
             const oldParent = this.#boundParent;
-            for (const node of this.#renderedNodes) {
-                if (node.parentNode === oldParent && oldParent !== value) {
-                    oldParent?.removeChild(node);
-                }
+            const lifecycle = { disappear: this.#options.disappear };
+            const outgoing = [...this.#renderedNodes].filter(
+                (node) => node.parentNode === oldParent && oldParent !== value
+            );
+            const apply = () => {
+                if (this.#disposed) return;
+                this.#boundParent = value;
+                this.makeUpdater(value);
+                this.#queueBoundParentSync();
+            };
+            if (lifecycle.disappear && outgoing.length) {
+                void Promise.all(outgoing.map((node) => removeChild(oldParent, node, null, -1, lifecycle))).then(apply);
+            } else {
+                for (const node of outgoing) oldParent?.removeChild(node);
+                apply();
             }
-            this.#boundParent = value;
-            this.makeUpdater(value);
-            this.#syncBoundParent();
         }
     }
 
@@ -229,10 +278,9 @@ class Mp {
         this.boundParent = isValidParent(this.#options?.boundParent as any) ?? (isValidParent(options as any) ?? null);
         if (!this.boundParent) {
             if (this.#options.preMap) {
-                reformChildren(
-                    this.#fragments, this.#collection(),
-                    this.mapper.bind(this)
-                );
+                // WHY: reformChildren is async (appear wait); preMap must fill the
+                // fragment sync or element is stub-only and list.append is empty.
+                appendArray(this.#fragments, this.#collection(), this.mapper.bind(this));
                 if (this.#fragments.childNodes.length === 0) {
                     this.#fragments.appendChild(this.#stub);
                 }
@@ -253,7 +301,7 @@ class Mp {
                 this.#disconnectParentObserver();
                 this.#boundParent = requestor;
                 this.makeUpdater(requestor);
-                this.#syncBoundParent();
+                this.#queueBoundParentSync();
                 return this.element;
             }
 
@@ -386,19 +434,27 @@ class Mp {
         // INVARIANT: every source mutation reconciles against the current
         // collection, so set/reorder/replacement cannot leave cached nodes stale.
         void newEl; void idx; void oldEl; void op;
+        if (this.#disposed) return;
         this.#queueBoundParentSync();
     }
 
     [Symbol.dispose](): void {
         // Stop reactive callbacks before detaching nodes so later source
         // mutations cannot recreate content after the mapped view is gone.
+        this.#disposed = true;
         this.#internal?.();
         this.#internal = null;
         this.#disconnectParentObserver();
         this.#syncQueued = false;
 
+        const lifecycle = { disappear: this.#options.disappear };
         for (const node of this.#renderedNodes) {
-            if (node.parentNode) node.parentNode.removeChild(node);
+            if (!node.parentNode) continue;
+            if (lifecycle.disappear) {
+                void removeChild(node.parentNode, node, null, -1, lifecycle);
+            } else {
+                node.parentNode.removeChild(node);
+            }
         }
         this.#renderedNodes.clear();
         this.#stub.parentNode?.removeChild(this.#stub);

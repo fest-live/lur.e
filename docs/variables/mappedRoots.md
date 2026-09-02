@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const mappedRoots: Map<string, () => Promise<any>>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:301
+Defined in: lur.e/src/utils/opfs/OPFS.ts:339

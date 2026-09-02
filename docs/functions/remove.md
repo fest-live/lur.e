@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function remove(
 logger?): Promise<boolean | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:990
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1094
 
 ## Parameters
 

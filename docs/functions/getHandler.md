@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -19,7 +19,7 @@ function getHandler(
 | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:628
+Defined in: lur.e/src/utils/opfs/OPFS.ts:704
 
 ## Parameters
 

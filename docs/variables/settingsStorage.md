@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,6 +10,6 @@
 const settingsStorage: IDBStorage;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:376
+Defined in: lur.e/src/utils/opfs/index.ts:379
 
 Settings/config storage

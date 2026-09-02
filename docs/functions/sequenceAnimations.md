@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function sequenceAnimations(element, sequence): Promise<void>;
 ```
 
-Defined in: style.ts/src/Animate.ts:382
+Defined in: style.ts/src/Animate.ts:424
 
 Sequence multiple animations.
 

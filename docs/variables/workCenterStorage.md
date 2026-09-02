@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,6 +10,6 @@
 const workCenterStorage: IDBStorage;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:370
+Defined in: lur.e/src/utils/opfs/index.ts:373
 
 WorkCenter data storage

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Class: IDBStorage
 
-Defined in: lur.e/src/utils/opfs/index.ts:268
+Defined in: lur.e/src/utils/opfs/index.ts:271
 
 IndexedDB wrapper for structured object storage
 
@@ -18,7 +18,7 @@ IndexedDB wrapper for structured object storage
 new IDBStorage(dbName, storeName): IDBStorage;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:273
+Defined in: lur.e/src/utils/opfs/index.ts:276
 
 #### Parameters
 
@@ -42,7 +42,7 @@ Defined in: lur.e/src/utils/opfs/index.ts:273
 clear(): Promise<void>;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:347
+Defined in: lur.e/src/utils/opfs/index.ts:350
 
 #### Returns
 
@@ -56,7 +56,7 @@ Defined in: lur.e/src/utils/opfs/index.ts:347
 close(): void;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:359
+Defined in: lur.e/src/utils/opfs/index.ts:362
 
 #### Returns
 
@@ -70,7 +70,7 @@ Defined in: lur.e/src/utils/opfs/index.ts:359
 delete(id): Promise<void>;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:323
+Defined in: lur.e/src/utils/opfs/index.ts:326
 
 #### Parameters
 
@@ -90,7 +90,7 @@ Defined in: lur.e/src/utils/opfs/index.ts:323
 get<T>(id): Promise<T | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:299
+Defined in: lur.e/src/utils/opfs/index.ts:302
 
 #### Type Parameters
 
@@ -116,7 +116,7 @@ Defined in: lur.e/src/utils/opfs/index.ts:299
 getAll<T>(): Promise<T[]>;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:335
+Defined in: lur.e/src/utils/opfs/index.ts:338
 
 #### Type Parameters
 
@@ -136,7 +136,7 @@ Defined in: lur.e/src/utils/opfs/index.ts:335
 open(): Promise<IDBDatabase>;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:278
+Defined in: lur.e/src/utils/opfs/index.ts:281
 
 #### Returns
 
@@ -150,7 +150,7 @@ Defined in: lur.e/src/utils/opfs/index.ts:278
 set<T>(id, value): Promise<void>;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:311
+Defined in: lur.e/src/utils/opfs/index.ts:314
 
 #### Type Parameters
 

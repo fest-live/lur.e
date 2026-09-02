@@ -81,11 +81,6 @@ export * from "./lure/core/TriggerCore"
 export * from "./lure/core/FormBinding"
 
 //
-export * from "./design/color/DynamicEngine";
-export * from "./design/color/StyleRules"
-export * from "./design/color/ThemeEngine"
-
-//
 // WHY: star-exporting file-utils + markdown-assets collided on pickMarkdownFile (Rolldown).
 export {
     isMarkdownFile,
@@ -108,6 +103,8 @@ export {
 export * from "./utils/opfs"
 export * from "./utils/opfs/Base64Data"
 export * from "./utils/opfs/OPFS"
+export * from "./utils/opfs/IdbFs"
+export * from "./utils/opfs/remote-fs"
 export * from "./utils/opfs/OPFSMod"
 export * from "./utils/opfs/FileOps"
 export * from "./utils/opfs/WriteFileSmart-v2"

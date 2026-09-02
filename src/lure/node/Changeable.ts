@@ -1,14 +1,22 @@
+/*
+ * FIND:style-anim
+ * TAG:style-anim,lure
+ * AI-READ: Changeable DOM goes through #updater (makeUpdater). boundParent change uses Utils removeChild.
+ */
 import { affected } from "@fest-lib/object";
-import { elMap, getNode, T } from "../context/Utils";
+import { elMap, getNode, removeChild, T } from "../context/Utils";
 import { makeUpdater } from "../context/ReflectChildren";
 import { isPrimitive, hasValue } from "@fest-lib/core";
 import { indexOf, isValidParent } from "@fest-lib/dom";
 import { $mapped } from "../core/Binding";
+import type { AnimationOptions } from "@fest-lib/style-lib";
 import Q from "./Queried";
 
 //
 interface ChangeableOptions {
     boundParent?: Node | null;
+    appear?: AnimationOptions | null;
+    disappear?: AnimationOptions | null;
 }
 
 //
@@ -32,7 +40,10 @@ class Ch {
     makeUpdater(basisParent: Node | null = null) {
         if (basisParent) {
             this.#internal?.(); this.#internal = null; this.#updater = null;
-            this.#updater ??= makeUpdater(basisParent, null, false);
+            this.#updater ??= makeUpdater(basisParent, null, false, {
+                appear: this.#options.appear,
+                disappear: this.#options.disappear,
+            });
             this.#internal ??= affected?.([this.#valueRef, "value"], this._onUpdate.bind(this));
         }
     }
@@ -42,9 +53,13 @@ class Ch {
     set boundParent(value: Node | null) {
         if (value instanceof HTMLElement && isValidParent(value) && value != this.#boundParent) {
             this.#boundParent = value; this.makeUpdater(value);
-            if (this.#oldNode) {
-                //this.#oldNode?.parentNode != null && this.#oldNode?.replaceWith?.(this.#stub); this.#oldNode = this.#stub;
-                this.#oldNode?.parentNode != null && this.#oldNode?.remove?.(); this.#oldNode = null;
+            if (this.#oldNode?.parentNode) {
+                void removeChild(this.#oldNode.parentNode, this.#oldNode, null, -1, {
+                    appear: this.#options.appear,
+                    disappear: this.#options.disappear,
+                });
+                if (!this.#options.disappear && this.#oldNode.parentNode) this.#oldNode.remove?.();
+                this.#oldNode = null;
             };
 
             //

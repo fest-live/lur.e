@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function registerColorProperty(name, initialValue?): void;
 ```
 
-Defined in: lur.e/src/design/color/StyleRules.ts:16
+Defined in: lur.e/src/design/color/StyleRules.ts:15
 
 ## Parameters
 

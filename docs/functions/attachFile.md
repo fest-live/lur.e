@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function attachFile(
    path?): void;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1200
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1297
 
 ## Parameters
 

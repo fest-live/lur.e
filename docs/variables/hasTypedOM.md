@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const hasTypedOM: boolean;
 ```
 
-Defined in: style.ts/src/constants.ts:168
+Defined in: style.ts/src/constants.ts:170

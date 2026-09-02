@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -62,7 +62,7 @@ Defined in: style.ts/src/Animatable.ts:39
 get finished(): Promise<void>;
 ```
 
-Defined in: style.ts/src/Animatable.ts:435
+Defined in: style.ts/src/Animatable.ts:459
 
 Promise завершения всех активных анимаций.
 
@@ -96,7 +96,7 @@ Defined in: style.ts/src/Animatable.ts:232
 set playbackRate(rate): void;
 ```
 
-Defined in: style.ts/src/Animatable.ts:432
+Defined in: style.ts/src/Animatable.ts:456
 
 ##### Parameters
 
@@ -212,7 +212,7 @@ Defined in: style.ts/src/Animatable.ts:292
 cancel(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:429
+Defined in: style.ts/src/Animatable.ts:453
 
 #### Returns
 
@@ -226,7 +226,7 @@ Defined in: style.ts/src/Animatable.ts:429
 finish(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:430
+Defined in: style.ts/src/Animatable.ts:454
 
 #### Returns
 
@@ -240,7 +240,7 @@ Defined in: style.ts/src/Animatable.ts:430
 pause(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:427
+Defined in: style.ts/src/Animatable.ts:451
 
 #### Returns
 
@@ -254,7 +254,7 @@ Defined in: style.ts/src/Animatable.ts:427
 play(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:426
+Defined in: style.ts/src/Animatable.ts:450
 
 #### Returns
 
@@ -268,7 +268,7 @@ Defined in: style.ts/src/Animatable.ts:426
 reverse(): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:428
+Defined in: style.ts/src/Animatable.ts:452
 
 #### Returns
 

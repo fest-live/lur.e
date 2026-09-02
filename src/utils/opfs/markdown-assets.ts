@@ -10,7 +10,7 @@
  * COMPAT: FileSystemObserver is Chromium-experimental; callers must tolerate null.
  */
 
-import { registerDirectoryRoot, walkExactFile, provide, normalizePath, getDir, isVirtualFsPath } from "./OPFS";
+import { registerDirectoryRoot, walkExactFile, provide, normalizePath, getDir, isVirtualFsPath, asProvidedFile } from "./OPFS";
 
 /** True for `./assets/x`, `docs/a.md` — not http(s)/blob/data/#. */
 export const isMarkdownRelativeRef = (value: string): boolean => {
@@ -52,7 +52,7 @@ export const provideBoundRelative = async (
             const path = normalizePath(base, candidate);
             if (!path || seen.has(path)) continue;
             seen.add(path);
-            const file = await provide(path).catch(() => null);
+            const file = asProvidedFile(await provide(path).catch(() => null));
             if (file) return file;
         }
     }

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -108,10 +108,10 @@ Defined in: style.ts/src/types.ts:163
 
 ***
 
-### properties
+### properties?
 
 ```ts
-properties: string | Record<string, any>[];
+optional properties?: string | Record<string, any> | Record<string, any>[];
 ```
 
 Defined in: style.ts/src/types.ts:162

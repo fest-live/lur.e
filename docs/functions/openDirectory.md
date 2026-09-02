@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function openDirectory(
    logger?): any;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:685
+Defined in: lur.e/src/utils/opfs/OPFS.ts:761
 
 ## Parameters
 

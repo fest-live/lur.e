@@ -1,15 +1,24 @@
 /*
  * Filename: Utils.ts
  * FullPath: modules/projects/lur.e/src/lure/context/Utils.ts
- * Change date and time: 15.40.00_08.08.2026
- * Reason for changes: Stop sharing Symbol.for("lur.e@elMap") with Binding DoubleWeakMap (C() Invalid weak map key).
+ * FIND:style-anim
+ * TAG:lure,style-anim
+ * WHY: append/remove await appear/disappear; detach still happens if the Promise is ignored.
+ * INVARIANT: cancel u2-before-remove leaves the node; disappear never detaches.
  */
 import { unwrap, affected } from "@fest-lib/object";
 import { $virtual, $mapped } from "../core/Binding";
 import { isElement, isValidParent } from "@fest-lib/dom";
 import { hasValue, isNotEqual, isPrimitive } from "@fest-lib/core";
+import { appear, disappear, dispatchLifecycleEvent, waitElementAnimations } from "@fest-lib/style-lib";
+import type { AnimationOptions } from "@fest-lib/style-lib";
 import C from "../node/Changeable";
 import Q from "../node/Queried";
+
+export type NodeLifecycle = {
+    appear?: AnimationOptions | null;
+    disappear?: AnimationOptions | null;
+};
 
 //
 export const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
@@ -193,7 +202,7 @@ export const appendArray = (parent: any, children: any[], mapper?: Function | nu
 }
 
 //
-export const appendChild = (element, cp, mapper?: Function | null, index: number = -1) => {
+export const appendChild = async (element, cp, mapper?: Function | null, index: number = -1, lifecycle?: NodeLifecycle) => {
     if (mapper != null) { cp = mapper?.(cp, index); }
 
     // has children lists
@@ -202,6 +211,12 @@ export const appendChild = (element, cp, mapper?: Function | null, index: number
     } else {
         appendArray(element, cp, null, index);
     }
+
+    const node = getNode(cp, null, index, element);
+    if (node instanceof Element) {
+        await appear(node, lifecycle?.appear ?? null);
+    }
+    return element;
 }
 
 
@@ -241,7 +256,9 @@ export const replaceOrSwap = (parent, oldEl, newEl) => {
 
 
 // TODO: what exactly to replace, if has (i.e. object itself, not index)
-export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1, old?: any|null) => {
+// WHY: makeUpdater passes lifecycle as the last arg; ignoring appendChild's Promise
+// dropped appear waits on Mapped/Changeable set.
+export const replaceChildren = async (element, cp, mapper?: Function | null, index: number = -1, old?: any|null, lifecycle?: NodeLifecycle) => {
     if (mapper != null) { cp = mapper?.(cp, index); }; if (!element) element = old?.parentNode;
     const cn = dePhantomNode(element, getNode(old, mapper, index), index);
     if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
@@ -253,9 +270,12 @@ export const replaceChildren = (element, cp, mapper?: Function | null, index: nu
         } else
         if (cn?.parentNode == element && cn != node && cn != null && cn?.parentNode != null) {
             replaceOrSwap(element, cn, node);
+            if (node instanceof Element) {
+                await appear(node, lifecycle?.appear ?? null);
+            }
         } else
         if (cn?.parentNode != element || cn?.parentNode == null) {
-            appendChild(element, node, null, index);
+            await appendChild(element, node, null, index, lifecycle);
         }
     }
 }
@@ -269,19 +289,31 @@ export const removeChildDirectly = (element, node, _?: Function | null, index: n
 }
 
 //
-export const removeChild = (element, cp, mapper?: Function | null, index: number = -1) => {
+export const removeChild = async (element, cp, mapper?: Function | null, index: number = -1, lifecycle?: NodeLifecycle) => {
     const $node = getNode(cp, mapper);
     if (!element) element = $node?.parentNode;
-    if (Array.from(element?.childNodes ?? [])?.length < 1) return;
+    if (Array.from(element?.childNodes ?? []).length < 1) return element;
     const whatToRemove = dePhantomNode(element, $node, index);
-    if (whatToRemove?.parentNode == element) whatToRemove?.remove?.();
+    if (whatToRemove?.parentNode != element) return element;
+    if (whatToRemove instanceof Element) {
+        if (!dispatchLifecycleEvent(whatToRemove, "u2-before-remove")) return element;
+        whatToRemove.setAttribute("data-removing", "");
+        await disappear(whatToRemove, lifecycle?.disappear ?? null);
+        await waitElementAnimations(whatToRemove);
+        whatToRemove.remove();
+        whatToRemove.removeAttribute("data-removing");
+        dispatchLifecycleEvent(whatToRemove, "u2-removed");
+        return element;
+    }
+    whatToRemove?.remove?.();
     return element;
 }
 
 //
-export const removeNotExists = (element, children, mapper?: Function | null) => {
+export const removeNotExists = async (element, children, mapper?: Function | null, lifecycle?: NodeLifecycle) => {
     const list = Array.from(unwrap(children) || [])?.map?.((cp, index) => getNode(cp, mapper, index));
-    Array.from(element.childNodes).forEach((nd: any) => { if (!list?.find?.((cp) => (!isNotEqual?.(cp, nd)))) nd?.remove?.(); });
+    const missing = Array.from(element.childNodes).filter((nd: any) => !list?.find?.((cp) => (!isNotEqual?.(cp, nd))));
+    await Promise.all(missing.map((nd) => removeChild(element, nd, null, -1, lifecycle)));
     return element;
 }
 

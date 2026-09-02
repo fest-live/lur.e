@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -7,10 +7,13 @@
 # Function: provide()
 
 ```ts
-function provide(req?, rw?): Promise<any>;
+function provide(
+   req?, 
+   rw?, 
+options?): Promise<ProvideResult>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1053
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1157
 
 ## Parameters
 
@@ -22,6 +25,10 @@ Defined in: lur.e/src/utils/opfs/OPFS.ts:1053
 
 `boolean` = `false`
 
+### options?
+
+[`ProvideOptions`](../type-aliases/ProvideOptions.md)
+
 ## Returns
 
-`Promise`\<`any`\>
+`Promise`\<[`ProvideResult`](../type-aliases/ProvideResult.md)\>

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -15,7 +15,7 @@ function matchMappedRoot(path):
   | null;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:338
+Defined in: lur.e/src/utils/opfs/OPFS.ts:394
 
 ## Parameters
 

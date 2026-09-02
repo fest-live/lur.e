@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -12,10 +12,11 @@ function replaceChildren(
    cp, 
    mapper?, 
    index?, 
-   old?): void;
+   old?, 
+lifecycle?): Promise<void>;
 ```
 
-Defined in: lur.e/src/lure/context/Utils.ts:244
+Defined in: lur.e/src/lure/context/Utils.ts:261
 
 ## Parameters
 
@@ -39,6 +40,10 @@ Defined in: lur.e/src/lure/context/Utils.ts:244
 
 `any`
 
+### lifecycle?
+
+`NodeLifecycle`
+
 ## Returns
 
-`void`
+`Promise`\<`void`\>

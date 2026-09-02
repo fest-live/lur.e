@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function uploadDirectory(dest?, id?): Promise<any>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:1146
+Defined in: lur.e/src/utils/opfs/OPFS.ts:1243
 
 ## Parameters
 

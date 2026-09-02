@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -11,10 +11,11 @@ function appendChild(
    element, 
    cp, 
    mapper?, 
-   index?): void;
+   index?, 
+lifecycle?): Promise<any>;
 ```
 
-Defined in: lur.e/src/lure/context/Utils.ts:196
+Defined in: lur.e/src/lure/context/Utils.ts:205
 
 ## Parameters
 
@@ -34,6 +35,10 @@ Defined in: lur.e/src/lure/context/Utils.ts:196
 
 `number` = `-1`
 
+### lifecycle?
+
+`NodeLifecycle`
+
 ## Returns
 
-`void`
+`Promise`\<`any`\>

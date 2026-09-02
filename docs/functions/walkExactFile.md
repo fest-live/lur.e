@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function walkExactFile(root, rel): Promise<FileSystemFileHandle | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:361
+Defined in: lur.e/src/utils/opfs/OPFS.ts:417
 
 WHY: `getFileHandle` hyphen-rewrites OPFS `/user/` names. Local
 `showDirectoryPicker` trees must keep exact filenames (`My Image.png`).

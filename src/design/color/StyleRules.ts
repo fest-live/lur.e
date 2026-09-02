@@ -9,7 +9,6 @@ import { E, localStorageRef, Q } from "@fest-lib/lure";
 import { parse } from "culori";
 
 //
-export type StyleTuple = [selector: string, sheet: object];
 export const isValidColor = (color: string): boolean => Boolean(parse(color));
 
 //

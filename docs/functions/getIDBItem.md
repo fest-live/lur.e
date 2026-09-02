@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function getIDBItem<T>(key): Promise<T | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:207
+Defined in: lur.e/src/utils/opfs/index.ts:210
 
 Get value from IndexedDB
 

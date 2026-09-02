@@ -2,12 +2,12 @@ import { addToCallChain, iterated, ref, affected } from "@fest-lib/object";
 
 //
 import getNode, { appendChild, removeNotExists, replaceChildren } from "./Utils";
-import { removeChild, removeChildDirectly } from "./Utils";
+import { removeChild, removeChildDirectly, type NodeLifecycle } from "./Utils";
 import { $mapped, $behavior, addToBank, hasInBank } from "../core/Binding";
 import { indexOf, isValidParent } from "@fest-lib/dom";
 
 //
-export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function | null, isArray: boolean = true) => {
+export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function | null, isArray: boolean = true, lifecycle?: NodeLifecycle) => {
     /*const toBeRemoved: any[] = [], toBeAppend: any[] = [], toBeReplace: any[] = [];
     const merge = () => { // @ts-ignore
         toBeAppend.forEach((args) => appendChild(...args)); toBeAppend.splice(0, toBeAppend.length); // @ts-ignore
@@ -17,9 +17,9 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
 
     //
     const commandBuffer: any[] = [];
-    const merge = ()=>{
-        commandBuffer?.forEach?.(([fn, args])=>fn?.(...args));
-        commandBuffer?.splice?.(0, commandBuffer?.length);
+    const merge = async () => {
+        const batch = commandBuffer.splice(0, commandBuffer.length);
+        for (const [fn, args] of batch) await fn?.(...args, lifecycle);
     }
 
     //
@@ -45,7 +45,7 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
         }
 
         //
-        if ((op && op != "get" && ["add", "set", "delete"].indexOf(op) >= 0) || (!op && !isArray)) { merge?.(); }
+        if ((op && op != "get" && ["add", "set", "delete"].indexOf(op) >= 0) || (!op && !isArray)) { return merge?.(); }
     }
 
     //
@@ -86,7 +86,7 @@ export const reflectChildren = (element: HTMLElement | DocumentFragment, childre
 }
 
 // forcely update child nodes (and erase current content)
-export const reformChildren = (element: HTMLElement | DocumentFragment, children: any[] = [], mapper?: Function) => {
+export const reformChildren = async (element: HTMLElement | DocumentFragment, children: any[] = [], mapper?: Function) => {
     if (!children || !element) return element;
 
     //
@@ -98,6 +98,7 @@ export const reformChildren = (element: HTMLElement | DocumentFragment, children
     const cvt = asArray(children)?.map?.((nd, index) => getNode(nd, mapper, keys?.[index] ?? index, element));
 
     //
-    removeNotExists(element, cvt); cvt?.forEach?.((nd) => appendChild(element, nd));
+    await removeNotExists(element, cvt);
+    await Promise.all((cvt ?? []).map((nd) => appendChild(element, nd)));
     return element;
 }

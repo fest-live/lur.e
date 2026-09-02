@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function mayNotPromise(
    errCb?): any;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:671
+Defined in: lur.e/src/utils/opfs/OPFS.ts:747
 
 ## Parameters
 

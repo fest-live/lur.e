@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function C(
    boundParent?): any;
 ```
 
-Defined in: lur.e/src/lure/node/Changeable.ts:195
+Defined in: lur.e/src/lure/node/Changeable.ts:210
 
 ## Parameters
 

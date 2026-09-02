@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -14,6 +14,9 @@ type AnimatableTrigger =
   | "click"
   | "visible"
   | "manual"
+  | "show"
+  | "hide"
+  | "remove"
   | {
   value: any;
 }

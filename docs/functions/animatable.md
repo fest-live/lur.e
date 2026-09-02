@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function animatable(steps, options?): AnimatableValue;
 ```
 
-Defined in: style.ts/src/Animatable.ts:442
+Defined in: style.ts/src/Animatable.ts:466
 
 ## Parameters
 

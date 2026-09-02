@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function registerDirectoryRoot(root, handle): void;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:383
+Defined in: lur.e/src/utils/opfs/OPFS.ts:439
 
 Register a directory handle as a virtual root (`/mounts/<id>/`, etc.).
 

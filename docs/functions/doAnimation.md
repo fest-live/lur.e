@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function doAnimation(
    keyframes?): object;
 ```
 
-Defined in: style.ts/src/Animate.ts:293
+Defined in: style.ts/src/Animate.ts:325
 
 Animate an element with the provided keyframes and options.
 

@@ -171,6 +171,9 @@ export function removeSessionItem(key: string): boolean {
 // ============================================================================
 // INDEXED DB - Simple Key-Value
 // ============================================================================
+//
+// WHY: settings / history / workcenter records stay as key-value. Tree files
+// (OPFS-shaped paths) go through IdbFs + `provide()`, not this store.
 
 const DEFAULT_DB_NAME = "crossword-storage";
 const DEFAULT_STORE_NAME = "keyvalue";

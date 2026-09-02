@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function defineAnimation(options): (element) => object;
 ```
 
-Defined in: style.ts/src/Animate.ts:367
+Defined in: style.ts/src/Animate.ts:409
 
 Create a reusable animation definition.
 

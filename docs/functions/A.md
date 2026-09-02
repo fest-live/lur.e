@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function A(strings, ...values): AnimationKeyframes;
 ```
 
-Defined in: style.ts/src/Animate.ts:274
+Defined in: style.ts/src/Animate.ts:306
 
 A`` template literal for defining animations.
 

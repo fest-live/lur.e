@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 const imageImportDesc: object;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:289
+Defined in: lur.e/src/utils/opfs/OPFS.ts:319
 
 ## Type Declaration
 

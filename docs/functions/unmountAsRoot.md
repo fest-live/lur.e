@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function unmountAsRoot(forId): Promise<void>;
 ```
 
-Defined in: lur.e/src/utils/opfs/OPFS.ts:434
+Defined in: lur.e/src/utils/opfs/OPFS.ts:490
 
 ## Parameters
 

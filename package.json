@@ -1,7 +1,7 @@
 {
     "name": "@fest-lib/lure",
     "description": "fest-lib LUR.E: reactive DOM (E/H/M/Q), form bind, overlays, drag",
-    "version": "0.1.56",
+    "version": "0.1.57",
     "license": "MIT",
     "type": "module",
     "sideEffects": true,
@@ -43,7 +43,30 @@
         "./index.js": "./dist/lure.js",
         "./src/lure/node/jsx-runtime": "./src/lure/node/jsx-runtime/index.ts",
         "./src/lure/node/jsx-dev-runtime": "./src/lure/node/jsx-dev-runtime/index.ts",
-        "./markdown-assets": "./src/utils/opfs/markdown-assets.ts"
+        "./markdown-assets": {
+            "browser": "./src/utils/opfs/markdown-assets.ts",
+            "module": "./src/utils/opfs/markdown-assets.ts",
+            "import": "./src/utils/opfs/markdown-assets.ts",
+            "default": "./src/utils/opfs/markdown-assets.ts"
+        },
+        "./idb-fs": {
+            "browser": "./src/utils/opfs/IdbFs.ts",
+            "module": "./src/utils/opfs/IdbFs.ts",
+            "import": "./src/utils/opfs/IdbFs.ts",
+            "default": "./src/utils/opfs/IdbFs.ts"
+        },
+        "./provide": {
+            "browser": "./src/utils/opfs/provide.ts",
+            "module": "./src/utils/opfs/provide.ts",
+            "import": "./src/utils/opfs/provide.ts",
+            "default": "./src/utils/opfs/provide.ts"
+        },
+        "./remote-fs": {
+            "browser": "./src/utils/opfs/remote-fs.ts",
+            "module": "./src/utils/opfs/remote-fs.ts",
+            "import": "./src/utils/opfs/remote-fs.ts",
+            "default": "./src/utils/opfs/remote-fs.ts"
+        }
     },
     "dependencies": {
         "@fest-lib/core": ">=0.1.0",
@@ -68,7 +91,9 @@
         "test:trigger-core": "node ./scripts/run-trigger-core-tests.mjs",
         "test:form-binding": "node ./scripts/run-form-binding-tests.mjs",
         "test:mapped": "node ./scripts/run-mapped-tests.mjs",
+        "test:mapped-lifecycle": "node ./scripts/run-mapped-lifecycle-tests.mjs",
         "test:opfs-content-store": "node ./scripts/run-opfs-content-store-tests.mjs",
+        "test:idb-fs": "node ./scripts/run-idb-fs-tests.mjs",
         "test:dev": "npm run demo",
         "dev": "npm run demo",
         "demo": "vite --host 0.0.0.0",

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function setIDBItem<T>(key, value): Promise<boolean>;
 ```
 
-Defined in: lur.e/src/utils/opfs/index.ts:226
+Defined in: lur.e/src/utils/opfs/index.ts:229
 
 Set value in IndexedDB
 

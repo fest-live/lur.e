@@ -1,4 +1,34 @@
-import { UUIDv4, Promised, stripUserScopePrefix, userPathCandidates } from '@fest-lib/core';
+/**
+ * FIND:opfs
+ * TAG:idb-fs
+ */
+import { UUIDv4, Promised, stripStorageScopePrefix, storagePathCandidates } from '@fest-lib/core';
+import {
+    bindStorageRootsRefresher,
+    copyHandleTree,
+    getIdbRoot,
+    isIdbAvailable,
+    isIdbFsHandle,
+    isOpfsBackendActive
+} from './IdbFs';
+import {
+    asProvidedFile,
+    matchProvideBackend,
+    provideFromBackend,
+    provideFromHandle,
+    type ProvideOptions,
+    type ProvideResult
+} from './provide';
+
+export {
+    asProvidedFile,
+    isProvidedDirectory,
+    matchProvideBackend,
+    registerProvideBackend,
+    unregisterProvideBackend,
+    wantsDirectoryProvide
+} from './provide';
+export type { ProvideBackend, ProvideEntry, ProvideOptions, ProvideResult, ProvidedDirectory } from './provide';
 import { observe } from '@fest-lib/object';
 import { createWorkerChannel, createQueuedOptimizedWorkerChannel, QueuedWorkerChannel } from '@fest-lib/uniform';
 
@@ -297,12 +327,36 @@ export const generalFileImportDesc = {
     types: [{ description: "files", accept: { "application/*": [".txt", ".md", ".html", ".htm", ".css", ".js", ".json", ".csv", ".xml", ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg", ".ico", ".mp3", ".wav", ".mp4", ".webm", ".pdf", ".zip", ".rar", ".7z",] }, }]
 }
 
-// "/" default is OPFS root (but may another root), "/user/" is OPFS root by default too, "/assets/" is unknown backend related assets
+const resolveOpfsDirectory = async () => (await navigator?.storage?.getDirectory?.()) ?? null;
+
+const resolveUserStorageRoot = async () => {
+    if (isOpfsBackendActive()) return resolveOpfsDirectory();
+    return getIdbRoot();
+};
+
+// "/" and "/user/" are OPFS while support is on; otherwise they are IDB.
+// "/idb/" is the explicit IDB entry only while OPFS is still the /user/ backend.
 export const mappedRoots = new Map<string, () => Promise<any>>([
-    ["/", async () => ((await navigator?.storage?.getDirectory?.()))],
-    ["/user/", async () => (await navigator?.storage?.getDirectory?.())],
+    ["/", resolveUserStorageRoot],
+    ["/user/", resolveUserStorageRoot],
     ["/assets/", async () => { console.warn("Backend related API not implemented!"); return null; }],
 ]);
+
+export const refreshMappedStorageRoots = (): void => {
+    mappedRoots.set("/", resolveUserStorageRoot);
+    mappedRoots.set("/user/", resolveUserStorageRoot);
+    if (isOpfsBackendActive() && isIdbAvailable()) {
+        mappedRoots.set("/idb/", () => getIdbRoot());
+    } else {
+        mappedRoots.delete("/idb/");
+    }
+};
+
+bindStorageRootsRefresher(refreshMappedStorageRoots);
+refreshMappedStorageRoots();
+
+export const isFsDirectoryHandle = (handle: any): boolean =>
+    !!handle && handle.kind === "directory" && typeof handle.getDirectoryHandle === "function";
 
 //
 export const currentHandleMap = new Map<string, any>()
@@ -322,9 +376,11 @@ export const isVirtualFsPath = (path: string): boolean => {
     if (!p.startsWith("/")) p = `/${p}`;
     if (
         p === "/user" || p.startsWith("/user/") ||
+        p === "/idb" || p.startsWith("/idb/") ||
         p === "/mounts" || p.startsWith("/mounts/") ||
         p === "/sdcard" || p.startsWith("/sdcard/") ||
-        p === "/saf" || p.startsWith("/saf/")
+        p === "/saf" || p.startsWith("/saf/") ||
+        p === "/desktop" || p.startsWith("/desktop/")
     ) return true;
     for (const root of mappedRoots.keys()) {
         // WHY: `/` is OPFS; `/assets/` is an unimplemented stub. Treating it as
@@ -441,9 +497,30 @@ export const unmountAsRoot = async (forId: string) => {
 
 // Enhanced root resolution function
 export async function resolveRootHandle(rootHandle: any, relPath: string = ""): Promise<any> {
-    // if is null, just return OPFS root
+    const fallbackRoot = async () => {
+        if (isOpfsBackendActive()) return resolveOpfsDirectory();
+        return getIdbRoot();
+    };
+
+    // WHY: `getDirectoryHandle(null, "/idb/foo")` used to force `/user/` first
+    // and then return the OPFS handle via `instanceof`, never matching `/idb/`.
+    const mappedFromPath = matchMappedRoot(relPath);
+    if (
+        (rootHandle == null || rootHandle == undefined || rootHandle?.trim?.()?.length == 0)
+        && mappedFromPath
+        && mappedFromPath.root !== "/"
+    ) {
+        const fromPath = await mappedFromPath.resolver().catch(() => null);
+        if (fromPath) return fromPath;
+    }
+
+    // if is null, just return the /user/ storage backend
     if (rootHandle == null || rootHandle == undefined || rootHandle?.trim?.()?.length == 0) {
         rootHandle = "/user/";
+    }
+
+    if (isFsDirectoryHandle(rootHandle)) {
+        return rootHandle;
     }
 
     //
@@ -453,11 +530,11 @@ export async function resolveRootHandle(rootHandle: any, relPath: string = ""): 
             // @ts-ignore
             rootHandle = currentHandleMap?.get(cleanId);
         }
-        if (!rootHandle) { rootHandle = (await mappedRoots?.get?.(`/${cleanId}/`)?.()) ?? (await navigator.storage.getDirectory()); };
+        if (!rootHandle) { rootHandle = (await mappedRoots?.get?.(`/${cleanId}/`)?.()) ?? (await fallbackRoot()); };
     }
 
     //
-    if (rootHandle instanceof FileSystemDirectoryHandle) {
+    if (isFsDirectoryHandle(rootHandle)) {
         return rootHandle;
     }
 
@@ -477,13 +554,12 @@ export async function resolveRootHandle(rootHandle: any, relPath: string = ""): 
         }
     }
 
-    // Use the best matching root resolver, fallback to OPFS root
     try {
         const resolvedRoot = bestMatch ? await bestMatch() : null;
-        return resolvedRoot || await navigator?.storage?.getDirectory?.();
+        return resolvedRoot || await fallbackRoot();
     } catch (error) {
-        console.warn("Failed to resolve root handle, falling back to OPFS root:", error);
-        return await navigator?.storage?.getDirectory?.();
+        console.warn("Failed to resolve root handle, falling back to user storage:", error);
+        return await fallbackRoot();
     }
 }
 
@@ -582,7 +658,7 @@ export const hasFileExtension = (path: string) => {
 export async function getDirectoryHandle(rootHandle, relPath, { create = false, basePath = "" } = {}, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, basePath);
-        const cleanPath = stripUserScopePrefix(resolvedPath);
+        const cleanPath = stripStorageScopePrefix(resolvedPath);
 
         const parts = cleanPath.split('/').filter((p) => (!!p?.trim?.()));
         if (parts.length > 0 && hasFileExtension(parts[parts.length - 1]?.trim?.())) { parts?.pop?.(); };
@@ -608,7 +684,7 @@ export async function getDirectoryHandle(rootHandle, relPath, { create = false, 
 export async function getFileHandle(rootHandle, relPath, { create = false, basePath = "" } = {}, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, basePath);
-        const cleanPath = stripUserScopePrefix(resolvedPath);
+        const cleanPath = stripStorageScopePrefix(resolvedPath);
 
         const parts = cleanPath.split('/').filter((d) => (!!d?.trim?.()));
         if (parts?.length == 0) return null;
@@ -726,17 +802,21 @@ export function openDirectory(
         const dirHandlePromise = getDirectoryHandle(rootHandle, resolvedPath, options, logger);
 
         const updateCache = async () => {
-            const cleanPath = stripUserScopePrefix(resolvedPath);
+            const cleanPath = stripStorageScopePrefix(resolvedPath);
+            const dir = await dirHandlePromise;
+            const useHandleEntries = isIdbFsHandle(dir) || isIdbFsHandle(rootHandle) || !isOpfsBackendActive();
 
-            const entries: any = await post(
-                "readDirectory",
-                {
-                    rootId: "",
-                    path: cleanPath,
-                    create: options.create,
-                },
-                rootHandle ? [rootHandle] : []
-            );
+            const entries: any = useHandleEntries
+                ? await Promise.all(await Array.fromAsync(dir?.entries?.() ?? []))
+                : await post(
+                    "readDirectory",
+                    {
+                        rootId: "",
+                        path: cleanPath,
+                        create: options.create,
+                    },
+                    rootHandle ? [rootHandle] : []
+                );
 
             if (!entries) return mapCache;
 
@@ -773,17 +853,19 @@ export function openDirectory(
             }
         });
 
-        const cleanPath = stripUserScopePrefix(resolvedPath);
+        const cleanPath = stripStorageScopePrefix(resolvedPath);
 
-        post(
-            "observe",
-            {
-                rootId: "",
-                path: cleanPath,
-                id: observationId,
-            },
-            rootHandle ? [rootHandle] : []
-        );
+        if (!isIdbFsHandle(rootHandle) && isOpfsBackendActive()) {
+            post(
+                "observe",
+                {
+                    rootId: "",
+                    path: cleanPath,
+                    id: observationId,
+                },
+                rootHandle ? [rootHandle] : []
+            );
+        }
 
         // initial load (fire and forget)
         updateCache();
@@ -907,7 +989,11 @@ export function openDirectory(
 export async function readFile(rootHandle, relPath, options: { basePath?: string } = {}, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const cleanPath = stripUserScopePrefix(resolvedPath);
+        const cleanPath = stripStorageScopePrefix(resolvedPath);
+        if (isIdbFsHandle(resolvedRoot) || !isOpfsBackendActive()) {
+            const handle = await getFileHandle(resolvedRoot, resolvedPath, options, logger);
+            return await handle?.getFile?.();
+        }
 
         // Use Worker
         const file = await post('readFile', { rootId: "", path: cleanPath, type: "blob" }, resolvedRoot ? [resolvedRoot] : []);
@@ -936,16 +1022,24 @@ export async function readFileUTF8(rootHandle, relPath, options: { basePath?: st
 
 //
 export async function writeFile(rootHandle, relPath, data, logger = defaultLogger) {
-    if (data instanceof FileSystemFileHandle) { data = await data.getFile(); }
-    if (data instanceof FileSystemDirectoryHandle) {
-        const dstHandle = await getDirectoryHandle(await resolveRootHandle(rootHandle), relPath + (relPath?.trim?.()?.endsWith?.("/") ? "" : "/") + (data?.name || "")?.trim?.()?.replace?.(/\s+/g, '-'), { create: true });
+    if (data?.kind === "file" && typeof data.getFile === "function") { data = await data.getFile(); }
+    if (isFsDirectoryHandle(data)) {
+        const dstHandle = await getDirectoryHandle(await resolveRootHandle(rootHandle, relPath), relPath + (relPath?.trim?.()?.endsWith?.("/") ? "" : "/") + (data?.name || "")?.trim?.()?.replace?.(/\s+/g, '-'), { create: true });
         return await copyFromOneHandlerToAnother(data, dstHandle, {})?.catch?.(console.warn.bind(console));
     } else
 
         //
         try {
             const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, "");
-            const cleanPath = stripUserScopePrefix(resolvedPath);
+            const cleanPath = stripStorageScopePrefix(resolvedPath);
+            if (isIdbFsHandle(resolvedRoot) || !isOpfsBackendActive()) {
+                const handle = await getFileHandle(resolvedRoot, resolvedPath, { create: true }, logger);
+                const writable = await handle?.createWritable?.();
+                if (!writable) return false;
+                await writable.write(data);
+                await writable.close();
+                return true;
+            }
 
             const result = await post('writeFile', { rootId: "", path: cleanPath, data }, resolvedRoot ? [resolvedRoot] : []);
             return result !== false;
@@ -968,7 +1062,17 @@ export async function getFileWriter(rootHandle, relPath, options: { create?: boo
 export async function removeFile(rootHandle, relPath, options: { recursive?: boolean, basePath?: string } = { recursive: true }, logger = defaultLogger) {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const candidates = userPathCandidates(resolvedPath);
+        const candidates = storagePathCandidates(resolvedPath);
+        if (isIdbFsHandle(resolvedRoot) || !isOpfsBackendActive()) {
+            const cleanPath = stripStorageScopePrefix(resolvedPath);
+            const parts = cleanPath.split("/").filter((part) => !!part?.trim?.());
+            if (!parts.length) return false;
+            const name = parts.pop() as string;
+            const dir = await getDirectoryHandle(resolvedRoot, parts.join("/") || "/", { create: false }, logger);
+            if (!dir) return false;
+            await dir.removeEntry(name, { recursive: options.recursive });
+            return true;
+        }
         let lastResult: any = false;
         for (const candidate of candidates) {
             lastResult = await post('remove', { rootId: "", path: candidate, recursive: options.recursive }, resolvedRoot ? [resolvedRoot] : []);
@@ -1004,7 +1108,7 @@ export const openImageFilePicker = async () => {
 export const downloadFile = async (file: File | Blob | string, filename?: string) => {
     // as file
     if (file instanceof FileSystemFileHandle) { file = await file.getFile(); }
-    if (typeof file == "string") { file = await provide(file); }; filename = filename ?? (file as any)?.name; if (!filename) return; // @ts-ignore // IE10+
+    if (typeof file == "string") { file = asProvidedFile(await provide(file)); }; filename = filename ?? (file as any)?.name; if (!filename) return; // @ts-ignore // IE10+
     if ("msSaveOrOpenBlob" in self.navigator) { self.navigator.msSaveOrOpenBlob(file, filename); };
 
     // for directory
@@ -1050,7 +1154,11 @@ export const downloadFile = async (file: File | Blob | string, filename?: string
 }
 
 //
-export const provide = async (req: string | Request = "", rw = false) => {
+export const provide = async (
+    req: string | Request = "",
+    rw = false,
+    options?: ProvideOptions
+): Promise<ProvideResult> => {
     const requestUrl = (typeof req === "string" ? req : ((req as Request)?.url || "")).trim();
     if (!requestUrl) return null;
 
@@ -1060,39 +1168,28 @@ export const provide = async (req: string | Request = "", rw = false) => {
     } catch {}
     const cleanPath = pathname?.trim?.() || "/";
 
-    //
-    if (cleanPath?.startsWith?.("/user")) {
-        const path = stripUserScopePrefix(cleanPath);
-        const root = await navigator?.storage?.getDirectory?.();
-        if (!root) return null;
-        const handle = await getFileHandle(root, path, { create: !!rw }).catch(() => null);
-        if (!handle) return null;
-        if (rw) return handle?.createWritable?.();
-        return handle?.getFile?.();
-    }
-
     const mapped = matchMappedRoot(cleanPath);
-    if (mapped && mapped.root !== "/user/" && mapped.root !== "/" && mapped.root !== "/assets/") {
-        const dir = await mapped.resolver().catch(() => null);
-        if (dir instanceof FileSystemDirectoryHandle) {
-            const rel = cleanPath.startsWith(mapped.root)
-                ? cleanPath.slice(mapped.root.length)
-                : cleanPath.replace(/^\/+/, "");
-            const fileHandle = await walkExactFile(dir, rel);
-            if (!fileHandle) return null;
-            if (rw) return fileHandle.createWritable?.();
-            return fileHandle.getFile?.();
+    const hostBackend = matchProvideBackend(cleanPath);
+    const mappedRoot = mapped && mapped.root !== "/" && mapped.root !== "/assets/"
+        ? mapped.root
+        : (cleanPath.startsWith("/idb") ? "/idb/" : cleanPath.startsWith("/user") ? "/user/" : "");
+
+    // WHY: provide is the single virtual-FS door — OPFS/IDB handles, picker
+    // mounts, and host backends (`/sdcard/`, `/saf/`, `/desktop/`).
+    if (mappedRoot) {
+        const root = await resolveRootHandle(null, cleanPath).catch(() => null);
+        if (isFsDirectoryHandle(root)) {
+            const fromHandle = await provideFromHandle(root, cleanPath, mappedRoot, rw, options);
+            if (fromHandle) return fromHandle;
         }
-        return null;
     }
-
-    //
-    if (rw) {
-        // Non-user scopes are treated as read-only for provide().
-        return null;
+    if (hostBackend) {
+        const fromHost = await provideFromBackend(hostBackend, cleanPath, rw, options);
+        if (fromHost) return fromHost;
     }
-
     if (isVirtualFsPath(cleanPath)) return null;
+
+    if (rw) return null;
 
     //
     try {
@@ -1127,7 +1224,7 @@ export const getLeast = (item) => {
 //
 export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any) => {
     const fs = await resolveRootHandle(null);
-    const path = getDir(stripUserScopePrefix(dest));
+    const path = getDir(stripStorageScopePrefix(dest));
     const user = path?.replace?.("/user", "")?.trim?.();
 
     //
@@ -1144,7 +1241,7 @@ export const dropFile = async (file, dest = "/user/"?.trim?.()?.replace?.(/\s+/g
 
 //
 export const uploadDirectory = async (dest = "/user/", id: any = null) => {
-    dest = stripUserScopePrefix(dest);
+    dest = stripStorageScopePrefix(dest);
     if (!globalThis.showDirectoryPicker) {
         return;
     }
@@ -1163,7 +1260,7 @@ export const uploadDirectory = async (dest = "/user/", id: any = null) => {
 
 //
 export const uploadFile = async (dest = "/user/"?.trim?.()?.replace?.(/\s+/g, '-'), current?: any) => {
-    const $e = "showOpenFilePicker"; dest = stripUserScopePrefix(dest);
+    const $e = "showOpenFilePicker"; dest = stripStorageScopePrefix(dest);
 
     // @ts-ignore
     const showOpenFilePicker = window?.[$e]?.bind?.(window) ?? (await import("./showOpenFilePicker.mjs"))?.[$e];
@@ -1224,7 +1321,10 @@ export const dropAsTempFile = async (data: any) => {
 export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", options: { basePath?: string } = {}, logger = defaultLogger) => {
     try {
         const { rootHandle: resolvedRoot, resolvedPath } = await resolvePath(rootHandle, relPath, options?.basePath || "");
-        const cleanPath = stripUserScopePrefix(resolvedPath);
+        const cleanPath = stripStorageScopePrefix(resolvedPath);
+        if (isIdbFsHandle(resolvedRoot) || !isOpfsBackendActive()) {
+            return removeFile(resolvedRoot, resolvedPath, { recursive: true, basePath: options?.basePath }, logger);
+        }
 
         await post('remove', { rootId: "", path: cleanPath, recursive: true }, resolvedRoot ? [resolvedRoot] : []);
     } catch (e: any) { return handleError(logger, 'error', `clearAllInDirectory: ${e.message}`); }
@@ -1232,7 +1332,9 @@ export const clearAllInDirectory = async (rootHandle: any = null, relPath = "", 
 
 // used for import/export by file pickers (OPFS, FileSystem, etc. )
 export const copyFromOneHandlerToAnother = async (fromHandle: FileSystemDirectoryHandle | FileSystemFileHandle, toHandle: FileSystemDirectoryHandle | FileSystemFileHandle, options = {}, logger = defaultLogger) => {
-    // We delegate to worker
+    if (isIdbFsHandle(fromHandle) || isIdbFsHandle(toHandle) || !isOpfsBackendActive()) {
+        return copyHandleTree(fromHandle, toHandle);
+    }
     return post('copy', { from: fromHandle, to: toHandle }, [fromHandle, toHandle]);
 }
 
@@ -1332,7 +1434,7 @@ export const handleIncomingEntries = (
                 } else {
                     // External URL
                     tasks.push(Promise.try(async () => {
-                        const file = await provide(url);
+                        const file = asProvidedFile(await provide(url));
                         if (file) {
                             const path = destPath + file.name;
                             await writeFile(resolvedRoot, path, file);

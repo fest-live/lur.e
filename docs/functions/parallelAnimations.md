@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.55**](../README.md)
+[**@fest-lib/lure v0.1.56**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function parallelAnimations(element, animations): object;
 ```
 
-Defined in: style.ts/src/Animate.ts:403
+Defined in: style.ts/src/Animate.ts:445
 
 Run multiple animations in parallel.
 
