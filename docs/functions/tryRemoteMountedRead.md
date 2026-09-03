@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.56**](../README.md)
+[**@fest-lib/lure v0.1.57**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function tryRemoteMountedRead(path): Promise<File | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/remote-fs.ts:254
+Defined in: lur.e/src/utils/opfs/remote-fs.ts:267
 
 ## Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.56**](../README.md)
+[**@fest-lib/lure v0.1.57**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function createRemoteProvideBackend(root, transport): ProvideBackend;
 ```
 
-Defined in: lur.e/src/utils/opfs/remote-fs.ts:204
+Defined in: lur.e/src/utils/opfs/remote-fs.ts:217
 
 ## Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.56**](../README.md)
+[**@fest-lib/lure v0.1.57**](../README.md)
 
 ***
 
@@ -42,7 +42,7 @@ DOMMixin.constructor
 get elements(): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:146](https://github.com/fest-live/dom.ts/blob/1c9428b6eb9e77e93afdf4162b4ce968d7ad06cd/src/mixin/Mixins.ts#L146)
+Defined in: [dom.ts/src/mixin/Mixins.ts:146](https://github.com/fest-live/dom.ts/blob/91439ea8e9696db0f8644e05f67f97ceb8003be8/src/mixin/Mixins.ts#L146)
 
 ##### Returns
 
@@ -64,7 +64,7 @@ DOMMixin.elements
 get name(): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:148](https://github.com/fest-live/dom.ts/blob/1c9428b6eb9e77e93afdf4162b4ce968d7ad06cd/src/mixin/Mixins.ts#L148)
+Defined in: [dom.ts/src/mixin/Mixins.ts:148](https://github.com/fest-live/dom.ts/blob/91439ea8e9696db0f8644e05f67f97ceb8003be8/src/mixin/Mixins.ts#L148)
 
 ##### Returns
 
@@ -86,7 +86,7 @@ DOMMixin.name
 get storage(): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:147](https://github.com/fest-live/dom.ts/blob/1c9428b6eb9e77e93afdf4162b4ce968d7ad06cd/src/mixin/Mixins.ts#L147)
+Defined in: [dom.ts/src/mixin/Mixins.ts:147](https://github.com/fest-live/dom.ts/blob/91439ea8e9696db0f8644e05f67f97ceb8003be8/src/mixin/Mixins.ts#L147)
 
 ##### Returns
 
@@ -158,7 +158,7 @@ DOMMixin.disconnect
 relatedForElement(element): object;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:143](https://github.com/fest-live/dom.ts/blob/1c9428b6eb9e77e93afdf4162b4ce968d7ad06cd/src/mixin/Mixins.ts#L143)
+Defined in: [dom.ts/src/mixin/Mixins.ts:143](https://github.com/fest-live/dom.ts/blob/91439ea8e9696db0f8644e05f67f97ceb8003be8/src/mixin/Mixins.ts#L143)
 
 #### Parameters
 
@@ -202,7 +202,7 @@ DOMMixin.relatedForElement
 storeForElement(element): any;
 ```
 
-Defined in: [dom.ts/src/mixin/Mixins.ts:142](https://github.com/fest-live/dom.ts/blob/1c9428b6eb9e77e93afdf4162b4ce968d7ad06cd/src/mixin/Mixins.ts#L142)
+Defined in: [dom.ts/src/mixin/Mixins.ts:142](https://github.com/fest-live/dom.ts/blob/91439ea8e9696db0f8644e05f67f97ceb8003be8/src/mixin/Mixins.ts#L142)
 
 #### Parameters
 

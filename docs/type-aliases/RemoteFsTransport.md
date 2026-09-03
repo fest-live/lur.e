@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.56**](../README.md)
+[**@fest-lib/lure v0.1.57**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type RemoteFsTransport = object;
 ```
 
-Defined in: lur.e/src/utils/opfs/remote-fs.ts:26
+Defined in: lur.e/src/utils/opfs/remote-fs.ts:28
 
 ## Methods
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/utils/opfs/remote-fs.ts:26
 request(req): Promise<MountedFsResponse>;
 ```
 
-Defined in: lur.e/src/utils/opfs/remote-fs.ts:27
+Defined in: lur.e/src/utils/opfs/remote-fs.ts:29
 
 #### Parameters
 
