@@ -66,20 +66,67 @@ export type CodeOverlayOptions = {
 
 const supportsAnchorPositioning = (): boolean => {
     try {
-        return typeof CSS !== "undefined" && CSS.supports?.("anchor-name: --x") === true;
+        const cap = (globalThis as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+        /* WHY: Android WebView reports anchor-name support but anchor-size(block) is 0 — overlay + pre collapse. */
+        if (typeof cap?.isNativePlatform === "function" && cap.isNativePlatform()) return false;
+        return typeof CSS !== "undefined"
+            && CSS.supports?.("anchor-name: --x") === true
+            && CSS.supports?.("block-size: anchor-size(block)") === true;
     } catch {
         return false;
     }
 };
 
+/** Used line-height, never 0px (Capacitor getComputedStyle before layout). */
+const usedLineHeight = (style: CSSStyleDeclaration, frozen = ""): string => {
+    const fontSize = parseFloat(style.fontSize);
+    const floor = (Number.isFinite(fontSize) && fontSize > 0 ? fontSize : 16) * 1.35;
+    const frozenPx = parseFloat(frozen);
+    /* WHY: WebView computed px oscillates (19.5 / 19.4999) → RO rewrites line-height every frame. */
+    if (Number.isFinite(frozenPx) && frozenPx >= floor * 0.85) return frozen;
+    const px = parseFloat(style.lineHeight);
+    const used = Number.isFinite(px) && px >= floor * 0.85 ? px : floor;
+    return `${Math.round(used)}px`;
+};
+
 const makeAnchorName = (): string => `--hl${Math.random().toString(36).slice(2, 10).replace(/[0-9]/g, "x")}`;
 
-/** Leaf overlay: CSS anchors when available, otherwise absolute fill. No lure barrel. */
+/** Pin overlay to the host border box. `inset:0` on `pre` misses `pre` padding — selection drifts. */
+const pinOverlayToHost = (host: HTMLElement, overlay: HTMLElement): void => {
+    overlay.style.position = "absolute";
+    overlay.style.boxSizing = "border-box";
+    overlay.style.inset = "auto";
+    overlay.style.right = "auto";
+    overlay.style.bottom = "auto";
+    overlay.style.margin = "0";
+    if (host.offsetParent && host.offsetParent === overlay.offsetParent) {
+        const top = `${host.offsetTop}px`;
+        const left = `${host.offsetLeft}px`;
+        const width = `${host.offsetWidth}px`;
+        const height = `${host.offsetHeight}px`;
+        if (overlay.style.top === top && overlay.style.left === left
+            && overlay.style.width === width && overlay.style.height === height) return;
+        overlay.style.top = top;
+        overlay.style.left = left;
+        overlay.style.width = width;
+        overlay.style.height = height;
+        return;
+    }
+    const parent = overlay.parentElement;
+    if (!parent) return;
+    const parentRect = parent.getBoundingClientRect();
+    const hostRect = host.getBoundingClientRect();
+    overlay.style.top = `${hostRect.top - parentRect.top + parent.scrollTop}px`;
+    overlay.style.left = `${hostRect.left - parentRect.left + parent.scrollLeft}px`;
+    overlay.style.width = `${hostRect.width}px`;
+    overlay.style.height = `${hostRect.height}px`;
+};
+
+/** Leaf overlay: CSS anchors when available, otherwise pin to the host box. */
 const placeCodeOverlay = (host: HTMLElement, overlay: HTMLElement): void => {
     overlay.style.pointerEvents = "none";
     overlay.style.userSelect = "none";
     overlay.style.position = "absolute";
-    overlay.style.inset = "0";
     overlay.style.zIndex = "1";
     overlay.style.margin = "0";
 
@@ -99,9 +146,12 @@ const placeCodeOverlay = (host: HTMLElement, overlay: HTMLElement): void => {
         overlay.style.setProperty("inset-inline-end", "anchor(end)");
         overlay.style.setProperty("inline-size", "anchor-size(inline)");
         overlay.style.setProperty("block-size", "anchor-size(block)");
+        host.after(overlay);
+        return;
     }
 
     host.after(overlay);
+    pinOverlayToHost(host, overlay);
 };
 
 const watchHostRemoval = (host: HTMLElement, onGone: () => void): (() => void) => {
@@ -129,6 +179,9 @@ const watchHostRemoval = (host: HTMLElement, onGone: () => void): (() => void) =
 type HighlightCtor = new (...ranges: Range[]) => object;
 
 const highlightsRegistry = (): { set(name: string, value: object): void; delete(name: string): void } | null => {
+    const cap = (globalThis as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+    /* WHY: WebView CSS.highlights boxes drift from native line selection. */
+    if (typeof cap?.isNativePlatform === "function" && cap.isNativePlatform()) return null;
     const css = globalThis.CSS as (typeof CSS & { highlights?: { set(name: string, value: object): void; delete(name: string): void } }) | undefined;
     return css?.highlights ?? null;
 };
@@ -188,6 +241,8 @@ const syncCodeSelectionHighlight = (): void => {
         if (!host.isConnected || !paint.isConnected) continue;
         const offsets = hostSelectionOffsets(host);
         if (!offsets) continue;
+        /* WHY: hljs HTML can drop/add glyphs — mapping offsets onto paint shifts rows. */
+        if ((host.textContent?.length ?? 0) !== (paint.textContent?.length ?? 0)) continue;
         const nodes = collectTextNodes(paint);
         const start = pointAtOffset(nodes, offsets.start);
         const end = pointAtOffset(nodes, offsets.end);
@@ -221,9 +276,9 @@ export const copyCodeMetrics = (source: HTMLElement, target: HTMLElement, box = 
         if (value) target.style.setProperty(property, value);
     }
     /* WHY: Unitless `line-height` on `pre` × `code` 0.92em ≠ pre's used px.
-     * Freeze the host's used line-height on both faces. */
-    const lineHeight = style.lineHeight;
-    if (source.style.lineHeight !== lineHeight) source.style.lineHeight = lineHeight;
+     * Freeze a used px value — never 0px from a pre-layout WebView. */
+    const lineHeight = usedLineHeight(style, source.style.lineHeight);
+    if (source.offsetHeight > 0 && source.style.lineHeight !== lineHeight) source.style.lineHeight = lineHeight;
     target.style.setProperty("line-height", lineHeight);
     (source.parentElement ?? source).style.setProperty("--code-line-height", lineHeight);
     target.style.setProperty("font-synthesis", "none");
@@ -232,7 +287,8 @@ export const copyCodeMetrics = (source: HTMLElement, target: HTMLElement, box = 
     target.style.setProperty("font-feature-settings", '"liga" 0, "clig" 0, "calt" 0, "dlig" 0');
     target.style.setProperty("-webkit-text-fill-color", "currentColor");
     if (box) {
-        target.style.boxSizing = style.boxSizing;
+        /* WHY: content-box + offsetWidth + copied padding grows the overlay and wraps earlier. */
+        target.style.boxSizing = "border-box";
         target.style.paddingTop = style.paddingTop;
         target.style.paddingRight = style.paddingRight;
         target.style.paddingBottom = style.paddingBottom;
@@ -257,19 +313,37 @@ export const attachCodeOverlay = (
     overlay.style.pointerEvents = "none";
     overlay.style.userSelect = "none";
 
-    const updateMetrics = (): void => {
-        copyCodeMetrics(host, overlay, true);
-        if (paint !== overlay) copyCodeMetrics(host, paint, false);
+    let metricsLocked = false;
+    let metricsBusy = false;
+    const updateMetrics = (force = false): void => {
+        if (metricsBusy) return;
+        metricsBusy = true;
+        try {
+            const laidOut = host.offsetHeight > 0 || host.offsetWidth > 0;
+            if (!laidOut) {
+                metricsLocked = false;
+                return;
+            }
+            if (force || !metricsLocked) {
+                copyCodeMetrics(host, overlay, true);
+                if (paint !== overlay) copyCodeMetrics(host, paint, false);
+                metricsLocked = parseFloat(host.style.lineHeight) > 0;
+            }
+            if (!supportsAnchorPositioning()) pinOverlayToHost(host, overlay);
+        } finally {
+            queueMicrotask(() => {
+                metricsBusy = false;
+            });
+        }
     };
-    updateMetrics();
+    updateMetrics(true);
     void document.fonts?.ready?.then(() => {
-        if (host.isConnected) updateMetrics();
+        if (host.isConnected) updateMetrics(true);
     });
     const resize = typeof ResizeObserver === "function"
         ? new ResizeObserver(() => updateMetrics())
         : null;
     resize?.observe(host);
-    if (host.parentElement) resize?.observe(host.parentElement);
 
     placeCodeOverlay(host, overlay);
 

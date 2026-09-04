@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.59**](../README.md)
+[**@fest-lib/lure v0.1.60**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function copyCodeMetrics(
    box?): void;
 ```
 
-Defined in: lur.e/src/lure/misc/CodeOverlay.ts:215
+Defined in: lur.e/src/lure/misc/CodeOverlay.ts:270
 
 Copy used glyph metrics from `pre > code` (or the text host) onto the overlay.
 

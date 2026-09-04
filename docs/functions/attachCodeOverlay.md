@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.59**](../README.md)
+[**@fest-lib/lure v0.1.60**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function attachCodeOverlay(
    options?): CodeOverlayHandle;
 ```
 
-Defined in: lur.e/src/lure/misc/CodeOverlay.ts:247
+Defined in: lur.e/src/lure/misc/CodeOverlay.ts:303
 
 Place `overlay` over `host` with matching box + font metrics.
 INVARIANT: overlay never captures pointer or selection.
