@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.57**
+**@fest-lib/lure v0.1.58**
 
 ***
 
-# @fest-lib/lure v0.1.57
+# @fest-lib/lure v0.1.58
 
 ## Enumerations
 
@@ -138,6 +138,8 @@
 - [BoundLaunchAssets](type-aliases/BoundLaunchAssets.md)
 - [Cleanup](type-aliases/Cleanup.md)
 - [ClipboardDataType](type-aliases/ClipboardDataType.md)
+- [CodeOverlayHandle](type-aliases/CodeOverlayHandle.md)
+- [CodeOverlayOptions](type-aliases/CodeOverlayOptions.md)
 - [CssAnimationOptions](type-aliases/CssAnimationOptions.md)
 - [CSSDimensionUnit](type-aliases/CSSDimensionUnit.md)
 - [DataAsset](type-aliases/DataAsset.md)
@@ -261,6 +263,7 @@
 - [cacheContentMap](variables/cacheContentMap.md)
 - [cacheMap](variables/cacheMap.md)
 - [cancelAnimations](variables/cancelAnimations.md)
+- [CODE\_SELECTION\_HIGHLIGHT](variables/CODE_SELECTION_HIGHLIGHT.md)
 - [createAnimatedRef](variables/createAnimatedRef.md)
 - [CSM](variables/CSM.md)
 - [CSS\_COLOR\_PROPERTIES](variables/CSS_COLOR_PROPERTIES.md)
@@ -366,6 +369,7 @@
 - [asProvidedFile](functions/asProvidedFile.md)
 - [atan2Ref](functions/atan2Ref.md)
 - [atanRef](functions/atanRef.md)
+- [attachCodeOverlay](functions/attachCodeOverlay.md)
 - [attachFile](functions/attachFile.md)
 - [attrLink](functions/attrLink.md)
 - [attrRef](functions/attrRef.md)
@@ -442,6 +446,7 @@
 - [convertValueToPointer](functions/convertValueToPointer.md)
 - [copy](functions/copy.md)
 - [COPY\_HACK](functions/COPY_HACK.md)
+- [copyCodeMetrics](functions/copyCodeMetrics.md)
 - [copyFromOneHandlerToAnother](functions/copyFromOneHandlerToAnother.md)
 - [copyHandleTree](functions/copyHandleTree.md)
 - [copyWithResult](functions/copyWithResult.md)

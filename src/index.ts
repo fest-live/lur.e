@@ -11,6 +11,7 @@ export { T, replaceChildren, removeChild, appendChild } from "./lure/context/Uti
 export * from "./lure/misc/Glit"
 export * from "@fest-lib/style-lib"
 export * from "./lure/misc/Syntax"
+export * from "./lure/misc/CodeOverlay"
 
 //
 export * from "./interactive/tasking/Manager"
