@@ -1,7 +1,7 @@
 {
     "name": "@fest-lib/lure",
     "description": "fest-lib LUR.E: reactive DOM (E/H/M/Q), form bind, overlays, drag",
-    "version": "0.1.62",
+    "version": "0.1.63",
     "license": "MIT",
     "type": "module",
     "sideEffects": true,
@@ -43,6 +43,12 @@
         "./index.js": "./dist/lure.js",
         "./src/lure/node/jsx-runtime": "./src/lure/node/jsx-runtime/index.ts",
         "./src/lure/node/jsx-dev-runtime": "./src/lure/node/jsx-dev-runtime/index.ts",
+        "./base64-data": {
+            "browser": "./src/utils/opfs/Base64Data.ts",
+            "module": "./src/utils/opfs/Base64Data.ts",
+            "import": "./src/utils/opfs/Base64Data.ts",
+            "default": "./src/utils/opfs/Base64Data.ts"
+        },
         "./code-overlay": {
             "browser": "./src/lure/misc/CodeOverlay.ts",
             "module": "./src/lure/misc/CodeOverlay.ts",
