@@ -336,6 +336,14 @@ export type PickedMarkdownFile = {
     virtualPath?: string | null;
 };
 
+const isExtensionPage = (): boolean => {
+    try {
+        return globalThis.location?.protocol === "chrome-extension:";
+    } catch {
+        return false;
+    }
+};
+
 /** FSA when present; Capacitor / CRX / Firefox fall back to `<input type=file>`. */
 export const pickMarkdownFile = async (): Promise<PickedMarkdownFile | null> => {
     const pickFile = (
@@ -343,7 +351,8 @@ export const pickMarkdownFile = async (): Promise<PickedMarkdownFile | null> => 
             showOpenFilePicker?: (opts?: Record<string, unknown>) => Promise<FileSystemFileHandle[]>;
         }
     ).showOpenFilePicker;
-    if (typeof pickFile === "function") {
+    /* WHY: CRX exposes FSA but a failed/aborted picker drops the user gesture; input must run first. */
+    if (!isExtensionPage() && typeof pickFile === "function") {
         try {
             const [handle] = await pickFile({
                 multiple: false,
