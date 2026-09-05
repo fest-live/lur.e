@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function indexDirectoryFiles(
 acc?): Promise<IndexedDirFile[]>;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:90
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:91
 
 Walk a picked folder so the viewer can resolve `./assets/…` by relative path or basename.
 

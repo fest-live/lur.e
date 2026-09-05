@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type BoundLaunchAssets = object;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:259
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:260
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:259
 root: string;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:260
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:261
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:260
 virtualPath: string;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:261
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:262

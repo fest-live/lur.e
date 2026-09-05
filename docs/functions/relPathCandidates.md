@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function relPathCandidates(rel): string[];
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:63
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:64
 
 `assets/logo/x.png` → also `logo/x.png`, `x.png` (picker was `assets/` or `logo/`).
 

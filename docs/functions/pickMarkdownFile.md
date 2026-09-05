@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function pickMarkdownFile(): Promise<PickedMarkdownFile | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:348
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:350
 
 FSA when present; Capacitor / CRX / Firefox fall back to `<input type=file>`.
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function collectRelativeMarkdownAssetRefs(markdown): string[];
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:222
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:223
 
 Relative `![](…)` / `src` / `href` refs that need a sibling folder or sidecar files.
 

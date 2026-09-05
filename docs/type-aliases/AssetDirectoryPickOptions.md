@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type AssetDirectoryPickOptions = object;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:129
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:130
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:129
 optional id?: string;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:131
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:132
 
 ***
 
@@ -30,7 +30,7 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:131
 optional mode?: "read" | "readwrite";
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:132
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:133
 
 ***
 
@@ -40,4 +40,4 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:132
 optional startIn?: FileSystemHandle;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:130
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:131

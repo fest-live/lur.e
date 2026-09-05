@@ -2,8 +2,9 @@
  * Filename: markdown-assets.ts
  * FullPath: modules/projects/lur.e/src/utils/opfs/markdown-assets.ts
  * FIND:markdown-assets
- * Change date and time: 15.25.00_24.08.2026
- * Reason for changes: Bind a folder next to a launched/shared markdown so relative assets resolve.
+ * FIND:file-markdown
+ * Change date and time: 14.30.00_05.09.2026
+ * Reason for changes: Save remembers FSA handle; Open returns the picked handle.
  *
  * WHY: Launch Queue / Share Target give a File (or file handle) without a parent directory.
  * INVARIANT: showDirectoryPicker needs a user gesture; AbortError is cancel, not failure.
@@ -334,6 +335,7 @@ export type PickedMarkdownFile = {
     sidecars: File[];
     directory?: FileSystemDirectoryHandle | null;
     virtualPath?: string | null;
+    handle?: FileSystemFileHandle | null;
 };
 
 const isExtensionPage = (): boolean => {
@@ -365,7 +367,7 @@ export const pickMarkdownFile = async (): Promise<PickedMarkdownFile | null> => 
                 }]
             });
             if (!handle) return null;
-            return { file: await handle.getFile(), sidecars: [] };
+            return { file: await handle.getFile(), sidecars: [], handle };
         } catch (error) {
             if ((error as DOMException)?.name === "AbortError") return null;
         }
@@ -402,34 +404,82 @@ export const pickSidecarDirectoryFiles = async (): Promise<{
 
 export type MarkdownSaveResult = "saved" | "downloaded" | "shared" | "cancelled" | "failed";
 
-/** PWA FSA → CRX `chrome.downloads` → Web Share (Capacitor) → `<a download>`. */
-export const saveMarkdownBlob = async (
-    content: string,
+export type MarkdownSaveOutcome = {
+    result: MarkdownSaveResult;
+    handle?: FileSystemFileHandle;
+};
+
+const MARKDOWN_SAVE_TYPES = [{
+    description: "Markdown files",
+    accept: { "text/markdown": [".md", ".markdown"] }
+}];
+
+/** Write through a remembered FSA handle (no second picker when permission holds). */
+export const writeMarkdownToHandle = async (
+    handle: FileSystemFileHandle | null | undefined,
+    content: string
+): Promise<boolean> => {
+    if (!handle || typeof handle.createWritable !== "function") return false;
+    try {
+        const query = handle.queryPermission?.({ mode: "readwrite" });
+        if (query) {
+            const state = await query;
+            if (state !== "granted") {
+                const next = await handle.requestPermission?.({ mode: "readwrite" });
+                if (next && next !== "granted") return false;
+            }
+        }
+        const writable = await handle.createWritable();
+        await writable.write(content);
+        await writable.close();
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+/** `showSaveFilePicker` when the browser exposes it (Web / PWA / some CRX). */
+export const pickMarkdownSaveHandle = async (
     filename: string
-): Promise<MarkdownSaveResult> => {
-    const name = String(filename || "document.md").trim() || "document.md";
+): Promise<FileSystemFileHandle | null | "cancelled"> => {
     const savePicker = (
         globalThis as {
-            showSaveFilePicker?: (opts?: Record<string, unknown>) => Promise<{
-                createWritable: () => Promise<{ write: (data: string) => Promise<void>; close: () => Promise<void> }>;
-            }>;
+            showSaveFilePicker?: (opts?: Record<string, unknown>) => Promise<FileSystemFileHandle>;
         }
     ).showSaveFilePicker;
-    if (typeof savePicker === "function") {
-        try {
-            const handle = await savePicker({
-                suggestedName: name,
-                types: [{
-                    description: "Markdown files",
-                    accept: { "text/markdown": [".md", ".markdown"] }
-                }]
-            });
-            const writable = await handle.createWritable();
-            await writable.write(content);
-            await writable.close();
-            return "saved";
-        } catch (error) {
-            if ((error as DOMException)?.name === "AbortError") return "cancelled";
+    if (typeof savePicker !== "function") return null;
+    const name = String(filename || "document.md").trim() || "document.md";
+    try {
+        return await savePicker({
+            suggestedName: name,
+            types: MARKDOWN_SAVE_TYPES
+        });
+    } catch (error) {
+        if ((error as DOMException)?.name === "AbortError") return "cancelled";
+        return null;
+    }
+};
+
+/**
+ * Remembered FSA handle → `showSaveFilePicker` → CRX `chrome.downloads`
+ * → Web Share (Capacitor) → `<a download>`.
+ * WHY: Save must not re-prompt when the last picker handle is still writable.
+ */
+export const saveMarkdownDocument = async (
+    content: string,
+    filename: string,
+    existingHandle?: FileSystemFileHandle | null
+): Promise<MarkdownSaveOutcome> => {
+    const name = String(filename || "document.md").trim() || "document.md";
+    if (existingHandle && await writeMarkdownToHandle(existingHandle, content)) {
+        return { result: "saved", handle: existingHandle };
+    }
+
+    const picked = await pickMarkdownSaveHandle(name);
+    if (picked === "cancelled") return { result: "cancelled" };
+    if (picked) {
+        if (await writeMarkdownToHandle(picked, content)) {
+            return { result: "saved", handle: picked };
         }
     }
 
@@ -440,7 +490,7 @@ export const saveMarkdownBlob = async (
         const url = URL.createObjectURL(blob);
         try {
             await chromeDl({ url, filename: name, saveAs: true });
-            return "downloaded";
+            return { result: "downloaded" };
         } catch {
             URL.revokeObjectURL(url);
         }
@@ -454,9 +504,9 @@ export const saveMarkdownBlob = async (
     if (typeof nav.share === "function" && (!nav.canShare || nav.canShare({ files: [file] }))) {
         try {
             await nav.share({ files: [file], title: name });
-            return "shared";
+            return { result: "shared" };
         } catch (error) {
-            if ((error as DOMException)?.name === "AbortError") return "cancelled";
+            if ((error as DOMException)?.name === "AbortError") return { result: "cancelled" };
         }
     }
 
@@ -467,8 +517,14 @@ export const saveMarkdownBlob = async (
         a.download = name;
         a.click();
         setTimeout(() => URL.revokeObjectURL(url), 250);
-        return "downloaded";
+        return { result: "downloaded" };
     } catch {
-        return "failed";
+        return { result: "failed" };
     }
 };
+
+/** PWA FSA → CRX `chrome.downloads` → Web Share (Capacitor) → `<a download>`. */
+export const saveMarkdownBlob = async (
+    content: string,
+    filename: string
+): Promise<MarkdownSaveResult> => (await saveMarkdownDocument(content, filename)).result;

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type IndexedDirFile = object;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:87
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:88
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:87
 file: File;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:87
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:88
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:87
 rel: string;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:87
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:88

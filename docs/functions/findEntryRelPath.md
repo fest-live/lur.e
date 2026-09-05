@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function findEntryRelPath(dir, target): Promise<string | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:199
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:200
 
 Walk a directory tree for the relative path of a file handle.
 

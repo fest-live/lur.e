@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.62**
+**@fest-lib/lure v0.1.64**
 
 ***
 
-# @fest-lib/lure v0.1.62
+# @fest-lib/lure v0.1.64
 
 ## Enumerations
 
@@ -173,6 +173,7 @@
 - [LinkSetter](type-aliases/LinkSetter.md)
 - [LinkStore](type-aliases/LinkStore.md)
 - [LinkTrigger](type-aliases/LinkTrigger.md)
+- [MarkdownSaveOutcome](type-aliases/MarkdownSaveOutcome.md)
 - [MarkdownSaveResult](type-aliases/MarkdownSaveResult.md)
 - [MutableTypedLeaf](type-aliases/MutableTypedLeaf.md)
 - [NavigationAction](type-aliases/NavigationAction.md)
@@ -777,6 +778,7 @@
 - [pickFiles](functions/pickFiles.md)
 - [pickFromCenter](functions/pickFromCenter.md)
 - [pickMarkdownFile](functions/pickMarkdownFile.md)
+- [pickMarkdownSaveHandle](functions/pickMarkdownSaveHandle.md)
 - [pickSidecarDirectoryFiles](functions/pickSidecarDirectoryFiles.md)
 - [placeOverlay](functions/placeOverlay.md)
 - [pointerAnchorRef](functions/pointerAnchorRef.md)
@@ -867,6 +869,7 @@
 - [sanitizeFileName](functions/sanitizeFileName.md)
 - [saveFile](functions/saveFile.md)
 - [saveMarkdownBlob](functions/saveMarkdownBlob.md)
+- [saveMarkdownDocument](functions/saveMarkdownDocument.md)
 - [saveUIState](functions/saveUIState.md)
 - [scale2D](functions/scale2D.md)
 - [scaleRectAroundCenter](functions/scaleRectAroundCenter.md)
@@ -968,4 +971,5 @@
 - [writeFilesToDir](functions/writeFilesToDir.md)
 - [writeHTML](functions/writeHTML.md)
 - [writeImage](functions/writeImage.md)
+- [writeMarkdownToHandle](functions/writeMarkdownToHandle.md)
 - [writeText](functions/writeText.md)

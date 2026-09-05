@@ -282,6 +282,8 @@ export const copyCodeMetrics = (source: HTMLElement, target: HTMLElement, box = 
     target.style.setProperty("line-height", lineHeight);
     (source.parentElement ?? source).style.setProperty("--code-line-height", lineHeight);
     target.style.setProperty("font-synthesis", "none");
+    target.style.setProperty("font-weight", "400");
+    target.style.setProperty("font-style", "normal");
     target.style.setProperty("font-kerning", "none");
     target.style.setProperty("font-variant-ligatures", "none");
     target.style.setProperty("font-feature-settings", '"liga" 0, "clig" 0, "calt" 0, "dlig" 0');

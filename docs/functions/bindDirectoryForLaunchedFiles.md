@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function bindDirectoryForLaunchedFiles(options): Promise<BoundLaunchAssets | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:268
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:269
 
 Offer `showDirectoryPicker` (same user-activation as Launch Queue when possible).
 Cancel / missing API → null; caller continues with the File body alone.

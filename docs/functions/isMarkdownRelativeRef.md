@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function isMarkdownRelativeRef(value): boolean;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:16
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:17
 
 True for `./assets/x`, `docs/a.md` — not http(s)/blob/data/#.
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function pickSidecarDirectoryFiles(): Promise<{
 }>;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:381
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:383
 
 Folder of images / includes. Chromium FSA first; otherwise `webkitdirectory`
 (Capacitor WebView + CRX) so relative `![](./assets/…)` can resolve from sidecars.

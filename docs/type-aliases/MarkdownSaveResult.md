@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type MarkdownSaveResult = "saved" | "downloaded" | "shared" | "cancelled" | "failed";
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:403
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:405

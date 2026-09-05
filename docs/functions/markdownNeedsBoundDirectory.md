@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function markdownNeedsBoundDirectory(markdown, sidecarNames?): boolean;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:247
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:248
 
 True when the markdown points at local assets that are not already in the transfer.
 

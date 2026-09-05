@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type PickedMarkdownFile = object;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:332
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:333
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:332
 optional directory?: FileSystemDirectoryHandle | null;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:335
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:336
 
 ***
 
@@ -30,7 +30,17 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:335
 file: File;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:333
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:334
+
+***
+
+### handle?
+
+```ts
+optional handle?: FileSystemFileHandle | null;
+```
+
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:338
 
 ***
 
@@ -40,7 +50,7 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:333
 sidecars: File[];
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:334
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:335
 
 ***
 
@@ -50,4 +60,4 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:334
 optional virtualPath?: string | null;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:336
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:337

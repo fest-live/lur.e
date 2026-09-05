@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function originalRelFromRef(value): string;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:22
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:23
 
 Keep the markdown-relative token (`./assets/x.png`) even after the browser resolved it to the PWA origin.
 

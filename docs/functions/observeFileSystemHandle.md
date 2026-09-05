@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function observeFileSystemHandle(handle, onRecords):
   | null;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:163
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:164
 
 Watch a handle with experimental FileSystemObserver.
 

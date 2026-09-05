@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.62**](../README.md)
+[**@fest-lib/lure v0.1.64**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function mountPickedDirectory(dir, prefix?): string;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:189
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:190
 
 Map a picked directory to `/mounts/<id>/` for `provide()` + relative markdown URLs.
 
