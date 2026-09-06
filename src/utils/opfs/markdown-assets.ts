@@ -346,8 +346,22 @@ const isExtensionPage = (): boolean => {
     }
 };
 
+/** Capacitor registers ACTION_OPEN_DOCUMENT so Open keeps a writable `/sdcard/` or `content://`. */
+export type MarkdownFilePicker = () => Promise<PickedMarkdownFile | null | undefined>;
+
+let registeredMarkdownFilePicker: MarkdownFilePicker | null = null;
+
+export const registerMarkdownFilePicker = (fn: MarkdownFilePicker | null): void => {
+    registeredMarkdownFilePicker = fn;
+};
+
 /** FSA when present; Capacitor / CRX / Firefox fall back to `<input type=file>`. */
 export const pickMarkdownFile = async (): Promise<PickedMarkdownFile | null> => {
+    if (registeredMarkdownFilePicker) {
+        const native = await registeredMarkdownFilePicker().catch(() => undefined);
+        if (native?.file) return native;
+        if (native === null) return null;
+    }
     const pickFile = (
         globalThis as {
             showOpenFilePicker?: (opts?: Record<string, unknown>) => Promise<FileSystemFileHandle[]>;
