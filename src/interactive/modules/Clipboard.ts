@@ -10,6 +10,7 @@
  */
 
 import { lazyAddEventListener } from "../controllers/LazyEvents";
+import { decodeToastMessage } from "../../utils/text/decodeToastMessage";
 
 export type ClipboardDataType = "text" | "html" | "image" | "blob";
 
@@ -369,7 +370,7 @@ const broadcastClipboardFeedback = (result: ClipboardResult): void => {
         channel.postMessage({
             type: "show-toast",
             options: {
-                message: result.ok ? "Copied to clipboard" : (result.error || "Copy failed"),
+                message: result.ok ? "Copied to clipboard" : decodeToastMessage(result.error || "Copy failed"),
                 kind: result.ok ? "success" : "error",
                 duration: 2000
             }
