@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -62,7 +62,8 @@ rows: number;
 static canPlaceCell(
    cell, 
    occupied, 
-   config): boolean;
+   config
+): boolean;
 ```
 
 Defined in: lur.e/src/utils/math/GridMath.ts:264
@@ -141,7 +142,8 @@ Defined in: lur.e/src/utils/math/GridMath.ts:276
 static redistributeCells(
    cells, 
    config, 
-   algorithm?): GridCell[];
+   algorithm?
+): GridCell[];
 ```
 
 Defined in: lur.e/src/utils/math/GridMath.ts:296

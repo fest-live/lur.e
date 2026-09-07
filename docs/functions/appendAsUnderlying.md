@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function appendAsUnderlying(
    main, 
    layer?, 
    options?, 
-   maybeOptions?): HTMLElement | undefined;
+   maybeOptions?
+): HTMLElement | undefined;
 ```
 
 Defined in: lur.e/src/design/layers/AnchorOverlay.ts:233

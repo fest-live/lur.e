@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -13,7 +13,8 @@ function makeUIState(
    unpackCb, 
    packCb?, 
    key?, 
-   saveInterval?): null;
+   saveInterval?
+): null;
 ```
 
 Defined in: lur.e/src/interactive/modules/UIState.ts:274

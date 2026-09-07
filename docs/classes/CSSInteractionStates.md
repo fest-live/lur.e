@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -28,7 +28,8 @@ new CSSInteractionStates(): CSSInteractionStates;
 static bindActiveState(
    element, 
    isActive, 
-   activeTransform?): () => void;
+   activeTransform?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:847
@@ -59,7 +60,8 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:847
 static bindFocusRing(
    element, 
    isFocused, 
-   ringColor?): () => void;
+   ringColor?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:821
@@ -90,7 +92,8 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:821
 static bindHoverState(
    element, 
    isHovered, 
-   hoverTransform?): () => void;
+   hoverTransform?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:834

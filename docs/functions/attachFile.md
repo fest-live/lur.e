@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function attachFile(
    transfer, 
    file, 
-   path?): void;
+   path?
+): void;
 ```
 
 Defined in: lur.e/src/utils/opfs/OPFS.ts:1297

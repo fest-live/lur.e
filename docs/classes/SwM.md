@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -102,7 +102,8 @@ Defined in: lur.e/src/lure/node/Switched.ts:44
 _onUpdate(
    newVal, 
    prop, 
-   oldVal): void;
+   oldVal
+): void;
 ```
 
 Defined in: lur.e/src/lure/node/Switched.ts:76

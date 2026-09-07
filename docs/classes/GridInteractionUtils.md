@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -31,7 +31,8 @@ static calculateDragPreview(
    cell, 
    dragPosition, 
    config, 
-   existingCells): GridCoord;
+   existingCells
+): GridCoord;
 ```
 
 Defined in: lur.e/src/utils/math/GridMath.ts:492
@@ -66,7 +67,8 @@ Defined in: lur.e/src/utils/math/GridMath.ts:492
 static findValidPositions(
    cell, 
    config, 
-   existingCells): GridCoord[];
+   existingCells
+): GridCoord[];
 ```
 
 Defined in: lur.e/src/utils/math/GridMath.ts:476
@@ -145,7 +147,8 @@ Defined in: lur.e/src/utils/math/GridMath.ts:439
 static wouldOverlap(
    cell, 
    newCoord, 
-   existingCells): boolean;
+   existingCells
+): boolean;
 ```
 
 Defined in: lur.e/src/utils/math/GridMath.ts:462

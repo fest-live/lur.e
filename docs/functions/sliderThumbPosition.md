@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function sliderThumbPosition(
    value, 
    min, 
    max, 
-   trackSize): any;
+   trackSize
+): any;
 ```
 
 Defined in: lur.e/src/utils/math/Operations.ts:222

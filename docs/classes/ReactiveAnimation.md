@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -16,7 +16,8 @@ Defined in: lur.e/src/design/anchor/Utils.ts:98
 new ReactiveAnimation(
    element, 
    duration?, 
-   easing?): ReactiveAnimation;
+   easing?
+): ReactiveAnimation;
 ```
 
 Defined in: lur.e/src/design/anchor/Utils.ts:104
@@ -47,7 +48,8 @@ Defined in: lur.e/src/design/anchor/Utils.ts:104
 animateProperty(
    property, 
    from, 
-   to): this;
+   to
+): this;
 ```
 
 Defined in: lur.e/src/design/anchor/Utils.ts:112

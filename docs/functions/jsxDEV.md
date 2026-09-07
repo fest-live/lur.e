@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -13,7 +13,8 @@ function jsxDEV(
    _key?, 
    _isStatic?, 
    _source?, 
-   _self?): any;
+   _self?
+): any;
 ```
 
 Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:86

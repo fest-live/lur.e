@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -28,7 +28,8 @@ new CSSMomentumScrolling(): CSSMomentumScrolling;
 static createBounceBack(
    element, 
    overScroll, 
-duration?): Promise<void>;
+   duration?
+): Promise<void>;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:787
@@ -59,7 +60,8 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:787
 static createMomentumScroll(
    element, 
    velocity, 
-deceleration?): Promise<void>;
+   deceleration?
+): Promise<void>;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:757

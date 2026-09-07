@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -16,7 +16,8 @@ Defined in: lur.e/src/utils/opfs/IdbFs.ts:288
 new IdbDirectoryHandle(
    store, 
    path, 
-   name): IdbDirectoryHandle;
+   name
+): IdbDirectoryHandle;
 ```
 
 Defined in: lur.e/src/utils/opfs/IdbFs.ts:295

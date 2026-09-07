@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,10 +10,11 @@
 function saveMarkdownDocument(
    content, 
    filename, 
-existingHandle?): Promise<MarkdownSaveOutcome>;
+   existingHandle?
+): Promise<MarkdownSaveOutcome>;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:468
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:482
 
 Remembered FSA handle → `showSaveFilePicker` → CRX `chrome.downloads`
 → Web Share (Capacitor) → `<a download>`.

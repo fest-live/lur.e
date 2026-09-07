@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ClipboardWriteOptions
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:16
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:17
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:16
 optional fallbackToLegacy?: boolean;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:19
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:20
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:19
 optional mimeType?: string;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:18
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:19
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:18
 optional showFeedback?: boolean;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:20
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:21
 
 ***
 
@@ -46,7 +46,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:20
 optional silentOnError?: boolean;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:22
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:23
 
 If true, don't show error toast on failure (for background operations)
 
@@ -58,4 +58,4 @@ If true, don't show error toast on failure (for background operations)
 optional type?: ClipboardDataType;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:17
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:18

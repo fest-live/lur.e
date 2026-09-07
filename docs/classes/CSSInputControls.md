@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -54,7 +54,8 @@ static bindSliderThumb(
    value, 
    min, 
    max, 
-   trackWidth): () => void;
+   trackWidth
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:617

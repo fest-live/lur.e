@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function provideBoundRelative(
    mountRoot, 
    originalRel, 
-sourceUrl?): Promise<File | null>;
+   sourceUrl?
+): Promise<File | null>;
 ```
 
 Defined in: lur.e/src/utils/opfs/markdown-assets.ts:40

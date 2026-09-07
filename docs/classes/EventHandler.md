@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -22,7 +22,8 @@ new EventHandler(
    currentTarget, 
    selector, 
    eventName, 
-   callback): EventHandler;
+   callback
+): EventHandler;
 ```
 
 Defined in: lur.e/src/lure/node/Queried.ts:458
@@ -61,7 +62,8 @@ Defined in: lur.e/src/lure/node/Queried.ts:458
 apply(
    _target, 
    thisArg, 
-   args): any;
+   args
+): any;
 ```
 
 Defined in: lur.e/src/lure/node/Queried.ts:499
@@ -132,7 +134,8 @@ ProxyHandler.construct
 defineProperty(
    _target, 
    name, 
-   desc): boolean;
+   desc
+): boolean;
 ```
 
 Defined in: lur.e/src/lure/node/Queried.ts:495
@@ -207,7 +210,8 @@ ProxyHandler.deleteProperty
 get(
    _target, 
    name, 
-   ctx): any;
+   ctx
+): any;
 ```
 
 Defined in: lur.e/src/lure/node/Queried.ts:461
@@ -422,7 +426,8 @@ ProxyHandler.preventExtensions
 set(
    _target, 
    name, 
-   value): boolean;
+   value
+): boolean;
 ```
 
 Defined in: lur.e/src/lure/node/Queried.ts:479

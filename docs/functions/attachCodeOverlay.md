@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function attachCodeOverlay(
    host, 
    overlay, 
-   options?): CodeOverlayHandle;
+   options?
+): CodeOverlayHandle;
 ```
 
 Defined in: lur.e/src/lure/misc/CodeOverlay.ts:305

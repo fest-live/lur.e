@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function writeMarkdownToHandle(handle, content): Promise<boolean>;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:418
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:432
 
 Write through a remembered FSA handle (no second picker when permission holds).
 

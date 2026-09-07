@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -14,7 +14,8 @@ function makeInteractive(
    axis?, 
    status?, 
    inputChange?, 
-   draggingState?): void;
+   draggingState?
+): void;
 ```
 
 Defined in: lur.e/src/interactive/modules/ScrollBar.ts:89

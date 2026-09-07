@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -108,7 +108,8 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:518
 static asUnit(
    value, 
    unit, 
-   fallbackValue?): any;
+   fallbackValue?
+): any;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:551
@@ -199,7 +200,8 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:562
 static clamp(
    min, 
    value, 
-   max): any;
+   max
+): any;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:575

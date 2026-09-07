@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.64**
+**@fest-lib/lure v0.1.68**
 
 ***
 
-# @fest-lib/lure v0.1.64
+# @fest-lib/lure v0.1.68
 
 ## Enumerations
 
@@ -173,6 +173,7 @@
 - [LinkSetter](type-aliases/LinkSetter.md)
 - [LinkStore](type-aliases/LinkStore.md)
 - [LinkTrigger](type-aliases/LinkTrigger.md)
+- [MarkdownFilePicker](type-aliases/MarkdownFilePicker.md)
 - [MarkdownSaveOutcome](type-aliases/MarkdownSaveOutcome.md)
 - [MarkdownSaveResult](type-aliases/MarkdownSaveResult.md)
 - [MutableTypedLeaf](type-aliases/MutableTypedLeaf.md)
@@ -499,6 +500,7 @@
 - [datasetRef](functions/datasetRef.md)
 - [decodeBase64ToBytes](functions/decodeBase64ToBytes.md)
 - [decodeDesktopState](functions/decodeDesktopState.md)
+- [decodeToastMessage](functions/decodeToastMessage.md)
 - [defaultLogger](functions/defaultLogger.md)
 - [defaultZIndexShift](functions/defaultZIndexShift.md)
 - [defineAnimation](functions/defineAnimation.md)
@@ -827,6 +829,7 @@
 - [registerContextMenu](functions/registerContextMenu.md)
 - [registerDirectoryRoot](functions/registerDirectoryRoot.md)
 - [registerLayerElement](functions/registerLayerElement.md)
+- [registerMarkdownFilePicker](functions/registerMarkdownFilePicker.md)
 - [registerModal](functions/registerModal.md)
 - [registerOverlay](functions/registerOverlay.md)
 - [registerOverlayElement](functions/registerOverlayElement.md)

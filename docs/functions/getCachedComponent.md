@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function getCachedComponent<T>(
    cacheKey, 
    importFn, 
-options): Promise<LazyComponent<T>>;
+   options
+): Promise<LazyComponent<T>>;
 ```
 
 Defined in: lur.e/src/interactive/modules/LazyLoader.ts:76

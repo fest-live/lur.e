@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -31,7 +31,8 @@ static animateCellMovement(
    cell, 
    targetCoord, 
    config, 
-duration?): Promise<void>;
+   duration?
+): Promise<void>;
 ```
 
 Defined in: lur.e/src/utils/math/GridMath.ts:345
@@ -67,7 +68,8 @@ static animateCellResize(
    cell, 
    targetRowSpan, 
    targetColSpan, 
-duration?): Promise<void>;
+   duration?
+): Promise<void>;
 ```
 
 Defined in: lur.e/src/utils/math/GridMath.ts:381

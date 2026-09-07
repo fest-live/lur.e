@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -59,7 +59,8 @@ Used by PWA share-target and launchQueue ingestion.
 createDownloadableFile(
    content, 
    filename, 
-   mimeType?): void;
+   mimeType?
+): void;
 ```
 
 Defined in: lur.e/src/utils/opfs/FileHandling.ts:376
@@ -507,7 +508,8 @@ setupCompleteFileHandling(
    container, 
    fileSelectButton, 
    dropZone?, 
-   accept?): void;
+   accept?
+): void;
 ```
 
 Defined in: lur.e/src/utils/opfs/FileHandling.ts:91

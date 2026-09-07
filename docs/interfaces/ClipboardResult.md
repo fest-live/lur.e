@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ClipboardResult
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:25
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:26
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:25
 optional data?: unknown;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:27
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:28
 
 ***
 
@@ -26,7 +26,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:27
 optional error?: string;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:28
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:29
 
 ***
 
@@ -36,7 +36,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:28
 optional method?: "clipboard-api" | "legacy" | "broadcast" | "offscreen";
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:29
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:30
 
 ***
 
@@ -46,4 +46,4 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:29
 ok: boolean;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:26
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:27

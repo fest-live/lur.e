@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function openPickerAndWrite(
    dir, 
    accept?, 
-multiple?): Promise<number>;
+   multiple?
+): Promise<number>;
 ```
 
 Defined in: lur.e/src/utils/opfs/FileOps.ts:48

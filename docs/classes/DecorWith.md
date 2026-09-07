@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -36,7 +36,8 @@ Defined in: lur.e/src/interactive/controllers/PointerAPI.ts:14
 defineProperty(
    target, 
    name, 
-   desc): boolean;
+   desc
+): boolean;
 ```
 
 Defined in: lur.e/src/interactive/controllers/PointerAPI.ts:29
@@ -219,7 +220,8 @@ Defined in: lur.e/src/interactive/controllers/PointerAPI.ts:28
 set(
    target, 
    name, 
-   val): boolean;
+   val
+): boolean;
 ```
 
 Defined in: lur.e/src/interactive/controllers/PointerAPI.ts:16

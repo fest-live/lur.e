@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -104,7 +104,8 @@ Defined in: lur.e/src/lure/core/Links.ts:50
 set(
    value, 
    event?, 
-   forProp?): void;
+   forProp?
+): void;
 ```
 
 Defined in: lur.e/src/lure/core/Links.ts:51
@@ -135,7 +136,8 @@ Defined in: lur.e/src/lure/core/Links.ts:51
 store(
    value, 
    event?, 
-   forProp?): any;
+   forProp?
+): any;
 ```
 
 Defined in: lur.e/src/lure/core/Links.ts:52

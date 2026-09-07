@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function handleIncomingEntries(
    data, 
    destPath?, 
    rootHandle?, 
-onItemHandled?): Promise<void>;
+   onItemHandled?
+): Promise<void>;
 ```
 
 Defined in: lur.e/src/utils/opfs/OPFS.ts:1342

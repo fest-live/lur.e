@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -22,7 +22,8 @@ new Task(
    list?, 
    state?, 
    payload?, 
-   action?): Task;
+   action?
+): Task;
 ```
 
 Defined in: lur.e/src/interactive/tasking/Tasks.ts:31

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -16,7 +16,8 @@ Defined in: lur.e/src/utils/math/Point3D.ts:4
 new Vector3D(
    x?, 
    y?, 
-   z?): Vector3D;
+   z?
+): Vector3D;
 ```
 
 Defined in: lur.e/src/utils/math/Point3D.ts:9
@@ -231,7 +232,8 @@ Defined in: lur.e/src/utils/math/Point3D.ts:66
 set(
    x, 
    y, 
-   z): Vector3D;
+   z
+): Vector3D;
 ```
 
 Defined in: lur.e/src/utils/math/Point3D.ts:58

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function compactIconSrcForStorage(
    iconSrc, 
    action, 
-   href): string;
+   href
+): string;
 ```
 
 Defined in: lur.e/src/interactive/modules/DesktopItemIconCodec.ts:159

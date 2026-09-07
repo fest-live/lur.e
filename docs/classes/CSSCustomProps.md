@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -29,7 +29,8 @@ static bindProperty(
    element, 
    propName, 
    value, 
-   unit?): () => void;
+   unit?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:441
@@ -65,7 +66,8 @@ static bindVectorProperties(
    element, 
    baseName, 
    vector, 
-   unit?): () => void;
+   unit?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:449

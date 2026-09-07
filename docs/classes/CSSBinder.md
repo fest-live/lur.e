@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -29,7 +29,8 @@ static bindBorderRadius(
    element, 
    radius, 
    animationType?, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:360
@@ -66,7 +67,8 @@ static bindColor(
    property, 
    color, 
    animationType?, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:329
@@ -106,7 +108,8 @@ static bindOpacity(
    element, 
    opacity, 
    animationType?, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:346
@@ -142,7 +145,8 @@ static bindPosition(
    element, 
    vector, 
    animationType?, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:209
@@ -178,7 +182,8 @@ static bindSize(
    element, 
    vector, 
    animationType?, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:226
@@ -214,7 +219,8 @@ static bindTransform(
    element, 
    vector, 
    animationType?, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:195
@@ -249,7 +255,8 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:195
 static bindTransformMorph(
    element, 
    transformProps, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:282
@@ -296,7 +303,8 @@ static bindVectorWithUnit(
    vector, 
    unit?, 
    animationType?, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:259
@@ -338,7 +346,8 @@ static bindWithUnit(
    value, 
    unit?, 
    animationType?, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:243

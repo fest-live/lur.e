@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function makeMenuHandler(
    triggerElement, 
    placement, 
    ctxMenuDesc, 
-   menuElement?): (ev) => boolean;
+   menuElement?
+): (ev) => boolean;
 ```
 
 Defined in: lur.e/src/interactive/modules/CtxMenu.ts:92

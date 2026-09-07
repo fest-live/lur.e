@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function getHandler(
    rootHandle, 
    relPath, 
    options?, 
-   logger?): Promise<
+   logger?
+): Promise<
   | {
   handle: any;
   type: string;

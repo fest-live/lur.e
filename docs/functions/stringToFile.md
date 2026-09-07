@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function stringToFile(
    input, 
    filename, 
-options?): Promise<File>;
+   options?
+): Promise<File>;
 ```
 
 Defined in: lur.e/src/utils/opfs/Base64Data.ts:468

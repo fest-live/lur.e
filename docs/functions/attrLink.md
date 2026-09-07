@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function attrLink(
    element?, 
    exists?, 
    attribute?, 
-   initial?): (() => void) | undefined;
+   initial?
+): (() => void) | undefined;
 ```
 
 Defined in: lur.e/src/lure/core/Links.ts:319

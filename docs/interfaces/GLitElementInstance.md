@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -94,7 +94,8 @@ Defined in: lur.e/src/lure/misc/Glit.ts:125
 optional attributeChangedCallback(
    name, 
    oldValue, 
-   newValue): void | GLitElementInstance | undefined;
+   newValue
+): void | GLitElementInstance | undefined;
 ```
 
 Defined in: lur.e/src/lure/misc/Glit.ts:126

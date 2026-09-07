@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -41,7 +41,8 @@ limitResize(
    real, 
    virtual, 
    holder, 
-   container): any;
+   container
+): any;
 ```
 
 Defined in: lur.e/src/interactive/controllers/Resizable.ts:28

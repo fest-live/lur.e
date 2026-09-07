@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -28,7 +28,8 @@ new CSSCalc(): CSSCalc;
 static add(
    a, 
    b, 
-   unit?): any;
+   unit?
+): any;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:381
@@ -60,7 +61,8 @@ static clamp(
    value, 
    min, 
    max, 
-   unit?): any;
+   unit?
+): any;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:398
@@ -119,7 +121,8 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:393
 static max(
    a, 
    b, 
-   unit?): any;
+   unit?
+): any;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:407
@@ -150,7 +153,8 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:407
 static min(
    a, 
    b, 
-   unit?): any;
+   unit?
+): any;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:403
@@ -205,7 +209,8 @@ Defined in: lur.e/src/design/anchor/CSSAdapter.ts:389
 static subtract(
    a, 
    b, 
-   unit?): any;
+   unit?
+): any;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:385

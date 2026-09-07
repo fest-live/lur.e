@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,8 +10,9 @@
 function createElement(
    type, 
    props?, 
-   children?, ...
-   others): any;
+   children?, 
+   ...others
+): any;
 ```
 
 Defined in: lur.e/src/lure/node/jsx-runtime/index.ts:19

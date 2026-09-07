@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function getAdoptedStyleRule(
    selector, 
    layerName?, 
-   basis?): CSSStyleRule | null;
+   basis?
+): CSSStyleRule | null;
 ```
 
 Defined in: style.ts/src/cssom.ts:317

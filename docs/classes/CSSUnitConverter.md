@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -29,7 +29,8 @@ static convertUnits(
    value, 
    fromUnit, 
    toUnit, 
-   element?): number;
+   element?
+): number;
 ```
 
 Defined in: lur.e/src/design/anchor/CSSAdapter.ts:66

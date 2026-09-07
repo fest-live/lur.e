@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function addProxiedEvent<E>(
    root, 
    type, 
    options?, 
-   config?): (_element, _handler) => () => void;
+   config?
+): (_element, _handler) => () => void;
 ```
 
 Defined in: lur.e/src/interactive/controllers/LazyEvents.ts:117

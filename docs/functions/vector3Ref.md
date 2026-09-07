@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function vector3Ref(
    x?, 
    y?, 
-   z?): Vector3D;
+   z?
+): Vector3D;
 ```
 
 Defined in: lur.e/src/utils/math/Point3D.ts:74

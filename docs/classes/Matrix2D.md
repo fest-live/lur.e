@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -17,7 +17,8 @@ new Matrix2D(
    a?, 
    b?, 
    c?, 
-   d?): Matrix2D;
+   d?
+): Matrix2D;
 ```
 
 Defined in: lur.e/src/utils/math/Point2D.ts:218
@@ -409,7 +410,8 @@ set(
    a, 
    b, 
    c, 
-   d): Matrix2D;
+   d
+): Matrix2D;
 ```
 
 Defined in: lur.e/src/utils/math/Point2D.ts:275

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 type ClipboardDataType = "text" | "html" | "image" | "blob";
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:14
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:15

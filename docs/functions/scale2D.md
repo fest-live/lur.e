@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,8 @@
 function scale2D(
    vec, 
    sx, 
-   sy?): Vector2D;
+   sy?
+): Vector2D;
 ```
 
 Defined in: lur.e/src/utils/math/Operations.ts:28

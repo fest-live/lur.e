@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function indexDirectoryFiles(
    dir, 
    prefix?, 
    depth?, 
-acc?): Promise<IndexedDirFile[]>;
+   acc?
+): Promise<IndexedDirFile[]>;
 ```
 
 Defined in: lur.e/src/utils/opfs/markdown-assets.ts:91

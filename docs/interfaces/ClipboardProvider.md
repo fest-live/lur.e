@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: ClipboardProvider
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:598
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:599
 
 ## Methods
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:598
 optional onCopy(ev): boolean | void;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:599
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:600
 
 #### Parameters
 
@@ -36,7 +36,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:599
 optional onCut(ev): boolean | void;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:600
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:601
 
 #### Parameters
 
@@ -56,7 +56,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:600
 optional onPaste(ev): boolean | void;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:601
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:602
 
 #### Parameters
 

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function setProperty(
    target, 
    name, 
    value, 
-   importance?): HTMLElement | null | undefined;
+   importance?
+): HTMLElement | null | undefined;
 ```
 
 Defined in: style.ts/src/sheets.ts:94

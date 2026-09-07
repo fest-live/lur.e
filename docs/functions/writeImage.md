@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function writeImage(blob): Promise<ClipboardResult>;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:203
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:204
 
 Write image to clipboard
 

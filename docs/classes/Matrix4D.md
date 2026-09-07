@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -29,7 +29,8 @@ new Matrix4D(
    m?, 
    n?, 
    o?, 
-   p?): Matrix4D;
+   p?
+): Matrix4D;
 ```
 
 Defined in: lur.e/src/utils/math/Point4D.ts:95
@@ -989,7 +990,8 @@ set(
    m, 
    n, 
    o, 
-   p): Matrix4D;
+   p
+): Matrix4D;
 ```
 
 Defined in: lur.e/src/utils/math/Point4D.ts:156

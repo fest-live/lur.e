@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -16,7 +16,8 @@ Defined in: lur.e/src/interactive/controllers/LongHover.ts:4
 new LongHoverHandler(
    holder, 
    options?, 
-   fx?): LongHoverHandler;
+   fx?
+): LongHoverHandler;
 ```
 
 Defined in: lur.e/src/interactive/controllers/LongHover.ts:9

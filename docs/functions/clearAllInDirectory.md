@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function clearAllInDirectory(
    rootHandle?, 
    relPath?, 
    options?, 
-logger?): Promise<boolean | null | undefined>;
+   logger?
+): Promise<boolean | null | undefined>;
 ```
 
 Defined in: lur.e/src/utils/opfs/OPFS.ts:1321

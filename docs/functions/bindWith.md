@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -13,7 +13,8 @@ function bindWith(
    value, 
    handler, 
    set?, 
-   withObserver?): (() => void) | undefined;
+   withObserver?
+): (() => void) | undefined;
 ```
 
 Defined in: lur.e/src/lure/core/Binding.ts:318

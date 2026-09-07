@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function listenForClipboardRequests(): () => void;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:406
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:407
 
 Listen for clipboard operation requests
 

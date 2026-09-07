@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -11,7 +11,8 @@ function bindFormControl(
    element, 
    value, 
    kind?, 
-   options?): () => void;
+   options?
+): () => void;
 ```
 
 Defined in: lur.e/src/lure/core/FormBinding.ts:23

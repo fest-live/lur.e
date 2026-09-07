@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -10,8 +10,9 @@
 function makeRef<T>(
    host?, 
    type?, 
-   link?, ...
-args): T extends object ? observeValid<T> | refType<T> : refType<T>;
+   link?, 
+   ...args
+): T extends object ? observeValid<T> | refType<T> : refType<T>;
 ```
 
 Defined in: lur.e/src/lure/core/Refs.ts:13

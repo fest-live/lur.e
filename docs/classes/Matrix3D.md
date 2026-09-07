@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.64**](../README.md)
+[**@fest-lib/lure v0.1.68**](../README.md)
 
 ***
 
@@ -22,7 +22,8 @@ new Matrix3D(
    f?, 
    g?, 
    h?, 
-   i?): Matrix3D;
+   i?
+): Matrix3D;
 ```
 
 Defined in: lur.e/src/utils/math/Point3D.ts:81
@@ -597,7 +598,8 @@ set(
    f, 
    g, 
    h, 
-   i): Matrix3D;
+   i
+): Matrix3D;
 ```
 
 Defined in: lur.e/src/utils/math/Point3D.ts:136
