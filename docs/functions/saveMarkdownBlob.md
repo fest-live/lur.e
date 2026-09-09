@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.74**](../README.md)
+[**@fest-lib/lure v0.1.75**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function saveMarkdownBlob(content, filename): Promise<MarkdownSaveResult>;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:541
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:552
 
 PWA FSA → CRX `chrome.downloads` → Web Share (Capacitor) → `<a download>`.
 

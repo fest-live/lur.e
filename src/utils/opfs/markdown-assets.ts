@@ -356,11 +356,22 @@ export const registerMarkdownFilePicker = (fn: MarkdownFilePicker | null): void 
 };
 
 /** FSA when present; Capacitor / CRX / Firefox fall back to `<input type=file>`. */
+const isCapacitorNativePage = (): boolean => {
+    try {
+        const cap = (globalThis as { Capacitor?: { isNativePlatform?: () => boolean } }).Capacitor;
+        return typeof cap?.isNativePlatform === "function" && cap.isNativePlatform();
+    } catch {
+        return false;
+    }
+};
+
 export const pickMarkdownFile = async (): Promise<PickedMarkdownFile | null> => {
     if (registeredMarkdownFilePicker) {
         const native = await registeredMarkdownFilePicker().catch(() => undefined);
         if (native?.file) return native;
         if (native === null) return null;
+        /* WHY: Capacitor registered picker failed — WebView `<input type=file>` is an empty File. */
+        if (isCapacitorNativePage()) return null;
     }
     const pickFile = (
         globalThis as {
