@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.75**](../README.md)
+[**@fest-lib/lure v0.1.76**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 type MarkdownSaveOutcome = object;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:432
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:434
 
 ## Properties
 
@@ -20,7 +20,7 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:432
 optional handle?: FileSystemFileHandle;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:434
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:436
 
 ***
 
@@ -30,4 +30,4 @@ Defined in: lur.e/src/utils/opfs/markdown-assets.ts:434
 result: MarkdownSaveResult;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:433
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:435

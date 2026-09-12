@@ -427,6 +427,8 @@ export const pickSidecarDirectoryFiles = async (): Promise<{
     return { files, directory: null, root: null };
 };
 
+export type MarkdownSaveContent = string | Uint8Array;
+
 export type MarkdownSaveResult = "saved" | "downloaded" | "shared" | "cancelled" | "failed";
 
 export type MarkdownSaveOutcome = {
@@ -442,7 +444,7 @@ const MARKDOWN_SAVE_TYPES = [{
 /** Write through a remembered FSA handle (no second picker when permission holds). */
 export const writeMarkdownToHandle = async (
     handle: FileSystemFileHandle | null | undefined,
-    content: string
+    content: MarkdownSaveContent
 ): Promise<boolean> => {
     if (!handle || typeof handle.createWritable !== "function") return false;
     try {
@@ -491,7 +493,7 @@ export const pickMarkdownSaveHandle = async (
  * WHY: Save must not re-prompt when the last picker handle is still writable.
  */
 export const saveMarkdownDocument = async (
-    content: string,
+    content: MarkdownSaveContent,
     filename: string,
     existingHandle?: FileSystemFileHandle | null
 ): Promise<MarkdownSaveOutcome> => {
@@ -510,7 +512,9 @@ export const saveMarkdownDocument = async (
 
     const chromeDl = (globalThis as { chrome?: { downloads?: { download?: (opts: Record<string, unknown>) => Promise<number> } } })
         .chrome?.downloads?.download;
-    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    const blob = new Blob([content], {
+        type: content instanceof Uint8Array ? "application/octet-stream" : "text/markdown;charset=utf-8"
+    });
     if (typeof chromeDl === "function") {
         const url = URL.createObjectURL(blob);
         try {
@@ -521,7 +525,9 @@ export const saveMarkdownDocument = async (
         }
     }
 
-    const file = new File([blob], name, { type: "text/markdown" });
+    const file = new File([blob], name, {
+        type: content instanceof Uint8Array ? "application/octet-stream" : "text/markdown"
+    });
     const nav = navigator as Navigator & {
         canShare?: (data: { files?: File[] }) => boolean;
         share?: (data: { files?: File[]; title?: string }) => Promise<void>;
@@ -550,6 +556,6 @@ export const saveMarkdownDocument = async (
 
 /** PWA FSA → CRX `chrome.downloads` → Web Share (Capacitor) → `<a download>`. */
 export const saveMarkdownBlob = async (
-    content: string,
+    content: MarkdownSaveContent,
     filename: string
 ): Promise<MarkdownSaveResult> => (await saveMarkdownDocument(content, filename)).result;

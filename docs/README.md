@@ -1,8 +1,8 @@
-**@fest-lib/lure v0.1.75**
+**@fest-lib/lure v0.1.76**
 
 ***
 
-# @fest-lib/lure v0.1.75
+# @fest-lib/lure v0.1.76
 
 ## Enumerations
 
@@ -174,6 +174,7 @@
 - [LinkStore](type-aliases/LinkStore.md)
 - [LinkTrigger](type-aliases/LinkTrigger.md)
 - [MarkdownFilePicker](type-aliases/MarkdownFilePicker.md)
+- [MarkdownSaveContent](type-aliases/MarkdownSaveContent.md)
 - [MarkdownSaveOutcome](type-aliases/MarkdownSaveOutcome.md)
 - [MarkdownSaveResult](type-aliases/MarkdownSaveResult.md)
 - [MutableTypedLeaf](type-aliases/MutableTypedLeaf.md)

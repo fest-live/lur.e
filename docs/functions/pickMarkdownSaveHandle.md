@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.75**](../README.md)
+[**@fest-lib/lure v0.1.76**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function pickMarkdownSaveHandle(filename): Promise<FileSystemFileHandle | "cancelled" | null>;
 ```
 
-Defined in: lur.e/src/utils/opfs/markdown-assets.ts:467
+Defined in: lur.e/src/utils/opfs/markdown-assets.ts:469
 
 `showSaveFilePicker` when the browser exposes it (Web / PWA / some CRX).
 
