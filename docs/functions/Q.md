@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.76**](../README.md)
+[**@fest-lib/lure v0.1.77**](../README.md)
 
 ***
 
@@ -15,7 +15,7 @@ function Q(
 ): any;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:1111
+Defined in: lur.e/src/lure/node/Queried.ts:1134
 
 ## Parameters
 

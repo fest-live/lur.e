@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.76**](../README.md)
+[**@fest-lib/lure v0.1.77**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function extendQueryPrototype(extended?): any;
 ```
 
-Defined in: lur.e/src/lure/node/Queried.ts:1137
+Defined in: lur.e/src/lure/node/Queried.ts:1160
 
 ## Parameters
 

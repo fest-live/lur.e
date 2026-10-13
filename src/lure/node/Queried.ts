@@ -3,6 +3,7 @@ import { getAdoptedStyleRule } from "@fest-lib/style-lib";
 import { bindWith, elMap } from "../core/Binding";
 import { $affected, observe } from "@fest-lib/object";
 import { appendChild, removeChild, replaceOrSwap } from "../context/Utils";
+import { Promised } from "@fest-lib/core";
 
 //
 const existsQueriesSymbol = Symbol.for("lure.existsQueries");
@@ -532,6 +533,19 @@ const isInputLike = (sel: any) =>
         : !!(sel?.matches?.("input, select, textarea"));
 
 //
+const promiseOfMutation = (parent: HTMLElement, selector: string) => {
+    const promise = Promise.withResolvers();
+    const forDone = observeBySelector(parent, selector, (mut)=>{
+        const added = Array.from(mut.addedNodes || [])?.[0];
+        if (added != null) {
+            promise.resolve(added);
+            forDone?.disconnect?.();
+        }
+    });
+    return promise.promise;
+}
+
+//
 class UniversalElementHandler implements ProxyHandler<object> {
     direction: "children" | "parent" = "children";
     selector: string | HTMLElement | null;
@@ -650,9 +664,13 @@ class UniversalElementHandler implements ProxyHandler<object> {
         if (typeof this.selector == "string") {
             const inclusion = ((typeof target?.matches == "function" && target?.element != null) && safeMatches(target, this.selector)) ? [target] : [];
             if (this.direction == "children") {
-                const list = (typeof target?.querySelectorAll == "function" && target?.element != null && usableSelector(this.selector))
+                let list = (typeof target?.querySelectorAll == "function" && target?.element != null && usableSelector(this.selector))
                     ? [...target?.querySelectorAll?.(this.selector.trim())]
                     : [];
+                /*if (list == null || list?.length <= 0) {
+                    list = Promised(promiseOfMutation(target, this.selector?.trim?.()));
+                }*/
+                if (typeof (list as any)?.then == "function") return list;
                 return list?.length >= 1 ? [...list] : inclusion;
             } else if (this.direction == "parent") {
                 const closest = usableSelector(this.selector) ? target?.closest?.(this.selector.trim()) : null;
@@ -701,7 +719,12 @@ class UniversalElementHandler implements ProxyHandler<object> {
         const tg = target?.self ?? target;
         const sel = this._selector(target);
         if (usableSelector(sel)) {
-            if (this.direction == "children") { return safeMatches(tg, sel) ? tg : tg?.querySelector?.(sel.trim()); }
+            if (this.direction == "children") { 
+                let element = safeMatches(tg, sel) ? tg : tg?.querySelector?.(sel.trim());
+                if (element == null) {
+                    element = Promised(promiseOfMutation(target, sel?.trim?.()));
+                }
+            }
             if (this.direction == "parent"  ) { return safeMatches(tg, sel) ? tg : tg?.closest?.(sel.trim()); }
         }
         return tg == ((sel as any)?.element ?? sel) ? ((sel as any)?.element ?? sel) : null;
@@ -846,7 +869,7 @@ class UniversalElementHandler implements ProxyHandler<object> {
     //
     get(target: any, name: any, ctx: any) {
         const array = this._getArray(target);
-        const selected = array.length > 0 ? array[this.index] : this._getSelected(target);
+        const selected = array?.length > 0 ? array?.[this.index] : this._getSelected(target);
 
         //
         if (name === "pseudo") {
