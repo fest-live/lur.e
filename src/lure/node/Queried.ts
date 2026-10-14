@@ -876,6 +876,11 @@ class UniversalElementHandler implements ProxyHandler<object> {
             return (type: string) => this._getPseudo(target, type);
         }
 
+        // may be promised
+        if (name == "then" || name == "catch" || name == "finally") {
+            return selected?.[name]?.bind?.(selected);
+        }
+
         // Extensions
         if (name in queryExtensions) { return queryExtensions?.[name]?.(selected); }
         if (name == "length" && array?.length != null) { return array?.length; }
