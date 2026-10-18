@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.78**](../README.md)
+[**@fest-lib/lure v0.1.79**](../README.md)
 
 ***
 

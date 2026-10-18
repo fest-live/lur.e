@@ -1,7 +1,7 @@
 {
     "name": "@fest-lib/lure",
     "description": "fest-lib LUR.E: reactive DOM (E/H/M/Q), form bind, overlays, drag",
-    "version": "0.1.79",
+    "version": "0.1.80",
     "license": "MIT",
     "type": "module",
     "sideEffects": true,
@@ -127,6 +127,7 @@
         "@types/node": ">=26.4.1",
         "@vitejs/plugin-react": "^6.1.1",
         "cbor-x": ">=1.6.6",
+        "css-typed-om": "^1.0.0",
         "highlight.js": "^11.12.0",
         "linkify-it": "^6.1.0",
         "lunr": "^2.3.9",
