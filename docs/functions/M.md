@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.79**](../README.md)
+[**@fest-lib/lure v0.1.80**](../README.md)
 
 ***
 
@@ -14,7 +14,7 @@ function M(
 ): Mp;
 ```
 
-Defined in: lur.e/src/lure/node/Mapped.ts:479
+Defined in: lur.e/src/lure/node/Mapped.ts:489
 
 ## Parameters
 

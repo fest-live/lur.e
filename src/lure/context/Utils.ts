@@ -163,7 +163,11 @@ export const getNode = (el, mapper?: Function | null, index: number = -1, reques
 const appendOrEmplaceByIndex = (parent: any, child: any, index: number = -1) => {
     if (isElement(child) && child != null && child?.parentNode != parent) {
         if (Number.isInteger(index) && index >= 0 && index < parent?.childNodes?.length) {
-            parent?.insertBefore?.(child, parent?.childNodes?.[index]);
+            try {
+                parent?.moveBefore?.(child, parent?.childNodes?.[index]);
+            } catch(e) {
+                parent?.insertBefore?.(child, parent?.childNodes?.[index]);
+            }
         } else {
             parent?.append?.(child);
         }
@@ -240,12 +244,12 @@ export const replaceOrSwap = (parent, oldEl, newEl) => {
     if (oldEl?.parentNode) {
         if (oldEl?.parentNode == newEl?.parentNode) {
             parent = oldEl?.parentNode ?? parent;
-            if (oldEl.nextSibling === newEl) { parent.insertBefore(newEl, oldEl); } else
-            if (newEl.nextSibling === oldEl) { parent.insertBefore(oldEl, newEl); } else
+            if (oldEl.nextSibling === newEl) { parent.moveBefore(newEl, oldEl); } else
+            if (newEl.nextSibling === oldEl) { parent.moveBefore(oldEl, newEl); } else
             {
                 const nextSiblingOfElement1 = oldEl.nextSibling;
                 parent.replaceChild(newEl, oldEl);
-                parent.insertBefore(oldEl, nextSiblingOfElement1);
+                parent.moveBefore(oldEl, nextSiblingOfElement1);
             }
         } else {
             oldEl?.replaceWith?.(newEl);

@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.79**](../README.md)
+[**@fest-lib/lure v0.1.80**](../README.md)
 
 ***
 
@@ -16,7 +16,7 @@ function removeChild(
 ): Promise<any>;
 ```
 
-Defined in: lur.e/src/lure/context/Utils.ts:292
+Defined in: lur.e/src/lure/context/Utils.ts:296
 
 ## Parameters
 

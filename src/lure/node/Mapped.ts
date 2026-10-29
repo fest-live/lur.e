@@ -38,10 +38,10 @@ const isElementParent = (value: any): value is HTMLElement =>
     value != null &&
     value.nodeType === 1 &&
     value.nodeName !== "BODY" &&
-    typeof value.insertBefore === "function";
+    typeof value.moveBefore === "function";
 
 /*
- * WHY: `insertBefore`/`append` empty a DocumentFragment. Mapped caches the
+ * WHY: `moveBefore`/`append` empty a DocumentFragment. Mapped caches the
  * fragment object, so a later reconcile would see zero children and drop the
  * already-mounted siblings (Speed Dial icon + under-shadow).
  */
@@ -143,7 +143,13 @@ class Mp {
         };
         if (this.#stub.parentNode !== parent) {
             const firstExisting = desiredNodes.find((node) => node.parentNode === parent);
-            if (firstExisting) parent.insertBefore(this.#stub, firstExisting);
+            if (firstExisting) {
+                try {
+                    parent.moveBefore(this.#stub, firstExisting);
+                } catch(e) {
+                    parent.insertBefore(this.#stub, firstExisting);
+                }
+            }
             else parent.appendChild(this.#stub);
         }
 
@@ -167,7 +173,11 @@ class Mp {
         for (const node of desiredNodes) {
             const wasInParent = node.parentNode === parent;
             if (node.parentNode !== parent || node !== anchor) {
-                parent.insertBefore(node, anchor);
+                try {
+                    parent.moveBefore(node, anchor);
+                } catch(e) {
+                    parent.insertBefore(node, anchor);
+                }
             }
             // WHY: appear() still waits getAnimations; no appear option must stay instant
             // so a disappear mock on the same node cannot block the first sync.

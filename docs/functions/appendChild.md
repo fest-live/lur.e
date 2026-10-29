@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.79**](../README.md)
+[**@fest-lib/lure v0.1.80**](../README.md)
 
 ***
 
@@ -16,7 +16,7 @@ function appendChild(
 ): Promise<any>;
 ```
 
-Defined in: lur.e/src/lure/context/Utils.ts:205
+Defined in: lur.e/src/lure/context/Utils.ts:209
 
 ## Parameters
 
