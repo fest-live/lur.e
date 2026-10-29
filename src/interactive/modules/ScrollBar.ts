@@ -61,7 +61,7 @@ const axisConfig = [{
 const CAXIS    = ["clientX", "clientY"];
 const asWeak   = (source)=>{ return ((source instanceof WeakRef || typeof source?.deref == "function") ? source : new WeakRef(source)) as any; }
 const stepped  = (count = 100)=>{ return Array.from({ length: count }, (_, i) => i / count).concat([1]); }
-const sheduler = makeRAFCycle();
+const schedulerRf = makeRAFCycle();
 
 //
 export const effectProperty = { fill: "both", delay: 0, easing: "linear", rangeStart: "cover 0%", rangeEnd: "cover 100%", duration: 1 };
