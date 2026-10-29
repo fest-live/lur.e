@@ -326,10 +326,10 @@ export class ScrollBar {
         const ro = new ResizeObserver(() => update());
         ro.observe(this.content);
         ro.observe(this.scrollbar);
-        const mo = new MutationObserver(() => queueMicrotask(update));
+        const mo = new MutationObserver(() => scheduler?.yield?.()?.then?.(update));
         mo.observe(this.content, { childList: true, subtree: true, characterData: true });
 
-        queueMicrotask(update);
+        scheduler?.yield?.()?.then?.(update);
         requestAnimationFrame(update);
 
         this._thumbSyncCleanup = () => {

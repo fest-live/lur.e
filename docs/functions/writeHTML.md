@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.80**](../README.md)
+[**@fest-lib/lure v0.1.81**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function writeHTML(html, plainText?): Promise<ClipboardResult>;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:161
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:165
 
 Write HTML content to clipboard (with text fallback)
 

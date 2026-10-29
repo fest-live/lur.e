@@ -68,7 +68,7 @@ export const scrollSize  = (source: HTMLElement, axis: number = 0, inputChange?:
     affected(conRef, (vl: any)=>{ recompute?.(); });
     addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
     addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
-    queueMicrotask(()=>{ recompute?.(); });
+    scheduler?.yield?.()?.then?.(()=>{ recompute?.(); });
     return percent;
 }
 
@@ -97,7 +97,7 @@ export const paddingBoxSize  = (source: HTMLElement, axis: number, inputChange?:
     affected(scroll, (vl: any)=>{ recompute?.(); });
     addEvent(inputChange || source, "input" , ()=>{ recompute?.(); });
     addEvent(inputChange || source, "change", ()=>{ recompute?.(); });
-    queueMicrotask(()=>{ recompute?.(); });
+    scheduler?.yield?.()?.then?.(()=>{ recompute?.(); });
     return content;
 }
 

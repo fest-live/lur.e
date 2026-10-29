@@ -158,7 +158,7 @@ class Ch {
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
         //
-        queueMicrotask(() => {
+        scheduler?.yield?.()?.then?.(() => {
             const theirParent = isValidParent(existsNode?.parentElement) ? existsNode?.parentElement : this.boundParent;
             this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
         })
@@ -174,7 +174,7 @@ class Ch {
         this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
 
         //
-        queueMicrotask(() => {
+        scheduler?.yield?.()?.then?.(() => {
             const theirParent = isValidParent(children?.parentElement) ? children?.parentElement : this.boundParent;
             this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
         })

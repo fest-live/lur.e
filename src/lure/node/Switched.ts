@@ -52,7 +52,7 @@ export class SwM implements SwitchedParams {
         }
 
         //
-        queueMicrotask(() => {
+        scheduler?.yield?.()?.then?.(() => {
             const theirParent = isValidParent(element?.parentElement) ? element?.parentElement : this.boundParent;
             this.boundParent ??= isValidParent(theirParent) ?? this.boundParent;
         });

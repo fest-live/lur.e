@@ -580,7 +580,7 @@ export const bindWhileConnected = (element: Element | null | undefined, bind: ()
 
     if (mo && root) mo.observe(root, { childList: true, subtree: true });
 
-    queueMicrotask(() => ensureBound());
+    scheduler?.yield?.()?.then?.(() => ensureBound());
 
     return () => {
         disposed = true;

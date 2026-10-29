@@ -287,7 +287,7 @@ export const grabForDrag = (
             if (evc?.type == "pointerup") { clickPrevention(elm, evc?.pointerId); };
 
             //
-            queueMicrotask(() => promised?.resolve?.(result));
+            scheduler?.yield?.()?.then?.(() => promised?.resolve?.(result));
             bindings?.forEach?.(binding => binding?.());
             try { elm?.releasePointerCapture?.(evc?.pointerId); } catch { /* noop */ }
             try { elm?.releaseCapturePointer?.(evc?.pointerId); } catch { /* noop */ }
@@ -301,7 +301,7 @@ export const grabForDrag = (
     //
     let bindings: any = null;
     clickPrevention(em, ex?.pointerId);
-    queueMicrotask(() => {
+    scheduler?.yield?.()?.then?.(() => {
         if (em?.dispatchEvent?.(new PointerEventDrag("m-dragstart", { ...ex, bubbles: true, holding: hm, event: ex }))) {
             //ex?.capture?.(em);
             em?.setPointerCapture?.(ex?.pointerId);

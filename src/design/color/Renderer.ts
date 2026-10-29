@@ -113,7 +113,7 @@ export const makeRenderer = () => {
     });
 
     //
-    queueMicrotask(()=>{ // @ts-ignore
+    scheduler?.yield?.()?.then?.(()=>{ // @ts-ignore
         resizeObserver.observe(canvas, {box: ['device-pixel-content-box'], fireOnEveryPaint: true});
     });
 

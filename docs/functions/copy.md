@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.80**](../README.md)
+[**@fest-lib/lure v0.1.81**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function copy(data, options?): Promise<ClipboardResult>;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:327
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:331
 
 Unified copy function with automatic type detection
 

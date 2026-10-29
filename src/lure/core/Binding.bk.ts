@@ -527,7 +527,7 @@ export const bindWhileConnected = (element: Element | null | undefined, bind: ()
     if (mo && root) mo.observe(root, { childList: true, subtree: true });
 
     // Initial check (after current tick) to allow callers that just created the element.
-    queueMicrotask(() => ensureBound());
+    scheduler?.yield?.()?.then?.(() => ensureBound());
 
     return () => {
         disposed = true;

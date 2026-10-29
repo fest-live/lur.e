@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.80**](../README.md)
+[**@fest-lib/lure v0.1.81**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function isClipboardWriteAvailable(): boolean;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:466
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:470
 
 Check if clipboard write is available
 

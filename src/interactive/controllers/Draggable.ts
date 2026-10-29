@@ -127,7 +127,7 @@ export class DragHandler {
         const dragResolve = (dragging)   => {
             const holder = weak?.deref?.() as any;
             holder?.style?.removeProperty?.("will-change");
-            queueMicrotask(()=>{
+            scheduler?.yield?.()?.then?.(()=>{
                 holder?.removeAttribute?.("data-dragging");
                 holder?.style?.removeProperty?.("transform");
             });

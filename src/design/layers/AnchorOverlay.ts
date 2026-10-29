@@ -31,7 +31,7 @@ export const observeDisconnect = (element: Element, handleMutation) => {
         for (const mutation of mutationList) {
             if (mutation.type == "childList") {
                 if (Array.from(mutation?.removedNodes || []).some((node) => (node === element || node?.contains?.(element)))) {
-                    queueMicrotask(() => handleMutation(mutation));
+                    scheduler?.yield?.()?.then?.(() => handleMutation(mutation));
                     observer?.disconnect?.();
                 }
             }
@@ -40,7 +40,7 @@ export const observeDisconnect = (element: Element, handleMutation) => {
 
     const parent = getParentOrShadowRoot(element as HTMLElement) ?? document.documentElement;
     const observed = (parent instanceof HTMLElement ? parent : parent?.host) ?? parent;
-    queueMicrotask(() => observer.observe(observed, {
+    scheduler?.yield?.()?.then?.(() => observer.observe(observed, {
         subtree: true,
         childList: true
     }));
@@ -56,7 +56,7 @@ export const observeConnect = (element: Element, handleMutation) => {
         // WHY: when the local parent is still detached, the real connect mutation is on an ancestor
         // (e.g. grid appends `.ui-ws-item`). Checking `isConnected` covers that path.
         if (!element?.isConnected) return;
-        queueMicrotask(() => handleMutation());
+        scheduler?.yield?.()?.then?.(() => handleMutation());
         obs?.disconnect?.();
     });
 
@@ -68,7 +68,7 @@ export const observeConnect = (element: Element, handleMutation) => {
             : null)
         ?? document.documentElement;
 
-    queueMicrotask(() => {
+    scheduler?.yield?.()?.then?.(() => {
         if (element?.isConnected) {
             handleMutation();
             observer.disconnect();

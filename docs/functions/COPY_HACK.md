@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.80**](../README.md)
+[**@fest-lib/lure v0.1.81**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function COPY_HACK(data): Promise<boolean>;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:568
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:572
 
 COPY_HACK - Legacy API for Chrome extension clipboard operations
 Now delegates to unified Clipboard module

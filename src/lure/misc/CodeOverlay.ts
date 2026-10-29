@@ -170,7 +170,7 @@ const watchHostRemoval = (host: HTMLElement, onGone: () => void): (() => void) =
      * removed the overlay but left `code-highlight-source` on `<code>`. */
     if (host.isConnected) bind();
     else {
-        queueMicrotask(bind);
+        scheduler?.yield?.()?.then?.(bind);
         requestAnimationFrame(bind);
     }
     return () => observer?.disconnect();
@@ -333,7 +333,7 @@ export const attachCodeOverlay = (
             }
             if (!supportsAnchorPositioning()) pinOverlayToHost(host, overlay);
         } finally {
-            queueMicrotask(() => {
+            scheduler?.yield?.()?.then?.(() => {
                 metricsBusy = false;
             });
         }

@@ -50,13 +50,17 @@ const scheduleClipboardFrame = (cb: FrameRequestCallback | (() => void)): void =
         channel.port2.postMessage(undefined);
         return;
     }
-    if (typeof setTimeout === "function") {
-        // Approximate a frame boundary when RAF is unavailable.
-        setTimeout(() => (cb as () => void)(), 16);
+    if (typeof scheduler?.yield == "function") {
+        scheduler?.yield?.()?.then?.(() => (cb as () => void)());
         return;
     }
     if (typeof queueMicrotask === "function") {
         queueMicrotask(() => (cb as () => void)());
+        return;
+    }
+    if (typeof setTimeout === "function") {
+        // Approximate a frame boundary when RAF is unavailable.
+        setTimeout(() => (cb as () => void)(), 16);
         return;
     }
     (cb as () => void)();

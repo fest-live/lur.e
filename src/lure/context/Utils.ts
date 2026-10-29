@@ -70,7 +70,7 @@ const $makePromisePlaceholder = (promised, getNodeCb)=>{
         $promiseResolvedMap?.set?.(promised, element);
 
         // avoid vain (not) replacement
-        queueMicrotask(() => {
+        scheduler?.yield?.()?.then?.(() => {
             try {
                 if (typeof comment?.replaceWith == "function") {
                     if (!comment?.isConnected) return;

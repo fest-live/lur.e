@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.80**](../README.md)
+[**@fest-lib/lure v0.1.81**](../README.md)
 
 ***
 
@@ -6,7 +6,7 @@
 
 # Interface: CRXCopyOptions
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:481
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:485
 
 ## Properties
 
@@ -16,7 +16,7 @@ Defined in: lur.e/src/interactive/modules/Clipboard.ts:481
 optional offscreenFallback?: (data) => Promise<boolean>;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:484
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:488
 
 Optional fallback function for offscreen document copy
 
@@ -38,4 +38,4 @@ Optional fallback function for offscreen document copy
 optional tabId?: number;
 ```
 
-Defined in: lur.e/src/interactive/modules/Clipboard.ts:482
+Defined in: lur.e/src/interactive/modules/Clipboard.ts:486
