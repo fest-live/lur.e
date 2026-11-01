@@ -536,8 +536,8 @@ const isInputLike = (sel: any) =>
 const promiseOfMutation = (parent: HTMLElement, selector: string) => {
     const promise = Promise.withResolvers();
     const forDone = observeBySelector(parent, selector, (mut)=>{
-        const added = Array.from(mut.addedNodes || [])?.[0];
-        if (added != null) {
+        const added = Array.from(mut.addedNodes || [])?.[0] as any;
+        if (added != null && (added?.parentNode ?? added?.host ?? added?.getRootNode?.())) {
             promise.resolve(added);
             forDone?.disconnect?.();
         }
@@ -694,15 +694,15 @@ class UniversalElementHandler implements ProxyHandler<object> {
             if (this.direction == "children") {
                 observeBySelector(tg, typeof this.selector == "string" ? this.selector : undefined, (mut, obs)=>{
                     if (mut?.addedNodes?.length > 0 || mut?.removedNodes?.length > 0) {
-                        mut?.addedNodes?.forEach((node: any)=>{
-                            if ((node?.element ?? node) && !forReactive?.includes?.(node?.element ?? node)) {
-                                forReactive?.push?.(node?.element ?? node);
-                            }
-                        });
                         mut?.removedNodes?.forEach((node: any)=>{
                             const index = forReactive.indexOf(node?.element ?? node);
                             if (index > -1) {
                                 forReactive.splice(index, 1);
+                            }
+                        });
+                        mut?.addedNodes?.forEach((node: any) => {
+                            if ((node?.element ?? node) && !forReactive?.includes?.(node?.element ?? node)) {
+                                forReactive?.push?.(node?.element ?? node);
                             }
                         });
                     }
@@ -921,13 +921,13 @@ class UniversalElementHandler implements ProxyHandler<object> {
                 if (combined) {
                     observeBySelector(target, combined, (mut, obs)=>{
                         if (mut?.addedNodes?.length > 0 || mut?.removedNodes?.length > 0) {
+                            mut?.removedNodes?.forEach((node: any) => {
+                                const index = list?.findIndex?.(x => (x?.element ?? x) == (node?.element ?? node));
+                                if (index > -1) { list?.splice?.(index, 1); }
+                            });
                             mut?.addedNodes?.forEach((node: any)=>{
                                 if ((node?.element ?? node) && !list?.includes?.(node?.element ?? node))
                                     { list?.push?.(node?.element ?? node); }
-                            });
-                            mut?.removedNodes?.forEach((node: any)=>{
-                                const index = list?.findIndex?.(x => (x?.element ?? x) == (node?.element ?? node));
-                                if (index > -1) { list?.splice?.(index, 1); }
                             });
                         }
                     });
