@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.87**](../README.md)
+[**@fest-lib/lure v0.1.88**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function T(ref): any;
 ```
 
-Defined in: lur.e/src/lure/context/Utils.ts:325
+Defined in: lur.e/src/lure/context/Utils.ts:327
 
 ## Parameters
 

@@ -17,9 +17,9 @@ export const makeUpdater = (defaultParent: Node | null = null, mapper?: Function
 
     //
     const commandBuffer: any[] = [];
-    const merge = async () => {
+    const merge = () => {
         const batch = commandBuffer.splice(0, commandBuffer.length);
-        for (const [fn, args] of batch) await fn?.(...args, lifecycle);
+        for (const [fn, args] of batch) { fn?.(...args, lifecycle); };
     }
 
     //

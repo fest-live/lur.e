@@ -125,7 +125,7 @@ class Mp {
     //
     // INVARIANT: outgoing waits Utils removeChild (disappear never detaches).
     // A second splice must not start until the first remove settles.
-    async #syncBoundParent(): Promise<void> {
+    #syncBoundParent(): Promise<void> {
         const parent = this.#boundParent;
         if (!parent || this.#disposed) return;
 
@@ -158,7 +158,7 @@ class Mp {
                 // INVARIANT: no disappear → raw detach (no u2-before-remove). Dual Utils+sync
                 // would fire cancelable remove then ignore preventDefault.
                 if (lifecycle.disappear) {
-                    await removeChild(parent, oldNode, null, -1, lifecycle);
+                    removeChild(parent, oldNode, null, -1, lifecycle);
                     if (this.#disposed || this.#boundParent !== parent) return;
                 } else {
                     oldNode.parentNode.removeChild(oldNode);
@@ -182,7 +182,7 @@ class Mp {
             // WHY: appear() still waits getAnimations; no appear option must stay instant
             // so a disappear mock on the same node cannot block the first sync.
             if (!wasInParent && node instanceof Element && lifecycle.appear) {
-                await appear(node, lifecycle.appear);
+                appear(node, lifecycle.appear);
                 if (this.#disposed || this.#boundParent !== parent) return;
             }
             anchor = node.nextSibling;
@@ -198,11 +198,11 @@ class Mp {
         this.#syncInFlight = this.#drainBoundParentSync();
     }
 
-    async #drainBoundParentSync(): Promise<void> {
+    #drainBoundParentSync(): any {
         try {
             while (this.#syncQueued && !this.#disposed) {
                 this.#syncQueued = false;
-                await this.#syncBoundParent();
+                this.#syncBoundParent();
             }
         } finally {
             this.#syncInFlight = null;

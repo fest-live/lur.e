@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.87**](../README.md)
+[**@fest-lib/lure v0.1.88**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function initVisibility(ROOT?, animations?): Promise<void>;
 ```
 
-Defined in: style.ts/src/lifecycle.ts:158
+Defined in: style.ts/src/lifecycle.ts:177
 
 ## Parameters
 

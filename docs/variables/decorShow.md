@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.87**](../README.md)
+[**@fest-lib/lure v0.1.88**](../README.md)
 
 ***
 
@@ -10,4 +10,4 @@
 const decorShow: AnimationOptions;
 ```
 
-Defined in: style.ts/src/lifecycle.ts:136
+Defined in: style.ts/src/lifecycle.ts:155

@@ -206,7 +206,7 @@ export const appendArray = (parent: any, children: any[], mapper?: Function | nu
 }
 
 //
-export const appendChild = async (element, cp, mapper?: Function | null, index: number = -1, lifecycle?: NodeLifecycle) => {
+export const appendChild = (element, cp, mapper?: Function | null, index: number = -1, lifecycle?: NodeLifecycle) => {
     if (mapper != null) { cp = mapper?.(cp, index); }
 
     // has children lists
@@ -218,7 +218,7 @@ export const appendChild = async (element, cp, mapper?: Function | null, index: 
 
     const node = getNode(cp, null, index, element);
     if (node instanceof Element) {
-        await appear(node, lifecycle?.appear ?? null);
+        return appear(node, lifecycle?.appear ?? null);
     }
     return element;
 }
@@ -262,7 +262,7 @@ export const replaceOrSwap = (parent, oldEl, newEl) => {
 // TODO: what exactly to replace, if has (i.e. object itself, not index)
 // WHY: makeUpdater passes lifecycle as the last arg; ignoring appendChild's Promise
 // dropped appear waits on Mapped/Changeable set.
-export const replaceChildren = async (element, cp, mapper?: Function | null, index: number = -1, old?: any|null, lifecycle?: NodeLifecycle) => {
+export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1, old?: any|null, lifecycle?: NodeLifecycle) => {
     if (mapper != null) { cp = mapper?.(cp, index); }; if (!element) element = old?.parentNode;
     const cn = dePhantomNode(element, getNode(old, mapper, index), index);
     if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
@@ -275,11 +275,11 @@ export const replaceChildren = async (element, cp, mapper?: Function | null, ind
         if (cn?.parentNode == element && cn != node && cn != null && cn?.parentNode != null) {
             replaceOrSwap(element, cn, node);
             if (node instanceof Element) {
-                await appear(node, lifecycle?.appear ?? null);
+                return appear(node, lifecycle?.appear ?? null);
             }
         } else
         if (cn?.parentNode != element || cn?.parentNode == null) {
-            await appendChild(element, node, null, index, lifecycle);
+            return appendChild(element, node, null, index, lifecycle);
         }
     }
 }
@@ -293,7 +293,7 @@ export const removeChildDirectly = (element, node, _?: Function | null, index: n
 }
 
 //
-export const removeChild = async (element, cp, mapper?: Function | null, index: number = -1, lifecycle?: NodeLifecycle) => {
+export const removeChild = (element, cp, mapper?: Function | null, index: number = -1, lifecycle?: NodeLifecycle) => {
     const $node = getNode(cp, mapper);
     if (!element) element = $node?.parentNode;
     if (Array.from(element?.childNodes ?? []).length < 1) return element;
@@ -302,22 +302,24 @@ export const removeChild = async (element, cp, mapper?: Function | null, index: 
     if (whatToRemove instanceof Element) {
         if (!dispatchLifecycleEvent(whatToRemove, "u2-before-remove")) return element;
         whatToRemove.setAttribute("data-removing", "");
-        await disappear(whatToRemove, lifecycle?.disappear ?? null);
-        await waitElementAnimations(whatToRemove);
-        whatToRemove.remove();
-        whatToRemove.removeAttribute("data-removing");
-        dispatchLifecycleEvent(whatToRemove, "u2-removed");
-        return element;
+        return disappear(whatToRemove, lifecycle?.disappear ?? null)?.finally?.(async () => {
+            await waitElementAnimations(whatToRemove)?.catch?.(console.warn.bind(console));
+            whatToRemove.remove();
+            whatToRemove.removeAttribute("data-removing");
+            dispatchLifecycleEvent(whatToRemove, "u2-removed");
+            return element;
+        });
+        //return element;
     }
     whatToRemove?.remove?.();
     return element;
 }
 
 //
-export const removeNotExists = async (element, children, mapper?: Function | null, lifecycle?: NodeLifecycle) => {
+export const removeNotExists = (element, children, mapper?: Function | null, lifecycle?: NodeLifecycle) => {
     const list = Array.from(unwrap(children) || [])?.map?.((cp, index) => getNode(cp, mapper, index));
     const missing = Array.from(element.childNodes).filter((nd: any) => !list?.find?.((cp) => (!isNotEqual?.(cp, nd))));
-    await Promise.all(missing.map((nd) => removeChild(element, nd, null, -1, lifecycle)));
+    Promise.all(missing.map((nd) => removeChild(element, nd, null, -1, lifecycle)));
     return element;
 }
 

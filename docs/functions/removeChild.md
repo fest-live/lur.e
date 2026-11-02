@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.87**](../README.md)
+[**@fest-lib/lure v0.1.88**](../README.md)
 
 ***
 
@@ -13,7 +13,7 @@ function removeChild(
    mapper?, 
    index?, 
    lifecycle?
-): Promise<any>;
+): any;
 ```
 
 Defined in: lur.e/src/lure/context/Utils.ts:296
@@ -42,4 +42,4 @@ Defined in: lur.e/src/lure/context/Utils.ts:296
 
 ## Returns
 
-`Promise`\<`any`\>
+`any`

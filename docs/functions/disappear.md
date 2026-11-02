@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.87**](../README.md)
+[**@fest-lib/lure v0.1.88**](../README.md)
 
 ***
 
@@ -10,7 +10,7 @@
 function disappear(el, options?): Promise<boolean>;
 ```
 
-Defined in: style.ts/src/lifecycle.ts:133
+Defined in: style.ts/src/lifecycle.ts:150
 
 ## Parameters
 
