@@ -1,4 +1,4 @@
-[**@fest-lib/lure v0.1.88**](../README.md)
+[**@fest-lib/lure v0.1.89**](../README.md)
 
 ***
 
@@ -42,7 +42,7 @@ DOMMixin.constructor
 get elements(): WeakSet<Element> | undefined;
 ```
 
-Defined in: dom.ts/src/mixin/Mixins.ts:513
+Defined in: dom.ts/src/mixin/Mixins.ts:515
 
 ##### Returns
 
@@ -64,7 +64,7 @@ DOMMixin.elements
 get name(): string | undefined;
 ```
 
-Defined in: dom.ts/src/mixin/Mixins.ts:515
+Defined in: dom.ts/src/mixin/Mixins.ts:517
 
 ##### Returns
 
@@ -86,7 +86,7 @@ DOMMixin.name
 get storage(): unknown;
 ```
 
-Defined in: dom.ts/src/mixin/Mixins.ts:514
+Defined in: dom.ts/src/mixin/Mixins.ts:516
 
 ##### Returns
 
@@ -158,7 +158,7 @@ DOMMixin.disconnect
 relatedForElement(element): Related;
 ```
 
-Defined in: dom.ts/src/mixin/Mixins.ts:512
+Defined in: dom.ts/src/mixin/Mixins.ts:514
 
 #### Parameters
 
@@ -184,7 +184,7 @@ DOMMixin.relatedForElement
 storeForElement(element): unknown;
 ```
 
-Defined in: dom.ts/src/mixin/Mixins.ts:511
+Defined in: dom.ts/src/mixin/Mixins.ts:513
 
 #### Parameters
 
