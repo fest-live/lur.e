@@ -71,9 +71,13 @@
         "moduleResolution": "bundler",
         "lib": [
             "ESNext",
-            "DOM",
-            "WebWorker"
+            "DOM"
         ],
+        "types": [
+            "modern-web-types/dom",
+            "modern-web-types/webworker"
+        ],
+        "libReplacement": true,
         "jsx": "preserve",
         "jsxImportSource": "@fest-lib/lure/src/lure/node",
         "jsxFactory": "createElement",
