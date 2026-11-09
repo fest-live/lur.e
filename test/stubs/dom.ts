@@ -44,3 +44,4 @@ export const makeRAFCycle = () => ({ cancel() {}, shedule() {} });
 export const setProperty = (element: any, property: string, value: any) => {
     if (element?.style?.setProperty) element.style.setProperty(property, String(value));
 };
+export const observeAttributeBySelector = () => ({ disconnect() {} });

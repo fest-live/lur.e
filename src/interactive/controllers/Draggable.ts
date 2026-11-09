@@ -22,6 +22,10 @@ interface DragHandlerOptions {
 //
 const _LOG_ = (...args)=>{ console.log(...args); return args?.[0]; };
 
+const schedule = (cb) => {
+    return (typeof scheduler != "undefined") ? scheduler?.yield?.()?.then?.(cb) : queueMicrotask(cb);
+}
+
 //
 export class DragHandler {
     #holder: HTMLElement;
@@ -127,7 +131,7 @@ export class DragHandler {
         const dragResolve = (dragging)   => {
             const holder = weak?.deref?.() as any;
             holder?.style?.removeProperty?.("will-change");
-            scheduler?.yield?.()?.then?.(()=>{
+            schedule?.(()=>{
                 holder?.removeAttribute?.("data-dragging");
                 holder?.style?.removeProperty?.("transform");
             });

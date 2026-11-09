@@ -8,6 +8,10 @@ import { makeAnchorElement } from "./CSSAnchor";
 export const $extract = Symbol.for("__extract");
 export const $element = Symbol.for("__element");
 
+const schedule = (cb) => {
+    return (typeof scheduler != "undefined") ? scheduler?.yield?.()?.then?.(cb) : queueMicrotask(cb);
+}
+
 //
 export const timelineHandler = {
     [Symbol.for("__extract")](target) {
@@ -20,7 +24,7 @@ export const timelineHandler = {
         // @ts-ignore
         if (prop == $affected && (target instanceof ScrollTimeline || target instanceof ViewTimeline)) {
             return (cb: (value: any, prop: keyType) => void, prop?: keyType | null) => {
-                const $cb = () => { scheduler?.yield?.()?.then?.(()=> cb((target?.currentTime ?? 0) / (target?.duration ?? 1), "value")); }
+                const $cb = () => { schedule?.(()=> cb((target?.currentTime ?? 0) / (target?.duration ?? 1), "value")); }
 
                 // @ts-ignore
                 if (target instanceof ScrollTimeline) {
@@ -136,7 +140,7 @@ export class EnhancedScrollTimeline {
     //
     get [$affected]() {
         return (cb: (value: any, prop: keyType) => void, prop?: keyType | null) => {
-            const $cb = () => { scheduler?.yield?.()?.then?.(()=> cb((this.timeline?.currentTime ?? 0) / (this.timeline?.duration ?? 1), "value")); }
+            const $cb = () => { schedule?.(()=> cb((this.timeline?.currentTime ?? 0) / (this.timeline?.duration ?? 1), "value")); }
             this.timeline?.addEventListener?.("scroll", $cb);
             return ()=> this.timeline?.removeEventListener?.("scroll", $cb);
         }
@@ -277,7 +281,7 @@ export class EnhancedViewTimeline {
     //
     get [$affected]() {
         return (cb: (value: any, prop: keyType) => void, prop?: keyType | null) => {
-            const $cb = () => { scheduler?.yield?.()?.then?.(()=> cb((this.timeline?.currentTime ?? 0) / (this.timeline?.duration ?? 1), "value")); }
+            const $cb = () => { schedule?.(()=> cb((this.timeline?.currentTime ?? 0) / (this.timeline?.duration ?? 1), "value")); }
             const $observer = new IntersectionObserver((entries)=>entries.forEach((entry)=>$cb?.()));
             $observer.observe(this.source);
             return ()=> $observer.disconnect();

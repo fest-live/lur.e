@@ -155,6 +155,10 @@ interface PointerObject {
     movement: [number, number];
 };
 
+const schedule = (cb) => {
+    return (typeof scheduler != "undefined") ? scheduler?.yield?.()?.then?.(cb) : queueMicrotask(cb);
+}
+
 //
 const preventedPointers = new Map<number, any>();
 export const clickPrevention = (element, pointerId = 0)=>{
@@ -287,7 +291,7 @@ export const grabForDrag = (
             if (evc?.type == "pointerup") { clickPrevention(elm, evc?.pointerId); };
 
             //
-            scheduler?.yield?.()?.then?.(() => promised?.resolve?.(result));
+            schedule?.(() => promised?.resolve?.(result));
             bindings?.forEach?.(binding => binding?.());
             try { elm?.releasePointerCapture?.(evc?.pointerId); } catch { /* noop */ }
             try { elm?.releaseCapturePointer?.(evc?.pointerId); } catch { /* noop */ }
@@ -301,7 +305,7 @@ export const grabForDrag = (
     //
     let bindings: any = null;
     clickPrevention(em, ex?.pointerId);
-    scheduler?.yield?.()?.then?.(() => {
+    schedule?.(() => {
         if (em?.dispatchEvent?.(new PointerEventDrag("m-dragstart", { ...ex, bubbles: true, holding: hm, event: ex }))) {
             //ex?.capture?.(em);
             em?.setPointerCapture?.(ex?.pointerId);

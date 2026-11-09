@@ -1,5 +1,9 @@
 import { RAFBehavior } from "@fest-lib/dom";
 
+const schedule = (cb) => {
+    return (typeof scheduler != "undefined") ? scheduler?.yield?.()?.then?.(cb) : queueMicrotask(cb);
+}
+
 //
 export const makeRenderer = () => {
     const canvas = document.createElement("canvas");
@@ -113,7 +117,7 @@ export const makeRenderer = () => {
     });
 
     //
-    scheduler?.yield?.()?.then?.(()=>{ // @ts-ignore
+    schedule?.(()=>{ // @ts-ignore
         resizeObserver.observe(canvas, {box: ['device-pixel-content-box'], fireOnEveryPaint: true});
     });
 
