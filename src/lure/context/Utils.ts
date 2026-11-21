@@ -1,10 +1,12 @@
 /*
  * Filename: Utils.ts
  * FullPath: modules/projects/lur.e/src/lure/context/Utils.ts
- * FIND:style-anim
- * TAG:lure,style-anim
+ * FIND:style-anim,exit-layer
+ * TAG:lure,style-anim,exit-layer
  * WHY: append/remove await appear/disappear; detach still happens if the Promise is ignored.
  * INVARIANT: cancel u2-before-remove leaves the node; disappear never detaches.
+ * WHY: exitLayer moves the dying node into a fixed top host so the exit plays
+ *      in place; hidden/covered nodes detach instantly (see ExitLayer.ts).
  */
 import { unwrap, affected } from "@fest-lib/object";
 import { $virtual, $mapped } from "../core/Binding";
@@ -12,13 +14,18 @@ import { isElement, isValidParent } from "@fest-lib/dom";
 import { hasValue, isNotEqual, isPrimitive } from "@fest-lib/core";
 import { appear, disappear, dispatchLifecycleEvent, waitElementAnimations } from "@fest-lib/style-lib";
 import type { AnimationOptions } from "@fest-lib/style-lib";
+import { isExitLayerEnabled, isExitVisibilityHidden, runExitLayer } from "./ExitLayer";
+import type { ExitLayerOptions } from "./ExitLayer";
 import C from "../node/Changeable";
 import Q from "../node/Queried";
 
 export type NodeLifecycle = {
     appear?: AnimationOptions | null;
     disappear?: AnimationOptions | null;
+    /** true / ExitLayerOptions → play the exit in the fixed top-layer host. */
+    exitLayer?: boolean | ExitLayerOptions | null;
 };
+import type { ExitLayerOptions } from "./ExitLayer";
 
 //
 export const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
@@ -301,6 +308,18 @@ export const removeChild = (element, cp, mapper?: Function | null, index: number
     if (whatToRemove?.parentNode != element) return element;
     if (whatToRemove instanceof Element) {
         if (!dispatchLifecycleEvent(whatToRemove, "u2-before-remove")) return element;
+        const originParent = whatToRemove.parentNode;
+        // INVARIANT: no animation requested → raw detach (previous behavior).
+        const wantsExit = lifecycle?.disappear != null || isExitLayerEnabled(lifecycle?.exitLayer);
+        if (wantsExit && isExitLayerEnabled(lifecycle?.exitLayer) && !isExitVisibilityHidden(whatToRemove)) {
+            // INVARIANT: the ghost owns removal now; move-detected ghosts keep
+            // the node alive (runExitLayer returns "kept", no u2-removed).
+            void runExitLayer(whatToRemove, originParent, lifecycle?.disappear ?? null, lifecycle?.exitLayer === true ? {} : lifecycle?.exitLayer)
+                ?.then?.((result) => {
+                    if (result === "removed") dispatchLifecycleEvent(whatToRemove, "u2-removed");
+                });
+            return element;
+        }
         whatToRemove.setAttribute("data-removing", "");
         return disappear(whatToRemove, lifecycle?.disappear ?? null)?.finally?.(async () => {
             await waitElementAnimations(whatToRemove)?.catch?.(console.warn.bind(console));

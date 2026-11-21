@@ -15,6 +15,7 @@ import { canBeInteger, isObservable, isPrimitive } from "@fest-lib/core";
 import { isValidParent } from "@fest-lib/dom";
 import { appear } from "@fest-lib/style-lib";
 import type { AnimationOptions } from "@fest-lib/style-lib";
+import type { ExitLayerOptions } from "../context/ExitLayer";
 
 //
 interface MappedOptions {
@@ -24,6 +25,7 @@ interface MappedOptions {
     preMap?: boolean;
     appear?: AnimationOptions | null;
     disappear?: AnimationOptions | null;
+    exitLayer?: boolean | ExitLayerOptions | null;
 }
 
 //
@@ -140,6 +142,7 @@ class Mp {
         const lifecycle = {
             appear: this.#options.appear,
             disappear: this.#options.disappear,
+            exitLayer: this.#options.exitLayer,
         };
         if (this.#stub.parentNode !== parent) {
             const firstExisting = desiredNodes.find((node) => node.parentNode === parent);
@@ -233,7 +236,7 @@ class Mp {
         if (isElementParent(value) && value != this.#boundParent) {
             this.#disconnectParentObserver();
             const oldParent = this.#boundParent;
-            const lifecycle = { disappear: this.#options.disappear };
+            const lifecycle = { disappear: this.#options.disappear, exitLayer: this.#options.exitLayer };
             const outgoing = [...this.#renderedNodes].filter(
                 (node) => node.parentNode === oldParent && oldParent !== value
             );
@@ -457,7 +460,7 @@ class Mp {
         this.#disconnectParentObserver();
         this.#syncQueued = false;
 
-        const lifecycle = { disappear: this.#options.disappear };
+        const lifecycle = { disappear: this.#options.disappear, exitLayer: this.#options.exitLayer };
         for (const node of this.#renderedNodes) {
             if (!node.parentNode) continue;
             if (lifecycle.disappear) {

@@ -6,6 +6,8 @@ export * from "./lure/node/Changeable"
 export * from "./lure/node/Queried"
 export * from "./lure/node/jsx-runtime"
 export { T, replaceChildren, removeChild, appendChild } from "./lure/context/Utils"
+export { setExitLayerDefaults, isExitLayerEnabled, ensureExitHost, isExitVisibilityHidden, runExitLayer } from "./lure/context/ExitLayer"
+export type { ExitLayerOptions, ExitLayerResult } from "./lure/context/ExitLayer"
 
 //
 export * from "./lure/misc/Glit"
