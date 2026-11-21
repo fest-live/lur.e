@@ -501,6 +501,66 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
         createShadowRoot(): ShadowRoot {
             return this.shadowRoot ?? this.attachShadow({ mode: "open" }) as ShadowRoot;
         }
+        
+        #initialize() {
+            const weak = new WeakRef(this);
+            const shadowRoot = isNotExtended(this)
+                ? (this.createShadowRoot?.() ?? this.shadowRoot ?? this.attachShadow({ mode: "open" }))
+                : this.shadowRoot;
+
+            // Инициализация свойств
+            const ctor = this.constructor as any;
+            const init = (this as any).$init ?? (ctor as any).prototype?.$init;
+            if (typeof init === "function") init.call(this);
+
+            // Установка атрибутов
+            const attrs = typeof this.initialAttributes == "function"
+                ? (this.initialAttributes as () => Record<string, any>)()
+                : this.initialAttributes;
+            setAttributesIfNull(this, attrs);
+
+            this.onInitialize?.call(this, weak);
+
+            (this as any)[inRenderKey] = true;
+
+            if (isNotExtended(this) && shadowRoot) {
+                const rendered = this.render?.call?.(this, weak) ?? document.createElement("slot");
+                let styleElement: HTMLStyleElement | null = null;
+                try {
+                    styleElement = loadCachedStyles(this, this.styles);
+                } catch (error) {
+                    console.warn("Error applying host styles:", error);
+                }
+
+                if (styleElement instanceof HTMLStyleElement) {
+                    this.#styleElement = styleElement;
+                }
+
+                const elements = [
+                    H`<style data-type="ux-layer" prop:innerHTML=${this.$makeLayers()}></style>`,
+                    this.#defaultStyle,
+                    ...(this.styleLibs.map(x => x.cloneNode?.(true)) || []),
+                    styleElement,
+                    rendered
+                ].filter((x): x is Node => x != null && (isElement(x) as unknown as boolean));
+
+                shadowRoot.append(...elements);
+
+                const adoptedSheets = adoptedStyleSheetsCache.get(this) || [];
+                if (adoptedSheets.length > 0) {
+                    shadowRoot.adoptedStyleSheets = [
+                        ...adoptedSheets.filter((s: CSSStyleSheet) => !shadowRoot.adoptedStyleSheets?.includes(s)),
+                        ...new Set([...(shadowRoot.adoptedStyleSheets || [])])
+                    ];
+                }
+            }
+
+            this.onRender?.call?.(this, weak);
+            delete (this as any)[inRenderKey];
+            if (shadowRoot) {
+                addRoot(shadowRoot);
+            }
+        }
 
         // ============================================
         // LIFECYCLE CALLBACKS
@@ -515,67 +575,11 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
                 super.connectedCallback();
             }
 
-            const weak = new WeakRef(this);
-
             if (!this.#initialized) {
                 this.#initialized = true;
-                const shadowRoot = isNotExtended(this)
-                    ? (this.createShadowRoot?.() ?? this.shadowRoot ?? this.attachShadow({ mode: "open" }))
-                    : this.shadowRoot;
-
-                // Инициализация свойств
-                const ctor = this.constructor as any;
-                const init = (this as any).$init ?? (ctor as any).prototype?.$init;
-                if (typeof init === "function") init.call(this);
-
-                // Установка атрибутов
-                const attrs = typeof this.initialAttributes == "function"
-                    ? (this.initialAttributes as () => Record<string, any>)()
-                    : this.initialAttributes;
-                setAttributesIfNull(this, attrs);
-
-                this.onInitialize?.call(this, weak);
-
-                (this as any)[inRenderKey] = true;
-
-                if (isNotExtended(this) && shadowRoot) {
-                    const rendered = this.render?.call?.(this, weak) ?? document.createElement("slot");
-                    let styleElement: HTMLStyleElement | null = null;
-                    try {
-                        styleElement = loadCachedStyles(this, this.styles);
-                    } catch (error) {
-                        console.warn("Error applying host styles:", error);
-                    }
-
-                    if (styleElement instanceof HTMLStyleElement) {
-                        this.#styleElement = styleElement;
-                    }
-
-                    const elements = [
-                        H`<style data-type="ux-layer" prop:innerHTML=${this.$makeLayers()}></style>`,
-                        this.#defaultStyle,
-                        ...(this.styleLibs.map(x => x.cloneNode?.(true)) || []),
-                        styleElement,
-                        rendered
-                    ].filter((x): x is Node => x != null && (isElement(x) as unknown as boolean));
-
-                    shadowRoot.append(...elements);
-
-                    const adoptedSheets = adoptedStyleSheetsCache.get(this) || [];
-                    if (adoptedSheets.length > 0) {
-                        shadowRoot.adoptedStyleSheets = [
-                            ...adoptedSheets.filter((s: CSSStyleSheet) => !shadowRoot.adoptedStyleSheets?.includes(s)),
-                            ...new Set([...(shadowRoot.adoptedStyleSheets || [])])
-                        ];
-                    }
-                }
-
-                this.onRender?.call?.(this, weak);
-                delete (this as any)[inRenderKey];
-                if (shadowRoot) {
-                    addRoot(shadowRoot);
-                }
+                this.#initialize();
             }
+
             // WHY: first paint and late upgrade both miss adopted sheets; apply after this turn (icon sheet, H``).
             scheduleEnsureHostStyles(this);
         }
@@ -596,6 +600,12 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
             if (super.adoptedCallback) {
                 super.adoptedCallback();
             }
+
+            if (!this.#initialized) {
+                this.#initialized = true;
+                this.#initialize();
+            }
+
             scheduleEnsureHostStyles(this);
         }
 
