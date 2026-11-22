@@ -25,7 +25,7 @@ export type NodeLifecycle = {
     /** true / ExitLayerOptions → play the exit in the fixed top-layer host. */
     exitLayer?: boolean | ExitLayerOptions | null;
 };
-import type { ExitLayerOptions } from "./ExitLayer";
+export type { ExitLayerOptions } from "./ExitLayer";
 
 //
 export const KIDNAP_WITHOUT_HANG = (el: any, requestor: any | null) => {
