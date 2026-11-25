@@ -363,3 +363,56 @@ export const T = (ref) => {
 
 //
 export default getNode;
+
+const patched = new WeakSet();
+const unwrap = (value) => value?.element ?? value;
+
+// null — обработать все аргументы; массив — только указанные позиции.
+const methods = {
+    append: null,
+    prepend: null,
+    before: null,
+    after: null,
+    replaceWith: null,
+    replaceChildren: null,
+
+    appendChild: [0],
+    removeChild: [0],
+    insertBefore: [0, 1],           // новый узел и узел-ориентир
+    replaceChild: [0, 1],          // новый и старый узлы
+    insertAdjacentElement: [1],   // позицию (аргумент 0) не трогаем
+    moveBefore: [0, 1],            // если поддерживается браузером
+};
+
+export function installLurDOMPatch(realm = globalThis) {
+    const proto = realm?.HTMLElement?.prototype;
+    if (!proto || patched.has(proto)) return;
+
+    for (const [name, indices] of Object.entries(methods)) {
+        const original = proto[name];
+        if (typeof original !== "function") continue;
+
+        Object.defineProperty(proto, name, {
+            configurable: true,
+            writable: true,
+            enumerable: false,
+            value: function (...args) {
+                if (indices === null) {
+                    for (let i = 0; i < args.length; i++) {
+                        args[i] = unwrap(args[i]);
+                    }
+                } else {
+                    for (const i of indices) {
+                        if (i < args.length) args[i] = unwrap(args[i]);
+                    }
+                }
+
+                return Reflect.apply(original, this, args);
+            },
+        });
+    }
+
+    patched.add(proto);
+}
+
+installLurDOMPatch();
