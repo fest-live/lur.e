@@ -227,8 +227,9 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
     $entries(classList).forEach(([prop, value]) => {
         const el = element;
         if (typeof value == "undefined" || value == null)
-            { if ( el.classList.contains(value)) { el.classList.remove(value); } } else
-            { if (!el.classList.contains(value)) { el.classList.add(value); }
+        { if (el?.classList?.contains?.(value)) { el?.classList?.remove?.(value); } } else
+        {
+            if (!el?.classList?.contains?.(value)) { el?.classList?.add?.(value); }
         }
     });
 
@@ -237,8 +238,9 @@ export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=
         const el = wel?.deref?.();
         if (el) {
             if (typeof value == "undefined" || value == null)
-                { if ( el.classList.contains(value)) { el.classList.remove(value); } } else
-                { if (!el.classList.contains(value)) { el.classList.add(value); }
+            { if (el?.classList?.contains?.(value)) { el?.classList?.remove?.(value); } } else
+            {
+                if (!el?.classList?.contains?.(value)) { el?.classList?.add?.(value); }
             }
         }
     }));
