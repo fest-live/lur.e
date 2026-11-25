@@ -223,8 +223,9 @@ export const reflectProperties = (element: HTMLElement, properties: any)=>{
 export const reflectClassList = (element: HTMLElement, classList?: Set<string>)=>{
     if (!classList) return element; const wel = new WeakRef(element);
 
-    //
-    $entries(classList).forEach(([prop, value]) => {
+    // INVARIANT: a Set yields values, not [key, value] pairs; destructuring a
+    // string class name splits it into characters ("page" → "p","a","g","e").
+    Array.from(classList).forEach((value) => {
         const el = element;
         if (typeof value == "undefined" || value == null)
         { if (el?.classList?.contains?.(value)) { el?.classList?.remove?.(value); } } else

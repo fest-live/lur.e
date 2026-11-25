@@ -365,7 +365,10 @@ export const T = (ref) => {
 export default getNode;
 
 const patched = new WeakSet();
-const unwrap = (value) => value?.element ?? value;
+// WHY: DOM patch needs proxy→element unwrap; named unwrapProxy so the
+// @fest-lib/object `unwrap` (observable $extractKey$) stays visible to
+// appendArray/appendChild/removeNotExists, which expect it.
+const unwrapProxy = (value) => value?.element ?? value;
 
 // null — обработать все аргументы; массив — только указанные позиции.
 const methods = {
@@ -399,11 +402,11 @@ export function installLurDOMPatch(realm = globalThis) {
             value: function (...args) {
                 if (indices === null) {
                     for (let i = 0; i < args.length; i++) {
-                        args[i] = unwrap(args[i]);
+                        args[i] = unwrapProxy(args[i]);
                     }
                 } else {
                     for (const i of indices) {
-                        if (i < args.length) args[i] = unwrap(args[i]);
+                        if (i < args.length) args[i] = unwrapProxy(args[i]);
                     }
                 }
 

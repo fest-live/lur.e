@@ -1019,6 +1019,12 @@ class UniversalElementHandler implements ProxyHandler<object> {
 
         // for BLU.E
         if (name == "element") {
+            // INVARIANT: a host-element Q proxy (null selector) must resolve to the
+            // host itself. `_getArray` grows past [host] via observeBySelector
+            // (children get pushed as they mount), so a length>1 check here built
+            // a DocumentFragment of [host, ...children]; appending that fragment
+            // re-parented subtrees and emptied host.parentNode (flat DOM).
+            if (this.selector == null) return (selected?.element ?? selected);
             if (array?.length <= 1) return selected?.element ?? selected;
             const fragment = document.createDocumentFragment();
             fragment.append(...array); return fragment;
