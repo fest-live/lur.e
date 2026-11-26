@@ -35,6 +35,7 @@ import {
 } from "../core/Refs";
 import Q from "../node/Queried";
 import H from "./Syntax";
+import { appendArray } from "../context/Utils";
 
 
 //
@@ -63,9 +64,61 @@ const whenAxisValid = (name: string) => {
 };
 
 const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-const inRenderKey = Symbol.for("@render@");
 const defKeys = Symbol.for("@defKeys@");
+// The metadata lives on the decorated getter so it also works across module copies.
+const rawPropertyGetter = Symbol.for("lur.e@rawPropertyGetter");
 const defaultStyle = typeof document != "undefined" ? document?.createElement?.("style") : null;
+
+function findPropertyDescriptor(target: object, key: PropertyKey): PropertyDescriptor | undefined {
+    for (let current: object | null = target; current; current = Object.getPrototypeOf(current)) {
+        const descriptor = Object.getOwnPropertyDescriptor(current, key);
+        if (descriptor) return descriptor;
+    }
+    return undefined;
+}
+
+function getRawProperty(target: object, key: PropertyKey): any {
+    const descriptor = findPropertyDescriptor(target, key);
+    const getRaw = descriptor?.get && (descriptor.get as any)[rawPropertyGetter];
+    return typeof getRaw === "function" ? getRaw(target) : Reflect.get(target, key, target);
+}
+
+/**
+ * Only render sees raw decorated properties. All other access uses the real
+ * element as receiver, which is required by DOM accessors and native methods.
+ * Methods are bound to the real element; helpers therefore see ordinary values.
+ * A proxy is not private-field branded: render cannot access #private fields
+ * through this. Use weak?.deref() or a method bound to the actual element.
+ */
+function createRenderProxy<T extends HTMLElement>(target: T): T {
+    const boundMethods = new WeakMap<Function, Function>();
+    return new Proxy(target, {
+        get(element, key) {
+            const descriptor = findPropertyDescriptor(element, key);
+            const getRaw = descriptor?.get && (descriptor.get as any)[rawPropertyGetter];
+            if (typeof getRaw === "function") return getRaw(element);
+
+            const value = Reflect.get(element, key, element);
+            // Proxy invariants require the exact value of a frozen own property.
+            const own = Object.getOwnPropertyDescriptor(element, key);
+            if (own && !own.configurable && "value" in own && !own.writable) return value;
+
+            // Bind prototype methods (including native DOM methods) to the real
+            // element. Do not bind function-valued instance fields or getters.
+            if (key !== "constructor" && !own && descriptor?.value === value && typeof value === "function") {
+                const cached = boundMethods.get(value);
+                if (cached) return cached;
+                const bound = (value as Function).bind(element);
+                boundMethods.set(value, bound);
+                return bound;
+            }
+            return value;
+        },
+        set(element, key, value) {
+            return Reflect.set(element, key, value, element);
+        },
+    });
+}
 
 const defineSource = (source: string | any, holder: any, name?: string | null) => {
     if (source == "attr") return attrRef.bind(null, holder, name || "");
@@ -120,10 +173,10 @@ if (defaultStyle) {
  * Интерфейс lifecycle callbacks для Custom Elements
  */
 export interface CustomElementLifecycle {
-    connectedCallback?(): this|void|undefined;
-    disconnectedCallback?(): this|void|undefined;
-    adoptedCallback?(): this|void|undefined;
-    attributeChangedCallback?(name: string, oldValue: string | null, newValue: string | null): this|void|undefined;
+    connectedCallback?(): this | void | undefined;
+    disconnectedCallback?(): this | void | undefined;
+    adoptedCallback?(): this | void | undefined;
+    attributeChangedCallback?(name: string, oldValue: string | null, newValue: string | null): this | void | undefined;
 }
 
 /**
@@ -137,7 +190,7 @@ export interface CustomElementStatic {
 /**
  * Базовый интерфейс для Custom Element с lifecycle
  */
-export interface CustomElementBase extends HTMLElement, CustomElementLifecycle {}
+export interface CustomElementBase extends HTMLElement, CustomElementLifecycle { }
 
 /**
  * Интерфейс для расширенных свойств GLitElement
@@ -148,10 +201,10 @@ export interface GLitElementInstance extends CustomElementLifecycle {
     styleLibs: HTMLStyleElement[];
     adoptedStyleSheets: CSSStyleSheet[];
     styleLayers(): string[];
-    render(weak?: WeakRef<any>): HTMLElement | DocumentFragment | Node;
-    onInitialize(weak?: WeakRef<any>): this|void|undefined;
-    onRender(weak?: WeakRef<any>): this|void|undefined;
-    loadStyleLibrary(module: any): this|void|undefined;
+    render(weak?: WeakRef<any>): Node | PromiseLike<Node>;
+    onInitialize(weak?: WeakRef<any>): this | void | undefined;
+    onRender(weak?: WeakRef<any>): this | void | undefined;
+    loadStyleLibrary(module: any): this | void | undefined;
     createShadowRoot(): ShadowRoot;
     $init?(): void;
 }
@@ -175,7 +228,7 @@ export type GLitElementConstructor<T extends HTMLElement = HTMLElement> = {
 /**
  * Тип для класса, который можно расширять
  */
-export type GLitElementClass<T extends HTMLElement = HTMLElement> = 
+export type GLitElementClass<T extends HTMLElement = HTMLElement> =
     GLitElementConstructor<T> & {
         new(...args: any[]): T & GLitElementInstance & CustomElementLifecycle;
     };
@@ -220,7 +273,7 @@ export function withProperties<T extends HTMLElementConstructor>(ctr: T): T {
                 if (preferred != null && preferred !== "") {
                     this[key] = preferred;
                 }
-            } catch (e) {}
+            } catch (e) { }
         }
 
         return this;
@@ -239,7 +292,7 @@ export function generateName(length = 8) {
 }
 
 export function defineElement(name: string, options?: ElementDefinitionOptions) {
-    return function <T extends HTMLElementConstructor|HTMLElement>(target: T, _key?: string): T {
+    return function <T extends HTMLElementConstructor | HTMLElement>(target: T, _key?: string): T {
         const registry = (globalThis as unknown as { customElements?: CustomElementRegistry | null })?.customElements;
         try {
             if (!registry || !name) return target;
@@ -282,30 +335,30 @@ export function property(options: PropertyOptions = {}) {
 
         if (!Object.hasOwn(target, defKeys)) target[defKeys] = {};
 
-        target[defKeys][key] = {
-            get(this: any) {
-                const ROOT = this;
-                const inRender = ROOT[inRenderKey];
-                const sourceTarget = !from ? ROOT : (from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT));
+        const getStored = (ROOT: any) => {
+            const sourceTarget = !from ? ROOT : (from instanceof HTMLElement ? from : (typeof from == "string" ? Q?.(from, ROOT) : ROOT));
+            let store = propStore.get(ROOT);
+            let stored = store?.get?.(key);
 
-                let store = propStore.get(ROOT);
-                let stored = store?.get?.(key);
-
-                if (stored == null && source != null) {
-                    if (!store) {
-                        propStore.set(ROOT, store = new Map());
-                    }
-                    if (!store?.has?.(key)) {
-                        store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source)));
-                    }
+            if (stored == null && source != null) {
+                if (!store) {
+                    propStore.set(ROOT, store = new Map());
                 }
+                if (!store?.has?.(key)) {
+                    store?.set?.(key, stored = defineSource(source, sourceTarget, name || key)?.(getDef(source)));
+                }
+            }
+            return stored;
+        };
 
-                if (inRender) return stored;
+        const descriptor: PropertyDescriptor = {
+            get(this: any) {
+                const stored = getStored(this);
                 if (stored?.element instanceof HTMLElement) return stored?.element;
                 // WHY: Q() proxy is always truthy; unresolved query must be null so
                 // `titleHandler ?? shadow.querySelector(...)` and `instanceof HTMLElement` work.
                 if (source == "query" || source == "query-shadow") return null;
-                return ((typeof stored == "object" || typeof stored == "function") && (stored?.value != null || "value" in stored)) ? stored?.value : stored;
+                return (stored != null && (typeof stored == "object" || typeof stored == "function") && (stored?.value != null || "value" in stored)) ? stored?.value : stored;
             },
             set(this: any, newValue: any) {
                 const ROOT = this;
@@ -337,6 +390,8 @@ export function property(options: PropertyOptions = {}) {
             enumerable: true,
             configurable: true,
         };
+        Object.defineProperty(descriptor.get!, rawPropertyGetter, { value: getStored });
+        target[defKeys][key] = descriptor;
     };
 }
 
@@ -401,7 +456,7 @@ export const customElement = defineElement;
 export function GLitElement<T extends HTMLElement = HTMLElement>(
     derivate?: HTMLElementConstructor<T>
 ): GLitElementClass<T> {
-    const fallbackBase = ((globalThis as unknown as { HTMLElement?: typeof HTMLElement }).HTMLElement ?? class {}) as HTMLElementConstructor<T>;
+    const fallbackBase = ((globalThis as unknown as { HTMLElement?: typeof HTMLElement }).HTMLElement ?? class { }) as HTMLElementConstructor<T>;
     const Base = (derivate ?? fallbackBase) as HTMLElementConstructor<T>;
 
     // Проверяем кэш
@@ -426,7 +481,7 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
 
         styleLayers(): string[] { return []; }
 
-        render(_weak?: WeakRef<any>): HTMLElement | DocumentFragment | Node {
+        render(_weak?: WeakRef<any>): Node | PromiseLike<Node> {
             return document.createElement("slot");
         }
 
@@ -434,8 +489,8 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
             super(...args);
             if (isNotExtended(this)) {
                 const shadowRoot = addRoot(
-                    this.shadowRoot ?? 
-                    (this as any).createShadowRoot?.() ?? 
+                    this.shadowRoot ??
+                    (this as any).createShadowRoot?.() ??
                     this.attachShadow({ mode: "open" })
                 );
                 const defStyle = (this.#defaultStyle ??= defaultStyle?.cloneNode?.(true) as HTMLStyleElement);
@@ -464,14 +519,7 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
         }
 
         protected getProperty(key: string): any {
-            const current = (this as any)[inRenderKey];
-            (this as any)[inRenderKey] = true;
-            const cp = (this as any)[key];
-            (this as any)[inRenderKey] = current;
-            if (!current) {
-                delete (this as any)[inRenderKey];
-            }
-            return cp;
+            return getRawProperty(this, key);
         }
 
         loadStyleLibrary($module: any): this {
@@ -501,7 +549,7 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
         createShadowRoot(): ShadowRoot {
             return this.shadowRoot ?? this.attachShadow({ mode: "open" }) as ShadowRoot;
         }
-        
+
         #initialize() {
             const weak = new WeakRef(this);
             const shadowRoot = isNotExtended(this)
@@ -521,10 +569,18 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
 
             this.onInitialize?.call(this, weak);
 
-            (this as any)[inRenderKey] = true;
-
             if (isNotExtended(this) && shadowRoot) {
-                const rendered = this.render?.call?.(this, weak) ?? document.createElement("slot");
+                let rendered: Node | PromiseLike<Node> | null | undefined;
+                try {
+                    // The proxy remains the receiver across await; the real element
+                    // and all other lifecycle work retain normal property access.
+                    rendered = this.render?.call?.(createRenderProxy(this), weak);
+                } catch (error) {
+                    console.warn("Error rendering element:", error);
+                    rendered = null;
+                }
+
+                // Styles and root setup must not wait for an asynchronous render.
                 let styleElement: HTMLStyleElement | null = null;
                 try {
                     styleElement = loadCachedStyles(this, this.styles);
@@ -540,11 +596,11 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
                     H`<style data-type="ux-layer" prop:innerHTML=${this.$makeLayers()}></style>`,
                     this.#defaultStyle,
                     ...(this.styleLibs.map(x => x.cloneNode?.(true)) || []),
-                    styleElement,
-                    rendered
+                    styleElement
                 ].filter((x): x is Node => x != null && (isElement(x) as unknown as boolean));
 
-                shadowRoot.append(...elements);
+                appendArray(shadowRoot, elements);
+                //shadowRoot.append(...elements);
 
                 const adoptedSheets = adoptedStyleSheetsCache.get(this) || [];
                 if (adoptedSheets.length > 0) {
@@ -553,12 +609,30 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
                         ...new Set([...(shadowRoot.adoptedStyleSheets || [])])
                     ];
                 }
-            }
 
-            this.onRender?.call?.(this, weak);
-            delete (this as any)[inRenderKey];
-            if (shadowRoot) {
-                addRoot(shadowRoot);
+                const finishRender = (node: Node | null | undefined) => {
+                    // DocumentFragment and other Node types are valid render results.
+                    shadowRoot.append(node ?? shadowRoot.ownerDocument.createElement("slot"));
+                    this.onRender?.call?.(this, weak);
+                    addRoot(shadowRoot);
+                };
+
+                if (rendered != null && typeof (rendered as PromiseLike<Node>).then === "function") {
+                    addRoot(shadowRoot);
+                    void Promise.resolve(rendered).then(
+                        node => finishRender(node),
+                        error => {
+                            console.warn("Error rendering element:", error);
+                            finishRender(null);
+                        }
+                    ).catch(error => console.error("Error completing render:", error));
+                } else {
+                    // Preserve synchronous rendering and onRender timing.
+                    finishRender(rendered as Node | null | undefined);
+                }
+            } else {
+                this.onRender?.call?.(this, weak);
+                if (shadowRoot) addRoot(shadowRoot);
             }
         }
 
@@ -641,7 +715,7 @@ export function GLitElement<T extends HTMLElement = HTMLElement>(
 /**
  * Тип для использования в декораторах классов
  */
-export type GLitElementDecorated<T extends HTMLElement = HTMLElement> = 
+export type GLitElementDecorated<T extends HTMLElement = HTMLElement> =
     InstanceType<GLitElementClass<T>>;
 
 /**
