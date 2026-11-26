@@ -272,12 +272,12 @@ export const replaceOrSwap = (parent, oldEl, newEl) => {
 export const replaceChildren = (element, cp, mapper?: Function | null, index: number = -1, old?: any|null, lifecycle?: NodeLifecycle) => {
     if (mapper != null) { cp = mapper?.(cp, index); }; if (!element) element = old?.parentNode;
     const cn = dePhantomNode(element, getNode(old, mapper, index), index);
-    if (cn instanceof Text && typeof cp == "string") { cn.textContent = cp; } else
+    if (cn instanceof Text && typeof cp == "string") { cn.data = cp; } else
     if (cp != null) {
         const node = getNode(cp); // oldNode is always unknown and phantom
 
         if (cn?.parentNode == element && cn != node && (cn instanceof Text && node instanceof Text)) {
-            if (cn?.textContent != node?.textContent) { cn.textContent = node?.textContent?.trim?.() ?? ""; }
+            if ((cn?.textContent || cn?.data) != (node?.textContent || node?.data)) { cn.data = (node?.textContent || node?.data)?.trim?.() ?? ""; }
         } else
         if (cn?.parentNode == element && cn != node && cn != null && cn?.parentNode != null) {
             replaceOrSwap(element, cn, node);
@@ -354,7 +354,7 @@ export const T = (ref) => {
             //affected([ref, "value"], (val) => (element.textContent = (val?.innerText ?? val?.textContent ?? val ?? "")?.trim?.() ?? ""));
             affected([ref, "value"], (val) => {
                 const untrimmed = "" + (val?.innerText ?? val?.textContent ?? val?.value ?? val ?? "");
-                (element.textContent = untrimmed?.trim?.() ?? "");
+                (element.data = untrimmed?.trim?.() ?? "");
             });
             return element;
         });
